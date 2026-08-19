@@ -1,17 +1,107 @@
-function doPost(e) {
-  var ss = SpreadsheetApp.openById("1-3r0tPvlfoqvC0KX1ZWKVoLFOZAX8vuvPpa04QwYZY8");
-  var sheetName = e.parameter.accion;
-  var sheet = ss.getSheetByName(sheetName);
-  
-  var ahora = new Date();
-  var fecha = Utilities.formatDate(ahora, "GMT-6", "dd/MM/yyyy");
-  var hora = Utilities.formatDate(ahora, "GMT-6", "HH:mm:ss");
-  
-  if (sheetName === "Asistencia") {
-    sheet.appendRow([fecha, hora, e.parameter.tipo, e.parameter.empleado]);
-  } else if (sheetName === "Pedidos") {
-    sheet.appendRow([fecha, hora, e.parameter.empleado, e.parameter.producto, e.parameter.cantidad, "Pendiente"]);
-  }
-  
-  return ContentService.createTextOutput("Éxito").setMimeType(ContentService.MimeType.TEXT);
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Operativo</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
+        .card { background: white; padding: 20px; margin: 20px auto; width: 300px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #218838; }
+        input { padding: 8px; margin: 5px; width: 80%; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <h1>Control de Asistencia y Pedidos</h1>
+
+    <!-- Sección de Asistencia -->
+    <div class="card">
+        <h3>Registrar Asistencia</h3>
+        <input type="text" id="nombreEmpleado" placeholder="Nombre del Empleado">
+        <br>
+        <button onclick="registrarAsistencia('Entrada')">Entrada</button>
+        <button onclick="registrarAsistencia('Salida')">Salida</button>
+    </div>
+
+    <!-- Sección de Pedidos -->
+    <div class="card">
+        <h3>Hacer Pedido</h3>
+        <input type="text" id="empleadoPedido" placeholder="Tu Nombre">
+        <br>
+        <input type="text" id="productoPedido" placeholder="Producto">
+        <br>
+        <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
+        <br>
+        <button onclick="enviarPedido()">Enviar Pedido</button>
+    </div>
+
+    <script>
+        // Tu URL de la API de Google Apps Script ya conectada
+        const URL_API = "https://script.google.com/macros/s/AKfycbyGkLeBaw3Qb6PO_3fFHPgYKw9bGoZocPainbHE7eT3pIcRpZ2i2Jsc_SEUX7fIbKeZ/exec";
+
+        // Función para registrar Asistencia (Entrada / Salida)
+        function registrarAsistencia(tipo) {
+            const empleado = document.getElementById("nombreEmpleado").value.trim();
+            if (!empleado) {
+                alert("Por favor escribe el nombre del empleado.");
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.append("accion", "Asistencia");
+            params.append("tipo", tipo);
+            params.append("empleado", empleado);
+
+            fetch(URL_API, {
+                method: "POST",
+                body: params
+            })
+            .then(res => res.text())
+            .then(data => {
+                alert("¡Asistencia de " + tipo + " registrada con éxito!");
+                document.getElementById("nombreEmpleado").value = "";
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("Hubo un error al registrar.");
+            });
+        }
+
+        // Función para registrar Pedidos
+        function enviarPedido() {
+            const empleado = document.getElementById("empleadoPedido").value.trim();
+            const producto = document.getElementById("productoPedido").value.trim();
+            const cantidad = document.getElementById("cantidadPedido").value.trim();
+
+            if (!empleado || !producto || !cantidad) {
+                alert("Por favor completa todos los campos del pedido.");
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.append("accion", "Pedidos");
+            params.append("empleado", empleado);
+            params.append("producto", producto);
+            params.append("cantidad", cantidad);
+
+            fetch(URL_API, {
+                method: "POST",
+                body: params
+            })
+            .then(res => res.text())
+            .then(data => {
+                alert("¡Pedido enviado correctamente!");
+                document.getElementById("productoPedido").value = "";
+                document.getElementById("cantidadPedido").value = "1";
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("Hubo un error al enviar el pedido.");
+            });
+        }
+    </script>
+
+</body>
+</html>
