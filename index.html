@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Operativo - Mini Super</title>
+    <title>Control Operativo - Online Shop</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; background-color: #f4f4f9; color: #333; }
-        .card { background: white; padding: 20px; margin: 15px auto; width: 320px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); }
-        h3 { color: #333; margin-top: 0; }
-        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; }
-        button:hover { background-color: #218838; }
-        select, input { padding: 10px; margin: 8px 0; width: 90%; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; margin: 0; padding: 20px; background-color: #f4f4f9; color: #333; }
         
-        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
+        /* Cabecera de bienvenida */
+        .welcome-header { background: #ffffff; padding: 20px; border-radius: 12px; max-width: 350px; margin: 20px auto; box-shadow: 0px 4px 10px rgba(0,0,0,0.05); }
+        .welcome-header h1 { margin: 0 0 5px 0; color: #f39c12; font-size: 22px; }
+        .welcome-header p { margin: 0; color: #666; font-size: 14px; }
+
+        .card { background: white; padding: 20px; margin: 15px auto; width: 320px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); }
+        h3 { color: #333; margin-top: 0; font-size: 17px; }
+        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        button:hover { filter: brightness(90%); }
+        select, input { padding: 10px; margin: 8px 0; width: 90%; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; outline: none; }
+        
+        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 650px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
         th { background-color: #f8f9fa; }
@@ -21,39 +27,48 @@
 </head>
 <body>
 
-    <h1>Control Operativo</h1>
-
-    <div class="card">
-        <h3>Registrar Asistencia</h3>
-        <select id="nombreEmpleado"><option value="">Cargando nombres...</option></select>
-        <br>
-        <button onclick="registrarAsistencia('Entrada')">Entrada</button>
-        <button onclick="registrarAsistencia('Salida')">Salida</button>
+    <!-- Encabezado de Inicio / Bienvenida -->
+    <div class="welcome-header">
+        <h1>Online Shop</h1>
+        <p>Control Operativo de Personal</p>
     </div>
 
+    <!-- Sección de Asistencia -->
     <div class="card">
-        <h3>Hacer Pedido</h3>
+        <h3>⏰ Registrar Asistencia</h3>
+        <select id="nombreEmpleado"><option value="">Cargando nombres...</option></select>
+        <br>
+        <button onclick="registrarAsistencia('Entrada')" style="background-color: #28a745;">Entrada</button>
+        <button onclick="registrarAsistencia('Salida')" style="background-color: #dc3545;">Salida</button>
+    </div>
+
+    <!-- Sección de Pedidos -->
+    <div class="card">
+        <h3>🛒 Hacer Pedido</h3>
         <select id="empleadoPedido"><option value="">Cargando nombres...</option></select>
         <br>
-        <input type="text" id="productoPedido" placeholder="Producto">
+        <input type="text" id="productoPedido" placeholder="Nombre del producto">
         <br>
         <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
         <br>
-        <button onclick="enviarPedido()">Enviar Pedido</button>
+        <button onclick="enviarPedido()" style="background-color: #007bff;">Enviar Pedido</button>
     </div>
 
-    <div style="margin: 40px 0;">
-        <button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 13px; padding: 8px 12px;">🔒 Panel de Supervisor</button>
+    <!-- Botón de Acceso a Supervisor -->
+    <div style="margin: 30px 0;">
+        <button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 13px; padding: 8px 14px;">🔒 Panel de Supervisor</button>
     </div>
 
+    <!-- Modal de Contraseña -->
     <div id="loginModal" class="login-box" style="display:none;">
         <h3>Clave de Supervisor</h3>
         <input type="password" id="adminPassword" placeholder="Contraseña">
         <br>
         <button onclick="verificarPassword()" style="background-color: #007bff;">Ingresar</button>
-        <button onclick="ocultarLogin()" style="background-color: #dc3545;">Cancelar</button>
+        <button onclick="ocultarLogin()" style="background-color: #6c757d;">Cancelar</button>
     </div>
 
+    <!-- Panel de Historial (Oculto) -->
     <div id="supervisorSection">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; color: #007bff;">Historial General</h3>
@@ -84,22 +99,22 @@
 
         function registrarAsistencia(tipo) {
             const emp = document.getElementById("nombreEmpleado").value;
-            if (!emp) return alert("Selecciona un nombre.");
+            if (!emp) return alert("Por favor selecciona tu nombre.");
             const params = new URLSearchParams({accion: "Asistencia", tipo: tipo, empleado: emp});
-            fetch(URL_API, { method: "POST", body: params }).then(() => { alert("¡Registrado!"); document.getElementById("nombreEmpleado").value = ""; });
+            fetch(URL_API, { method: "POST", body: params }).then(() => { alert("¡Asistencia de " + tipo + " registrada con éxito!"); document.getElementById("nombreEmpleado").value = ""; });
         }
 
         function enviarPedido() {
             const emp = document.getElementById("empleadoPedido").value;
             const prod = document.getElementById("productoPedido").value.trim();
             const cant = document.getElementById("cantidadPedido").value.trim();
-            if (!emp || !prod || !cant) return alert("Completa los campos.");
+            if (!emp || !prod || !cant) return alert("Por favor completa todos los campos.");
             const params = new URLSearchParams({accion: "Pedidos", empleado: emp, producto: prod, cantidad: cant});
-            fetch(URL_API, { method: "POST", body: params }).then(() => { alert("¡Pedido enviado!"); document.getElementById("productoPedido").value = ""; });
+            fetch(URL_API, { method: "POST", body: params }).then(() => { alert("¡Pedido enviado correctamente!"); document.getElementById("productoPedido").value = ""; document.getElementById("cantidadPedido").value = "1"; });
         }
 
         function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
-        function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; }
+        function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; document.getElementById("adminPassword").value = ""; }
         
         function verificarPassword() {
             if (document.getElementById("adminPassword").value === "1234") { 
