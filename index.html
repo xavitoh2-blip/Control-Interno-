@@ -30,7 +30,7 @@
     <div id="pantallaLogin" class="card">
         <h3>Iniciar Turno</h3>
         
-        <select id="selectSucursal">
+        <select id="selectSucursal" onchange="filtrarNombresPorSucursal()">
             <option value="">Cargando sucursales...</option>
         </select>
         <br>
@@ -110,11 +110,13 @@
         const URL_API = "https://script.google.com/macros/s/AKfycbx4JRYjWcAx08jz9tK0AJQxkALnbjPCkpPz0qSwBOzftL-gdJtHrI--bGpzs9QQPcZI/exec";
         let usuarioActual = "";
         let sucursalActual = "";
+        let listaGlobalNombres = [];
 
         window.onload = function() {
             fetch(URL_API)
                 .then(res => res.json())
                 .then(data => {
+                    // Cargar Sucursales
                     const selectSuc = document.getElementById("selectSucursal");
                     selectSuc.innerHTML = '<option value="">-- Selecciona Sucursal --</option>';
                     if(data.sucursales) {
@@ -125,17 +127,31 @@
                         });
                     }
 
-                    const selectEmp = document.getElementById("nombreEmpleado");
-                    selectEmp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+                    // Guardar nombres globalmente para filtrarlos después
                     if(data.nombres) {
-                        data.nombres.forEach(n => {
-                            if(n[0] && n[0].toString().trim() !== "") {
-                                selectEmp.innerHTML += `<option value="${n[0]}">${n[0]}</option>`;
-                            }
-                        });
+                        listaGlobalNombres = data.nombres;
                     }
                 });
         };
+
+        function filtrarNombresPorSucursal() {
+            const sucursalSeleccionada = document.getElementById("selectSucursal").value;
+            const selectEmp = document.getElementById("nombreEmpleado");
+            
+            selectEmp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+            
+            if (!sucursalSeleccionada) return;
+
+            // Filtrar los empleados que coincidan con la sucursal elegida (Columna A: Nombre, Columna B: Sucursal)
+            listaGlobalNombres.forEach(row => {
+                let nombre = row[0] ? row[0].toString().trim() : "";
+                let sucursalEmpleado = row[1] ? row[1].toString().trim() : "";
+
+                if (nombre && sucursalEmpleado === sucursalSeleccionada) {
+                    selectEmp.innerHTML += `<option value="${nombre}">${nombre}</option>`;
+                }
+            });
+        }
 
         function iniciarSesion() {
             sucursalActual = document.getElementById("selectSucursal").value;
@@ -155,7 +171,7 @@
             usuarioActual = "";
             sucursalActual = "";
             document.getElementById("selectSucursal").value = "";
-            document.getElementById("nombreEmpleado").value = "";
+            document.getElementById("nombreEmpleado").innerHTML = '<option value="">-- Primero selecciona sucursal --</option>';
             document.getElementById("pantallaPrincipal").style.display = "none";
             document.getElementById("pantallaLogin").style.display = "block";
             document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
