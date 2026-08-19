@@ -3,48 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Operativo</title>
+    <title>Control Operativo - Mini Super</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 40px; background-color: #f4f4f9; }
-        .card { background: white; padding: 20px; margin: 20px auto; width: 320px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
-        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; background-color: #f4f4f9; color: #333; }
+        .card { background: white; padding: 20px; margin: 15px auto; width: 320px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); }
+        h3 { color: #333; margin-top: 0; }
+        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; }
         button:hover { background-color: #218838; }
-        select, input { padding: 8px; margin: 5px; width: 85%; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
+        select, input { padding: 10px; margin: 8px 0; width: 90%; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+        
+        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f8f9fa; }
+        .login-box { margin: 30px auto; padding: 20px; background: white; width: 300px; border-radius: 10px; box-shadow: 0px 2px 8px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
-    <h1>Control de Asistencia y Pedidos</h1>
+    <h1>Control Operativo</h1>
 
-    <!-- Sección de Asistencia con Lista Desplegable -->
     <div class="card">
         <h3>Registrar Asistencia</h3>
-        <select id="nombreEmpleado">
-            <option value="">-- Selecciona tu nombre --</option>
-            <option value="ANA RUTH">ANA RUTH</option>
-            <option value="ROSA">ROSA</option>
-            <option value="DARLYN">DARLYN</option>
-            <option value="JOSELIN">JOSELIN</option>
-            <option value="PAOLA">PAOLA</option>
-            <option value="BRENDALI">BRENDALI</option>
-        </select>
+        <select id="nombreEmpleado"><option value="">Cargando nombres...</option></select>
         <br>
         <button onclick="registrarAsistencia('Entrada')">Entrada</button>
         <button onclick="registrarAsistencia('Salida')">Salida</button>
     </div>
 
-    <!-- Sección de Pedidos -->
     <div class="card">
         <h3>Hacer Pedido</h3>
-        <select id="empleadoPedido">
-            <option value="">-- Selecciona tu nombre --</option>
-            <option value="ANA RUTH">ANA RUTH</option>
-            <option value="ROSA">ROSA</option>
-            <option value="DARLYN">DARLYN</option>
-            <option value="JOSELIN">JOSELIN</option>
-            <option value="PAOLA">PAOLA</option>
-            <option value="BRENDALI">BRENDALI</option>
-        </select>
+        <select id="empleadoPedido"><option value="">Cargando nombres...</option></select>
         <br>
         <input type="text" id="productoPedido" placeholder="Producto">
         <br>
@@ -53,62 +42,85 @@
         <button onclick="enviarPedido()">Enviar Pedido</button>
     </div>
 
+    <div style="margin: 40px 0;">
+        <button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 13px; padding: 8px 12px;">🔒 Panel de Supervisor</button>
+    </div>
+
+    <div id="loginModal" class="login-box" style="display:none;">
+        <h3>Clave de Supervisor</h3>
+        <input type="password" id="adminPassword" placeholder="Contraseña">
+        <br>
+        <button onclick="verificarPassword()" style="background-color: #007bff;">Ingresar</button>
+        <button onclick="ocultarLogin()" style="background-color: #dc3545;">Cancelar</button>
+    </div>
+
+    <div id="supervisorSection">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: #007bff;">Historial General</h3>
+            <button onclick="cerrarSupervisor()" style="background-color: #dc3545; padding: 5px 10px; font-size: 12px;">Cerrar</button>
+        </div>
+        
+        <h4>Asistencias</h4>
+        <div style="overflow-x: auto; max-height: 200px;"><table id="tablaAsistencia"><tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Empleado</th></tr></table></div>
+
+        <h4>Pedidos</h4>
+        <div style="overflow-x: auto; max-height: 200px;"><table id="tablaPedidos"><tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr></table></div>
+    </div>
+
     <script>
-        const URL_API = "https://script.google.com/macros/s/AKfycbyGkLeBaw3Qb6PO_3fFHPgYKw9bGoZocPainbHE7eT3pIcRpZ2i2Jsc_SEUX7fIbKeZ/exec";
+        const URL_API = "https://script.google.com/macros/s/AKfycbzcX-rubmNtQ99Fyhu_3x3C7Q1gBaWxcZ84YtQRhKstvXuH35kQnvQVa1Y99izWckB3/exec";
+
+        window.onload = function() {
+            fetch(URL_API)
+                .then(res => res.json())
+                .then(data => {
+                    const selA = document.getElementById("nombreEmpleado");
+                    const selP = document.getElementById("empleadoPedido");
+                    selA.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+                    selP.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+                    data.forEach(n => { if(n[0] && n[0].trim() !== "") { selA.innerHTML += `<option value="${n[0]}">${n[0]}</option>`; selP.innerHTML += `<option value="${n[0]}">${n[0]}</option>`; } });
+                });
+        };
 
         function registrarAsistencia(tipo) {
-            const empleado = document.getElementById("nombreEmpleado").value;
-            if (!empleado) {
-                alert("Por favor selecciona un nombre de la lista.");
-                return;
-            }
-
-            const params = new URLSearchParams();
-            params.append("accion", "Asistencia");
-            params.append("tipo", tipo);
-            params.append("empleado", empleado);
-
-            fetch(URL_API, { method: "POST", body: params })
-            .then(res => res.text())
-            .then(data => {
-                alert("¡Asistencia de " + tipo + " registrada para " + empleado + "!");
-                document.getElementById("nombreEmpleado").value = "";
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                alert("Hubo un error al registrar.");
-            });
+            const emp = document.getElementById("nombreEmpleado").value;
+            if (!emp) return alert("Selecciona un nombre.");
+            const params = new URLSearchParams({accion: "Asistencia", tipo: tipo, empleado: emp});
+            fetch(URL_API, { method: "POST", body: params }).then(() => { alert("¡Registrado!"); document.getElementById("nombreEmpleado").value = ""; });
         }
 
         function enviarPedido() {
-            const empleado = document.getElementById("empleadoPedido").value;
-            const producto = document.getElementById("productoPedido").value.trim();
-            const cantidad = document.getElementById("cantidadPedido").value.trim();
+            const emp = document.getElementById("empleadoPedido").value;
+            const prod = document.getElementById("productoPedido").value.trim();
+            const cant = document.getElementById("cantidadPedido").value.trim();
+            if (!emp || !prod || !cant) return alert("Completa los campos.");
+            const params = new URLSearchParams({accion: "Pedidos", empleado: emp, producto: prod, cantidad: cant});
+            fetch(URL_API, { method: "POST", body: params }).then(() => { alert("¡Pedido enviado!"); document.getElementById("productoPedido").value = ""; });
+        }
 
-            if (!empleado || !producto || !cantidad) {
-                alert("Por favor completa todos los campos del pedido.");
-                return;
-            }
+        function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
+        function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; }
+        
+        function verificarPassword() {
+            if (document.getElementById("adminPassword").value === "1234") { 
+                ocultarLogin(); document.getElementById("supervisorSection").style.display = "block"; cargarHistorial();
+            } else { alert("Contraseña incorrecta"); }
+        }
 
-            const params = new URLSearchParams();
-            params.append("accion", "Pedidos");
-            params.append("empleado", empleado);
-            params.append("producto", producto);
-            params.append("cantidad", cantidad);
+        function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; }
 
-            fetch(URL_API, { method: "POST", body: params })
-            .then(res => res.text())
-            .then(data => {
-                alert("¡Pedido enviado correctamente!");
-                document.getElementById("productoPedido").value = "";
-                document.getElementById("cantidadPedido").value = "1";
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                alert("Hubo un error al enviar el pedido.");
+        function cargarHistorial() {
+            fetch(URL_API + "?accion=verAsistencia").then(r => r.json()).then(data => {
+                let html = "<tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Empleado</th></tr>";
+                for(let i = 1; i < data.length; i++) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td></tr>`;
+                document.getElementById("tablaAsistencia").innerHTML = html;
+            });
+            fetch(URL_API + "?accion=verPedidos").then(r => r.json()).then(data => {
+                let html = "<tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr>";
+                for(let i = 1; i < data.length; i++) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
+                document.getElementById("tablaPedidos").innerHTML = html;
             });
         }
     </script>
-
 </body>
 </html>
