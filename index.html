@@ -119,22 +119,23 @@
                     const selectSuc = document.getElementById("selectSucursal");
                     selectSuc.innerHTML = '<option value="">-- Selecciona Sucursal --</option>';
                     
+                    // Cargar sucursales desde la pestaña Sucursales
                     if(data.sucursales) {
                         data.sucursales.forEach(row => {
                             let sucursal = row[0] ? row[0].toString().trim() : "";
-                            if(sucursal !== "" && sucursal.toLowerCase() !== "sucursal") {
+                            if(sucursal !== "") {
                                 selectSuc.innerHTML += `<option value="${sucursal}">${sucursal}</option>`;
                             }
                         });
                     }
 
+                    // Guardar los nombres de la pestaña Nombres
                     if(data.nombres) {
                         listaGlobalNombres = data.nombres;
                     }
                 })
                 .catch(err => {
                     console.error("Error al cargar datos:", err);
-                    alert("Error al conectar con la base de datos.");
                 });
         };
 
@@ -146,6 +147,7 @@
             
             if (!sucursalSeleccionada) return;
 
+            // Filtrar empleados que coincidan con la sucursal elegida
             listaGlobalNombres.forEach(row => {
                 let nombre = row[0] ? row[0].toString().trim() : "";
                 let sucursalEmpleado = row[1] ? row[1].toString().trim() : "";
@@ -232,7 +234,7 @@
                 document.getElementById("tablaAsistencia").innerHTML = html;
             });
             fetch(URL_API + "?accion=verTareas").then(r => r.json()).then(data => {
-                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>";
+                let html = "<tr>`<th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>";
                 for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
                 document.getElementById("tablaTareas").innerHTML = html;
             });
