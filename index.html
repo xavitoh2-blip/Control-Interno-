@@ -12,10 +12,14 @@
         button:hover { background-color: #218838; }
         select, input { padding: 10px; margin: 8px 0; width: 90%; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
         
+        /* Pantallas */
+        #pantallaLogin { display: block; }
+        #pantallaPrincipal { display: none; }
+
         /* Estilos para el panel de supervisor */
-        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 650px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
         th { background-color: #f8f9fa; }
         .login-box { margin: 30px auto; padding: 20px; background: white; width: 300px; border-radius: 10px; box-shadow: 0px 2px 8px rgba(0,0,0,0.1); }
     </style>
@@ -24,34 +28,55 @@
 
     <h1>Online Shop - Control Operativo</h1>
 
-    <!-- Sección de Asistencia -->
-    <div class="card">
-        <h3>Registrar Asistencia</h3>
+    <!-- 1. PANTALLA DE INICIO DE SESIÓN -->
+    <div id="pantallaLogin" class="card">
+        <h3>Iniciar Turno</h3>
         <select id="nombreEmpleado"><option value="">Cargando nombres...</option></select>
         <br>
-        <button onclick="registrarAsistencia('Entrada')">Entrada</button>
-        <button onclick="registrarAsistencia('Salida')">Salida</button>
+        <button onclick="iniciarSesion()" style="background-color: #007bff; width: 90%;">Entrar al Sistema</button>
+        
+        <div style="margin-top: 25px;">
+            <button onclick="mostrarLoginAdmin()" style="background-color: #6c757d; font-size: 12px; padding: 6px 12px;">🔒 Panel de Supervisor</button>
+        </div>
     </div>
 
-    <!-- Sección de Pedidos -->
-    <div class="card">
-        <h3>Hacer Pedido</h3>
-        <select id="empleadoPedido"><option value="">Cargando nombres...</option></select>
-        <br>
-        <input type="text" id="productoPedido" placeholder="Producto">
-        <br>
-        <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
-        <br>
-        <button onclick="enviarPedido()">Enviar Pedido</button>
-    </div>
+    <!-- 2. PANTALLA PRINCIPAL DEL COLABORADOR (Ya logueado) -->
+    <div id="pantallaPrincipal">
+        <div class="card" style="width: 350px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 id="saludoUsuario" style="margin: 0; color: #007bff; font-size: 16px;">Hola</h3>
+                <button onclick="cerrarSesion()" style="background-color: #dc3545; padding: 5px 10px; font-size: 11px;">Cerrar Sesión</button>
+            </div>
+        </div>
 
-    <!-- Acceso a Supervisor -->
-    <div style="margin: 40px 0;">
-        <button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 13px; padding: 8px 12px;">🔒 Panel de Supervisor</button>
+        <!-- Registrar Asistencia -->
+        <div class="card">
+            <h3>Registrar Asistencia</h3>
+            <button onclick="registrarAsistencia('Entrada')" style="background-color: #28a745;">Marcar Entrada</button>
+            <button onclick="registrarAsistencia('Salida')" style="background-color: #dc3545;">Marcar Salida</button>
+        </div>
+
+        <!-- Tareas / Checklist -->
+        <div class="card" style="text-align: left;">
+            <h3>Tareas del Día</h3>
+            <label style="font-size: 13px; display: block; margin: 8px 0;"><input type="checkbox" id="t1" onclick="guardarTarea('Limpieza y orden de área', this)"> Limpieza y orden de área</label>
+            <label style="font-size: 13px; display: block; margin: 8px 0;"><input type="checkbox" id="t2" onclick="guardarTarea('Revisión de fechas / Frenteo', this)"> Revisión de fechas / Frenteo</label>
+            <label style="font-size: 13px; display: block; margin: 8px 0;"><input type="checkbox" id="t3" onclick="guardarTarea('Sacar basura / Limpiar baño', this)"> Sacar basura / Limpiar baño</label>
+        </div>
+
+        <!-- Hacer Pedido -->
+        <div class="card">
+            <h3>Hacer Pedido</h3>
+            <input type="text" id="productoPedido" placeholder="Nombre del producto">
+            <br>
+            <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
+            <br>
+            <button onclick="enviarPedido()" style="background-color: #17a2b8;">Enviar Pedido</button>
+        </div>
     </div>
 
     <!-- Modal de Login Supervisor -->
-    <div id="loginModal" class="login-box" style="display:none;">
+    <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 30%; left: 50%; transform: translateX(-50%); z-index: 10;">
         <h3>Clave de Supervisor</h3>
         <input type="password" id="adminPassword" placeholder="Contraseña">
         <br>
@@ -59,85 +84,95 @@
         <button onclick="ocultarLogin()" style="background-color: #dc3545;">Cancelar</button>
     </div>
 
-    <!-- Panel de Historial (Oculto hasta poner contraseña) -->
+    <!-- Panel de Supervisor -->
     <div id="supervisorSection">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; color: #007bff;">Historial General</h3>
+            <h3 style="margin: 0; color: #007bff;">Panel de Control y Auditoría</h3>
             <button onclick="cerrarSupervisor()" style="background-color: #dc3545; padding: 5px 10px; font-size: 12px;">Cerrar Panel</button>
         </div>
         
         <h4>Asistencias Registradas</h4>
-        <div style="overflow-x: auto; max-height: 200px;">
-            <table id="tablaAsistencia">
-                <tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Empleado</th></tr>
-            </table>
-        </div>
+        <div style="overflow-x: auto; max-height: 150px;"><table id="tablaAsistencia"><tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Empleado</th></tr></table></div>
+
+        <h4>Tareas / Checklist</h4>
+        <div style="overflow-x: auto; max-height: 150px;"><table id="tablaTareas"><tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr></table></div>
 
         <h4>Pedidos Realizados</h4>
-        <div style="overflow-x: auto; max-height: 200px;">
-            <table id="tablaPedidos">
-                <tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr>
-            </table>
-        </div>
+        <div style="overflow-x: auto; max-height: 150px;"><table id="tablaPedidos"><tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr></table></div>
     </div>
 
     <script>
         const URL_API = "https://script.google.com/macros/s/AKfycbx4JRYjWcAx08jz9tK0AJQxkALnbjPCkpPz0qSwBOzftL-gdJtHrI--bGpzs9QQPcZI/exec";
+        let usuarioActual = "";
 
         window.onload = function() {
             fetch(URL_API)
                 .then(res => res.json())
                 .then(data => {
-                    const selectAsistencia = document.getElementById("nombreEmpleado");
-                    const selectPedido = document.getElementById("empleadoPedido");
-                    
-                    selectAsistencia.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
-                    selectPedido.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
-                    
+                    const select = document.getElementById("nombreEmpleado");
+                    select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
                     data.forEach(n => {
                         if(n[0] && n[0].trim() !== "") {
-                            selectAsistencia.innerHTML += `<option value="${n[0]}">${n[0]}</option>`;
-                            selectPedido.innerHTML += `<option value="${n[0]}">${n[0]}</option>`;
+                            select.innerHTML += `<option value="${n[0]}">${n[0]}</option>`;
                         }
                     });
                 });
         };
 
-        function registrarAsistencia(tipo) {
-            const empleado = document.getElementById("nombreEmpleado").value;
-            if (!empleado) return alert("Selecciona un nombre.");
+        function iniciarSesion() {
+            usuarioActual = document.getElementById("nombreEmpleado").value;
+            if (!usuarioActual) return alert("Por favor selecciona tu nombre.");
 
-            const params = new URLSearchParams({accion: "Asistencia", tipo: tipo, empleado: empleado});
+            document.getElementById("saludoUsuario").innerText = "Colaborador: " + usuarioActual;
+            document.getElementById("pantallaLogin").style.display = "none";
+            document.getElementById("pantallaPrincipal").style.display = "block";
+        }
+
+        function cerrarSesion() {
+            usuarioActual = "";
+            document.getElementById("nombreEmpleado").value = "";
+            document.getElementById("pantallaPrincipal").style.display = "none";
+            document.getElementById("pantallaLogin").style.display = "block";
+            // Limpiar checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+        }
+
+        function registrarAsistencia(tipo) {
+            const params = new URLSearchParams({accion: "Asistencia", tipo: tipo, empleado: usuarioActual});
+            fetch(URL_API, { method: "POST", body: params })
+            .then(() => alert("¡Asistencia de " + tipo + " registrada con éxito!"));
+        }
+
+        function guardarTarea(nombreTarea, checkbox) {
+            const estado = checkbox.checked ? "Completado" : "Pendiente";
+            const params = new URLSearchParams({accion: "Tareas", empleado: usuarioActual, tarea: nombreTarea, estado: estado});
             fetch(URL_API, { method: "POST", body: params })
             .then(() => {
-                alert("¡Asistencia de " + tipo + " registrada!");
-                document.getElementById("nombreEmpleado").value = "";
+                if(checkbox.checked) alert("¡Tarea marcada como hecha!");
             });
         }
 
         function enviarPedido() {
-            const empleado = document.getElementById("empleadoPedido").value;
             const producto = document.getElementById("productoPedido").value.trim();
             const cantidad = document.getElementById("cantidadPedido").value.trim();
 
-            if (!empleado || !producto || !cantidad) return alert("Completa todos los campos.");
+            if (!producto || !cantidad) return alert("Completa los datos del pedido.");
 
-            const params = new URLSearchParams({accion: "Pedidos", empleado: empleado, producto: producto, cantidad: cantidad});
+            const params = new URLSearchParams({accion: "Pedidos", empleado: usuarioActual, producto: producto, cantidad: cantidad});
             fetch(URL_API, { method: "POST", body: params })
             .then(() => {
-                alert("¡Pedido enviado!");
+                alert("¡Pedido enviado correctamente!");
                 document.getElementById("productoPedido").value = "";
                 document.getElementById("cantidadPedido").value = "1";
             });
         }
 
-        // Funciones del Supervisor
+        // Supervisor
         function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
         function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; document.getElementById("adminPassword").value = ""; }
         
         function verificarPassword() {
-            const clave = document.getElementById("adminPassword").value;
-            if (clave === "1234") { 
+            if (document.getElementById("adminPassword").value === "1234") { 
                 ocultarLogin();
                 document.getElementById("supervisorSection").style.display = "block";
                 cargarHistorial();
@@ -146,38 +181,25 @@
             }
         }
 
-        function cerrarSupervisor() {
-            document.getElementById("supervisorSection").style.display = "none";
-        }
+        function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; }
 
         function cargarHistorial() {
-            // Cargar Asistencias
-            fetch(URL_API + "?accion=verAsistencia")
-                .then(res => res.json())
-                .then(data => {
-                    let html = "<tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Empleado</th></tr>";
-                    for(let i = 1; i < data.length; i++) {
-                        if(data[i][0]) {
-                            html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td></tr>`;
-                        }
-                    }
-                    document.getElementById("tablaAsistencia").innerHTML = html;
-                });
-
-            // Cargar Pedidos
-            fetch(URL_API + "?accion=verPedidos")
-                .then(res => res.json())
-                .then(data => {
-                    let html = "<tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr>";
-                    for(let i = 1; i < data.length; i++) {
-                        if(data[i][0]) {
-                            html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
-                        }
-                    }
-                    document.getElementById("tablaPedidos").innerHTML = html;
-                });
+            fetch(URL_API + "?accion=verAsistencia").then(r => r.json()).then(data => {
+                let html = "<tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Empleado</th></tr>";
+                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td></tr>`;
+                document.getElementById("tablaAsistencia").innerHTML = html;
+            });
+            fetch(URL_API + "?accion=verTareas").then(r => r.json()).then(data => {
+                let html = "<tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>";
+                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td></tr>`;
+                document.getElementById("tablaTareas").innerHTML = html;
+            });
+            fetch(URL_API + "?accion=verPedidos").then(r => r.json()).then(data => {
+                let html = "<tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr>";
+                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
+                document.getElementById("tablaPedidos").innerHTML = html;
+            });
         }
     </script>
-
 </body>
 </html>
