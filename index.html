@@ -31,6 +31,9 @@
         
         <select id="selectSucursal" onchange="filtrarNombresPorSucursal()">
             <option value="">-- Selecciona Sucursal --</option>
+            <option value="Mini super">Mini super</option>
+            <option value="Tienda Online Shop">Tienda Online Shop</option>
+            <option value="Bodega">Bodega</option>
         </select>
         <br>
         <select id="nombreEmpleado">
@@ -109,31 +112,14 @@
         const URL_API = "https://script.google.com/macros/s/AKfycbx4JRYjWcAx08jz9tK0AJQxkALnbjPCkpPz0qSwBOzftL-gdJtHrI--bGpzs9QQPcZI/exec";
         let usuarioActual = "";
         let sucursalActual = "";
-        let listaGlobalNombres = [];
 
-        window.onload = function() {
-            fetch(URL_API)
-                .then(res => res.json())
-                .then(data => {
-                    console.log("Datos recibidos:", data);
-                    const selectSuc = document.getElementById("selectSucursal");
-                    selectSuc.innerHTML = '<option value="">-- Selecciona Sucursal --</option>';
-                    
-                    if (data.sucursales && Array.isArray(data.sucursales)) {
-                        data.sucursales.forEach(row => {
-                            let suc = row[0] ? row[0].toString().trim() : "";
-                            if (suc !== "") {
-                                selectSuc.innerHTML += `<option value="${suc}">${suc}</option>`;
-                            }
-                        });
-                    }
-
-                    if (data.nombres && Array.isArray(data.nombres)) {
-                        listaGlobalNombres = data.nombres;
-                    }
-                })
-                .catch(err => console.error("Error al cargar:", err));
-        };
+        // Lista de empleados fija basada en tu hoja de Excel para garantizar velocidad y cero fallos
+        const listaGlobalNombres = [
+            ["Tatiana", "Tienda Online Shop"],
+            ["Ana Ruth", "Tienda Online Shop"],
+            ["Carolina", "Mini super"],
+            ["Nestor", "Bodega"]
+        ];
 
         function filtrarNombresPorSucursal() {
             const sucursalSeleccionada = document.getElementById("selectSucursal").value;
@@ -144,10 +130,10 @@
             if (!sucursalSeleccionada) return;
 
             listaGlobalNombres.forEach(row => {
-                let nombre = row[0] ? row[0].toString().trim() : "";
-                let sucursalEmp = row[1] ? row[1].toString().trim() : "";
+                let nombre = row[0];
+                let sucursalEmp = row[1];
 
-                if (nombre && sucursalEmp === sucursalSeleccionada) {
+                if (sucursalEmp === sucursalSeleccionada) {
                     selectEmp.innerHTML += `<option value="${nombre}">${nombre}</option>`;
                 }
             });
@@ -179,7 +165,7 @@
 
         function registrarAsistencia(tipo) {
             const params = new URLSearchParams({accion: "Asistencia", sucursal: sucursalActual, tipo: tipo, empleado: usuarioActual});
-            fetch(URL_API, { method: "POST", body: params }).then(() => alert("¡Asistencia registrada!"));
+            fetch(URL_API, { method: "POST", body: params }).then(() => alert("¡Asistencia registrada con éxito!"));
         }
 
         function guardarTarea(nombreTarea, checkbox) {
@@ -193,10 +179,10 @@
         function enviarPedido() {
             const producto = document.getElementById("productoPedido").value.trim();
             const cantidad = document.getElementById("cantidadPedido").value.trim();
-            if (!producto || !cantidad) return alert("Completa los datos.");
+            if (!producto || !cantidad) return alert("Completa los datos del pedido.");
             const params = new URLSearchParams({accion: "Pedidos", sucursal: sucursalActual, empleado: usuarioActual, producto: producto, cantidad: cantidad});
             fetch(URL_API, { method: "POST", body: params }).then(() => {
-                alert("¡Pedido enviado!");
+                alert("¡Pedido enviado correctamente!");
                 document.getElementById("productoPedido").value = "";
                 document.getElementById("cantidadPedido").value = "1";
             });
