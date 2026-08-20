@@ -83,11 +83,11 @@
             </div>
         </div>
 
-        <!-- TAREAS DINÁMICAS DESDE GOOGLE SHEETS -->
+        <!-- TAREAS FILTRADAS POR TURNO -->
         <div class="card" style="text-align: left;">
             <h3>Tareas del Día</h3>
             <div id="contenedorTareas">
-                <p style="font-size: 12px; color: #666;">Cargando tareas...</p>
+                <p style="font-size: 12px; color: #666;">Selecciona un turno para ver las tareas...</p>
             </div>
         </div>
 
@@ -141,6 +141,8 @@
             ["Nestor", "Bodega"]
         ];
 
+        let tareasGlobales = []; // Variable para guardar las tareas al iniciar
+
         window.onload = function() {
             const usuarioGuardado = localStorage.getItem("usuario");
             const sucursalGuardada = localStorage.getItem("sucursal");
@@ -150,7 +152,7 @@
                 document.getElementById("infoSucursal").innerText = "📍 " + sucursalGuardada;
                 document.getElementById("pantallaLogin").style.display = "none";
                 document.getElementById("pantallaPrincipal").style.display = "block";
-                recuperarTareas();
+                descargarTareasConfig();
             }
         };
 
@@ -181,19 +183,33 @@
             location.reload();
         }
 
+        // Descarga las tareas de Google Sheets una sola vez al entrar
+        function descargarTareasConfig() {
+            fetch(URL_API + "?accion=verTareas")
+                .then(r => r.json())
+                .then(data => {
+                    tareasGlobales = data; // Guardamos los datos en memoria
+                })
+                .catch(() => {
+                    document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: red;'>Error al conectar con la configuración de tareas.</p>";
+                });
+        }
+
         function cambiarOpcionesTurno() {
-            const turno = document.getElementById("selectTurno").value;
+            const turnoSeleccionado = document.getElementById("selectTurno").value;
             const textoHorario = document.getElementById("textoHorario");
             const contenedorBotones = document.getElementById("contenedorBotones");
             const btnEntrada = document.getElementById("btnEntrada");
             const btnSalida = document.getElementById("btnSalida");
+            const contenedorTareas = document.getElementById("contenedorTareas");
 
-            if (turno === "Apertura") {
+            // Configurar horarios y botones de asistencia
+            if (turnoSeleccionado === "Apertura") {
                 textoHorario.innerText = "Horario: 8:00 am - 9:00 pm";
                 contenedorBotones.style.display = "block";
                 btnEntrada.style.display = "block";
                 btnSalida.style.display = "none";
-            } else if (turno === "Cierre") {
+            } else if (turnoSeleccionado === "Cierre") {
                 textoHorario.innerText = "Horario: 1:00 pm - 9:00 pm";
                 contenedorBotones.style.display = "block";
                 btnEntrada.style.display = "none";
@@ -201,6 +217,32 @@
             } else {
                 textoHorario.innerText = "";
                 contenedorBotones.style.display = "none";
+                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #666;'>Selecciona un turno para ver las tareas...</p>";
+                return;
+            }
+
+            // Filtrar y mostrar las tareas según el turno seleccionado (Columna B de la hoja = Turno)
+            let html = "";
+            let encontradas = 0;
+
+            for (let i = 1; i < tareasGlobales.length; i++) {
+                let turnoFila = tareasGlobales[i][1]; // Columna B (Turno: Apertura / Cierre)
+                let tareaDesc = tareasGlobales[i][4]; // Columna E (Descripcion_Tarea)
+
+                // Verificamos si coincide el turno (ignorando mayúsculas/minúsculas por seguridad)
+                if (turnoFila && turnoFila.trim().toLowerCase() === turnoSeleccionado.trim().toLowerCase() && tareaDesc) {
+                    encontradas++;
+                    let isChecked = localStorage.getItem("tarea_" + tareaDesc) === "true" ? "checked" : "";
+                    html += `<label style="font-size: 13px; display: block; margin: 8px 0;">
+                                <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)"> ${tareaDesc}
+                             </label>`;
+                }
+            }
+
+            if (encontradas > 0) {
+                contenedorTareas.innerHTML = html;
+            } else {
+                contenedorTareas.innerHTML = `<p style='font-size: 12px; color: #666;'>No hay tareas configuradas para el turno de ${turnoSeleccionado}.</p>`;
             }
         }
 
@@ -250,28 +292,6 @@
                 estado: checkbox.checked ? "Completado" : "Pendiente"
             });
             fetch(URL_API, { method: "POST", body: params });
-        }
-
-        function recuperarTareas() {
-            fetch(URL_API + "?accion=verTareas")
-                .then(r => r.json())
-                .then(data => {
-                    let html = "";
-                    // Omitimos la fila 0 porque son los encabezados (Dia_Tipo, Turno, Orden, area, Descripcion_Tarea)
-                    for (let i = 1; i < data.length; i++) {
-                        let tareaDesc = data[i][4]; // Columna E (Descripcion_Tarea)
-                        if (tareaDesc) {
-                            let isChecked = localStorage.getItem("tarea_" + tareaDesc) === "true" ? "checked" : "";
-                            html += `<label style="font-size: 13px; display: block; margin: 8px 0;">
-                                        <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)"> ${tareaDesc}
-                                     </label>`;
-                        }
-                    }
-                    document.getElementById("contenedorTareas").innerHTML = html || "<p style='font-size: 12px; color: #666;'>No hay tareas configuradas.</p>";
-                })
-                .catch(() => {
-                    document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: red;'>Error al cargar tareas.</p>";
-                });
         }
 
         function enviarPedido() {
