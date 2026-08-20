@@ -65,11 +65,11 @@
             </div>
         </div>
 
-        <!-- REGISTRAR ASISTENCIA -->
+        <!-- REGISTRAR ASISTENCIA DINÁMICA -->
         <div class="card">
             <h3>Registrar Asistencia</h3>
             
-            <select id="selectTurno" onchange="mostrarHorario()">
+            <select id="selectTurno" onchange="cambiarOpcionesTurno()">
                 <option value="">-- Selecciona Turno --</option>
                 <option value="Apertura">☀️ Apertura</option>
                 <option value="Cierre">🌙 Cierre</option>
@@ -78,8 +78,11 @@
             <!-- Texto informativo de horario -->
             <p id="textoHorario" style="font-size: 13px; color: #007bff; font-weight: bold; margin: 5px 0;"></p>
             
-            <button onclick="registrarAsistencia('Entrada')" style="background-color: #28a745; width: 45%;">Marcar Entrada</button>
-            <button onclick="registrarAsistencia('Salida')" style="background-color: #dc3545; width: 45%;">Marcar Salida</button>
+            <!-- Botones que se ocultan o muestran según el turno -->
+            <div id="contenedorBotones" style="display: none; margin-top: 10px;">
+                <button id="btnEntrada" onclick="registrarAsistencia('Entrada')" style="background-color: #28a745; width: 90%; display: none;">Marcar Entrada (Apertura)</button>
+                <button id="btnSalida" onclick="registrarAsistencia('Salida')" style="background-color: #dc3545; width: 90%; display: none;">Marcar Salida (Cierre)</button>
+            </div>
         </div>
 
         <div class="card" style="text-align: left;">
@@ -137,12 +140,27 @@
             ["Nestor", "Bodega"]
         ];
 
-        function mostrarHorario() {
+        function cambiarOpcionesTurno() {
             const turno = document.getElementById("selectTurno").value;
             const textoHorario = document.getElementById("textoHorario");
-            if (turno === "Apertura") textoHorario.innerText = "Horario: 8:00 am - 9:00 pm";
-            else if (turno === "Cierre") textoHorario.innerText = "Horario: 1:00 pm - 9:00 pm";
-            else textoHorario.innerText = "";
+            const contenedorBotones = document.getElementById("contenedorBotones");
+            const btnEntrada = document.getElementById("btnEntrada");
+            const btnSalida = document.getElementById("btnSalida");
+
+            if (turno === "Apertura") {
+                textoHorario.innerText = "Horario: 8:00 am - 9:00 pm";
+                contenedorBotones.style.display = "block";
+                btnEntrada.style.display = "block"; // En apertura marca la entrada
+                btnSalida.style.display = "none";
+            } else if (turno === "Cierre") {
+                textoHorario.innerText = "Horario: 1:00 pm - 9:00 pm";
+                contenedorBotones.style.display = "block";
+                btnEntrada.style.display = "none";
+                btnSalida.style.display = "block"; // En cierre marca la salida
+            } else {
+                textoHorario.innerText = "";
+                contenedorBotones.style.display = "none";
+            }
         }
 
         function filtrarNombresPorSucursal() {
@@ -170,13 +188,14 @@
             document.getElementById("pantallaLogin").style.display = "block";
             document.getElementById("selectTurno").value = "";
             document.getElementById("textoHorario").innerText = "";
+            document.getElementById("contenedorBotones").style.display = "none";
         }
 
         function registrarAsistencia(tipo) {
             const turno = document.getElementById("selectTurno").value;
-            if (!turno) return alert("Selecciona Apertura o Cierre.");
+            if (!turno) return alert("Selecciona un turno.");
             const params = new URLSearchParams({accion: "Asistencia", sucursal: sucursalActual, turno: turno, tipo: tipo, empleado: usuarioActual});
-            fetch(URL_API, { method: "POST", body: params }).then(() => alert("¡Asistencia registrada!"));
+            fetch(URL_API, { method: "POST", body: params }).then(() => alert(`¡Asistencia de ${tipo} registrada con éxito!`));
         }
 
         function guardarTarea(nombreTarea, checkbox) {
