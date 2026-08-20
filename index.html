@@ -65,10 +65,19 @@
             </div>
         </div>
 
+        <!-- REGISTRAR ASISTENCIA CON TURNO -->
         <div class="card">
             <h3>Registrar Asistencia</h3>
-            <button onclick="registrarAsistencia('Entrada')" style="background-color: #28a745;">Marcar Entrada</button>
-            <button onclick="registrarAsistencia('Salida')" style="background-color: #dc3545;">Marcar Salida</button>
+            
+            <select id="selectTurno">
+                <option value="">-- Selecciona Turno --</option>
+                <option value="Apertura">☀️ Apertura</option>
+                <option value="Cierre">🌙 Cierre</option>
+            </select>
+            <br>
+            
+            <button onclick="registrarAsistencia('Entrada')" style="background-color: #28a745; width: 45%;">Marcar Entrada</button>
+            <button onclick="registrarAsistencia('Salida')" style="background-color: #dc3545; width: 45%;">Marcar Salida</button>
         </div>
 
         <div class="card" style="text-align: left;">
@@ -104,8 +113,8 @@
             <button onclick="cerrarSupervisor()" style="background-color: #dc3545; padding: 5px 10px; font-size: 12px;">Cerrar Panel</button>
         </div>
         
-        <h4>Asistencias</h4>
-        <div style="overflow-x: auto; max-height: 130px;"><table id="tablaAsistencia"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Tipo</th><th>Empleado</th></tr></table></div>
+        <h4>Asistencias (Incluye Turno)</h4>
+        <div style="overflow-x: auto; max-height: 130px;"><table id="tablaAsistencia"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th></tr></table></div>
 
         <h4>Tareas / Checklist</h4>
         <div style="overflow-x: auto; max-height: 130px;"><table id="tablaTareas"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr></table></div>
@@ -165,12 +174,18 @@
             document.getElementById("nombreEmpleado").innerHTML = '<option value="">-- Primero selecciona sucursal --</option>';
             document.getElementById("pantallaPrincipal").style.display = "none";
             document.getElementById("pantallaLogin").style.display = "block";
+            document.getElementById("selectTurno").value = "";
             document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
         }
 
         function registrarAsistencia(tipo) {
-            const params = new URLSearchParams({accion: "Asistencia", sucursal: sucursalActual, tipo: tipo, empleado: usuarioActual});
-            fetch(URL_API, { method: "POST", body: params }).then(() => alert("¡Asistencia registrada con éxito!"));
+            const turno = document.getElementById("selectTurno").value;
+            if (!turno) return alert("Por favor selecciona si el turno es de Apertura o Cierre.");
+
+            const params = new URLSearchParams({accion: "Asistencia", sucursal: sucursalActual, turno: turno, tipo: tipo, empleado: usuarioActual});
+            fetch(URL_API, { method: "POST", body: params }).then(() => {
+                alert(`¡Asistencia de ${tipo} (${turno}) registrada con éxito!`);
+            });
         }
 
         function guardarTarea(nombreTarea, checkbox) {
@@ -210,8 +225,8 @@
 
         function cargarHistorial() {
             fetch(URL_API + "?accion=verAsistencia").then(r => r.json()).then(data => {
-                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Tipo</th><th>Empleado</th></tr>";
-                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td></tr>`;
+                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th></tr>";
+                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
                 document.getElementById("tablaAsistencia").innerHTML = html;
             });
             fetch(URL_API + "?accion=verTareas").then(r => r.json()).then(data => {
