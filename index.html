@@ -141,7 +141,7 @@
             ["Nestor", "Bodega"]
         ];
 
-        let tareasGlobales = []; // Variable para guardar las tareas al iniciar
+        let tareasGlobales = [];
 
         window.onload = function() {
             const usuarioGuardado = localStorage.getItem("usuario");
@@ -183,12 +183,11 @@
             location.reload();
         }
 
-        // Descarga las tareas de Google Sheets una sola vez al entrar
         function descargarTareasConfig() {
             fetch(URL_API + "?accion=verTareas")
                 .then(r => r.json())
                 .then(data => {
-                    tareasGlobales = data; // Guardamos los datos en memoria
+                    tareasGlobales = data;
                 })
                 .catch(() => {
                     document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: red;'>Error al conectar con la configuración de tareas.</p>";
@@ -203,7 +202,6 @@
             const btnSalida = document.getElementById("btnSalida");
             const contenedorTareas = document.getElementById("contenedorTareas");
 
-            // Configurar horarios y botones de asistencia
             if (turnoSeleccionado === "Apertura") {
                 textoHorario.innerText = "Horario: 8:00 am - 9:00 pm";
                 contenedorBotones.style.display = "block";
@@ -221,16 +219,15 @@
                 return;
             }
 
-            // Filtrar y mostrar las tareas según el turno seleccionado (Columna B de la hoja = Turno)
             let html = "";
             let encontradas = 0;
 
             for (let i = 1; i < tareasGlobales.length; i++) {
-                let turnoFila = tareasGlobales[i][1]; // Columna B (Turno: Apertura / Cierre)
-                let tareaDesc = tareasGlobales[i][4]; // Columna E (Descripcion_Tarea)
+                let turnoFila = String(tareasGlobales[i][1] || "").trim().toLowerCase();
+                let tareaDesc = tareasGlobales[i][4];
+                let turnoBuscado = turnoSeleccionado.trim().toLowerCase();
 
-                // Verificamos si coincide el turno (ignorando mayúsculas/minúsculas por seguridad)
-                if (turnoFila && turnoFila.trim().toLowerCase() === turnoSeleccionado.trim().toLowerCase() && tareaDesc) {
+                if (turnoFila.includes(turnoBuscado) && tareaDesc) {
                     encontradas++;
                     let isChecked = localStorage.getItem("tarea_" + tareaDesc) === "true" ? "checked" : "";
                     html += `<label style="font-size: 13px; display: block; margin: 8px 0;">
