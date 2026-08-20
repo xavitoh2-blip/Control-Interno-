@@ -2,244 +2,131 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Operativo - Online Shop</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 20px; background-color: #f4f4f9; color: #333; }
-        .logo-container { margin-bottom: 10px; }
-        .logo-container img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; box-shadow: 0px 4px 10px rgba(0,0,0,0.15); border: 3px solid #007bff; }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f9; color: #333; }
         .card { background: white; padding: 20px; margin: 15px auto; width: 320px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); }
-        h3 { color: #333; margin-top: 0; }
-        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; }
-        button:hover { background-color: #218838; }
-        select, input { padding: 10px; margin: 8px 0; width: 90%; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
-        
-        #pantallaLogin { display: block; }
+        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        select, input { padding: 10px; margin: 8px 0; width: 90%; border: 1px solid #ccc; border-radius: 6px; }
         #pantallaPrincipal { display: none; }
-        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 700px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
-        th, td { border: 1px solid #ddd; padding: 5px; text-align: center; }
-        th { background-color: #f8f9fa; }
-        .login-box { margin: 30px auto; padding: 20px; background: white; width: 300px; border-radius: 10px; box-shadow: 0px 2px 8px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
-    <!-- LOGO Y ENCABEZADO -->
-    <div class="logo-container">
-        <img src="logo online shop.png" alt="Logo Online Shop">
-    </div>
-    <h2 style="color: #007bff; margin: 5px 0 20px 0;">Control Operativo</h2>
-
-    <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
         <h3>Iniciar Turno</h3>
-        
         <select id="selectSucursal" onchange="filtrarNombresPorSucursal()">
             <option value="">-- Selecciona Sucursal --</option>
             <option value="Mini super">Mini super</option>
             <option value="Tienda Online Shop">Tienda Online Shop</option>
             <option value="Bodega">Bodega</option>
         </select>
-        <br>
-        <select id="nombreEmpleado">
-            <option value="">-- Primero selecciona sucursal --</option>
-        </select>
-        <br>
-        <button onclick="iniciarSesion()" style="background-color: #007bff; width: 90%;">Entrar al Sistema</button>
-        
-        <div style="margin-top: 25px;">
-            <button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 12px; padding: 6px 12px;">🔒 Panel de Supervisor</button>
-        </div>
+        <select id="nombreEmpleado"><option value="">-- Primero selecciona sucursal --</option></select>
+        <button onclick="iniciarSesion()" style="background-color: #007bff; width: 90%;">Entrar</button>
     </div>
 
-    <!-- PANTALLA PRINCIPAL -->
     <div id="pantallaPrincipal">
-        <div class="card" style="width: 350px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3 id="saludoUsuario" style="margin: 0; color: #007bff; font-size: 15px; text-align: left;">Colaborador</h3>
-                    <span id="infoSucursal" style="font-size: 12px; color: #666; display: block; text-align: left; margin-top: 3px;"></span>
-                </div>
-                <button onclick="cerrarSesion()" style="background-color: #dc3545; padding: 5px 10px; font-size: 11px;">Salir</button>
-            </div>
+        <div class="card">
+            <h3 id="saludoUsuario"></h3>
+            <p id="infoSucursal"></p>
+            <button onclick="cerrarSesion()" style="background-color: #dc3545;">Salir</button>
         </div>
 
-        <!-- REGISTRAR ASISTENCIA DINÁMICA -->
         <div class="card">
             <h3>Registrar Asistencia</h3>
-            
             <select id="selectTurno" onchange="cambiarOpcionesTurno()">
                 <option value="">-- Selecciona Turno --</option>
                 <option value="Apertura">☀️ Apertura</option>
                 <option value="Cierre">🌙 Cierre</option>
             </select>
-            
-            <!-- Texto informativo de horario -->
-            <p id="textoHorario" style="font-size: 13px; color: #007bff; font-weight: bold; margin: 5px 0;"></p>
-            
-            <!-- Botones que se ocultan o muestran según el turno -->
-            <div id="contenedorBotones" style="display: none; margin-top: 10px;">
-                <button id="btnEntrada" onclick="registrarAsistencia('Entrada')" style="background-color: #28a745; width: 90%; display: none;">Marcar Entrada (Apertura)</button>
-                <button id="btnSalida" onclick="registrarAsistencia('Salida')" style="background-color: #dc3545; width: 90%; display: none;">Marcar Salida (Cierre)</button>
+            <div id="contenedorBotones" style="display: none;">
+                <button id="btnEntrada" onclick="validarYRegistrar('Entrada')">Marcar Entrada</button>
+                <button id="btnSalida" onclick="validarYRegistrar('Salida')">Marcar Salida</button>
             </div>
         </div>
 
         <div class="card" style="text-align: left;">
-            <h3>Tareas del Día</h3>
-            <label style="font-size: 13px; display: block; margin: 8px 0;"><input type="checkbox" onclick="guardarTarea('Limpieza y orden de área', this)"> Limpieza y orden de área</label>
-            <label style="font-size: 13px; display: block; margin: 8px 0;"><input type="checkbox" onclick="guardarTarea('Revisión de fechas / Frenteo', this)"> Revisión de fechas / Frenteo</label>
-            <label style="font-size: 13px; display: block; margin: 8px 0;"><input type="checkbox" onclick="guardarTarea('Sacar basura / Limpiar baño', this)"> Sacar basura / Limpiar baño</label>
+            <h3>Tareas</h3>
+            <label><input type="checkbox" onclick="guardarTarea('Limpieza', this)"> Limpieza y orden</label><br>
+            <label><input type="checkbox" onclick="guardarTarea('Frenteo', this)"> Revisión / Frenteo</label>
         </div>
-
-        <div class="card">
-            <h3>Hacer Pedido</h3>
-            <input type="text" id="productoPedido" placeholder="Nombre del producto">
-            <br>
-            <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
-            <br>
-            <button onclick="enviarPedido()" style="background-color: #17a2b8;">Enviar Pedido</button>
-        </div>
-    </div>
-
-    <!-- MODAL SUPERVISOR -->
-    <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 30%; left: 50%; transform: translateX(-50%); z-index: 10;">
-        <h3>Clave de Supervisor</h3>
-        <input type="password" id="adminPassword" placeholder="Contraseña">
-        <br>
-        <button onclick="verificarPassword()" style="background-color: #007bff;">Ingresar</button>
-        <button onclick="ocultarLogin()" style="background-color: #dc3545;">Cancelar</button>
-    </div>
-
-    <!-- PANEL SUPERVISOR -->
-    <div id="supervisorSection">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; color: #007bff;">Panel de Control y Auditoría</h3>
-            <button onclick="cerrarSupervisor()" style="background-color: #dc3545; padding: 5px 10px; font-size: 12px;">Cerrar Panel</button>
-        </div>
-        
-        <h4>Asistencias</h4>
-        <div style="overflow-x: auto; max-height: 130px;"><table id="tablaAsistencia"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th></tr></table></div>
-
-        <h4>Tareas / Checklist</h4>
-        <div style="overflow-x: auto; max-height: 130px;"><table id="tablaTareas"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr></table></div>
-
-        <h4>Pedidos</h4>
-        <div style="overflow-x: auto; max-height: 130px;"><table id="tablaPedidos"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr></table></div>
     </div>
 
     <script>
         const URL_API = "https://script.google.com/macros/s/AKfycbx4JRYjWcAx08jz9tK0AJQxkALnbjPCkpPz0qSwBOzftL-gdJtHrI--bGpzs9QQPcZI/exec";
-        let usuarioActual = "";
-        let sucursalActual = "";
+        
+        // --- CONFIGURA AQUÍ LAS COORDENADAS DE TU NEGOCIO ---
+        const LAT_NEGOCIO = 13.6795; 
+        const LON_NEGOCIO = -89.2635;
+        const RADIO_METROS = 200; // Tolerancia de 200 metros
 
-        const listaGlobalNombres = [
-            ["Tatiana", "Tienda Online Shop"],
-            ["Ana Ruth", "Tienda Online Shop"],
-            ["Carolina", "Mini super"],
-            ["Nestor", "Bodega"]
-        ];
-
-        function cambiarOpcionesTurno() {
-            const turno = document.getElementById("selectTurno").value;
-            const textoHorario = document.getElementById("textoHorario");
-            const contenedorBotones = document.getElementById("contenedorBotones");
-            const btnEntrada = document.getElementById("btnEntrada");
-            const btnSalida = document.getElementById("btnSalida");
-
-            if (turno === "Apertura") {
-                textoHorario.innerText = "Horario: 8:00 am - 9:00 pm";
-                contenedorBotones.style.display = "block";
-                btnEntrada.style.display = "block"; // En apertura marca la entrada
-                btnSalida.style.display = "none";
-            } else if (turno === "Cierre") {
-                textoHorario.innerText = "Horario: 1:00 pm - 9:00 pm";
-                contenedorBotones.style.display = "block";
-                btnEntrada.style.display = "none";
-                btnSalida.style.display = "block"; // En cierre marca la salida
-            } else {
-                textoHorario.innerText = "";
-                contenedorBotones.style.display = "none";
+        // Al cargar la página, recuperar sesión
+        window.onload = function() {
+            if(localStorage.getItem("usuario")) {
+                document.getElementById("saludoUsuario").innerText = localStorage.getItem("usuario");
+                document.getElementById("infoSucursal").innerText = "📍 " + localStorage.getItem("sucursal");
+                document.getElementById("pantallaLogin").style.display = "none";
+                document.getElementById("pantallaPrincipal").style.display = "block";
+                recuperarTareas();
             }
-        }
-
-        function filtrarNombresPorSucursal() {
-            const sucursalSeleccionada = document.getElementById("selectSucursal").value;
-            const selectEmp = document.getElementById("nombreEmpleado");
-            selectEmp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
-            if (!sucursalSeleccionada) return;
-            listaGlobalNombres.forEach(row => {
-                if (row[1] === sucursalSeleccionada) selectEmp.innerHTML += `<option value="${row[0]}">${row[0]}</option>`;
-            });
-        }
+        };
 
         function iniciarSesion() {
-            sucursalActual = document.getElementById("selectSucursal").value;
-            usuarioActual = document.getElementById("nombreEmpleado").value;
-            if (!sucursalActual || !usuarioActual) return alert("Selecciona sucursal y nombre.");
-            document.getElementById("saludoUsuario").innerText = usuarioActual;
-            document.getElementById("infoSucursal").innerText = "📍 " + sucursalActual;
-            document.getElementById("pantallaLogin").style.display = "none";
-            document.getElementById("pantallaPrincipal").style.display = "block";
+            const sucursal = document.getElementById("selectSucursal").value;
+            const empleado = document.getElementById("nombreEmpleado").value;
+            if(!sucursal || !empleado) return alert("Completa los datos");
+            
+            localStorage.setItem("usuario", empleado);
+            localStorage.setItem("sucursal", sucursal);
+            location.reload();
         }
 
         function cerrarSesion() {
-            document.getElementById("pantallaPrincipal").style.display = "none";
-            document.getElementById("pantallaLogin").style.display = "block";
-            document.getElementById("selectTurno").value = "";
-            document.getElementById("textoHorario").innerText = "";
-            document.getElementById("contenedorBotones").style.display = "none";
+            localStorage.clear();
+            location.reload();
         }
 
-        function registrarAsistencia(tipo) {
+        function cambiarOpcionesTurno() {
             const turno = document.getElementById("selectTurno").value;
-            if (!turno) return alert("Selecciona un turno.");
-            const params = new URLSearchParams({accion: "Asistencia", sucursal: sucursalActual, turno: turno, tipo: tipo, empleado: usuarioActual});
-            fetch(URL_API, { method: "POST", body: params }).then(() => alert(`¡Asistencia de ${tipo} registrada con éxito!`));
+            document.getElementById("contenedorBotones").style.display = "block";
+            document.getElementById("btnEntrada").style.display = (turno === "Apertura") ? "inline-block" : "none";
+            document.getElementById("btnSalida").style.display = (turno === "Cierre") ? "inline-block" : "none";
         }
 
-        function guardarTarea(nombreTarea, checkbox) {
-            const params = new URLSearchParams({accion: "Tareas", sucursal: sucursalActual, empleado: usuarioActual, tarea: nombreTarea, estado: checkbox.checked ? "Completado" : "Pendiente"});
-            fetch(URL_API, { method: "POST", body: params });
+        function validarYRegistrar(tipo) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const dist = calcularDistancia(LAT_NEGOCIO, LON_NEGOCIO, pos.coords.latitude, pos.coords.longitude);
+                if(dist <= RADIO_METROS) {
+                    const params = new URLSearchParams({accion: "Asistencia", sucursal: localStorage.getItem("sucursal"), turno: document.getElementById("selectTurno").value, tipo: tipo, empleado: localStorage.getItem("usuario")});
+                    fetch(URL_API, {method: "POST", body: params}).then(() => alert("¡Registrado con éxito!"));
+                } else {
+                    alert("❌ Estás muy lejos del negocio (" + Math.round(dist) + "m). Acércate para marcar.");
+                }
+            }, () => alert("Debes activar tu ubicación para marcar."));
         }
 
-        function enviarPedido() {
-            const p = document.getElementById("productoPedido").value;
-            const c = document.getElementById("cantidadPedido").value;
-            if (!p || !c) return alert("Completa los datos.");
-            const params = new URLSearchParams({accion: "Pedidos", sucursal: sucursalActual, empleado: usuarioActual, producto: p, cantidad: c});
-            fetch(URL_API, { method: "POST", body: params }).then(() => alert("¡Pedido enviado!"));
+        function calcularDistancia(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const dLat = (lat2-lat1) * Math.PI/180;
+            const dLon = (lon2-lon1) * Math.PI/180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
-        function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; }
-        function verificarPassword() {
-            if (document.getElementById("adminPassword").value === "1234") { 
-                ocultarLogin();
-                document.getElementById("supervisorSection").style.display = "block";
-                cargarHistorial();
-            } else alert("Contraseña incorrecta");
+        function guardarTarea(nombre, chk) {
+            localStorage.setItem("tarea_"+nombre, chk.checked);
+            const params = new URLSearchParams({accion: "Tareas", sucursal: localStorage.getItem("sucursal"), empleado: localStorage.getItem("usuario"), tarea: nombre, estado: chk.checked});
+            fetch(URL_API, {method: "POST", body: params});
         }
 
-        function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; }
-
-        function cargarHistorial() {
-            fetch(URL_API + "?accion=verAsistencia").then(r => r.json()).then(data => {
-                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th></tr>";
-                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
-                document.getElementById("tablaAsistencia").innerHTML = html;
-            });
-            fetch(URL_API + "?accion=verTareas").then(r => r.json()).then(data => {
-                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>";
-                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
-                document.getElementById("tablaTareas").innerHTML = html;
-            });
-            fetch(URL_API + "?accion=verPedidos").then(r => r.json()).then(data => {
-                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr>";
-                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
-                document.getElementById("tablaPedidos").innerHTML = html;
+        function recuperarTareas() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+                const nombre = chk.parentElement.innerText.trim();
+                if(localStorage.getItem("tarea_"+nombre) === "true") chk.checked = true;
             });
         }
+        
+        function filtrarNombresPorSucursal() { /* Tu lógica existente aquí */ }
     </script>
 </body>
 </html>
