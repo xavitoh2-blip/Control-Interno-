@@ -14,7 +14,6 @@
         
         #pantallaLogin { display: block; }
         #pantallaPrincipal { display: none; }
-
         #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 700px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
         th, td { border: 1px solid #ddd; padding: 5px; text-align: center; }
@@ -116,27 +115,24 @@
             fetch(URL_API)
                 .then(res => res.json())
                 .then(data => {
+                    console.log("Datos recibidos:", data);
                     const selectSuc = document.getElementById("selectSucursal");
                     selectSuc.innerHTML = '<option value="">-- Selecciona Sucursal --</option>';
                     
-                    // Cargar sucursales desde la pestaña Sucursales
-                    if(data.sucursales) {
+                    if (data.sucursales && Array.isArray(data.sucursales)) {
                         data.sucursales.forEach(row => {
-                            let sucursal = row[0] ? row[0].toString().trim() : "";
-                            if(sucursal !== "") {
-                                selectSuc.innerHTML += `<option value="${sucursal}">${sucursal}</option>`;
+                            let suc = row[0] ? row[0].toString().trim() : "";
+                            if (suc !== "") {
+                                selectSuc.innerHTML += `<option value="${suc}">${suc}</option>`;
                             }
                         });
                     }
 
-                    // Guardar los nombres de la pestaña Nombres
-                    if(data.nombres) {
+                    if (data.nombres && Array.isArray(data.nombres)) {
                         listaGlobalNombres = data.nombres;
                     }
                 })
-                .catch(err => {
-                    console.error("Error al cargar datos:", err);
-                });
+                .catch(err => console.error("Error al cargar:", err));
         };
 
         function filtrarNombresPorSucursal() {
@@ -147,12 +143,11 @@
             
             if (!sucursalSeleccionada) return;
 
-            // Filtrar empleados que coincidan con la sucursal elegida
             listaGlobalNombres.forEach(row => {
                 let nombre = row[0] ? row[0].toString().trim() : "";
-                let sucursalEmpleado = row[1] ? row[1].toString().trim() : "";
+                let sucursalEmp = row[1] ? row[1].toString().trim() : "";
 
-                if (nombre && sucursalEmpleado === sucursalSeleccionada) {
+                if (nombre && sucursalEmp === sucursalSeleccionada) {
                     selectEmp.innerHTML += `<option value="${nombre}">${nombre}</option>`;
                 }
             });
@@ -162,8 +157,8 @@
             sucursalActual = document.getElementById("selectSucursal").value;
             usuarioActual = document.getElementById("nombreEmpleado").value;
 
-            if (!sucursalActual) return alert("Por favor selecciona una sucursal.");
-            if (!usuarioActual) return alert("Por favor selecciona tu nombre.");
+            if (!sucursalActual) return alert("Selecciona una sucursal.");
+            if (!usuarioActual) return alert("Selecciona tu nombre.");
 
             document.getElementById("saludoUsuario").innerText = usuarioActual;
             document.getElementById("infoSucursal").innerText = "📍 " + sucursalActual;
@@ -184,29 +179,24 @@
 
         function registrarAsistencia(tipo) {
             const params = new URLSearchParams({accion: "Asistencia", sucursal: sucursalActual, tipo: tipo, empleado: usuarioActual});
-            fetch(URL_API, { method: "POST", body: params })
-            .then(() => alert("¡Asistencia de " + tipo + " registrada con éxito!"));
+            fetch(URL_API, { method: "POST", body: params }).then(() => alert("¡Asistencia registrada!"));
         }
 
         function guardarTarea(nombreTarea, checkbox) {
             const estado = checkbox.checked ? "Completado" : "Pendiente";
             const params = new URLSearchParams({accion: "Tareas", sucursal: sucursalActual, empleado: usuarioActual, tarea: nombreTarea, estado: estado});
-            fetch(URL_API, { method: "POST", body: params })
-            .then(() => {
-                if(checkbox.checked) alert("¡Tarea marcada como hecha!");
+            fetch(URL_API, { method: "POST", body: params }).then(() => {
+                if(checkbox.checked) alert("¡Tarea marcada!");
             });
         }
 
         function enviarPedido() {
             const producto = document.getElementById("productoPedido").value.trim();
             const cantidad = document.getElementById("cantidadPedido").value.trim();
-
-            if (!producto || !cantidad) return alert("Completa los datos del pedido.");
-
+            if (!producto || !cantidad) return alert("Completa los datos.");
             const params = new URLSearchParams({accion: "Pedidos", sucursal: sucursalActual, empleado: usuarioActual, producto: producto, cantidad: cantidad});
-            fetch(URL_API, { method: "POST", body: params })
-            .then(() => {
-                alert("¡Pedido enviado correctamente!");
+            fetch(URL_API, { method: "POST", body: params }).then(() => {
+                alert("¡Pedido enviado!");
                 document.getElementById("productoPedido").value = "";
                 document.getElementById("cantidadPedido").value = "1";
             });
@@ -234,7 +224,7 @@
                 document.getElementById("tablaAsistencia").innerHTML = html;
             });
             fetch(URL_API + "?accion=verTareas").then(r => r.json()).then(data => {
-                let html = "<tr>`<th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>";
+                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>";
                 for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
                 document.getElementById("tablaTareas").innerHTML = html;
             });
