@@ -78,8 +78,8 @@
             <p id="textoHorario" style="font-size: 13px; color: #007bff; font-weight: bold; margin: 5px 0;"></p>
             
             <div id="contenedorBotones" style="display: none; margin-top: 10px;">
-                <button id="btnEntrada" onclick="validarYRegistrar('Entrada')" style="background-color: #28a745; width: 90%; display: none;">Marcar Entrada (Apertura)</button>
-                <button id="btnSalida" onclick="validarYRegistrar('Salida')" style="background-color: #dc3545; width: 90%; display: none;">Marcar Salida (Cierre)</button>
+                <button id="btnEntrada" onclick="validarYRegistrar('Entrada')" style="background-color: #28a745; width: 90%; display: none;">Marcar Entrada</button>
+                <button id="btnSalida" onclick="validarYRegistrar('Salida')" style="background-color: #dc3545; width: 90%; display: none; margin-top: 8px;">Marcar Salida</button>
             </div>
         </div>
 
@@ -202,16 +202,11 @@
             const btnSalida = document.getElementById("btnSalida");
             const contenedorTareas = document.getElementById("contenedorTareas");
 
-            if (turnoSeleccionado === "Apertura") {
-                textoHorario.innerText = "Horario: 8:00 am - 9:00 pm";
+            if (turnoSeleccionado === "Apertura" || turnoSeleccionado === "Cierre") {
+                textoHorario.innerText = turnoSeleccionado === "Apertura" ? "Horario: 8:00 am - 9:00 pm" : "Horario: 1:00 pm - 9:00 pm";
                 contenedorBotones.style.display = "block";
-                btnEntrada.style.display = "block";
-                btnSalida.style.display = "none";
-            } else if (turnoSeleccionado === "Cierre") {
-                textoHorario.innerText = "Horario: 1:00 pm - 9:00 pm";
-                contenedorBotones.style.display = "block";
-                btnEntrada.style.display = "none";
-                btnSalida.style.display = "block";
+                btnEntrada.style.display = "block"; // Mostrar entrada
+                btnSalida.style.display = "block";  // Mostrar salida siempre
             } else {
                 textoHorario.innerText = "";
                 contenedorBotones.style.display = "none";
