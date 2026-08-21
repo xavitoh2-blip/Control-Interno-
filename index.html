@@ -3,139 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Operativo - Online Shop</title>
+    <title>Control Operativo</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 20px; background-color: #f4f4f9; color: #333; }
-        .logo-container { margin-bottom: 10px; }
-        .logo-container img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; box-shadow: 0px 4px 10px rgba(0,0,0,0.15); border: 3px solid #007bff; }
-        .card { background: white; padding: 20px; margin: 15px auto; width: 320px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); }
-        h3 { color: #333; margin-top: 0; }
-        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; }
-        button:hover { background-color: #218838; }
-        select, input { padding: 10px; margin: 8px 0; width: 90%; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
-        
-        #pantallaLogin { display: block; }
-        #pantallaPrincipal { display: none; }
-        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 700px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
-        th, td { border: 1px solid #ddd; padding: 5px; text-align: center; }
-        th { background-color: #f8f9fa; }
-        .login-box { margin: 30px auto; padding: 20px; background: white; width: 300px; border-radius: 10px; box-shadow: 0px 2px 8px rgba(0,0,0,0.1); }
+        body { font-family: Arial; text-align: center; background: #f4f4f9; padding: 20px; }
+        .card { background: white; padding: 20px; margin: 10px auto; width: 300px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button { background: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 5px; }
+        select { width: 100%; padding: 10px; margin: 5px 0; }
     </style>
 </head>
 <body>
-
-    <div class="logo-container">
-        <img src="logo online shop.png" alt="Logo">
-    </div>
-    <h2 style="color: #007bff; margin: 5px 0 20px 0;">Control Operativo</h2>
-
-    <div id="pantallaLogin" class="card">
-        <h3>Iniciar Turno</h3>
-        <select id="selectSucursal" onchange="filtrarNombresPorSucursal()">
-            <option value="">-- Selecciona Sucursal --</option>
-            <option value="Mini super">Mini super</option>
-            <option value="Tienda Online Shop">Tienda Online Shop</option>
-            <option value="Bodega">Bodega</option>
+    <div id="app" class="card">
+        <h3>Registrar Asistencia</h3>
+        <select id="selectTurno" onchange="cargarTareas()">
+            <option value="">Selecciona Turno</option>
+            <option value="apertura">Apertura</option>
+            <option value="cierre">Cierre</option>
         </select>
-        <br>
-        <select id="nombreEmpleado"><option value="">-- Primero selecciona sucursal --</option></select>
-        <br>
-        <button onclick="iniciarSesion()" style="background-color: #007bff; width: 90%;">Entrar al Sistema</button>
-        <div style="margin-top: 25px;"><button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 12px; padding: 6px 12px;">🔒 Panel de Supervisor</button></div>
-    </div>
-
-    <div id="pantallaPrincipal">
-        <div class="card" style="width: 350px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3 id="saludoUsuario" style="margin: 0; color: #007bff; font-size: 15px; text-align: left;">Colaborador</h3>
-                    <span id="infoSucursal" style="font-size: 12px; color: #666; display: block; text-align: left; margin-top: 3px;"></span>
-                </div>
-                <button onclick="cerrarSesion()" style="background-color: #dc3545; padding: 5px 10px; font-size: 11px;">Salir</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>Registrar Asistencia</h3>
-            <select id="selectTurno" onchange="cambiarOpcionesTurno()">
-                <option value="">-- Selecciona Turno --</option>
-                <option value="apertura">☀️ Apertura</option>
-                <option value="cierre">🌙 Cierre</option>
+        <button onclick="registrar('Entrada')">Marcar Entrada</button>
+        <div style="margin-top:10px;">
+            <label>Horas Extra:</label>
+            <select id="selHE">
+                <option value="0">0</option>
+                <option value="1">1 hora</option>
             </select>
-            <p id="textoHorario" style="font-size: 13px; color: #007bff; font-weight: bold; margin: 5px 0;"></p>
-            <div id="contenedorBotones" style="display: none; margin-top: 10px;">
-                <button id="btnEntrada" onclick="validarYRegistrar('Entrada')" style="background-color: #28a745; width: 90%;">Marcar Entrada</button>
-                <div id="seccionSalida" style="display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
-                    <label style="font-size: 12px; color: #555; display: block; text-align: left; margin-bottom: 3px;">Horas Extra:</label>
-                    <select id="selectHorasExtra" style="margin-bottom: 8px;">
-                        <option value="0">Sin horas extra</option>
-                        <option value="0.5">30 min</option>
-                        <option value="1">1 hora</option>
-                        <option value="2">2 horas</option>
-                    </select>
-                    <button id="btnSalida" onclick="validarYRegistrar('Salida')" style="background-color: #dc3545; width: 90%;">Marcar Salida</button>
-                </div>
-            </div>
+            <button onclick="registrar('Salida')" style="background:#dc3545;">Marcar Salida</button>
         </div>
-
-        <div class="card" style="text-align: left;">
-            <h3>Tareas del Día</h3>
-            <div id="contenedorTareas"><p style="font-size: 12px; color: #666;">Selecciona un turno...</p></div>
-        </div>
+        <hr>
+        <h3>Tareas</h3>
+        <div id="listaTareas" style="text-align:left;"></div>
     </div>
 
     <script>
-        const URL_API = "https://script.google.com/macros/s/AKfycbx4JRYjWcAx08jz9tK0AJQxkALnbjPCkpPz0qSwBOzftL-gdJtHrI--bGpzs9QQPcZI/exec";
-        let tareasGlobales = [];
+        const URL = "TU_URL_DE_APPS_SCRIPT_AQUI"; // REEMPLAZA ESTO
+        let tareas = [];
 
-        window.onload = function() {
-            if (localStorage.getItem("usuario")) {
-                document.getElementById("pantallaLogin").style.display = "none";
-                document.getElementById("pantallaPrincipal").style.display = "block";
-                descargarTareasConfig();
-            }
-        };
+        fetch(URL + "?accion=verTareas").then(r => r.json()).then(d => { tareas = d; });
 
-        function descargarTareasConfig() {
-            fetch(URL_API + "?accion=verTareas")
-                .then(r => r.json())
-                .then(data => { tareasGlobales = data; });
-        }
-
-        function cambiarOpcionesTurno() {
-            const turnoSel = document.getElementById("selectTurno").value;
-            const contTareas = document.getElementById("contenedorTareas");
-            
-            if(!turnoSel) return;
-            document.getElementById("contenedorBotones").style.display = "block";
-            document.getElementById("seccionSalida").style.display = "block";
-
-            let html = "";
-            let encontradas = 0;
-
-            for (let i = 1; i < tareasGlobales.length; i++) {
-                let turnoHoja = String(tareasGlobales[i][1] || "").trim().toLowerCase(); // Columna B
-                let tareaDesc = tareasGlobales[i][4]; // Columna E
-
-                if (turnoHoja === turnoSel && tareaDesc) {
-                    encontradas++;
-                    html += `<label style="font-size: 13px; display: block; margin: 8px 0;">
-                                <input type="checkbox" onclick="guardarTarea('${tareaDesc}', this)"> ${tareaDesc}
-                             </label>`;
-                }
-            }
-            contTareas.innerHTML = encontradas > 0 ? html : "No hay tareas para este turno.";
-        }
-
-        function validarYRegistrar(tipo) {
+        function cargarTareas() {
             const turno = document.getElementById("selectTurno").value;
-            const hExtra = document.getElementById("selectHorasExtra").value;
-            const params = new URLSearchParams({
-                accion: "Asistencia", sucursal: localStorage.getItem("sucursal"), 
-                turno: turno, tipo: tipo, empleado: localStorage.getItem("usuario"), horasExtra: hExtra
+            const lista = document.getElementById("listaTareas");
+            lista.innerHTML = "";
+            tareas.forEach(fila => {
+                // fila[1] es columna B (Turno), fila[4] es columna E (Tarea)
+                if (String(fila[1]).toLowerCase() === turno) {
+                    lista.innerHTML += `<input type="checkbox"> ${fila[4]}<br>`;
+                }
             });
-            fetch(URL_API, { method: "POST", body: params }).then(() => alert("Registrado."));
+        }
+
+        function registrar(tipo) {
+            const params = new URLSearchParams({
+                accion: "Asistencia", sucursal: "Tienda", 
+                turno: document.getElementById("selectTurno").value,
+                tipo: tipo, empleado: "Usuario", 
+                horasExtra: document.getElementById("selHE").value
+            });
+            fetch(URL, {method: "POST", body: params}).then(() => alert("Registrado"));
         }
     </script>
 </body>
