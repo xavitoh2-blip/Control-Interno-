@@ -142,9 +142,13 @@
     <script>
         const URL_API = "https://script.google.com/macros/s/AKfycbx4JRYjWcAx08jz9tK0AJQxkALnbjPCkpPz0qSwBOzftL-gdJtHrI--bGpzs9QQPcZI/exec";
         
-        const LAT_NEGOCIO = 13.6795; 
-        const LON_NEGOCIO = -89.2635;
-        const RADIO_METROS = 200;
+        // UBICACIONES DE LAS SUCURSALES
+        const UBICACIONES = {
+            "Tienda Online Shop": { lat: 13.674099, lon: -89.438934 },
+            "Mini super": { lat: 0.000000, lon: 0.000000 }, // Actualizar luego
+            "Bodega": { lat: 0.000000, lon: 0.000000 }          // Actualizar luego
+        };
+        const RADIO_METROS = 200; // Margen de tolerancia en metros
 
         const listaGlobalNombres = [
             ["Tatiana", "Tienda Online Shop"],
@@ -245,13 +249,20 @@
             if (encontradas > 0) {
                 contenedorTareas.innerHTML = html;
             } else {
-                contenedorTareas.innerHTML = `<p style='font-size: 12px; color: #666;'>No hay tareas configuradas para este turno.</p>`;
+                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #666;'>No hay tareas configuradas para este turno.</p>";
             }
         }
 
         function validarYRegistrar(tipo) {
             const turno = document.getElementById("selectTurno").value;
             if (!turno) return alert("Selecciona un turno.");
+
+            const sucursalActual = localStorage.getItem("sucursal");
+            const coordenadasLocal = UBICACIONES[sucursalActual];
+
+            if (!coordenadasLocal || (coordenadasLocal.lat === 0 && coordenadasLocal.lon === 0)) {
+                return alert("⚠️ La ubicación GPS para '" + sucursalActual + "' aún no ha sido configurada en el sistema.");
+            }
 
             let horasExtra = "0";
             if (tipo === "Salida") {
@@ -263,11 +274,12 @@
             }
 
             navigator.geolocation.getCurrentPosition(pos => {
-                const dist = calcularDistancia(LAT_NEGOCIO, LON_NEGOCIO, pos.coords.latitude, pos.coords.longitude);
+                const dist = calcularDistancia(coordenadasLocal.lat, coordenadasLocal.lon, pos.coords.latitude, pos.coords.longitude);
+                
                 if (dist <= RADIO_METROS) {
                     const params = new URLSearchParams({
                         accion: "Asistencia", 
-                        sucursal: localStorage.getItem("sucursal"), 
+                        sucursal: sucursalActual, 
                         turno: turno, 
                         tipo: tipo, 
                         empleado: localStorage.getItem("usuario"),
@@ -276,7 +288,7 @@
                     fetch(URL_API, { method: "POST", body: params })
                         .then(() => alert(`¡Asistencia de ${tipo} registrada con éxito!`));
                 } else {
-                    alert("❌ Estás muy lejos del negocio (" + Math.round(dist) + "m). Acércate para marcar.");
+                    alert(`❌ Estás muy lejos del local (${Math.round(dist)}m). Acércate para marcar.`);
                 }
             }, () => {
                 alert("Debes permitir el acceso a tu ubicación para marcar asistencia.");
