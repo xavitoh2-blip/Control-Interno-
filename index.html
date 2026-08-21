@@ -16,7 +16,7 @@
         
         #pantallaLogin { display: block; }
         #pantallaPrincipal { display: none; }
-        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 700px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
+        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 750px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
         th, td { border: 1px solid #ddd; padding: 5px; text-align: center; }
         th { background-color: #f8f9fa; }
@@ -71,8 +71,8 @@
             
             <select id="selectTurno" onchange="cambiarOpcionesTurno()">
                 <option value="">-- Selecciona Turno --</option>
-                <option value="apertura">☀️ Apertura</option>
-                <option value="cierre">🌙 Cierre</option>
+                <option value="apertura">☀️ Apertura (8am - 5pm)</option>
+                <option value="cierre">🌙 Cierre (1pm - 9pm)</option>
             </select>
             
             <p id="textoHorario" style="font-size: 13px; color: #007bff; font-weight: bold; margin: 5px 0;"></p>
@@ -129,26 +129,44 @@
             <button onclick="cerrarSupervisor()" style="background-color: #dc3545; padding: 5px 10px; font-size: 12px;">Cerrar Panel</button>
         </div>
         
-        <h4>Asistencias</h4>
-        <div style="overflow-x: auto; max-height: 130px;"><table id="tablaAsistencia"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr></table></div>
+        <h4>Resumen de Pagos (Cálculo Automático)</h4>
+        <div style="overflow-x: auto; max-height: 150px;">
+            <table id="tablaResumenPagos">
+                <tr><th>Empleado</th><th>Turnos Completados</th><th>H. Extra Totales</th><th>Total a Pagar</th></tr>
+            </table>
+        </div>
+
+        <h4>Registro de Asistencias</h4>
+        <div style="overflow-x: auto; max-height: 130px;">
+            <table id="tablaAsistencia">
+                <tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr>
+            </table>
+        </div>
 
         <h4>Tareas / Checklist</h4>
-        <div style="overflow-x: auto; max-height: 130px;"><table id="tablaTareas"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr></table></div>
+        <div style="overflow-x: auto; max-height: 130px;">
+            <table id="tablaTareas">
+                <tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>
+            </table>
+        </div>
 
         <h4>Pedidos</h4>
-        <div style="overflow-x: auto; max-height: 130px;"><table id="tablaPedidos"><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr></table></div>
+        <div style="overflow-x: auto; max-height: 130px;">
+            <table id="tablaPedidos">
+                <tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr>
+            </table>
+        </div>
     </div>
 
     <script>
         const URL_API = "https://script.google.com/macros/s/AKfycbx4JRYjWcAx08jz9tK0AJQxkALnbjPCkpPz0qSwBOzftL-gdJtHrI--bGpzs9QQPcZI/exec";
         
-        // UBICACIONES DE LAS SUCURSALES
         const UBICACIONES = {
             "Tienda Online Shop": { lat: 13.674099, lon: -89.438934 },
-            "Mini super": { lat: 0.000000, lon: 0.000000 }, // Actualizar luego
-            "Bodega": { lat: 0.000000, lon: 0.000000 }          // Actualizar luego
+            "Mini super": { lat: 0.000000, lon: 0.000000 }, 
+            "Bodega": { lat: 0.000000, lon: 0.000000 }          
         };
-        const RADIO_METROS = 200; // Margen de tolerancia en metros
+        const RADIO_METROS = 200;
 
         const listaGlobalNombres = [
             ["Tatiana", "Tienda Online Shop"],
@@ -202,9 +220,7 @@
         function descargarTareasConfig() {
             fetch(URL_API + "?accion=verTareas")
                 .then(r => r.json())
-                .then(data => {
-                    tareasGlobales = data;
-                })
+                .then(data => { tareasGlobales = data; })
                 .catch(() => {
                     document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: red;'>Error al conectar con la configuración de tareas.</p>";
                 });
@@ -219,7 +235,7 @@
             const contenedorTareas = document.getElementById("contenedorTareas");
 
             if (turnoSeleccionado === "apertura" || turnoSeleccionado === "cierre") {
-                textoHorario.innerText = turnoSeleccionado === "apertura" ? "Horario: 8:00 am - 9:00 pm" : "Horario: 1:00 pm - 9:00 pm";
+                textoHorario.innerText = turnoSeleccionado === "apertura" ? "Horario: 8:00 am - 5:00 pm" : "Horario: 1:00 pm - 9:00 pm";
                 contenedorBotones.style.display = "block";
                 btnEntrada.style.display = "block"; 
                 seccionSalida.style.display = "block";
@@ -261,7 +277,7 @@
             const coordenadasLocal = UBICACIONES[sucursalActual];
 
             if (!coordenadasLocal || (coordenadasLocal.lat === 0 && coordenadasLocal.lon === 0)) {
-                return alert("⚠️ La ubicación GPS para '" + sucursalActual + "' aún no ha sido configurada en el sistema.");
+                return alert("⚠️ La ubicación GPS para '" + sucursalActual + "' aún no ha sido configurada.");
             }
 
             let horasExtra = "0";
@@ -345,16 +361,58 @@
         function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; }
 
         function cargarHistorial() {
+            // Asistencias y cálculo automático de sueldos ($12 por turno, $1.50 por hora extra)
             fetch(URL_API + "?accion=verAsistencia").then(r => r.json()).then(data => {
-                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr>";
-                for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td><td>${data[i][6] || '0'}</td></tr>`;
-                document.getElementById("tablaAsistencia").innerHTML = html;
+                let htmlAsistencia = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr>";
+                let resumenEmpleados = {};
+
+                for(let i = 1; i < data.length; i++) {
+                    if(data[i][0]) {
+                        let fecha = data[i][0];
+                        let hora = data[i][1];
+                        let sucursal = data[i][2];
+                        let turno = data[i][3];
+                        let tipo = data[i][4];
+                        let empleado = data[i][5] || "Desconocido";
+                        let hExtra = parseFloat(data[i][6]) || 0;
+
+                        htmlAsistencia += `<tr><td>${fecha}</td><td>${hora}</td><td>${sucursal}</td><td>${turno}</td><td>${tipo}</td><td>${empleado}</td><td>${hExtra}</td></tr>`;
+
+                        if (!resumenEmpleados[empleado]) {
+                            resumenEmpleados[empleado] = { turnos: 0, horasExtra: 0 };
+                        }
+
+                        if (tipo === "Salida") {
+                            resumenEmpleados[empleado].turnos += 1;
+                            resumenEmpleados[empleado].horasExtra += hExtra;
+                        }
+                    }
+                }
+                document.getElementById("tablaAsistencia").innerHTML = htmlAsistencia;
+
+                // Generar la tabla de pagos
+                let htmlPagos = "<tr><th>Empleado</th><th>Turnos Completados</th><th>H. Extra Totales</th><th>Total a Pagar</th></tr>";
+                for (let emp in resumenEmpleados) {
+                    let t = resumenEmpleados[emp].turnos;
+                    let he = resumenEmpleados[emp].horasExtra;
+                    
+                    let pagoTurnos = t * 12.00;
+                    let pagoExtra = he * 1.50; 
+                    let totalPagar = pagoTurnos + pagoExtra;
+
+                    htmlPagos += `<tr><td><b>${emp}</b></td><td>${t}</td><td>${he} hrs</td><td><b>$${totalPagar.toFixed(2)}</b></td></tr>`;
+                }
+                document.getElementById("tablaResumenPagos").innerHTML = htmlPagos;
             });
+
+            // Tareas
             fetch(URL_API + "?accion=verTareas").then(r => r.json()).then(data => {
                 let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>";
                 for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
                 document.getElementById("tablaTareas").innerHTML = html;
             });
+
+            // Pedidos
             fetch(URL_API + "?accion=verPedidos").then(r => r.json()).then(data => {
                 let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr>";
                 for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
