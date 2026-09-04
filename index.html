@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <!-- REGISTRAR ASISTENCIA DINÁMICA -->
+        <!-- REGISTRAR ASISTENCIA -->
         <div class="card">
             <h3>Registrar Asistencia</h3>
             
@@ -95,7 +95,7 @@
             </div>
         </div>
 
-        <!-- TAREAS FILTRADAS POR TURNO Y SUCURSAL -->
+        <!-- TAREAS FILTRADAS -->
         <div class="card" style="text-align: left;">
             <h3>Tareas del Día</h3>
             <div id="contenedorTareas">
@@ -265,22 +265,24 @@
             let encontradas = 0;
 
             for (let i = 1; i < tareasGlobales.length; i++) {
-                if (!tareasGlobales[i]) continue;
+                let fila = tareasGlobales[i];
+                if (!fila || fila.length < 5) continue;
 
-                // Extrae datos flexibilizando índices de columnas recibidas desde Google Sheets
-                let sucursalFila = String(tareasGlobales[i][2] || tareasGlobales[i][0] || "").trim().toLowerCase();
-                let turnoFila = String(tareasGlobales[i][1] || "").trim().toLowerCase();
-                let tareaDesc = tareasGlobales[i][4] || tareasGlobales[i][3] || tareasGlobales[i][2];
+                let turnoFila = String(fila[1] || "").trim().toLowerCase();     // Columna B (Turno)
+                let areaFila = fila[3] || "";                                  // Columna D (Area)
+                let tareaDesc = fila[4];                                       // Columna E (Descripcion_Tarea)
+                let sucursalFila = String(fila[5] || "").trim().toLowerCase(); // Columna F (Sucursal)
 
-                // Filtra verificando que coincida el turno y la sucursal (o aplique a todas)
                 let coincideTurno = (turnoFila === turnoSeleccionado || turnoFila === "ambos" || turnoFila === "todos");
-                let coincideSucursal = (sucursalFila === sucursalActual || sucursalFila === "todas" || sucursalFila === "general" || sucursalFila === "");
+                let coincideSucursal = (sucursalFila === sucursalActual || sucursalFila === "todas" || sucursalFila === "");
 
                 if (coincideTurno && coincideSucursal && tareaDesc) {
                     encontradas++;
+                    let textoMostrar = areaFila ? `<b>[${areaFila}]</b> ${tareaDesc}` : tareaDesc;
                     let isChecked = localStorage.getItem("tarea_" + tareaDesc) === "true" ? "checked" : "";
+
                     html += `<label style="font-size: 13px; display: block; margin: 8px 0; text-align: left;">
-                                <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)"> ${tareaDesc}
+                                <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)"> ${textoMostrar}
                              </label>`;
                 }
             }
