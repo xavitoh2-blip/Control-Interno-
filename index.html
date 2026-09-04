@@ -95,7 +95,7 @@
             </div>
         </div>
 
-        <!-- TAREAS FILTRADAS POR TURNO -->
+        <!-- TAREAS FILTRADAS POR DIA, TURNO Y SUCURSAL -->
         <div class="card" style="text-align: left;">
             <h3>Tareas del Día</h3>
             <div id="contenedorTareas">
@@ -169,7 +169,6 @@
         };
         const RADIO_METROS = 200;
 
-        // Lista sincronizada con tu hoja de Google Sheets
         const listaGlobalNombres = [
             ["Tatiana", "Tienda Online Shop"],
             ["Ana Ruth", "Tienda Online Shop"],
@@ -252,26 +251,38 @@
         function renderizarTareas() {
             const turnoSeleccionado = document.getElementById("selectTurno").value;
             const usuarioActual = localStorage.getItem("usuario");
+            const sucursalActual = localStorage.getItem("sucursal");
             const contenedorTareas = document.getElementById("contenedorTareas");
             
-            // Validar si el usuario ya marco entrada para este turno
-            const entradaMarcada = localStorage.getItem("entradaMarcada_" + usuarioActual + "_" + turnoSeleccionado);
+            // Fecha actual AAAA-MM-DD
+            const hoy = new Date().toISOString().split('T')[0];
+            const entradaMarcada = localStorage.getItem(`entrada_${usuarioActual}_${hoy}_${turnoSeleccionado}`);
 
+            // Verificar marcación de entrada HOY
             if (entradaMarcada !== "true") {
                 contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #dc3545; font-weight: bold;'>⚠️ Debes marcar entrada primero para ver y realizar tus tareas.</p>";
                 return;
             }
 
+            // Calcular tipo de día (1-5 = lv, 0 y 6 = sd)
+            const diaNum = new Date().getDay();
+            const diaTipoActual = (diaNum >= 1 && diaNum <= 5) ? "lv" : "sd";
+
             let html = "";
             let encontradas = 0;
 
             for (let i = 1; i < tareasGlobales.length; i++) {
+                let diaFila = String(tareasGlobales[i][0] || "").trim().toLowerCase();
                 let turnoFila = String(tareasGlobales[i][1] || "").trim().toLowerCase();
                 let tareaDesc = tareasGlobales[i][4];
+                let sucursalFila = String(tareasGlobales[i][5] || "").trim();
 
-                if (turnoFila === turnoSeleccionado && tareaDesc) {
+                // Triple filtro: Día + Turno + Sucursal
+                if (diaFila === diaTipoActual && turnoFila === turnoSeleccionado && sucursalFila === sucursalActual && tareaDesc) {
                     encontradas++;
-                    let isChecked = localStorage.getItem("tarea_" + usuarioActual + "_" + tareaDesc) === "true" ? "checked" : "";
+                    let keyTarea = `tarea_${usuarioActual}_${hoy}_${tareaDesc}`;
+                    let isChecked = localStorage.getItem(keyTarea) === "true" ? "checked" : "";
+                    
                     html += `<label style="font-size: 13px; display: block; margin: 8px 0; text-align: left;">
                                 <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)"> ${tareaDesc}
                              </label>`;
@@ -281,7 +292,7 @@
             if (encontradas > 0) {
                 contenedorTareas.innerHTML = html;
             } else {
-                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #666;'>No hay tareas configuradas para este turno.</p>";
+                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #666;'>No hay tareas programadas para esta sucursal hoy en este turno.</p>";
             }
         }
 
@@ -323,7 +334,8 @@
                             alert(`¡Asistencia de ${tipo} registrada con éxito!`);
                             
                             if (tipo === "Entrada") {
-                                localStorage.setItem("entradaMarcada_" + usuarioActual + "_" + turno, "true");
+                                const hoy = new Date().toISOString().split('T')[0];
+                                localStorage.setItem(`entrada_${usuarioActual}_${hoy}_${turno}`, "true");
                                 renderizarTareas();
                             }
                         });
@@ -345,7 +357,10 @@
 
         function guardarTarea(nombreTarea, checkbox) {
             const usuarioActual = localStorage.getItem("usuario");
-            localStorage.setItem("tarea_" + usuarioActual + "_" + nombreTarea, checkbox.checked);
+            const hoy = new Date().toISOString().split('T')[0];
+            
+            localStorage.setItem(`tarea_${usuarioActual}_${hoy}_${nombreTarea}`, checkbox.checked);
+            
             const params = new URLSearchParams({
                 accion: "Tareas", 
                 sucursal: localStorage.getItem("sucursal"), 
