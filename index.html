@@ -103,6 +103,7 @@
             </div>
         </div>
 
+        <!-- HACER PEDIDO -->
         <div class="card">
             <h3>Hacer Pedido</h3>
             <input type="text" id="productoPedido" placeholder="Nombre del producto">
@@ -168,7 +169,7 @@
         };
         const RADIO_METROS = 200;
 
-        // Lista de colaboradores sincronizada con la hoja de Google Sheets
+        // Lista sincronizada con tu hoja de Google Sheets
         const listaGlobalNombres = [
             ["Tatiana", "Tienda Online Shop"],
             ["Ana Ruth", "Tienda Online Shop"],
@@ -233,17 +234,31 @@
             const contenedorBotones = document.getElementById("contenedorBotones");
             const btnEntrada = document.getElementById("btnEntrada");
             const seccionSalida = document.getElementById("seccionSalida");
-            const contenedorTareas = document.getElementById("contenedorTareas");
 
             if (turnoSeleccionado === "apertura" || turnoSeleccionado === "cierre") {
                 textoHorario.innerText = turnoSeleccionado === "apertura" ? "Horario: 8:00 am - 5:00 pm" : "Horario: 1:00 pm - 9:00 pm";
                 contenedorBotones.style.display = "block";
                 btnEntrada.style.display = "block"; 
                 seccionSalida.style.display = "block";
+                
+                renderizarTareas();
             } else {
                 textoHorario.innerText = "";
                 contenedorBotones.style.display = "none";
-                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #666;'>Selecciona un turno para ver las tareas...</p>";
+                document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: #666;'>Selecciona un turno para ver las tareas...</p>";
+            }
+        }
+
+        function renderizarTareas() {
+            const turnoSeleccionado = document.getElementById("selectTurno").value;
+            const usuarioActual = localStorage.getItem("usuario");
+            const contenedorTareas = document.getElementById("contenedorTareas");
+            
+            // Validar si el usuario ya marco entrada para este turno
+            const entradaMarcada = localStorage.getItem("entradaMarcada_" + usuarioActual + "_" + turnoSeleccionado);
+
+            if (entradaMarcada !== "true") {
+                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #dc3545; font-weight: bold;'>⚠️ Debes marcar entrada primero para ver y realizar tus tareas.</p>";
                 return;
             }
 
@@ -256,7 +271,7 @@
 
                 if (turnoFila === turnoSeleccionado && tareaDesc) {
                     encontradas++;
-                    let isChecked = localStorage.getItem("tarea_" + tareaDesc) === "true" ? "checked" : "";
+                    let isChecked = localStorage.getItem("tarea_" + usuarioActual + "_" + tareaDesc) === "true" ? "checked" : "";
                     html += `<label style="font-size: 13px; display: block; margin: 8px 0; text-align: left;">
                                 <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)"> ${tareaDesc}
                              </label>`;
@@ -272,6 +287,7 @@
 
         function validarYRegistrar(tipo) {
             const turno = document.getElementById("selectTurno").value;
+            const usuarioActual = localStorage.getItem("usuario");
             if (!turno) return alert("Selecciona un turno.");
 
             const sucursalActual = localStorage.getItem("sucursal");
@@ -299,11 +315,18 @@
                         sucursal: sucursalActual, 
                         turno: turno, 
                         tipo: tipo, 
-                        empleado: localStorage.getItem("usuario"),
+                        empleado: usuarioActual,
                         horasExtra: horasExtra
                     });
                     fetch(URL_API, { method: "POST", body: params })
-                        .then(() => alert(`¡Asistencia de ${tipo} registrada con éxito!`));
+                        .then(() => {
+                            alert(`¡Asistencia de ${tipo} registrada con éxito!`);
+                            
+                            if (tipo === "Entrada") {
+                                localStorage.setItem("entradaMarcada_" + usuarioActual + "_" + turno, "true");
+                                renderizarTareas();
+                            }
+                        });
                 } else {
                     alert(`❌ Estás muy lejos del local (${Math.round(dist)}m). Acércate para marcar.`);
                 }
@@ -321,11 +344,12 @@
         }
 
         function guardarTarea(nombreTarea, checkbox) {
-            localStorage.setItem("tarea_" + nombreTarea, checkbox.checked);
+            const usuarioActual = localStorage.getItem("usuario");
+            localStorage.setItem("tarea_" + usuarioActual + "_" + nombreTarea, checkbox.checked);
             const params = new URLSearchParams({
                 accion: "Tareas", 
                 sucursal: localStorage.getItem("sucursal"), 
-                empleado: localStorage.getItem("usuario"), 
+                empleado: usuarioActual, 
                 tarea: nombreTarea, 
                 estado: checkbox.checked ? "Completado" : "Pendiente"
             });
@@ -362,7 +386,6 @@
         function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; }
 
         function cargarHistorial() {
-            // Asistencias y cálculo automático de sueldos ($12 por turno, $1.50 por hora extra)
             fetch(URL_API + "?accion=verAsistencia").then(r => r.json()).then(data => {
                 let htmlAsistencia = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr>";
                 let resumenEmpleados = {};
@@ -391,29 +414,23 @@
                 }
                 document.getElementById("tablaAsistencia").innerHTML = htmlAsistencia;
 
-                // Generar la tabla de pagos
                 let htmlPagos = "<tr><th>Empleado</th><th>Turnos Completados</th><th>H. Extra Totales</th><th>Total a Pagar</th></tr>";
                 for (let emp in resumenEmpleados) {
                     let t = resumenEmpleados[emp].turnos;
                     let he = resumenEmpleados[emp].horasExtra;
-                    
-                    let pagoTurnos = t * 12.00;
-                    let pagoExtra = he * 1.50; 
-                    let totalPagar = pagoTurnos + pagoExtra;
+                    let totalPagar = (t * 12.00) + (he * 1.50);
 
                     htmlPagos += `<tr><td><b>${emp}</b></td><td>${t}</td><td>${he} hrs</td><td><b>$${totalPagar.toFixed(2)}</b></td></tr>`;
                 }
                 document.getElementById("tablaResumenPagos").innerHTML = htmlPagos;
             });
 
-            // Tareas
             fetch(URL_API + "?accion=verTareas").then(r => r.json()).then(data => {
                 let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr>";
                 for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
                 document.getElementById("tablaTareas").innerHTML = html;
             });
 
-            // Pedidos
             fetch(URL_API + "?accion=verPedidos").then(r => r.json()).then(data => {
                 let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr>";
                 for(let i = 1; i < data.length; i++) if(data[i][0]) html += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
