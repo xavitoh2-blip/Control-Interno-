@@ -113,19 +113,18 @@
             </div>
         </div>
 
-        <!-- INVENTARIO MULTI-PRODUCTO -->
+        <!-- INVENTARIO MULTI-PRODUCTO (ORDEN SEQUENCIAL FORZADO) -->
         <div class="card" style="text-align: left;">
             <button onclick="toggleMenuInventario()" style="background-color: #17a2b8; margin: 0;">
                 📦 Actualizar Inventario
             </button>
 
             <div id="menuInventario" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <h3 style="font-size: 15px;">Cuadre de Inventario Masivo</h3>
+                <h3 style="font-size: 15px;">Cuadre de Inventario Sequencial</h3>
                 
-                <label style="font-size: 12px; color: #555;">Seleccionar Producto:</label>
-                <select id="selectProductoInventario" onchange="actualizarStockSistema()">
-                    <option value="">-- Cargando productos... --</option>
-                </select>
+                <label style="font-size: 12px; color: #555;">Producto a Contar (Siguiente en Lista):</label>
+                <input type="text" id="nombreProductoActual" readonly style="background-color: #e9ecef; font-weight: bold; color: #007bff;">
+                <input type="hidden" id="selectProductoInventario">
 
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
                     <div style="flex: 1;">
@@ -144,7 +143,7 @@
 
                 <input type="text" id="invObservacion" placeholder="Observaciones (Opcional)">
                 
-                <button onclick="agregarALaLista()" style="background-color: #007bff; margin-top: 5px;">
+                <button id="btnAgregarLista" onclick="agregarALaLista()" style="background-color: #007bff; margin-top: 5px;">
                     ➕ Agregar a la Lista
                 </button>
 
@@ -311,14 +310,14 @@
         }
 
         function cargarProductosParaCuadre() {
-            const selectProd = document.getElementById("selectProductoInventario");
-            selectProd.innerHTML = '<option value="">-- Cargando productos... --</option>';
+            const inputNombre = document.getElementById("nombreProductoActual");
+            inputNombre.value = "Cargando productos...";
 
             fetch(URL_API + "?accion=verProductosInventario")
                 .then(r => r.json())
                 .then(data => {
                     if (!Array.isArray(data) || data.length <= 1) {
-                        selectProd.innerHTML = '<option value="">Sin productos en ProductosInventario</option>';
+                        inputNombre.value = "Sin productos disponibles";
                         return;
                     }
                     productosInventarioGlobal = data;
@@ -326,22 +325,42 @@
                 })
                 .catch(err => {
                     console.error("Error cargando inventario:", err);
-                    selectProd.innerHTML = '<option value="">Error al cargar productos</option>';
+                    inputNombre.value = "Error al cargar productos";
                 });
         }
 
+        // SELECCIÓN SECUENCIAL OBLIGATORIA
         function renderizarSelectProductos() {
-            const selectProd = document.getElementById("selectProductoInventario");
-            selectProd.innerHTML = '<option value="">-- Selecciona un producto --</option>';
+            const inputNombre = document.getElementById("nombreProductoActual");
+            const inputIndex = document.getElementById("selectProductoInventario");
+            const btnAgregar = document.getElementById("btnAgregarLista");
             
+            let siguienteProducto = null;
+            let siguienteIndex = "";
+
             for (let i = 1; i < productosInventarioGlobal.length; i++) {
                 let prodNombre = productosInventarioGlobal[i][0];
                 if (prodNombre) {
                     let yaAgregado = listaCuadresPendientes.some(item => item.producto === prodNombre);
                     if (!yaAgregado) {
-                        selectProd.innerHTML += `<option value="${i}">${prodNombre}</option>`;
+                        siguienteProducto = prodNombre;
+                        siguienteIndex = i;
+                        break;
                     }
                 }
+            }
+
+            if (siguienteProducto) {
+                inputNombre.value = siguienteProducto;
+                inputIndex.value = siguienteIndex;
+                btnAgregar.disabled = false;
+                actualizarStockSistema();
+            } else {
+                inputNombre.value = "✅ ¡Todos los productos han sido agregados!";
+                inputIndex.value = "";
+                document.getElementById("invSistema").value = "";
+                document.getElementById("invFisico").value = "";
+                btnAgregar.disabled = true;
             }
         }
 
@@ -389,7 +408,7 @@
             const observacion = document.getElementById("invObservacion").value.trim();
 
             if (indexSelect === "" || fisico === "") {
-                return alert("Selecciona un producto e ingresa el conteo físico.");
+                return alert("Ingresa el conteo físico del producto actual.");
             }
 
             const nombreProducto = productosInventarioGlobal[indexSelect][0];
@@ -403,7 +422,6 @@
                 observacion: observacion
             });
 
-            document.getElementById("selectProductoInventario").value = "";
             document.getElementById("invSistema").value = "";
             document.getElementById("invFisico").value = "";
             document.getElementById("invObservacion").value = "";
@@ -662,7 +680,6 @@
         function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; }
 
         function cargarHistorial() {
-            // Historial Asistencias y Resumen
             fetch(URL_API + "?accion=verAsistencia").then(r => r.json()).then(data => {
                 let tbodyAsistencia = document.querySelector("#tablaAsistencia tbody");
                 let tbodyResumen = document.querySelector("#tablaResumenPagos tbody");
@@ -690,7 +707,6 @@
                 }
             });
 
-            // Historial Inventario
             fetch(URL_API + "?accion=verCuadres").then(r => r.json()).then(data => {
                 let tbody = document.querySelector("#tablaInventario tbody");
                 tbody.innerHTML = "";
@@ -701,7 +717,6 @@
                 }
             }).catch(() => {});
 
-            // Historial Tareas
             fetch(URL_API + "?accion=verHistorialTareas").then(r => r.json()).then(data => {
                 let tbody = document.querySelector("#tablaTareas tbody");
                 tbody.innerHTML = "";
@@ -712,7 +727,6 @@
                 }
             }).catch(() => {});
 
-            // Historial Pedidos
             fetch(URL_API + "?accion=verPedidos").then(r => r.json()).then(data => {
                 let tbody = document.querySelector("#tablaPedidos tbody");
                 tbody.innerHTML = "";
