@@ -21,6 +21,9 @@
         th, td { border: 1px solid #ddd; padding: 5px; text-align: center; }
         th { background-color: #f8f9fa; }
         .login-box { margin: 30px auto; padding: 20px; background: white; width: 300px; border-radius: 10px; box-shadow: 0px 2px 8px rgba(0,0,0,0.1); }
+        
+        .item-cuadre { background: #f8f9fa; border: 1px solid #ddd; padding: 8px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; text-align: left; }
+        .btn-del { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -103,14 +106,14 @@
             </div>
         </div>
 
-        <!-- BOTÓN Y MENÚ DE INVENTARIO DESPLEGABLE -->
+        <!-- BOTÓN Y MENÚ DE INVENTARIO MULTI-PRODUCTO -->
         <div class="card" style="text-align: left;">
             <button onclick="toggleMenuInventario()" style="background-color: #17a2b8; width: 100%; margin: 0;">
                 📦 Actualizar Inventario
             </button>
 
             <div id="menuInventario" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <h3 style="font-size: 16px;">Cuadre de Inventario</h3>
+                <h3 style="font-size: 16px;">Cuadre de Inventario Masivo</h3>
                 
                 <label style="font-size: 12px; color: #555;">Seleccionar Producto:</label>
                 <select id="selectProductoInventario" onchange="actualizarStockSistema()">
@@ -134,9 +137,19 @@
 
                 <input type="text" id="invObservacion" placeholder="Observaciones (Opcional)">
                 
-                <button onclick="enviarCuadreInventario()" style="background-color: #28a745; width: 100%; margin-top: 5px;">
-                    Registrar Cuadre
+                <button onclick="agregarALaLista()" style="background-color: #007bff; width: 100%; margin-top: 5px;">
+                    ➕ Agregar a la Lista
                 </button>
+
+                <!-- LISTA DE PRODUCTOS ACUMULADOS -->
+                <div id="contenedorListaCuadres" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; display: none;">
+                    <h4 style="font-size: 13px; margin: 0 0 8px 0; color: #333;">Productos Listos para Enviar (<span id="cantLista">0</span>):</h4>
+                    <div id="listaProductosAcumulados"></div>
+                    
+                    <button id="btnEnviarTodo" onclick="enviarTodosLosCuadres()" style="background-color: #28a745; width: 100%; margin-top: 10px;">
+                        🚀 Registrar Todos los Cuadres
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -222,6 +235,7 @@
 
         let tareasGlobales = [];
         let productosInventarioGlobal = [];
+        let listaCuadresPendientes = [];
 
         window.onload = function() {
             const usuarioGuardado = localStorage.getItem("usuario");
@@ -239,11 +253,7 @@
 
         function toggleMenuInventario() {
             const menu = document.getElementById("menuInventario");
-            if (menu.style.display === "none" || menu.style.display === "") {
-                menu.style.display = "block";
-            } else {
-                menu.style.display = "none";
-            }
+            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
         }
 
         function filtrarNombresPorSucursal() {
@@ -284,23 +294,30 @@
 
         function cargarProductosParaCuadre() {
             const sucursalActual = localStorage.getItem("sucursal");
-            const selectProd = document.getElementById("selectProductoInventario");
-
             fetch(URL_API + "?accion=verProductosInventario&sucursal=" + encodeURIComponent(sucursalActual))
                 .then(r => r.json())
                 .then(data => {
                     productosInventarioGlobal = data;
-                    selectProd.innerHTML = '<option value="">-- Selecciona un producto --</option>';
-                    
-                    for (let i = 1; i < data.length; i++) {
-                        if (data[i][0]) {
-                            selectProd.innerHTML += `<option value="${i}">${data[i][0]}</option>`;
-                        }
-                    }
+                    renderizarSelectProductos();
                 })
                 .catch(() => {
-                    selectProd.innerHTML = '<option value="">Error al cargar productos</option>';
+                    document.getElementById("selectProductoInventario").innerHTML = '<option value="">Error al cargar productos</option>';
                 });
+        }
+
+        function renderizarSelectProductos() {
+            const selectProd = document.getElementById("selectProductoInventario");
+            selectProd.innerHTML = '<option value="">-- Selecciona un producto --</option>';
+            
+            for (let i = 1; i < productosInventarioGlobal.length; i++) {
+                let prodNombre = productosInventarioGlobal[i][0];
+                if (prodNombre) {
+                    let yaAgregado = listaCuadresPendientes.some(item => item.producto === prodNombre);
+                    if (!yaAgregado) {
+                        selectProd.innerHTML += `<option value="${i}">${prodNombre}</option>`;
+                    }
+                }
+            }
         }
 
         function actualizarStockSistema() {
@@ -340,7 +357,7 @@
             }
         }
 
-        function enviarCuadreInventario() {
+        function agregarALaLista() {
             const indexSelect = document.getElementById("selectProductoInventario").value;
             const sistema = document.getElementById("invSistema").value;
             const fisico = document.getElementById("invFisico").value;
@@ -353,10 +370,7 @@
             const nombreProducto = productosInventarioGlobal[indexSelect][0];
             const dif = parseFloat(fisico) - parseFloat(sistema);
 
-            const params = new URLSearchParams({
-                accion: "CuadreInventario",
-                sucursal: localStorage.getItem("sucursal"),
-                empleado: localStorage.getItem("usuario"),
+            listaCuadresPendientes.push({
                 producto: nombreProducto,
                 sistema: sistema,
                 fisico: fisico,
@@ -364,18 +378,87 @@
                 observacion: observacion
             });
 
-            fetch(URL_API, { method: "POST", body: params })
-                .then(() => {
-                    alert("¡Cuadre de inventario registrado con éxito!");
-                    document.getElementById("selectProductoInventario").value = "";
-                    document.getElementById("invSistema").value = "";
-                    document.getElementById("invFisico").value = "";
-                    document.getElementById("invObservacion").value = "";
-                    document.getElementById("textoDiferencia").innerText = "Diferencia: 0";
-                    document.getElementById("textoDiferencia").style.color = "#555";
-                    toggleMenuInventario();
-                })
-                .catch(() => alert("Error al registrar el cuadre de inventario."));
+            document.getElementById("selectProductoInventario").value = "";
+            document.getElementById("invSistema").value = "";
+            document.getElementById("invFisico").value = "";
+            document.getElementById("invObservacion").value = "";
+            document.getElementById("textoDiferencia").innerText = "Diferencia: 0";
+            document.getElementById("textoDiferencia").style.color = "#555";
+
+            renderizarSelectProductos();
+            renderizarListaAcumulada();
+        }
+
+        function renderizarListaAcumulada() {
+            const contenedor = document.getElementById("listaProductosAcumulados");
+            const contSec = document.getElementById("contenedorListaCuadres");
+            const cantSpan = document.getElementById("cantLista");
+
+            cantSpan.innerText = listaCuadresPendientes.length;
+
+            if (listaCuadresPendientes.length === 0) {
+                contSec.style.display = "none";
+                contenedor.innerHTML = "";
+                return;
+            }
+
+            contSec.style.display = "block";
+            let html = "";
+            listaCuadresPendientes.forEach((item, index) => {
+                html += `
+                <div class="item-cuadre">
+                    <div>
+                        <strong>${item.producto}</strong><br>
+                        <span style="color:#666;">Físico: ${item.fisico} | Dif: ${item.diferencia > 0 ? '+' + item.diferencia : item.diferencia}</span>
+                    </div>
+                    <button class="btn-del" onclick="eliminarDeLaLista(${index})">✕</button>
+                </div>`;
+            });
+            contenedor.innerHTML = html;
+        }
+
+        function eliminarDeLaLista(index) {
+            listaCuadresPendientes.splice(index, 1);
+            renderizarSelectProductos();
+            renderizarListaAcumulada();
+        }
+
+        async function enviarTodosLosCuadres() {
+            if (listaCuadresPendientes.length === 0) return;
+
+            const btn = document.getElementById("btnEnviarTodo");
+            btn.disabled = true;
+            btn.innerText = "Enviando cuadres...";
+
+            const sucursal = localStorage.getItem("sucursal");
+            const empleado = localStorage.getItem("usuario");
+
+            for (let item of listaCuadresPendientes) {
+                const params = new URLSearchParams({
+                    accion: "CuadreInventario",
+                    sucursal: sucursal,
+                    empleado: empleado,
+                    producto: item.producto,
+                    sistema: item.sistema,
+                    fisico: item.fisico,
+                    diferencia: item.diferencia,
+                    observacion: item.observacion
+                });
+
+                try {
+                    await fetch(URL_API, { method: "POST", body: params });
+                } catch (err) {
+                    console.error("Error enviando producto:", item.producto);
+                }
+            }
+
+            alert("¡Todos los cuadres han sido registrados con éxito!");
+            listaCuadresPendientes = [];
+            btn.disabled = false;
+            btn.innerText = "🚀 Registrar Todos los Cuadres";
+            renderizarListaAcumulada();
+            renderizarSelectProductos();
+            toggleMenuInventario();
         }
 
         function cambiarOpcionesTurno() {
@@ -587,7 +670,6 @@
                 document.getElementById("tablaResumenPagos").innerHTML = htmlPagos;
             });
 
-            // Historial de Cuadre de Inventarios
             fetch(URL_API + "?accion=verCuadreInventario").then(r => r.json()).then(data => {
                 let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Sistema</th><th>Físico</th><th>Dif.</th><th>Obs.</th></tr>";
                 for(let i = 1; i < data.length; i++) {
