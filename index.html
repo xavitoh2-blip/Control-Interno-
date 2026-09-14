@@ -68,7 +68,7 @@
             </div>
         </div>
 
-        <!-- REGISTRAR ASISTENCIA DINÁMICA -->
+        <!-- REGISTRAR ASISTENCIA -->
         <div class="card">
             <h3>Registrar Asistencia</h3>
             
@@ -98,7 +98,7 @@
             </div>
         </div>
 
-        <!-- TAREAS FILTRADAS POR DIA, TURNO Y SUCURSAL -->
+        <!-- TAREAS DEL DÍA -->
         <div class="card" style="text-align: left;">
             <h3>Tareas del Día</h3>
             <div id="contenedorTareas">
@@ -106,7 +106,7 @@
             </div>
         </div>
 
-        <!-- BOTÓN Y MENÚ DE INVENTARIO MULTI-PRODUCTO -->
+        <!-- INVENTARIO MULTI-PRODUCTO -->
         <div class="card" style="text-align: left;">
             <button onclick="toggleMenuInventario()" style="background-color: #17a2b8; width: 100%; margin: 0;">
                 📦 Actualizar Inventario
@@ -226,18 +226,14 @@
         };
         const RADIO_METROS = 200;
 
-        const listaGlobalNombres = [
-            ["Tatiana", "Tienda Online Shop"],
-            ["Ana Ruth", "Tienda Online Shop"],
-            ["Carolina", "Mini super"],
-            ["Nestor", "Bodega"]
-        ];
-
+        let listaGlobalNombres = [];
         let tareasGlobales = [];
         let productosInventarioGlobal = [];
         let listaCuadresPendientes = [];
 
         window.onload = function() {
+            cargarEmpleadosDesdeSheets();
+
             const usuarioGuardado = localStorage.getItem("usuario");
             const sucursalGuardada = localStorage.getItem("sucursal");
 
@@ -251,6 +247,16 @@
             }
         };
 
+        function cargarEmpleadosDesdeSheets() {
+            fetch(URL_API + "?accion=verEmpleados")
+                .then(r => r.json())
+                .then(data => {
+                    listaGlobalNombres = data.slice(1);
+                    filtrarNombresPorSucursal();
+                })
+                .catch(err => console.error("Error al obtener la lista de colaboradores:", err));
+        }
+
         function toggleMenuInventario() {
             const menu = document.getElementById("menuInventario");
             menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
@@ -261,9 +267,12 @@
             const selectEmp = document.getElementById("nombreEmpleado");
             selectEmp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
             if (!sucursalSeleccionada) return;
+            
             listaGlobalNombres.forEach(row => {
-                if (row[1] === sucursalSeleccionada) {
-                    selectEmp.innerHTML += `<option value="${row[0]}">${row[0]}</option>`;
+                let empNombre = row[0];
+                let empSucursal = row[1];
+                if (empSucursal && empSucursal.trim().toLowerCase() === sucursalSeleccionada.trim().toLowerCase()) {
+                    selectEmp.innerHTML += `<option value="${empNombre}">${empNombre}</option>`;
                 }
             });
         }
