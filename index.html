@@ -103,35 +103,41 @@
             </div>
         </div>
 
-        <!-- CUADRE DE INVENTARIO (PRODUCTOS DESDE SHEETS) -->
+        <!-- BOTÓN Y MENÚ DE INVENTARIO DESPLEGABLE -->
         <div class="card" style="text-align: left;">
-            <h3>Cuadre de Inventario</h3>
-            
-            <label style="font-size: 12px; color: #555;">Seleccionar Producto:</label>
-            <select id="selectProductoInventario" onchange="actualizarStockSistema()">
-                <option value="">-- Cargando productos... --</option>
-            </select>
-
-            <div style="display: flex; gap: 10px; margin-top: 5px;">
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; color: #555;">Stock Sistema:</label>
-                    <input type="number" id="invSistema" placeholder="0" readonly style="background-color: #e9ecef;">
-                </div>
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; color: #555;">Conteo Físico:</label>
-                    <input type="number" id="invFisico" placeholder="0" oninput="calcularDiferenciaInventario()">
-                </div>
-            </div>
-
-            <p id="textoDiferencia" style="font-size: 13px; font-weight: bold; margin: 8px 0; color: #555;">
-                Diferencia: 0
-            </p>
-
-            <input type="text" id="invObservacion" placeholder="Observaciones (Opcional)">
-            
-            <button onclick="enviarCuadreInventario()" style="background-color: #17a2b8; width: 100%; margin-top: 5px;">
-                Registrar Cuadre
+            <button onclick="toggleMenuInventario()" style="background-color: #17a2b8; width: 100%; margin: 0;">
+                📦 Actualizar Inventario
             </button>
+
+            <div id="menuInventario" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                <h3 style="font-size: 16px;">Cuadre de Inventario</h3>
+                
+                <label style="font-size: 12px; color: #555;">Seleccionar Producto:</label>
+                <select id="selectProductoInventario" onchange="actualizarStockSistema()">
+                    <option value="">-- Cargando productos... --</option>
+                </select>
+
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px; color: #555;">Stock Sistema:</label>
+                        <input type="number" id="invSistema" placeholder="0" readonly style="background-color: #e9ecef;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px; color: #555;">Conteo Físico:</label>
+                        <input type="number" id="invFisico" placeholder="0" oninput="calcularDiferenciaInventario()">
+                    </div>
+                </div>
+
+                <p id="textoDiferencia" style="font-size: 13px; font-weight: bold; margin: 8px 0; color: #555;">
+                    Diferencia: 0
+                </p>
+
+                <input type="text" id="invObservacion" placeholder="Observaciones (Opcional)">
+                
+                <button onclick="enviarCuadreInventario()" style="background-color: #28a745; width: 100%; margin-top: 5px;">
+                    Registrar Cuadre
+                </button>
+            </div>
         </div>
 
         <!-- HACER PEDIDO -->
@@ -231,6 +237,15 @@
             }
         };
 
+        function toggleMenuInventario() {
+            const menu = document.getElementById("menuInventario");
+            if (menu.style.display === "none" || menu.style.display === "") {
+                menu.style.display = "block";
+            } else {
+                menu.style.display = "none";
+            }
+        }
+
         function filtrarNombresPorSucursal() {
             const sucursalSeleccionada = document.getElementById("selectSucursal").value;
             const selectEmp = document.getElementById("nombreEmpleado");
@@ -267,7 +282,6 @@
                 });
         }
 
-        // --- Cargar productos de la hoja de Google Sheets para el cuadre ---
         function cargarProductosParaCuadre() {
             const sucursalActual = localStorage.getItem("sucursal");
             const selectProd = document.getElementById("selectProductoInventario");
@@ -278,7 +292,6 @@
                     productosInventarioGlobal = data;
                     selectProd.innerHTML = '<option value="">-- Selecciona un producto --</option>';
                     
-                    // Se asume data = [["Producto", "StockSistema"], ...]
                     for (let i = 1; i < data.length; i++) {
                         if (data[i][0]) {
                             selectProd.innerHTML += `<option value="${i}">${data[i][0]}</option>`;
@@ -360,6 +373,7 @@
                     document.getElementById("invObservacion").value = "";
                     document.getElementById("textoDiferencia").innerText = "Diferencia: 0";
                     document.getElementById("textoDiferencia").style.color = "#555";
+                    toggleMenuInventario();
                 })
                 .catch(() => alert("Error al registrar el cuadre de inventario."));
         }
