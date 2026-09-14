@@ -16,7 +16,7 @@
         
         #pantallaLogin { display: block; }
         #pantallaPrincipal { display: none; }
-        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 750px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
+        #supervisorSection { display: none; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px; max-width: 800px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
         th, td { border: 1px solid #ddd; padding: 5px; text-align: center; }
         th { background-color: #f8f9fa; }
@@ -103,6 +103,37 @@
             </div>
         </div>
 
+        <!-- CUADRE DE INVENTARIO (PRODUCTOS DESDE SHEETS) -->
+        <div class="card" style="text-align: left;">
+            <h3>Cuadre de Inventario</h3>
+            
+            <label style="font-size: 12px; color: #555;">Seleccionar Producto:</label>
+            <select id="selectProductoInventario" onchange="actualizarStockSistema()">
+                <option value="">-- Cargando productos... --</option>
+            </select>
+
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color: #555;">Stock Sistema:</label>
+                    <input type="number" id="invSistema" placeholder="0" readonly style="background-color: #e9ecef;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color: #555;">Conteo Físico:</label>
+                    <input type="number" id="invFisico" placeholder="0" oninput="calcularDiferenciaInventario()">
+                </div>
+            </div>
+
+            <p id="textoDiferencia" style="font-size: 13px; font-weight: bold; margin: 8px 0; color: #555;">
+                Diferencia: 0
+            </p>
+
+            <input type="text" id="invObservacion" placeholder="Observaciones (Opcional)">
+            
+            <button onclick="enviarCuadreInventario()" style="background-color: #17a2b8; width: 100%; margin-top: 5px;">
+                Registrar Cuadre
+            </button>
+        </div>
+
         <!-- HACER PEDIDO -->
         <div class="card">
             <h3>Hacer Pedido</h3>
@@ -144,6 +175,13 @@
             </table>
         </div>
 
+        <h4>Historial de Cuadre de Inventario</h4>
+        <div style="overflow-x: auto; max-height: 130px;">
+            <table id="tablaInventario">
+                <tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Sistema</th><th>Físico</th><th>Dif.</th><th>Obs.</th></tr>
+            </table>
+        </div>
+
         <h4>Tareas / Checklist</h4>
         <div style="overflow-x: auto; max-height: 130px;">
             <table id="tablaTareas">
@@ -177,6 +215,7 @@
         ];
 
         let tareasGlobales = [];
+        let productosInventarioGlobal = [];
 
         window.onload = function() {
             const usuarioGuardado = localStorage.getItem("usuario");
@@ -188,6 +227,7 @@
                 document.getElementById("pantallaLogin").style.display = "none";
                 document.getElementById("pantallaPrincipal").style.display = "block";
                 descargarTareasConfig();
+                cargarProductosParaCuadre();
             }
         };
 
@@ -227,6 +267,103 @@
                 });
         }
 
+        // --- Cargar productos de la hoja de Google Sheets para el cuadre ---
+        function cargarProductosParaCuadre() {
+            const sucursalActual = localStorage.getItem("sucursal");
+            const selectProd = document.getElementById("selectProductoInventario");
+
+            fetch(URL_API + "?accion=verProductosInventario&sucursal=" + encodeURIComponent(sucursalActual))
+                .then(r => r.json())
+                .then(data => {
+                    productosInventarioGlobal = data;
+                    selectProd.innerHTML = '<option value="">-- Selecciona un producto --</option>';
+                    
+                    // Se asume data = [["Producto", "StockSistema"], ...]
+                    for (let i = 1; i < data.length; i++) {
+                        if (data[i][0]) {
+                            selectProd.innerHTML += `<option value="${i}">${data[i][0]}</option>`;
+                        }
+                    }
+                })
+                .catch(() => {
+                    selectProd.innerHTML = '<option value="">Error al cargar productos</option>';
+                });
+        }
+
+        function actualizarStockSistema() {
+            const index = document.getElementById("selectProductoInventario").value;
+            const invSistema = document.getElementById("invSistema");
+            if (index !== "" && productosInventarioGlobal[index]) {
+                invSistema.value = productosInventarioGlobal[index][1] || 0;
+            } else {
+                invSistema.value = "";
+            }
+            calcularDiferenciaInventario();
+        }
+
+        function calcularDiferenciaInventario() {
+            const sistema = parseFloat(document.getElementById("invSistema").value) || 0;
+            const fisicoInput = document.getElementById("invFisico").value;
+            const elem = document.getElementById("textoDiferencia");
+
+            if (fisicoInput === "") {
+                elem.innerText = "Diferencia: 0";
+                elem.style.color = "#555";
+                return;
+            }
+
+            const fisico = parseFloat(fisicoInput) || 0;
+            const dif = fisico - sistema;
+
+            if (dif === 0) {
+                elem.innerText = "Diferencia: 0 (Cuadre Exacto)";
+                elem.style.color = "#28a745";
+            } else if (dif > 0) {
+                elem.innerText = `Diferencia: +${dif} (Sobrante)`;
+                elem.style.color = "#007bff";
+            } else {
+                elem.innerText = `Diferencia: ${dif} (Faltante)`;
+                elem.style.color = "#dc3545";
+            }
+        }
+
+        function enviarCuadreInventario() {
+            const indexSelect = document.getElementById("selectProductoInventario").value;
+            const sistema = document.getElementById("invSistema").value;
+            const fisico = document.getElementById("invFisico").value;
+            const observacion = document.getElementById("invObservacion").value.trim();
+
+            if (indexSelect === "" || fisico === "") {
+                return alert("Selecciona un producto e ingresa el conteo físico.");
+            }
+
+            const nombreProducto = productosInventarioGlobal[indexSelect][0];
+            const dif = parseFloat(fisico) - parseFloat(sistema);
+
+            const params = new URLSearchParams({
+                accion: "CuadreInventario",
+                sucursal: localStorage.getItem("sucursal"),
+                empleado: localStorage.getItem("usuario"),
+                producto: nombreProducto,
+                sistema: sistema,
+                fisico: fisico,
+                diferencia: dif,
+                observacion: observacion
+            });
+
+            fetch(URL_API, { method: "POST", body: params })
+                .then(() => {
+                    alert("¡Cuadre de inventario registrado con éxito!");
+                    document.getElementById("selectProductoInventario").value = "";
+                    document.getElementById("invSistema").value = "";
+                    document.getElementById("invFisico").value = "";
+                    document.getElementById("invObservacion").value = "";
+                    document.getElementById("textoDiferencia").innerText = "Diferencia: 0";
+                    document.getElementById("textoDiferencia").style.color = "#555";
+                })
+                .catch(() => alert("Error al registrar el cuadre de inventario."));
+        }
+
         function cambiarOpcionesTurno() {
             const turnoSeleccionado = document.getElementById("selectTurno").value;
             const textoHorario = document.getElementById("textoHorario");
@@ -254,17 +391,14 @@
             const sucursalActual = localStorage.getItem("sucursal");
             const contenedorTareas = document.getElementById("contenedorTareas");
             
-            // Fecha actual AAAA-MM-DD
             const hoy = new Date().toISOString().split('T')[0];
             const entradaMarcada = localStorage.getItem(`entrada_${usuarioActual}_${hoy}_${turnoSeleccionado}`);
 
-            // Verificar marcación de entrada HOY
             if (entradaMarcada !== "true") {
                 contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #dc3545; font-weight: bold;'>⚠️ Debes marcar entrada primero para ver y realizar tus tareas.</p>";
                 return;
             }
 
-            // Calcular tipo de día (1-5 = lv, 0 y 6 = sd)
             const diaNum = new Date().getDay();
             const diaTipoActual = (diaNum >= 1 && diaNum <= 5) ? "lv" : "sd";
 
@@ -277,7 +411,6 @@
                 let tareaDesc = tareasGlobales[i][4];
                 let sucursalFila = String(tareasGlobales[i][5] || "").trim();
 
-                // Triple filtro: Día + Turno + Sucursal
                 if (diaFila === diaTipoActual && turnoFila === turnoSeleccionado && sucursalFila === sucursalActual && tareaDesc) {
                     encontradas++;
                     let keyTarea = `tarea_${usuarioActual}_${hoy}_${tareaDesc}`;
@@ -438,6 +571,27 @@
                     htmlPagos += `<tr><td><b>${emp}</b></td><td>${t}</td><td>${he} hrs</td><td><b>$${totalPagar.toFixed(2)}</b></td></tr>`;
                 }
                 document.getElementById("tablaResumenPagos").innerHTML = htmlPagos;
+            });
+
+            // Historial de Cuadre de Inventarios
+            fetch(URL_API + "?accion=verCuadreInventario").then(r => r.json()).then(data => {
+                let html = "<tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Sistema</th><th>Físico</th><th>Dif.</th><th>Obs.</th></tr>";
+                for(let i = 1; i < data.length; i++) {
+                    if(data[i][0]) {
+                        html += `<tr>
+                            <td>${data[i][0]}</td>
+                            <td>${data[i][1]}</td>
+                            <td>${data[i][2]}</td>
+                            <td>${data[i][3]}</td>
+                            <td>${data[i][4]}</td>
+                            <td>${data[i][5]}</td>
+                            <td>${data[i][6]}</td>
+                            <td><b>${data[i][7]}</b></td>
+                            <td>${data[i][8] || ''}</td>
+                        </tr>`;
+                    }
+                }
+                document.getElementById("tablaInventario").innerHTML = html;
             });
 
             fetch(URL_API + "?accion=verTareas").then(r => r.json()).then(data => {
