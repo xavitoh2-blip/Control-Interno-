@@ -302,15 +302,22 @@
         }
 
         function cargarProductosParaCuadre() {
-            const sucursalActual = localStorage.getItem("sucursal");
-            fetch(URL_API + "?accion=verProductosInventario&sucursal=" + encodeURIComponent(sucursalActual))
+            const selectProd = document.getElementById("selectProductoInventario");
+            selectProd.innerHTML = '<option value="">-- Cargando productos... --</option>';
+
+            fetch(URL_API + "?accion=verProductosInventario")
                 .then(r => r.json())
                 .then(data => {
+                    if (!Array.isArray(data) || data.length <= 1) {
+                        selectProd.innerHTML = '<option value="">Sin productos en ProductosInventario</option>';
+                        return;
+                    }
                     productosInventarioGlobal = data;
                     renderizarSelectProductos();
                 })
-                .catch(() => {
-                    document.getElementById("selectProductoInventario").innerHTML = '<option value="">Error al cargar productos</option>';
+                .catch(err => {
+                    console.error("Error cargando inventario:", err);
+                    selectProd.innerHTML = '<option value="">Error al cargar productos</option>';
                 });
         }
 
