@@ -113,16 +113,19 @@
             </div>
         </div>
 
-        <!-- INVENTARIO MULTI-PRODUCTO (ORDEN SEQUENCIAL FORZADO) -->
+        <!-- INVENTARIO MULTI-PRODUCTO (ORDEN SECUENCIAL CON MEMORIA) -->
         <div class="card" style="text-align: left;">
             <button onclick="toggleMenuInventario()" style="background-color: #17a2b8; margin: 0;">
                 📦 Actualizar Inventario
             </button>
 
             <div id="menuInventario" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <h3 style="font-size: 15px;">Cuadre de Inventario Sequencial</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="font-size: 15px; margin: 0; border: none;">Cuadre de Inventario Secuencial</h3>
+                    <button onclick="reiniciarConteoInventario()" style="background-color: #6c757d; font-size: 10px; padding: 4px 8px; width: auto; margin: 0;">🔄 Reiniciar desde el inicio</button>
+                </div>
                 
-                <label style="font-size: 12px; color: #555;">Producto a Contar (Siguiente en Lista):</label>
+                <label style="font-size: 12px; color: #555; margin-top: 10px; display: block;">Producto a Contar (Siguiente en Lista):</label>
                 <input type="text" id="nombreProductoActual" readonly style="background-color: #e9ecef; font-weight: bold; color: #007bff;">
                 <input type="hidden" id="selectProductoInventario">
 
@@ -329,16 +332,20 @@
                 });
         }
 
-        // SELECCIÓN SECUENCIAL OBLIGATORIA
+        // FUNCIÓN CLAVE 1: Renderizar producto usando localStorage
         function renderizarSelectProductos() {
             const inputNombre = document.getElementById("nombreProductoActual");
             const inputIndex = document.getElementById("selectProductoInventario");
             const btnAgregar = document.getElementById("btnAgregarLista");
+
+            // Leemos la posición guardada en localStorage (por defecto iniciamos en el 1)
+            let ultimoIndice = parseInt(localStorage.getItem("ultimoIndiceInventario")) || 1;
             
             let siguienteProducto = null;
             let siguienteIndex = "";
 
-            for (let i = 1; i < productosInventarioGlobal.length; i++) {
+            // Buscamos el siguiente disponible comenzando desde el índice guardado
+            for (let i = ultimoIndice; i < productosInventarioGlobal.length; i++) {
                 let prodNombre = productosInventarioGlobal[i][0];
                 if (prodNombre) {
                     let yaAgregado = listaCuadresPendientes.some(item => item.producto === prodNombre);
@@ -353,14 +360,14 @@
             if (siguienteProducto) {
                 inputNombre.value = siguienteProducto;
                 inputIndex.value = siguienteIndex;
-                btnAgregar.disabled = false;
+                if (btnAgregar) btnAgregar.disabled = false;
                 actualizarStockSistema();
             } else {
-                inputNombre.value = "✅ ¡Todos los productos han sido agregados!";
+                inputNombre.value = "✅ ¡Todos los productos han sido agregados o contados!";
                 inputIndex.value = "";
                 document.getElementById("invSistema").value = "";
                 document.getElementById("invFisico").value = "";
-                btnAgregar.disabled = true;
+                if (btnAgregar) btnAgregar.disabled = true;
             }
         }
 
@@ -401,6 +408,7 @@
             }
         }
 
+        // FUNCIÓN CLAVE 2: Guardar posición al agregar a la lista
         function agregarALaLista() {
             const indexSelect = document.getElementById("selectProductoInventario").value;
             const sistema = document.getElementById("invSistema").value;
@@ -422,6 +430,11 @@
                 observacion: observacion
             });
 
+            // Guardamos el siguiente índice en localStorage para mantener el progreso
+            let siguienteIndice = parseInt(indexSelect) + 1;
+            localStorage.setItem("ultimoIndiceInventario", siguienteIndice);
+
+            // Limpiamos los inputs del conteo actual
             document.getElementById("invSistema").value = "";
             document.getElementById("invFisico").value = "";
             document.getElementById("invObservacion").value = "";
@@ -466,6 +479,7 @@
             renderizarListaAcumulada();
         }
 
+        // FUNCIÓN CLAVE 3: Enviar sin resetear el localStorage
         async function enviarTodosLosCuadres() {
             if (listaCuadresPendientes.length === 0) return;
 
@@ -493,6 +507,8 @@
             try {
                 await Promise.all(promesas);
                 alert("¡Todos los cuadres han sido registrados con éxito!");
+                
+                // Únicamente vaciamos la lista de la pantalla
                 listaCuadresPendientes = [];
             } catch (err) {
                 console.error("Error enviando los cuadres:", err);
@@ -501,8 +517,16 @@
                 btn.disabled = false;
                 btn.innerText = "🚀 Registrar Todos los Cuadres";
                 renderizarListaAcumulada();
+                // Mantiene el avance del índice previamente guardado
                 renderizarSelectProductos();
-                toggleMenuInventario();
+            }
+        }
+
+        // FUNCIÓN OPCIONAL: Reiniciar conteo a producto 1 manualmente
+        function reiniciarConteoInventario() {
+            if (confirm("¿Deseas reiniciar el orden de inventario desde el primer producto?")) {
+                localStorage.removeItem("ultimoIndiceInventario");
+                renderizarSelectProductos();
             }
         }
 
@@ -650,6 +674,7 @@
             const p = document.getElementById("productoPedido").value;
             const c = document.getElementById("cantidadPedido").value;
             if (!p || !c) return alert("Completa los datos del pedido.");
+            
             const params = new URLSearchParams({
                 accion: "Pedidos", 
                 sucursal: localStorage.getItem("sucursal"), 
@@ -657,85 +682,78 @@
                 producto: p, 
                 cantidad: c
             });
-            fetch(URL_API, { method: "POST", body: params }).then(() => {
-                alert("¡Pedido enviado!");
-                document.getElementById("productoPedido").value = "";
-                document.getElementById("cantidadPedido").value = "1";
-            });
+            
+            fetch(URL_API, { method: "POST", body: params })
+                .then(() => {
+                    alert("¡Pedido enviado correctamente!");
+                    document.getElementById("productoPedido").value = "";
+                    document.getElementById("cantidadPedido").value = "1";
+                })
+                .catch(err => {
+                    console.error("Error al enviar pedido:", err);
+                    alert("Error al enviar el pedido.");
+                });
         }
 
-        function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
-        function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; }
-        
+        function mostrarLogin() {
+            document.getElementById("loginModal").style.display = "block";
+        }
+
+        function ocultarLogin() {
+            document.getElementById("loginModal").style.display = "none";
+            document.getElementById("adminPassword").value = "";
+        }
+
         function verificarPassword() {
-            if (document.getElementById("adminPassword").value === "1234") { 
+            const pwd = document.getElementById("adminPassword").value;
+            if (pwd === "1234") { 
                 ocultarLogin();
+                document.getElementById("pantallaLogin").style.display = "none";
+                document.getElementById("pantallaPrincipal").style.display = "none";
                 document.getElementById("supervisorSection").style.display = "block";
-                cargarHistorial();
+                cargarDatosSupervisor();
             } else {
-                alert("Contraseña incorrecta");
+                alert("Contraseña incorrecta.");
             }
         }
 
-        function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; }
+        function cerrarSupervisor() {
+            document.getElementById("supervisorSection").style.display = "none";
+            const usuarioGuardado = localStorage.getItem("usuario");
+            if (usuarioGuardado) {
+                document.getElementById("pantallaPrincipal").style.display = "block";
+            } else {
+                document.getElementById("pantallaLogin").style.display = "block";
+            }
+        }
 
-        function cargarHistorial() {
-            fetch(URL_API + "?accion=verAsistencia").then(r => r.json()).then(data => {
-                let tbodyAsistencia = document.querySelector("#tablaAsistencia tbody");
-                let tbodyResumen = document.querySelector("#tablaResumenPagos tbody");
-                tbodyAsistencia.innerHTML = "";
-                tbodyResumen.innerHTML = "";
-                
-                let resumen = {};
+        function cargarDatosSupervisor() {
+            fetch(URL_API + "?accion=verSupervisor")
+                .then(r => r.json())
+                .then(data => {
+                    poblarTabla("tablaAsistencia", data.asistencias);
+                    poblarTabla("tablaInventario", data.inventario);
+                    poblarTabla("tablaTareas", data.tareas);
+                    poblarTabla("tablaPedidos", data.pedidos);
+                    poblarTabla("tablaResumenPagos", data.resumenPagos);
+                })
+                .catch(err => console.error("Error cargando panel de supervisor:", err));
+        }
 
-                for(let i = 1; i < data.length; i++) {
-                    if(data[i][0]) {
-                        let fecha = data[i][0], hora = data[i][1], sucursal = data[i][2];
-                        let turno = data[i][3], tipo = data[i][4], empleado = data[i][5] || "Desconocido";
-                        let hExtra = parseFloat(data[i][6]) || 0;
+        function poblarTabla(idTabla, filas) {
+            const tbody = document.getElementById(idTabla).querySelector("tbody");
+            tbody.innerHTML = "";
+            if (!filas || filas.length <= 1) return;
 
-                        tbodyAsistencia.innerHTML += `<tr><td>${fecha}</td><td>${hora}</td><td>${sucursal}</td><td>${turno}</td><td>${tipo}</td><td>${empleado}</td><td>${hExtra}</td></tr>`;
-
-                        if(!resumen[empleado]) resumen[empleado] = { turnos: 0, horasExtra: 0 };
-                        if(tipo === "Salida") resumen[empleado].turnos += 1;
-                        resumen[empleado].horasExtra += hExtra;
-                    }
-                }
-
-                for(let emp in resumen) {
-                    tbodyResumen.innerHTML += `<tr><td>${emp}</td><td>${resumen[emp].turnos}</td><td>${resumen[emp].horasExtra}</td></tr>`;
-                }
-            });
-
-            fetch(URL_API + "?accion=verCuadres").then(r => r.json()).then(data => {
-                let tbody = document.querySelector("#tablaInventario tbody");
-                tbody.innerHTML = "";
-                for(let i = 1; i < data.length; i++) {
-                    if(data[i][0]) {
-                        tbody.innerHTML += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td><td>${data[i][6]}</td><td>${data[i][7]}</td><td>${data[i][8] || ''}</td></tr>`;
-                    }
-                }
-            }).catch(() => {});
-
-            fetch(URL_API + "?accion=verHistorialTareas").then(r => r.json()).then(data => {
-                let tbody = document.querySelector("#tablaTareas tbody");
-                tbody.innerHTML = "";
-                for(let i = 1; i < data.length; i++) {
-                    if(data[i][0]) {
-                        tbody.innerHTML += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
-                    }
-                }
-            }).catch(() => {});
-
-            fetch(URL_API + "?accion=verPedidos").then(r => r.json()).then(data => {
-                let tbody = document.querySelector("#tablaPedidos tbody");
-                tbody.innerHTML = "";
-                for(let i = 1; i < data.length; i++) {
-                    if(data[i][0]) {
-                        tbody.innerHTML += `<tr><td>${data[i][0]}</td><td>${data[i][1]}</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`;
-                    }
-                }
-            }).catch(() => {});
+            for (let i = 1; i < filas.length; i++) {
+                let tr = document.createElement("tr");
+                filas[i].forEach(col => {
+                    let td = document.createElement("td");
+                    td.innerText = col;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            }
         }
     </script>
 </body>
