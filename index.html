@@ -113,19 +113,16 @@
             </div>
         </div>
 
-        <!-- INVENTARIO MULTI-PRODUCTO (ORDEN SECUENCIAL CON MEMORIA) -->
+        <!-- INVENTARIO MULTI-PRODUCTO (ORDEN SEQUENCIAL FORZADO) -->
         <div class="card" style="text-align: left;">
             <button onclick="toggleMenuInventario()" style="background-color: #17a2b8; margin: 0;">
                 📦 Actualizar Inventario
             </button>
 
             <div id="menuInventario" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h3 style="font-size: 15px; margin: 0; border: none;">Cuadre de Inventario Secuencial</h3>
-                    <button onclick="reiniciarConteoInventario()" style="background-color: #6c757d; font-size: 10px; padding: 4px 8px; width: auto; margin: 0;">🔄 Reiniciar desde el inicio</button>
-                </div>
+                <h3 style="font-size: 15px;">Cuadre de Inventario Secuencial</h3>
                 
-                <label style="font-size: 12px; color: #555; margin-top: 10px; display: block;">Producto a Contar (Siguiente en Lista):</label>
+                <label style="font-size: 12px; color: #555;">Producto a Contar (Siguiente en Lista):</label>
                 <input type="text" id="nombreProductoActual" readonly style="background-color: #e9ecef; font-weight: bold; color: #007bff;">
                 <input type="hidden" id="selectProductoInventario">
 
@@ -332,20 +329,15 @@
                 });
         }
 
-        // FUNCIÓN CLAVE 1: Renderizar producto usando localStorage
         function renderizarSelectProductos() {
             const inputNombre = document.getElementById("nombreProductoActual");
             const inputIndex = document.getElementById("selectProductoInventario");
             const btnAgregar = document.getElementById("btnAgregarLista");
-
-            // Leemos la posición guardada en localStorage (por defecto iniciamos en el 1)
-            let ultimoIndice = parseInt(localStorage.getItem("ultimoIndiceInventario")) || 1;
             
             let siguienteProducto = null;
             let siguienteIndex = "";
 
-            // Buscamos el siguiente disponible comenzando desde el índice guardado
-            for (let i = ultimoIndice; i < productosInventarioGlobal.length; i++) {
+            for (let i = 1; i < productosInventarioGlobal.length; i++) {
                 let prodNombre = productosInventarioGlobal[i][0];
                 if (prodNombre) {
                     let yaAgregado = listaCuadresPendientes.some(item => item.producto === prodNombre);
@@ -360,14 +352,14 @@
             if (siguienteProducto) {
                 inputNombre.value = siguienteProducto;
                 inputIndex.value = siguienteIndex;
-                if (btnAgregar) btnAgregar.disabled = false;
+                btnAgregar.disabled = false;
                 actualizarStockSistema();
             } else {
-                inputNombre.value = "✅ ¡Todos los productos han sido agregados o contados!";
+                inputNombre.value = "✅ ¡Todos los productos han sido agregados!";
                 inputIndex.value = "";
                 document.getElementById("invSistema").value = "";
                 document.getElementById("invFisico").value = "";
-                if (btnAgregar) btnAgregar.disabled = true;
+                btnAgregar.disabled = true;
             }
         }
 
@@ -408,7 +400,6 @@
             }
         }
 
-        // FUNCIÓN CLAVE 2: Guardar posición al agregar a la lista
         function agregarALaLista() {
             const indexSelect = document.getElementById("selectProductoInventario").value;
             const sistema = document.getElementById("invSistema").value;
@@ -430,11 +421,6 @@
                 observacion: observacion
             });
 
-            // Guardamos el siguiente índice en localStorage para mantener el progreso
-            let siguienteIndice = parseInt(indexSelect) + 1;
-            localStorage.setItem("ultimoIndiceInventario", siguienteIndice);
-
-            // Limpiamos los inputs del conteo actual
             document.getElementById("invSistema").value = "";
             document.getElementById("invFisico").value = "";
             document.getElementById("invObservacion").value = "";
@@ -479,7 +465,6 @@
             renderizarListaAcumulada();
         }
 
-        // FUNCIÓN CLAVE 3: Enviar sin resetear el localStorage
         async function enviarTodosLosCuadres() {
             if (listaCuadresPendientes.length === 0) return;
 
@@ -507,8 +492,6 @@
             try {
                 await Promise.all(promesas);
                 alert("¡Todos los cuadres han sido registrados con éxito!");
-                
-                // Únicamente vaciamos la lista de la pantalla
                 listaCuadresPendientes = [];
             } catch (err) {
                 console.error("Error enviando los cuadres:", err);
@@ -517,16 +500,8 @@
                 btn.disabled = false;
                 btn.innerText = "🚀 Registrar Todos los Cuadres";
                 renderizarListaAcumulada();
-                // Mantiene el avance del índice previamente guardado
                 renderizarSelectProductos();
-            }
-        }
-
-        // FUNCIÓN OPCIONAL: Reiniciar conteo a producto 1 manualmente
-        function reiniciarConteoInventario() {
-            if (confirm("¿Deseas reiniciar el orden de inventario desde el primer producto?")) {
-                localStorage.removeItem("ultimoIndiceInventario");
-                renderizarSelectProductos();
+                toggleMenuInventario();
             }
         }
 
@@ -682,16 +657,15 @@
                 producto: p, 
                 cantidad: c
             });
-            
             fetch(URL_API, { method: "POST", body: params })
                 .then(() => {
-                    alert("¡Pedido enviado correctamente!");
+                    alert("¡Pedido enviado con éxito!");
                     document.getElementById("productoPedido").value = "";
                     document.getElementById("cantidadPedido").value = "1";
                 })
                 .catch(err => {
-                    console.error("Error al enviar pedido:", err);
-                    alert("Error al enviar el pedido.");
+                    console.error("Error enviando pedido:", err);
+                    alert("Hubo un problema al registrar el pedido.");
                 });
         }
 
@@ -705,8 +679,8 @@
         }
 
         function verificarPassword() {
-            const pwd = document.getElementById("adminPassword").value;
-            if (pwd === "1234") { 
+            const pass = document.getElementById("adminPassword").value;
+            if (pass === "1234") { // Cambia esta contraseña según corresponda
                 ocultarLogin();
                 document.getElementById("pantallaLogin").style.display = "none";
                 document.getElementById("pantallaPrincipal").style.display = "none";
@@ -728,32 +702,34 @@
         }
 
         function cargarDatosSupervisor() {
-            fetch(URL_API + "?accion=verSupervisor")
-                .then(r => r.json())
-                .then(data => {
-                    poblarTabla("tablaAsistencia", data.asistencias);
-                    poblarTabla("tablaInventario", data.inventario);
-                    poblarTabla("tablaTareas", data.tareas);
-                    poblarTabla("tablaPedidos", data.pedidos);
-                    poblarTabla("tablaResumenPagos", data.resumenPagos);
-                })
-                .catch(err => console.error("Error cargando panel de supervisor:", err));
-        }
+            // Función para poblar las tablas del panel de supervisor
+            const acciones = [
+                { accion: "verAsistencias", tablaId: "tablaAsistencia" },
+                { accion: "verInventarios", tablaId: "tablaInventario" },
+                { accion: "verTareasHistorial", tablaId: "tablaTareas" },
+                { accion: "verPedidos", tablaId: "tablaPedidos" }
+            ];
 
-        function poblarTabla(idTabla, filas) {
-            const tbody = document.getElementById(idTabla).querySelector("tbody");
-            tbody.innerHTML = "";
-            if (!filas || filas.length <= 1) return;
-
-            for (let i = 1; i < filas.length; i++) {
-                let tr = document.createElement("tr");
-                filas[i].forEach(col => {
-                    let td = document.createElement("td");
-                    td.innerText = col;
-                    tr.appendChild(td);
-                });
-                tbody.appendChild(tr);
-            }
+            acciones.forEach(item => {
+                fetch(`${URL_API}?accion=${item.accion}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const tbody = document.getElementById(item.tablaId).querySelector("tbody");
+                        tbody.innerHTML = "";
+                        if (Array.isArray(data) && data.length > 1) {
+                            data.slice(1).forEach(row => {
+                                let tr = document.createElement("tr");
+                                row.forEach(cell => {
+                                    let td = document.createElement("td");
+                                    td.innerText = cell || "";
+                                    tr.appendChild(td);
+                                });
+                                tbody.appendChild(tr);
+                            });
+                        }
+                    })
+                    .catch(err => console.error(`Error cargando ${item.accion}:`, err));
+            });
         }
     </script>
 </body>
