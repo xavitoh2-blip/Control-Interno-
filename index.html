@@ -196,24 +196,57 @@
             </div>
         </div>
 
-        <!-- HACER PEDIDO DESPLEGABLE -->
+        <!-- SECCIÓN DE PEDIDOS (DINÁMICA SEGÚN SUCURSAL) -->
         <div class="card" style="text-align: left;">
-            <button onclick="toggleMenuPedidos()" style="background-color: #17a2b8; margin: 0;">
-                🛍️ Hacer Pedido
-            </button>
-
-            <div id="menuPedidos" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <h3 style="font-size: 15px;">Solicitud de Productos / Pedidos</h3>
-                
-                <label style="font-size: 12px; color: #555;">Producto Requerido:</label>
-                <input type="text" id="productoPedido" placeholder="Nombre del producto">
-
-                <label style="font-size: 12px; color: #555;">Cantidad Solicitada:</label>
-                <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
-
-                <button onclick="enviarPedido()" style="background-color: #28a745; margin-top: 5px;">
-                    📩 Enviar Pedido
+            <!-- Vista para Tiendas (Hacer Pedido) -->
+            <div id="seccionHacerPedido">
+                <button onclick="toggleMenuPedidos()" style="background-color: #17a2b8; margin: 0;">
+                    🛍️ Hacer Pedido
                 </button>
+
+                <div id="menuPedidos" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                    <h3 style="font-size: 15px;">Solicitud de Productos a Bodega</h3>
+                    
+                    <label style="font-size: 12px; color: #555;">Producto Requerido:</label>
+                    <input type="text" id="productoPedido" placeholder="Nombre del producto">
+
+                    <label style="font-size: 12px; color: #555;">Cantidad Solicitada:</label>
+                    <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
+
+                    <button onclick="enviarPedido()" style="background-color: #28a745; margin-top: 5px;">
+                        📩 Enviar Pedido
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista para Bodega (Ver Pedidos Recibidos) -->
+            <div id="seccionVerPedidosBodega" style="display: none;">
+                <button onclick="toggleMenuPedidosBodega()" style="background-color: #17a2b8; margin: 0;">
+                    📦 Ver Pedidos Recibidos
+                </button>
+
+                <div id="menuPedidosBodega" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                    <h3 style="font-size: 15px;">Pedidos Solicitados por Sucursales</h3>
+                    <button onclick="cargarPedidosEnBodega()" style="background-color: #007bff; font-size: 12px; padding: 6px; margin-bottom: 10px;">
+                        🔄 Actualizar Lista
+                    </button>
+                    <div style="overflow-x: auto;">
+                        <table id="tablaPedidosBodega">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Sucursal</th>
+                                    <th>Solicitó</th>
+                                    <th>Producto</th>
+                                    <th>Cant.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" style="color:#888;">Cargando pedidos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -300,10 +333,26 @@
                 document.getElementById("infoSucursal").innerText = "📍 " + sucursalGuardada;
                 document.getElementById("pantallaLogin").style.display = "none";
                 document.getElementById("pantallaPrincipal").style.display = "block";
+                
+                adaptarInterfazSegunSucursal();
                 descargarTareasConfig();
                 cargarProductosParaCuadre();
             }
         };
+
+        function adaptarInterfazSegunSucursal() {
+            const sucursalActual = localStorage.getItem("sucursal");
+            const secHacer = document.getElementById("seccionHacerPedido");
+            const secBodega = document.getElementById("seccionVerPedidosBodega");
+
+            if (sucursalActual && sucursalActual.trim().toLowerCase() === "bodega") {
+                secHacer.style.display = "none";
+                secBodega.style.display = "block";
+            } else {
+                secHacer.style.display = "block";
+                secBodega.style.display = "none";
+            }
+        }
 
         function cargarEmpleadosDesdeSheets() {
             fetch(URL_API + "?accion=verEmpleados")
@@ -328,6 +377,16 @@
         function toggleMenuPedidos() {
             const menu = document.getElementById("menuPedidos");
             menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+        }
+
+        function toggleMenuPedidosBodega() {
+            const menu = document.getElementById("menuPedidosBodega");
+            const desplegado = (menu.style.display === "none" || menu.style.display === "");
+            menu.style.display = desplegado ? "block" : "none";
+            
+            if (desplegado) {
+                cargarPedidosEnBodega();
+            }
         }
 
         function filtrarNombresPorSucursal() {
@@ -747,6 +806,45 @@
                 .catch(err => {
                     console.error("Error al enviar el pedido:", err);
                     alert("Ocurrió un error al enviar el pedido.");
+                });
+        }
+
+        function cargarPedidosEnBodega() {
+            const tbody = document.querySelector("#tablaPedidosBodega tbody");
+            tbody.innerHTML = `<tr><td colspan="5" style="color:#888;">Cargando pedidos...</td></tr>`;
+
+            fetch(URL_API + "?accion=obtenerReportesSupervisor")
+                .then(r => r.json())
+                .then(data => {
+                    const pedidos = data.pedidos;
+                    tbody.innerHTML = "";
+
+                    if (!pedidos || pedidos.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="color:#888;">No hay pedidos registrados</td></tr>`;
+                        return;
+                    }
+
+                    pedidos.forEach(row => {
+                        let fecha = row[0] || "";
+                        let sucursal = row[2] || "";
+                        let empleado = row[3] || "";
+                        let producto = row[4] || "";
+                        let cantidad = row[5] || "";
+
+                        let tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${fecha}</td>
+                            <td><strong>${sucursal}</strong></td>
+                            <td>${empleado}</td>
+                            <td>${producto}</td>
+                            <td>${cantidad}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    console.error("Error al obtener pedidos en Bodega:", err);
+                    tbody.innerHTML = `<tr><td colspan="5" style="color:red;">Error al cargar pedidos</td></tr>`;
                 });
         }
 
