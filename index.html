@@ -62,9 +62,10 @@
       border-radius: 8px;
       box-sizing: border-box;
       font-size: 1rem;
+      background-color: #fff;
     }
 
-    /* ESTILOS DEL BUSCADOR FLOTANTE */
+    /* BUSCADOR FLOTANTE PARA PRODUCTOS */
     .sugerencias-box {
       position: absolute;
       top: 100%;
@@ -86,16 +87,12 @@
       font-size: 0.95rem;
     }
 
-    .sugerencia-item:last-child {
-      border-bottom: none;
-    }
-
-    .sugerencia-item:active, .sugerencia-item:hover {
+    .sugerencia-item:hover {
       background-color: #f1f5f9;
       color: var(--primary-dark);
     }
 
-    /* TABLA DE PEDIDOS PENDIENTES */
+    /* TABLA DE PEDIDOS */
     .tabla-pedido {
       width: 100%;
       border-collapse: collapse;
@@ -171,7 +168,7 @@
 
 <div class="container">
 
-  <!-- ACCESO DE USUARIOS -->
+  <!-- LOGIN DE ACCESO -->
   <div id="sec-login" class="card">
     <h2>Control Operativo</h2>
     <div class="form-group">
@@ -190,7 +187,7 @@
     <button onclick="iniciarSesion()">Ingresar</button>
   </div>
 
-  <!-- PANEL PRINCIPAL -->
+  <!-- PANTALLA PRINCIPAL -->
   <div id="sec-app" class="hidden">
     
     <div class="card header-user">
@@ -221,7 +218,7 @@
       <button onclick="enviarAsistencia()">Guardar Asistencia</button>
     </div>
 
-    <!-- PEDIDOS CON BUSCADOR Y LISTA -->
+    <!-- SOLICITUD DE PEDIDO CON CARRITO -->
     <div class="card">
       <h3>🛍️ Solicitud de Pedido a Bodega</h3>
       
@@ -249,7 +246,7 @@
         </thead>
         <tbody id="tabla-body-pedido">
           <tr>
-            <td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos a la lista</td>
+            <td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos</td>
           </tr>
         </tbody>
       </table>
@@ -262,13 +259,14 @@
 </div>
 
 <script>
-  // Inserta aquí el enlace de la Web App desplegada en tu Apps Script
-  const URL_API = "https://script.google.com/macros/s/AKfycbwqZ-RELEVANTE_REEMPLAZAR_AQUI/exec";
+  // PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT (la misma que ya usabas)
+  const URL_API = "https://script.google.com/macros/s/TU_URL_DE_APPS_SCRIPT_AQUI/exec";
 
   let catalogoLocal = [];
   let listaPedidoTemporal = [];
   let usuarioActual = { empleado: "", sucursal: "" };
 
+  // Al abrir la página, carga automáticamente los empleados desde la hoja "Nombres"
   window.onload = async function() {
     try {
       let res = await fetch(`${URL_API}?accion=verEmpleados`);
@@ -276,16 +274,18 @@
       let select = document.getElementById("login-empleado");
       select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
       
-      datos.slice(1).forEach(row => {
-        if (row[0]) {
+      datos.forEach(row => {
+        let nombre = row[0] || row; 
+        if (nombre && nombre !== "Nombres" && nombre !== "Empleado") {
           let opt = document.createElement("option");
-          opt.value = row[0];
-          opt.textContent = row[0];
+          opt.value = nombre;
+          opt.textContent = nombre;
           select.appendChild(opt);
         }
       });
     } catch (e) {
-      console.error("Error al cargar lista de empleados", e);
+      console.error("Error al cargar empleados", e);
+      document.getElementById("login-empleado").innerHTML = '<option value="">Error al cargar empleados</option>';
     }
   };
 
@@ -294,7 +294,7 @@
     let suc = document.getElementById("login-sucursal").value;
 
     if (!emp) {
-      alert("Selecciona un empleado de la lista.");
+      alert("Por favor selecciona tu nombre.");
       return;
     }
 
@@ -315,23 +315,16 @@
     document.getElementById("sec-login").classList.remove("hidden");
   }
 
-  // Carga los productos usando 'verProductosInventario' que sí existe en tu backend
+  // Carga el catálogo usando la acción exacta de tu Apps Script
   async function precargarCatalogo() {
     try {
-      let res = await fetch(`${URL_API}?accion=verProductosInventario`);
-      let datos = await res.json();
-      
-      // Procesa los datos omitiendo encabezados
-      catalogoLocal = datos.slice(1).map(row => {
-        return typeof row === "object" ? (row[0] || row[1] || "") : row;
-      }).filter(p => p !== "");
-
+      let res = await fetch(`${URL_API}?accion=verCatalogoProductos`);
+      catalogoLocal = await res.json();
     } catch (e) {
-      console.error("Error cargando inventario de productos", e);
+      console.error("Error al cargar el catálogo de productos", e);
     }
   }
 
-  // LÓGICA DEL BUSCADOR INTERACTIVO
   function filtrarBuscador(texto) {
     let box = document.getElementById("box-sugerencias");
     box.innerHTML = "";
@@ -373,7 +366,6 @@
     }
   });
 
-  // GESTIÓN DE LA LISTA TEMPORAL
   function agregarALaLista() {
     let prodInput = document.getElementById("pedido-producto");
     let cantInput = document.getElementById("pedido-cantidad");
@@ -382,7 +374,7 @@
     let cantidad = parseFloat(cantInput.value);
 
     if (!producto || isNaN(cantidad) || cantidad <= 0) {
-      alert("Escribe o selecciona un producto y coloca una cantidad válida.");
+      alert("Selecciona un producto y una cantidad válida.");
       return;
     }
 
@@ -399,7 +391,7 @@
     tbody.innerHTML = "";
 
     if (listaPedidoTemporal.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos a la lista</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos</td></tr>';
       return;
     }
 
@@ -419,10 +411,9 @@
     actualizarTablaPedido();
   }
 
-  // ENVÍO DE PEDIDOS AL SCRIPT (Acción "Pedidos")
   async function enviarListaCompleta() {
     if (listaPedidoTemporal.length === 0) {
-      alert("Agrega al menos un producto a la lista antes de enviar.");
+      alert("La lista está vacía.");
       return;
     }
 
@@ -439,16 +430,15 @@
         await fetch(URL_API, { method: "POST", body: params });
       }
 
-      alert("¡El pedido se guardó correctamente en Google Sheets!");
+      alert("¡Pedido completo enviado a Bodega exitosamente!");
       listaPedidoTemporal = [];
       actualizarTablaPedido();
 
     } catch (e) {
-      alert("Hubo un detalle al registrar la solicitud.");
+      alert("Ocurrió un error enviando los productos.");
     }
   }
 
-  // ENVÍO DE ASISTENCIA (Acción "Asistencia")
   async function enviarAsistencia() {
     let turno = document.getElementById("asist-turno").value;
     let tipo = document.getElementById("asist-tipo").value;
@@ -464,9 +454,9 @@
 
     try {
       await fetch(URL_API, { method: "POST", body: params });
-      alert("Asistencia registrada con éxito.");
+      alert("Asistencia registrada correctamente.");
     } catch (e) {
-      alert("No se pudo registrar la asistencia.");
+      alert("Error al guardar asistencia.");
     }
   }
 </script>
