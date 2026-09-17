@@ -31,6 +31,35 @@
         .login-box { margin: 30px auto; padding: 20px; background: white; width: 90%; max-width: 320px; border-radius: 10px; box-shadow: 0px 4px 16px rgba(0,0,0,0.2); }
         .item-cuadre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; text-align: left; }
         .btn-del { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
+
+        /* ESTILOS PROFESIONALES PARA TAREAS DEL DÍA */
+        .tarea-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .tarea-item:hover {
+            background-color: #f1f5f9;
+            border-color: #007bff;
+        }
+
+        .tarea-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #28a745;
+        }
     </style>
 </head>
 <body>
@@ -113,9 +142,11 @@
 
         <!-- TAREAS DEL DÍA -->
         <div class="card" style="text-align: left;">
-            <h3>Tareas del Día</h3>
+            <h3 style="text-align: center; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 8px;">📋 Tareas del Día</h3>
             <div id="contenedorTareas">
-                <p style="font-size: 12px; color: #666;">Selecciona un turno para ver las tareas...</p>
+                <p style="font-size: 12px; color: #666; text-align: center; margin: 10px 0;">
+                    Selecciona un turno para ver las tareas...
+                </p>
             </div>
         </div>
 
@@ -567,7 +598,7 @@
             } else {
                 textoHorario.innerText = "";
                 contenedorBotones.style.display = "none";
-                document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: #666;'>Selecciona un turno para ver las tareas...</p>";
+                document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>Selecciona un turno para ver las tareas...</p>";
             }
         }
 
@@ -581,7 +612,7 @@
             const entradaMarcada = localStorage.getItem(`entrada_${usuarioActual}_${hoy}_${turnoSeleccionado}`);
 
             if (entradaMarcada !== "true") {
-                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #dc3545; font-weight: bold;'>⚠️ Debes marcar entrada primero para ver y realizar tus tareas.</p>";
+                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #dc3545; font-weight: bold; text-align: center; margin: 10px 0;'>⚠️ Debes marcar entrada primero para ver y realizar tus tareas.</p>";
                 return;
             }
 
@@ -602,16 +633,18 @@
                     let keyTarea = `tarea_${usuarioActual}_${hoy}_${tareaDesc}`;
                     let isChecked = localStorage.getItem(keyTarea) === "true" ? "checked" : "";
                     
-                    html += `<label style="font-size: 13px; display: block; margin: 8px 0; text-align: left;">
-                                <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)"> ${tareaDesc}
-                             </label>`;
+                    html += `
+                    <label class="tarea-item">
+                        <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)">
+                        <span>${tareaDesc}</span>
+                    </label>`;
                 }
             }
 
             if (encontradas > 0) {
                 contenedorTareas.innerHTML = html;
             } else {
-                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #666;'>No hay tareas programadas para esta sucursal hoy en este turno.</p>";
+                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>No hay tareas programadas para esta sucursal hoy en este turno.</p>";
             }
         }
 
