@@ -159,12 +159,25 @@
             </div>
         </div>
 
-        <!-- HACER PEDIDO -->
-        <div class="card">
-            <h3>Hacer Pedido</h3>
-            <input type="text" id="productoPedido" placeholder="Nombre del producto">
-            <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
-            <button onclick="enviarPedido()" style="background-color: #17a2b8;">Enviar Pedido</button>
+        <!-- HACER PEDIDO DESPLEGABLE -->
+        <div class="card" style="text-align: left;">
+            <button onclick="toggleMenuPedidos()" style="background-color: #17a2b8; margin: 0;">
+                🛍️ Hacer Pedido
+            </button>
+
+            <div id="menuPedidos" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                <h3 style="font-size: 15px;">Solicitud de Productos / Pedidos</h3>
+                
+                <label style="font-size: 12px; color: #555;">Producto Requerido:</label>
+                <input type="text" id="productoPedido" placeholder="Nombre del producto">
+
+                <label style="font-size: 12px; color: #555;">Cantidad Solicitada:</label>
+                <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
+
+                <button onclick="enviarPedido()" style="background-color: #28a745; margin-top: 5px;">
+                    📩 Enviar Pedido
+                </button>
+            </div>
         </div>
     </div>
 
@@ -270,6 +283,11 @@
             menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
         }
 
+        function toggleMenuPedidos() {
+            const menu = document.getElementById("menuPedidos");
+            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+        }
+
         function filtrarNombresPorSucursal() {
             const sucursalSeleccionada = document.getElementById("selectSucursal").value;
             const selectEmp = document.getElementById("nombreEmpleado");
@@ -334,7 +352,6 @@
             const inputIndex = document.getElementById("selectProductoInventario");
             const btnAgregar = document.getElementById("btnAgregarLista");
             
-            // Obtener el historial de productos enviados hoy para no repetirlos
             const hoy = new Date().toISOString().split('T')[0];
             const usuarioActual = localStorage.getItem("usuario");
             const enviadosHoy = JSON.parse(localStorage.getItem(`contados_${usuarioActual}_${hoy}`) || "[]");
@@ -348,7 +365,6 @@
                     let yaEnLista = listaCuadresPendientes.some(item => item.producto === prodNombre);
                     let yaEnviado = enviadosHoy.includes(prodNombre);
 
-                    // Si no está ni en la lista pendiente ni ya enviado hoy, es el siguiente
                     if (!yaEnLista && !yaEnviado) {
                         siguienteProducto = prodNombre;
                         siguienteIndex = i;
@@ -501,7 +517,6 @@
                 await Promise.all(promesas);
                 alert("¡Todos los cuadres han sido registrados con éxito!");
 
-                // Guardar en localStorage los nombres de los productos recién contados
                 const hoy = new Date().toISOString().split('T')[0];
                 const keyStorage = `contados_${empleado}_${hoy}`;
                 const contadosPrevios = JSON.parse(localStorage.getItem(keyStorage) || "[]");
@@ -511,7 +526,6 @@
                 
                 localStorage.setItem(keyStorage, JSON.stringify(listaActualizada));
 
-                // Vaciar la lista en espera
                 listaCuadresPendientes = [];
             } catch (err) {
                 console.error("Error enviando los cuadres:", err);
@@ -666,7 +680,7 @@
         }
 
         function enviarPedido() {
-            const p = document.getElementById("productoPedido").value;
+            const p = document.getElementById("productoPedido").value.trim();
             const c = document.getElementById("cantidadPedido").value;
             if (!p || !c) return alert("Completa los datos del pedido.");
             
@@ -677,11 +691,13 @@
                 producto: p, 
                 cantidad: c
             });
+            
             fetch(URL_API, { method: "POST", body: params })
                 .then(() => {
                     alert("¡Pedido enviado con éxito!");
                     document.getElementById("productoPedido").value = "";
                     document.getElementById("cantidadPedido").value = "1";
+                    toggleMenuPedidos();
                 })
                 .catch(err => {
                     console.error("Error al enviar el pedido:", err);
