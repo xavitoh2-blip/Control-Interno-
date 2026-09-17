@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Empleados</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60;
+            --bg-color: #f4f6f7;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-sizing: border-box;
+            margin: 16px;
+        }
+
+        h2, h3 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent-color);
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #219653;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .tarea-item {
+            display: flex;
+            align-items: center;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .tarea-item input {
+            width: auto;
+            margin-right: 12px;
+        }
+
+        .user-info {
+            background: #e8f8f5;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background-color: #e74c3c;
+            width: auto;
+            padding: 6px 12px;
+            font-size: 12px;
+            margin: 0;
+        }
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- SECCIÓN DE LOGIN / ACCESO -->
+        <div id="sec-login">
+            <h2>Portal de Empleados</h2>
+            <div class="form-group">
+                <label for="selectSucursal">Sucursal:</label>
+                <select id="selectSucursal">
+                    <option value="">Seleccione sucursal...</option>
+                    <option value="Mini Súper Los Bichos">Mini Súper Los Bichos</option>
+                    <option value="Tienda y Mini Súper Online Shop">Tienda y Mini Súper Online Shop</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="selectEmpleado">Empleado:</label>
+                <select id="selectEmpleado">
+                    <option value="">Seleccione empleado...</option>
+                    <option value="Ruth">Ruth</option>
+                    <option value="Rosa">Rosa</option>
+                    <option value="Darlyn">Darlyn</option>
+                    <option value="Joselin">Joselin</option>
+                    <option value="Paola">Paola</option>
+                    <option value="Brendali">Brendali</option>
+                </select>
+            </div>
+            <button onclick="iniciarSesion()">Ingresar</button>
+        </div>
+
+        <!-- SECCIÓN PRINCIPAL DE LA APLICACIÓN -->
+        <div id="sec-app" class="hidden">
+            <div class="user-info">
+                <div>
+                    <span id="lblUsuario" style="font-weight: bold;"></span><br>
+                    <span id="lblSucursal" style="font-size: 12px; color: #555;"></span>
+                </div>
+                <button class="logout-btn" onclick="cerrarSesion()">Salir</button>
+            </div>
+
+            <h3>Gestión de Turnos y Tareas</h3>
+            <div class="form-group">
+                <label for="selectTurno">Seleccionar Turno:</label>
+                <select id="selectTurno" onchange="renderizarTareas()">
+                    <option value="">Seleccione turno...</option>
+                    <option value="Apertura">Apertura</option>
+                    <option value="Cierre">Cierre</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Lista de Tareas:</label>
+                <div id="contenedorTareas">
+                    <p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>Selecciona un turno para ver las tareas...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL de Google Apps Script actualizada con tu despliegue correcto
+        const URL_API = "https://script.google.com/macros/s/AKfycbwYRdZbv2pJ73f7sH_2UaJdlTfbyP4OJhP-7MC5d1k8evM52rnALEAWgb-Ab6jOccF5eg/exec";
+
+        // Variable global simulada de tareas (puedes adaptarla para cargarla desde tu backend)
+        const tareasGlobales = [
+            ["Revisar limpieza general del área", "Apertura"],
+            ["Encender equipos principales e iluminación", "Apertura"],
+            ["Verificar inventario básico de caja", "Apertura"],
+            ["Realizar corte y arqueo de caja", "Cierre"],
+            ["Verificar cierre de puertas y seguridad", "Cierre"],
+            ["Ordenar y limpiar estantes de exhibición", "Cierre"]
+        ];
+
+        function iniciarSesion() {
+            const sucursal = document.getElementById("selectSucursal").value;
+            const empleado = document.getElementById("selectEmpleado").value;
+
+            if (!sucursal || !empleado) {
+                alert("Por favor, seleccione sucursal y empleado.");
+                return;
+            }
+
+            localStorage.setItem("sucursal", sucursal);
+            localStorage.setItem("usuario", empleado);
+
+            document.getElementById("lblUsuario").innerText = empleado;
+            document.getElementById("lblSucursal").innerText = sucursal;
+
+            document.getElementById("sec-login").classList.add("hidden");
+            document.getElementById("sec-app").classList.remove("hidden");
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            document.getElementById("selectTurno").value = "";
+            document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>Selecciona un turno para ver las tareas...</p>";
+            document.getElementById("sec-app").classList.add("hidden");
+            document.getElementById("sec-login").classList.remove("hidden");
+        }
+
+        function renderizarTareas() {
+            const turnoSeleccionado = document.getElementById("selectTurno").value;
+            const contenedor = document.getElementById("contenedorTareas");
+            
+            if (!turnoSeleccionado) {
+                contenedor.innerHTML = "<p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>Selecciona un turno para ver las tareas...</p>";
+                return;
+            }
+
+            const tareasFiltradas = tareasGlobales.filter(t => t[1] && t[1].trim().toLowerCase() === turnoSeleccionado.toLowerCase());
+
+            if (tareasFiltradas.length === 0) {
+                contenedor.innerHTML = "<p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>No hay tareas configuradas para este turno.</p>";
+                return;
+            }
+
+            let html = "";
+            tareasFiltradas.forEach((tarea, index) => {
+                let nombreTarea = tarea[0];
+                html += `
+                    <label class="tarea-item">
+                        <input type="checkbox" onchange="registrarTareaCompletada('${nombreTarea}', this.checked)">
+                        <span>${nombreTarea}</span>
+                    </label>`;
+            });
+            contenedor.innerHTML = html;
+        }
+
+        function registrarTareaCompletada(nombreTarea, estado) {
+            const sucursal = localStorage.getItem("sucursal");
+            const empleado = localStorage.getItem("usuario");
+            const turno = document.getElementById("selectTurno").value;
+
+            const params = new URLSearchParams({
+                accion: "RegistrarTarea",
+                sucursal: sucursal,
+                empleado: empleado,
+                turno: turno,
+                tarea: nombreTarea,
+                estado: estado ? "Completada" : "Pendiente"
+            });
+
+            fetch(URL_API, { method: "POST", body: params })
+                .catch(err => console.error("Error al registrar tarea:", err));
+        }
+    </script>
+</body>
+</html>
