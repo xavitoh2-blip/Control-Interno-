@@ -37,7 +37,7 @@
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
-    h2, h3 {
+    h2, h3, h4 {
       text-align: center;
       margin-top: 0;
       color: var(--primary-dark);
@@ -64,7 +64,7 @@
       font-size: 1rem;
     }
 
-    /* BUSCADOR Y LISTA DESPLEGABLE */
+    /* ESTILOS DEL BUSCADOR FLOTANTE */
     .sugerencias-box {
       position: absolute;
       top: 100%;
@@ -76,7 +76,7 @@
       max-height: 200px;
       overflow-y: auto;
       z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .sugerencia-item {
@@ -86,12 +86,16 @@
       font-size: 0.95rem;
     }
 
-    .sugerencia-item:hover, .sugerencia-item:active {
+    .sugerencia-item:last-child {
+      border-bottom: none;
+    }
+
+    .sugerencia-item:active, .sugerencia-item:hover {
       background-color: #f1f5f9;
       color: var(--primary-dark);
     }
 
-    /* TABLA DE PRODUCTOS AGREGADOS AL PEDIDO */
+    /* TABLA DE PEDIDOS PENDIENTES */
     .tabla-pedido {
       width: 100%;
       border-collapse: collapse;
@@ -101,22 +105,24 @@
 
     .tabla-pedido th, .tabla-pedido td {
       border-bottom: 1px solid var(--border);
-      padding: 8px;
+      padding: 10px 6px;
       text-align: left;
       font-size: 0.9rem;
     }
 
     .tabla-pedido th {
       background-color: #f1f5f9;
+      color: #475569;
     }
 
     .btn-eliminar {
       background-color: #ef4444;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       padding: 4px 8px;
       cursor: pointer;
+      font-weight: bold;
     }
 
     button {
@@ -146,7 +152,7 @@
 
     .btn-agregar {
       background-color: #0284c7;
-      margin-top: 5px;
+      margin-top: 4px;
     }
 
     .hidden {
@@ -165,7 +171,7 @@
 
 <div class="container">
 
-  <!-- LOGIN -->
+  <!-- ACCESO DE USUARIOS -->
   <div id="sec-login" class="card">
     <h2>Control Operativo</h2>
     <div class="form-group">
@@ -178,13 +184,13 @@
     <div class="form-group">
       <label>Empleado:</label>
       <select id="login-empleado">
-        <option value="">-- Cargar Empleados --</option>
+        <option value="">Cargando empleados...</option>
       </select>
     </div>
     <button onclick="iniciarSesion()">Ingresar</button>
   </div>
 
-  <!-- PANTALLA PRINCIPAL -->
+  <!-- PANEL PRINCIPAL -->
   <div id="sec-app" class="hidden">
     
     <div class="card header-user">
@@ -195,7 +201,7 @@
       <button class="btn-danger" onclick="cerrarSesion()">Salir</button>
     </div>
 
-    <!-- REGISTRAR ASISTENCIA -->
+    <!-- REGISTRO DE ASISTENCIA -->
     <div class="card">
       <h3>📍 Registrar Asistencia</h3>
       <div class="form-group">
@@ -215,13 +221,13 @@
       <button onclick="enviarAsistencia()">Guardar Asistencia</button>
     </div>
 
-    <!-- SOLICITUD DE PEDIDO CON LISTA / CARRITO -->
+    <!-- PEDIDOS CON BUSCADOR Y LISTA -->
     <div class="card">
       <h3>🛍️ Solicitud de Pedido a Bodega</h3>
       
       <div class="form-group">
         <label>Buscar Producto:</label>
-        <input type="text" id="pedido-producto" placeholder="Escribe para buscar..." oninput="filtrarBuscador(this.value)" autocomplete="off">
+        <input type="text" id="pedido-producto" placeholder="Escribe para buscar un producto..." oninput="filtrarBuscador(this.value)" autocomplete="off">
         <div id="box-sugerencias" class="sugerencias-box hidden"></div>
       </div>
       
@@ -232,19 +238,18 @@
 
       <button class="btn-agregar" onclick="agregarALaLista()">➕ Agregar a la Lista</button>
 
-      <!-- LISTA DE PRODUCTOS ACUMULADOS -->
-      <h4 style="margin-top: 20px; margin-bottom: 8px;">Lista de Pedido Actual:</h4>
+      <h4 style="margin-top: 20px; margin-bottom: 8px; text-align: left;">Productos en la lista:</h4>
       <table class="tabla-pedido">
         <thead>
           <tr>
             <th>Producto</th>
-            <th>Cant.</th>
-            <th>Acción</th>
+            <th style="width: 50px;">Cant.</th>
+            <th style="width: 40px;"></th>
           </tr>
         </thead>
         <tbody id="tabla-body-pedido">
           <tr>
-            <td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos</td>
+            <td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos a la lista</td>
           </tr>
         </tbody>
       </table>
@@ -257,10 +262,11 @@
 </div>
 
 <script>
+  // Inserta aquí el enlace de la Web App desplegada en tu Apps Script
   const URL_API = "https://script.google.com/macros/s/AKfycbwqZ-RELEVANTE_REEMPLAZAR_AQUI/exec";
 
   let catalogoLocal = [];
-  let listaPedidoTemporal = []; // Guarda los productos acumulados
+  let listaPedidoTemporal = [];
   let usuarioActual = { empleado: "", sucursal: "" };
 
   window.onload = async function() {
@@ -279,7 +285,7 @@
         }
       });
     } catch (e) {
-      console.error("Error al cargar empleados", e);
+      console.error("Error al cargar lista de empleados", e);
     }
   };
 
@@ -288,7 +294,7 @@
     let suc = document.getElementById("login-sucursal").value;
 
     if (!emp) {
-      alert("Por favor selecciona un empleado.");
+      alert("Selecciona un empleado de la lista.");
       return;
     }
 
@@ -309,15 +315,23 @@
     document.getElementById("sec-login").classList.remove("hidden");
   }
 
+  // Carga los productos usando 'verProductosInventario' que sí existe en tu backend
   async function precargarCatalogo() {
     try {
-      let res = await fetch(`${URL_API}?accion=verCatalogoProductos`);
-      catalogoLocal = await res.json();
+      let res = await fetch(`${URL_API}?accion=verProductosInventario`);
+      let datos = await res.json();
+      
+      // Procesa los datos omitiendo encabezados
+      catalogoLocal = datos.slice(1).map(row => {
+        return typeof row === "object" ? (row[0] || row[1] || "") : row;
+      }).filter(p => p !== "");
+
     } catch (e) {
-      console.error("Error al precargar catálogo", e);
+      console.error("Error cargando inventario de productos", e);
     }
   }
 
+  // LÓGICA DEL BUSCADOR INTERACTIVO
   function filtrarBuscador(texto) {
     let box = document.getElementById("box-sugerencias");
     box.innerHTML = "";
@@ -359,7 +373,7 @@
     }
   });
 
-  // AGREGAR PRODUCTO A LA TABLA TEMPORAL
+  // GESTIÓN DE LA LISTA TEMPORAL
   function agregarALaLista() {
     let prodInput = document.getElementById("pedido-producto");
     let cantInput = document.getElementById("pedido-cantidad");
@@ -368,28 +382,24 @@
     let cantidad = parseFloat(cantInput.value);
 
     if (!producto || isNaN(cantidad) || cantidad <= 0) {
-      alert("Selecciona un producto y una cantidad válida.");
+      alert("Escribe o selecciona un producto y coloca una cantidad válida.");
       return;
     }
 
-    // Agregar al arreglo local
     listaPedidoTemporal.push({ producto, cantidad });
 
-    // Limpiar inputs
     prodInput.value = "";
     cantInput.value = "1";
 
-    // Renderizar tabla
     actualizarTablaPedido();
   }
 
-  // DIBUJAR LISTA EN LA PANTALLA
   function actualizarTablaPedido() {
     let tbody = document.getElementById("tabla-body-pedido");
     tbody.innerHTML = "";
 
     if (listaPedidoTemporal.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos a la lista</td></tr>';
       return;
     }
 
@@ -409,15 +419,14 @@
     actualizarTablaPedido();
   }
 
-  // ENVIAR TODOS LOS PRODUCTOS DE LA LISTA DE UNA SOLA VEZ
+  // ENVÍO DE PEDIDOS AL SCRIPT (Acción "Pedidos")
   async function enviarListaCompleta() {
     if (listaPedidoTemporal.length === 0) {
-      alert("La lista está vacía. Agrega al menos un producto.");
+      alert("Agrega al menos un producto a la lista antes de enviar.");
       return;
     }
 
     try {
-      // Enviamos cada producto a Google Sheets
       for (let item of listaPedidoTemporal) {
         let params = new URLSearchParams({
           accion: "Pedidos",
@@ -430,15 +439,16 @@
         await fetch(URL_API, { method: "POST", body: params });
       }
 
-      alert("¡Pedido completo enviado a Bodega exitosamente!");
+      alert("¡El pedido se guardó correctamente en Google Sheets!");
       listaPedidoTemporal = [];
       actualizarTablaPedido();
 
     } catch (e) {
-      alert("Ocurrió un error enviando algunos productos.");
+      alert("Hubo un detalle al registrar la solicitud.");
     }
   }
 
+  // ENVÍO DE ASISTENCIA (Acción "Asistencia")
   async function enviarAsistencia() {
     let turno = document.getElementById("asist-turno").value;
     let tipo = document.getElementById("asist-tipo").value;
@@ -454,9 +464,9 @@
 
     try {
       await fetch(URL_API, { method: "POST", body: params });
-      alert("Asistencia registrada correctamente.");
+      alert("Asistencia registrada con éxito.");
     } catch (e) {
-      alert("Error al guardar asistencia.");
+      alert("No se pudo registrar la asistencia.");
     }
   }
 </script>
