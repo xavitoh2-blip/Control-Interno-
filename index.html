@@ -1,975 +1,310 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Operativo - Online Shop</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding: 20px 10px; background-color: #f4f6f9; color: #333; }
-        .logo-container { margin-bottom: 12px; }
-        .logo-container img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; box-shadow: 0px 4px 10px rgba(0,0,0,0.12); border: 3px solid #007bff; }
-        .card { background: white; padding: 20px; margin: 12px auto; width: 100%; max-width: 360px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.08); }
-        h2 { color: #007bff; margin: 5px 0 15px 0; font-size: 22px; }
-        h3 { color: #2c3e50; margin-top: 0; font-size: 16px; border-bottom: 2px solid #eef2f5; padding-bottom: 8px; }
-        h4 { color: #495057; margin: 15px 0 8px 0; font-size: 14px; text-align: left; }
-        button { background-color: #28a745; color: white; border: none; padding: 12px 15px; margin: 6px 0; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%; transition: background 0.2s; }
-        button:hover { opacity: 0.9; }
-        button:disabled { background-color: #6c757d !important; cursor: not-allowed; }
-        select, input { padding: 10px; margin: 6px 0; width: 100%; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; background-color: #fff; }
-        select:focus, input:focus { outline: none; border-color: #007bff; }
-        
-        #pantallaLogin { display: block; }
-        #pantallaPrincipal { display: none; }
-        #supervisorSection { display: none; margin-top: 20px; padding: 20px; background: #fff; border-radius: 12px; max-width: 850px; margin-left: auto; margin-right: auto; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); text-align: left; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11px; }
-        th, td { border: 1px solid #dee2e6; padding: 6px; text-align: center; }
-        th { background-color: #007bff; color: white; font-weight: 600; }
-        tr:nth-child(even) { background-color: #f8f9fa; }
-        
-        .login-box { margin: 30px auto; padding: 20px; background: white; width: 90%; max-width: 320px; border-radius: 10px; box-shadow: 0px 4px 16px rgba(0,0,0,0.2); }
-        .item-cuadre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; text-align: left; }
-        .btn-del { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Operativo</title>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+    }
 
-        /* ESTILOS TAREAS DEL DÍA */
-        .tarea-item {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin: 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            color: #333;
-            cursor: pointer;
-            transition: background 0.2s, border-color 0.2s;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
 
-        .tarea-item:hover {
-            background-color: #f1f5f9;
-            border-color: #007bff;
-        }
+    .container {
+      width: 100%;
+      max-width: 450px;
+    }
 
-        .tarea-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin: 0;
-            cursor: pointer;
-            accent-color: #28a745;
-        }
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
 
-        /* CARD BODEGA PEDIDO */
-        .item-pedido-bodega {
-            background: #ffffff;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            text-align: left;
-            font-size: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .item-pedido-bodega header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 4px;
-            margin-bottom: 6px;
-            font-weight: bold;
-            color: #007bff;
-        }
-    </style>
+    h2, h3 {
+      text-align: center;
+      margin-top: 0;
+      color: var(--primary-dark);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:active {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-danger {
+      background-color: #ef4444;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      width: auto;
+      float: right;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .header-user {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- LOGO Y ENCABEZADO -->
-    <div class="logo-container">
-        <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.src='https://via.placeholder.com/100?text=Shop'">
-    </div>
+<div class="container">
+
+  <!-- PANTALLA DE INICIO DE SESIÓN -->
+  <div id="sec-login" class="card">
     <h2>Control Operativo</h2>
+    <div class="form-group">
+      <label>Sucursal:</label>
+      <select id="login-sucursal">
+        <option value="Tienda Online Shop">Tienda Online Shop</option>
+        <option value="Mini Súper Los Bichos">Mini Súper Los Bichos</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Empleado:</label>
+      <select id="login-empleado">
+        <option value="">-- Cargar Empleados --</option>
+      </select>
+    </div>
+    <button onclick="iniciarSesion()">Ingresar</button>
+  </div>
 
-    <!-- INICIO DE SESIÓN -->
-    <div id="pantallaLogin" class="card">
-        <h3>Iniciar Turno</h3>
-        
-        <select id="selectSucursal" onchange="filtrarNombresPorSucursal()">
-            <option value="">-- Selecciona Sucursal --</option>
-            <option value="Mini super">Mini super</option>
-            <option value="Tienda Online Shop">Tienda Online Shop</option>
-            <option value="Bodega">Bodega</option>
+  <!-- PANTALLA PRINCIPAL DE OPERACIONES -->
+  <div id="sec-app" class="hidden">
+    
+    <div class="card header-user">
+      <div>
+        <strong id="user-nombre" style="color: var(--primary-dark);">--</strong><br>
+        <small id="user-sucursal" style="color: #64748b;">--</small>
+      </div>
+      <button class="btn-danger" onclick="cerrarSesion()">Salir</button>
+    </div>
+
+    <!-- REGISTRAR ASISTENCIA -->
+    <div class="card">
+      <h3>📍 Registrar Asistencia</h3>
+      <div class="form-group">
+        <label>Turno:</label>
+        <select id="asist-turno">
+          <option value="Apertura">Apertura</option>
+          <option value="Cierre">Cierre</option>
         </select>
-        
-        <select id="nombreEmpleado">
-            <option value="">-- Primero selecciona sucursal --</option>
+      </div>
+      <div class="form-group">
+        <label>Tipo:</label>
+        <select id="asist-tipo">
+          <option value="Entrada">Entrada</option>
+          <option value="Salida">Salida</option>
         </select>
-        
-        <button onclick="iniciarSesion()" style="background-color: #007bff;">Entrar al Sistema</button>
-        
-        <div style="margin-top: 15px;">
-            <button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 12px; padding: 8px;">🔒 Panel de Supervisor</button>
-        </div>
+      </div>
+      <button onclick="enviarAsistencia()">Guardar Asistencia</button>
     </div>
 
-    <!-- PANTALLA PRINCIPAL -->
-    <div id="pantallaPrincipal">
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3 id="saludoUsuario" style="margin: 0; color: #007bff; font-size: 15px; border: none; text-align: left;">Colaborador</h3>
-                    <span id="infoSucursal" style="font-size: 12px; color: #666; display: block; text-align: left; margin-top: 2px;"></span>
-                </div>
-                <button onclick="cerrarSesion()" style="background-color: #dc3545; padding: 6px 12px; font-size: 11px; width: auto;">Salir</button>
-            </div>
-        </div>
-
-        <!-- REGISTRAR ASISTENCIA DESPLEGABLE -->
-        <div class="card" style="text-align: left;">
-            <button onclick="toggleMenuAsistencia()" style="background-color: #17a2b8; margin: 0;">
-                📍 Registrar Asistencia
-            </button>
-
-            <div id="menuAsistencia" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <h3 style="font-size: 15px;">Registro de Turno y Marcas</h3>
-                
-                <select id="selectTurno" onchange="cambiarOpcionesTurno()">
-                    <option value="">-- Selecciona Turno --</option>
-                    <option value="apertura">☀️ Apertura (8am - 5pm)</option>
-                    <option value="cierre">🌙 Cierre (1pm - 9pm)</option>
-                </select>
-                
-                <p id="textoHorario" style="font-size: 13px; color: #007bff; font-weight: bold; margin: 5px 0; text-align: center;"></p>
-                
-                <div id="contenedorBotones" style="display: none; margin-top: 10px;">
-                    <button id="btnEntrada" onclick="validarYRegistrar('Entrada')" style="background-color: #28a745;">Marcar Entrada</button>
-                    
-                    <div id="seccionSalida" style="display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
-                        <label style="font-size: 12px; color: #555; display: block; text-align: left; margin-bottom: 3px;">Horas Extra (Opcional):</label>
-                        <select id="selectHorasExtra" style="margin-bottom: 8px;">
-                            <option value="0">Sin horas extra</option>
-                            <option value="0.5">30 minutos (0.5 hrs)</option>
-                            <option value="1">1 hora</option>
-                            <option value="1.5">1 hora y media</option>
-                            <option value="2">2 horas</option>
-                            <option value="3">3 horas</option>
-                        </select>
-                        <button id="btnSalida" onclick="validarYRegistrar('Salida')" style="background-color: #dc3545;">Marcar Salida</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAREAS DEL DÍA -->
-        <div class="card" style="text-align: left;">
-            <h3 style="text-align: center; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 8px;">📋 Tareas del Día</h3>
-            <div id="contenedorTareas">
-                <p style="font-size: 12px; color: #666; text-align: center; margin: 10px 0;">
-                    Selecciona un turno para ver las tareas...
-                </p>
-            </div>
-        </div>
-
-        <!-- INVENTARIO MULTI-PRODUCTO -->
-        <div class="card" style="text-align: left;">
-            <button onclick="toggleMenuInventario()" style="background-color: #17a2b8; margin: 0;">
-                📦 Actualizar Inventario
-            </button>
-
-            <div id="menuInventario" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <h3 style="font-size: 15px;">Cuadre de Inventario Secuencial</h3>
-                
-                <label style="font-size: 12px; color: #555;">Producto a Contar (Siguiente en Lista):</label>
-                <input type="text" id="nombreProductoActual" readonly style="background-color: #e9ecef; font-weight: bold; color: #007bff;">
-                <input type="hidden" id="selectProductoInventario">
-
-                <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <div style="flex: 1;">
-                        <label style="font-size: 12px; color: #555;">Stock Sistema:</label>
-                        <input type="number" id="invSistema" placeholder="0" readonly style="background-color: #e9ecef;">
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="font-size: 12px; color: #555;">Conteo Físico:</label>
-                        <input type="number" id="invFisico" placeholder="0" oninput="calcularDiferenciaInventario()">
-                    </div>
-                </div>
-
-                <p id="textoDiferencia" style="font-size: 13px; font-weight: bold; margin: 8px 0; color: #555; text-align: center;">
-                    Diferencia: 0
-                </p>
-
-                <input type="text" id="invObservacion" placeholder="Observaciones (Opcional)">
-                
-                <button id="btnAgregarLista" onclick="agregarALaLista()" style="background-color: #007bff; margin-top: 5px;">
-                    ➕ Agregar a la Lista
-                </button>
-
-                <!-- LISTA DE PRODUCTOS ACUMULADOS -->
-                <div id="contenedorListaCuadres" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; display: none;">
-                    <h4 style="font-size: 13px; margin: 0 0 8px 0; color: #333;">Productos Listos para Enviar (<span id="cantLista">0</span>):</h4>
-                    <div id="listaProductosAcumulados"></div>
-                    
-                    <button id="btnEnviarTodo" onclick="enviarTodosLosCuadres()" style="background-color: #28a745; margin-top: 10px;">
-                        🚀 Registrar Todos los Cuadres
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN DE PEDIDOS (DINÁMICA SEGÚN SUCURSAL) -->
-        <div class="card" style="text-align: left;">
-            <!-- Vista para Tiendas (Hacer Pedido) -->
-            <div id="seccionHacerPedido">
-                <button onclick="toggleMenuPedidos()" style="background-color: #17a2b8; margin: 0;">
-                    🛍️ Hacer Pedido
-                </button>
-
-                <div id="menuPedidos" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                    <h3 style="font-size: 15px;">Solicitud de Productos a Bodega</h3>
-                    
-                    <label style="font-size: 12px; color: #555;">Buscar Producto:</label>
-                    <input type="text" id="productoPedido" list="listaCatalogo" placeholder="Escribe para buscar..." autocomplete="off">
-                    <datalist id="listaCatalogo"></datalist>
-
-                    <label style="font-size: 12px; color: #555;">Cantidad Solicitada:</label>
-                    <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1" min="1">
-
-                    <button onclick="enviarPedido()" style="background-color: #28a745; margin-top: 5px;">
-                        📩 Enviar Pedido
-                    </button>
-                </div>
-            </div>
-
-            <!-- Vista para Bodega (Ver y Despachar Pedidos Recibidos) -->
-            <div id="seccionVerPedidosBodega" style="display: none;">
-                <button onclick="toggleMenuPedidosBodega()" style="background-color: #17a2b8; margin: 0;">
-                    📦 Ver Pedidos Recibidos
-                </button>
-
-                <div id="menuPedidosBodega" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                    <h3 style="font-size: 15px;">Revision y Despacho de Pedidos</h3>
-                    <button onclick="cargarPedidosEnBodega()" style="background-color: #007bff; font-size: 12px; padding: 6px; margin-bottom: 10px;">
-                        🔄 Actualizar Lista
-                    </button>
-                    
-                    <div id="contenedorPedidosBodega">
-                        <p style="font-size: 12px; color: #888; text-align: center;">Cargando pedidos...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- PEDIDOS A BODEGA -->
+    <div class="card">
+      <h3>🛍️ Solicitud de Productos a Bodega</h3>
+      <div class="form-group">
+        <label>Buscar Producto:</label>
+        <input type="text" id="pedido-producto" list="listaProductos" placeholder="Escribe para buscar..." oninput="filtrarProductosLocales(this.value)">
+        <datalist id="listaProductos"></datalist>
+      </div>
+      <div class="form-group">
+        <label>Cantidad Solicitada:</label>
+        <input type="number" id="pedido-cantidad" value="1" min="1">
+      </div>
+      <button style="background-color: #10b981;" onclick="enviarPedido()">Enviar Pedido</button>
     </div>
 
-    <!-- MODAL SUPERVISOR -->
-    <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 1000;">
-        <h3>Clave de Supervisor</h3>
-        <input type="password" id="adminPassword" placeholder="Contraseña">
-        <button onclick="verificarPassword()" style="background-color: #007bff;">Ingresar</button>
-        <button onclick="ocultarLogin()" style="background-color: #dc3545;">Cancelar</button>
-    </div>
+  </div>
 
-    <!-- PANEL SUPERVISOR -->
-    <div id="supervisorSection">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; color: #007bff; border: none;">Panel de Control y Auditoría</h3>
-            <button onclick="cerrarSupervisor()" style="background-color: #dc3545; padding: 6px 12px; font-size: 12px; width: auto;">Cerrar Panel</button>
-        </div>
-        
-        <h4>Resumen de Pagos (Cálculo Automático)</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaResumenPagos">
-                <thead><tr><th>Empleado</th><th>Turnos Completados</th><th>H. Extra Totales</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
+</div>
 
-        <h4>Registro de Asistencias</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaAsistencia">
-                <thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
+<script>
+  // URL de tu API en Google Apps Script
+  const URL_API = "https://script.google.com/macros/s/AKfycbwqZ-RELEVANTE_REEMPLAZAR_AQUI/exec";
 
-        <h4>Historial de Cuadre de Inventario</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaInventario">
-                <thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Sistema</th><th>Físico</th><th>Dif.</th><th>Obs.</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
+  let catalogoLocal = [];
+  let usuarioActual = { empleado: "", sucursal: "" };
 
-        <h4>Tareas / Checklist</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaTareas">
-                <thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <h4>Pedidos de Sucursales</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaPedidos">
-                <thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Solicitó</th><th>Producto</th><th>Solicitado</th><th>Surtido</th><th>Estado</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <h4>Módulo de Compras (Faltantes de Bodega)</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaCompras">
-                <thead><tr><th>ID Pedido</th><th>Fecha</th><th>Sucursal</th><th>Producto</th><th>Cant. Faltante</th><th>Estado Compra</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-
-    <script>
-        const URL_API = "https://script.google.com/macros/s/AKfycbx4JRYjWcAx08jz9tK0AJQxkALnbjPCkpPz0qSwBOzftL-gdJtHrI--bGpzs9QQPcZI/exec";
-        
-        const UBICACIONES = {
-            "Tienda Online Shop": { lat: 13.674099, lon: -89.438934 },
-            "Mini super": { lat: 13.674099, lon: -89.438934 }, 
-            "Bodega": { lat: 13.674099, lon: -89.438934 }         
-        };
-        const RADIO_METROS = 200;
-
-        let listaGlobalNombres = [];
-        let tareasGlobales = [];
-        let productosInventarioGlobal = [];
-        let listaCuadresPendientes = [];
-        let catalogoProductosGlobal = [];
-
-        window.onload = function() {
-            cargarEmpleadosDesdeSheets();
-
-            const usuarioGuardado = localStorage.getItem("usuario");
-            const sucursalGuardada = localStorage.getItem("sucursal");
-
-            if (usuarioGuardado && sucursalGuardada) {
-                document.getElementById("saludoUsuario").innerText = usuarioGuardado;
-                document.getElementById("infoSucursal").innerText = "📍 " + sucursalGuardada;
-                document.getElementById("pantallaLogin").style.display = "none";
-                document.getElementById("pantallaPrincipal").style.display = "block";
-                
-                adaptarInterfazSegunSucursal();
-                descargarTareasConfig();
-                cargarProductosParaCuadre();
-                cargarCatalogoProductos();
-            }
-        };
-
-        function adaptarInterfazSegunSucursal() {
-            const sucursalActual = localStorage.getItem("sucursal");
-            const secHacer = document.getElementById("seccionHacerPedido");
-            const secBodega = document.getElementById("seccionVerPedidosBodega");
-
-            if (sucursalActual && sucursalActual.trim().toLowerCase() === "bodega") {
-                secHacer.style.display = "none";
-                secBodega.style.display = "block";
-            } else {
-                secHacer.style.display = "block";
-                secBodega.style.display = "none";
-            }
+  // Cargar lista de empleados al abrir la página
+  window.onload = async function() {
+    try {
+      let res = await fetch(`${URL_API}?accion=verEmpleados`);
+      let datos = await res.json();
+      let select = document.getElementById("login-empleado");
+      select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+      
+      datos.slice(1).forEach(row => {
+        if (row[0]) {
+          let opt = document.createElement("option");
+          opt.value = row[0];
+          opt.textContent = row[0];
+          select.appendChild(opt);
         }
+      });
+    } catch (e) {
+      console.error("Error al cargar empleados", e);
+    }
+  };
+
+  async function iniciarSesion() {
+    let emp = document.getElementById("login-empleado").value;
+    let suc = document.getElementById("login-sucursal").value;
+
+    if (!emp) {
+      alert("Por favor selecciona un empleado.");
+      return;
+    }
+
+    usuarioActual.empleado = emp;
+    usuarioActual.sucursal = suc;
+
+    document.getElementById("user-nombre").textContent = emp;
+    document.getElementById("user-sucursal").textContent = suc;
+
+    document.getElementById("sec-login").classList.add("hidden");
+    document.getElementById("sec-app").classList.remove("hidden");
+
+    // Precargar catálogo en memoria para evitar lag al escribir
+    precargarCatalogo();
+  }
+
+  function cerrarSesion() {
+    document.getElementById("sec-app").classList.add("hidden");
+    document.getElementById("sec-login").classList.remove("hidden");
+  }
+
+  // Descarga el catálogo una sola vez en memoria
+  async function precargarCatalogo() {
+    try {
+      let res = await fetch(`${URL_API}?accion=verCatalogoProductos`);
+      catalogoLocal = await res.json();
+    } catch (e) {
+      console.error("Error al precargar catálogo", e);
+    }
+  }
+
+  // Filtra de forma rápida los primeros 10 resultados para no congelar la pantalla
+  function filtrarProductosLocales(texto) {
+    let datalist = document.getElementById("listaProductos");
+    datalist.innerHTML = "";
+
+    if (!texto || texto.trim().length < 2) return;
+
+    let busqueda = texto.toLowerCase();
+    let filtrados = catalogoLocal
+      .filter(p => String(p).toLowerCase().includes(busqueda))
+      .slice(0, 10);
+
+    filtrados.forEach(prod => {
+      let opt = document.createElement("option");
+      opt.value = prod;
+      datalist.appendChild(opt);
+    });
+  }
+
+  async function enviarAsistencia() {
+    let turno = document.getElementById("asist-turno").value;
+    let tipo = document.getElementById("asist-tipo").value;
+
+    let params = new URLSearchParams({
+      accion: "Asistencia",
+      sucursal: usuarioActual.sucursal,
+      empleado: usuarioActual.empleado,
+      turno: turno,
+      tipo: tipo,
+      horasExtra: 0
+    });
+
+    try {
+      await fetch(URL_API, { method: "POST", body: params });
+      alert("Asistencia registrada correctamente.");
+    } catch (e) {
+      alert("Error al guardar asistencia.");
+    }
+  }
+
+  async function enviarPedido() {
+    let prod = document.getElementById("pedido-producto").value;
+    let cant = document.getElementById("pedido-cantidad").value;
+
+    if (!prod || !cant) {
+      alert("Ingresa un producto y una cantidad válida.");
+      return;
+    }
+
+    let params = new URLSearchParams({
+      accion: "Pedidos",
+      sucursal: usuarioActual.sucursal,
+      empleado: usuarioActual.empleado,
+      producto: prod,
+      cantidad: cant
+    });
+
+    try {
+      await fetch(URL_API, { method: "POST", body: params });
+      alert("Pedido enviado a Bodega.");
+      document.getElementById("pedido-producto").value = "";
+      document.getElementById("pedido-cantidad").value = "1";
+    } catch (e) {
+      alert("Error al enviar el pedido.");
+    }
+  }
+</script>
 
-        function cargarEmpleadosDesdeSheets() {
-            fetch(URL_API + "?accion=verEmpleados")
-                .then(r => r.json())
-                .then(data => {
-                    listaGlobalNombres = data.slice(1);
-                    filtrarNombresPorSucursal();
-                })
-                .catch(err => console.error("Error al obtener la lista de colaboradores:", err));
-        }
-
-        function cargarCatalogoProductos() {
-            fetch(URL_API + "?accion=verCatalogoProductos")
-                .then(r => r.json())
-                .then(data => {
-                    catalogoProductosGlobal = data;
-                    const datalist = document.getElementById("listaCatalogo");
-                    datalist.innerHTML = "";
-                    data.forEach(prod => {
-                        datalist.innerHTML += `<option value="${prod}">`;
-                    });
-                })
-                .catch(err => console.error("Error cargando catálogo de productos:", err));
-        }
-
-        function toggleMenuAsistencia() {
-            const menu = document.getElementById("menuAsistencia");
-            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
-        }
-
-        function toggleMenuInventario() {
-            const menu = document.getElementById("menuInventario");
-            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
-        }
-
-        function toggleMenuPedidos() {
-            const menu = document.getElementById("menuPedidos");
-            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
-        }
-
-        function toggleMenuPedidosBodega() {
-            const menu = document.getElementById("menuPedidosBodega");
-            const desplegado = (menu.style.display === "none" || menu.style.display === "");
-            menu.style.display = desplegado ? "block" : "none";
-            
-            if (desplegado) {
-                cargarPedidosEnBodega();
-            }
-        }
-
-        function filtrarNombresPorSucursal() {
-            const sucursalSeleccionada = document.getElementById("selectSucursal").value;
-            const selectEmp = document.getElementById("nombreEmpleado");
-            selectEmp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
-            if (!sucursalSeleccionada) return;
-            
-            listaGlobalNombres.forEach(row => {
-                let empNombre = row[0];
-                let empSucursal = row[1];
-                if (empSucursal && empSucursal.trim().toLowerCase() === sucursalSeleccionada.trim().toLowerCase()) {
-                    selectEmp.innerHTML += `<option value="${empNombre}">${empNombre}</option>`;
-                }
-            });
-        }
-
-        function iniciarSesion() {
-            const sucursal = document.getElementById("selectSucursal").value;
-            const empleado = document.getElementById("nombreEmpleado").value;
-            if (!sucursal || !empleado) return alert("Selecciona sucursal y nombre.");
-            
-            localStorage.setItem("usuario", empleado);
-            localStorage.setItem("sucursal", sucursal);
-            location.reload();
-        }
-
-        function cerrarSesion() {
-            localStorage.clear();
-            location.reload();
-        }
-
-        function descargarTareasConfig() {
-            fetch(URL_API + "?accion=verTareas")
-                .then(r => r.json())
-                .then(data => { tareasGlobales = data; })
-                .catch(() => {
-                    document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: red;'>Error al conectar con la configuración de tareas.</p>";
-                });
-        }
-
-        function cargarProductosParaCuadre() {
-            const inputNombre = document.getElementById("nombreProductoActual");
-            inputNombre.value = "Cargando productos...";
-
-            fetch(URL_API + "?accion=verProductosInventario")
-                .then(r => r.json())
-                .then(data => {
-                    if (!Array.isArray(data) || data.length <= 1) {
-                        inputNombre.value = "Sin productos disponibles";
-                        return;
-                    }
-                    productosInventarioGlobal = data;
-                    renderizarSelectProductos();
-                })
-                .catch(err => {
-                    console.error("Error cargando inventario:", err);
-                    inputNombre.value = "Error al cargar productos";
-                });
-        }
-
-        function renderizarSelectProductos() {
-            const inputNombre = document.getElementById("nombreProductoActual");
-            const inputIndex = document.getElementById("selectProductoInventario");
-            const btnAgregar = document.getElementById("btnAgregarLista");
-            
-            const hoy = new Date().toISOString().split('T')[0];
-            const usuarioActual = localStorage.getItem("usuario");
-            const enviadosHoy = JSON.parse(localStorage.getItem(`contados_${usuarioActual}_${hoy}`) || "[]");
-
-            let siguienteProducto = null;
-            let siguienteIndex = "";
-
-            for (let i = 1; i < productosInventarioGlobal.length; i++) {
-                let prodNombre = productosInventarioGlobal[i][0];
-                if (prodNombre) {
-                    let yaEnLista = listaCuadresPendientes.some(item => item.producto === prodNombre);
-                    let yaEnviado = enviadosHoy.includes(prodNombre);
-
-                    if (!yaEnLista && !yaEnviado) {
-                        siguienteProducto = prodNombre;
-                        siguienteIndex = i;
-                        break;
-                    }
-                }
-            }
-
-            if (siguienteProducto) {
-                inputNombre.value = siguienteProducto;
-                inputIndex.value = siguienteIndex;
-                btnAgregar.disabled = false;
-                actualizarStockSistema();
-            } else {
-                inputNombre.value = "✅ ¡Todos los productos han sido agregados!";
-                inputIndex.value = "";
-                document.getElementById("invSistema").value = "";
-                document.getElementById("invFisico").value = "";
-                btnAgregar.disabled = true;
-            }
-        }
-
-        function actualizarStockSistema() {
-            const index = document.getElementById("selectProductoInventario").value;
-            const invSistema = document.getElementById("invSistema");
-            if (index !== "" && productosInventarioGlobal[index]) {
-                invSistema.value = productosInventarioGlobal[index][1] || 0;
-            } else {
-                invSistema.value = "";
-            }
-            calcularDiferenciaInventario();
-        }
-
-        function calcularDiferenciaInventario() {
-            const sistema = parseFloat(document.getElementById("invSistema").value) || 0;
-            const fisicoInput = document.getElementById("invFisico").value;
-            const elem = document.getElementById("textoDiferencia");
-
-            if (fisicoInput === "") {
-                elem.innerText = "Diferencia: 0";
-                elem.style.color = "#555";
-                return;
-            }
-
-            const fisico = parseFloat(fisicoInput) || 0;
-            const dif = fisico - sistema;
-
-            if (dif === 0) {
-                elem.innerText = "Diferencia: 0 (Cuadre Exacto)";
-                elem.style.color = "#28a745";
-            } else if (dif > 0) {
-                elem.innerText = `Diferencia: +${dif} (Sobrante)`;
-                elem.style.color = "#007bff";
-            } else {
-                elem.innerText = `Diferencia: ${dif} (Faltante)`;
-                elem.style.color = "#dc3545";
-            }
-        }
-
-        function agregarALaLista() {
-            const indexSelect = document.getElementById("selectProductoInventario").value;
-            const sistema = document.getElementById("invSistema").value;
-            const fisico = document.getElementById("invFisico").value;
-            const observacion = document.getElementById("invObservacion").value.trim();
-
-            if (indexSelect === "" || fisico === "") {
-                return alert("Ingresa el conteo físico del producto actual.");
-            }
-
-            const nombreProducto = productosInventarioGlobal[indexSelect][0];
-            const dif = parseFloat(fisico) - parseFloat(sistema);
-
-            listaCuadresPendientes.push({
-                producto: nombreProducto,
-                sistema: sistema,
-                fisico: fisico,
-                diferencia: dif,
-                observacion: observacion
-            });
-
-            document.getElementById("invSistema").value = "";
-            document.getElementById("invFisico").value = "";
-            document.getElementById("invObservacion").value = "";
-            document.getElementById("textoDiferencia").innerText = "Diferencia: 0";
-            document.getElementById("textoDiferencia").style.color = "#555";
-
-            renderizarSelectProductos();
-            renderizarListaAcumulada();
-        }
-
-        function renderizarListaAcumulada() {
-            const contenedor = document.getElementById("listaProductosAcumulados");
-            const contSec = document.getElementById("contenedorListaCuadres");
-            const cantSpan = document.getElementById("cantLista");
-
-            cantSpan.innerText = listaCuadresPendientes.length;
-
-            if (listaCuadresPendientes.length === 0) {
-                contSec.style.display = "none";
-                contenedor.innerHTML = "";
-                return;
-            }
-
-            contSec.style.display = "block";
-            let html = "";
-            listaCuadresPendientes.forEach((item, index) => {
-                html += `
-                <div class="item-cuadre">
-                    <div>
-                        <strong>${item.producto}</strong><br>
-                        <span style="color:#666;">Físico: ${item.fisico} | Dif: ${item.diferencia > 0 ? '+' + item.diferencia : item.diferencia}</span>
-                    </div>
-                    <button class="btn-del" onclick="eliminarDeLaLista(${index})">✕</button>
-                </div>`;
-            });
-            contenedor.innerHTML = html;
-        }
-
-        function eliminarDeLaLista(index) {
-            listaCuadresPendientes.splice(index, 1);
-            renderizarSelectProductos();
-            renderizarListaAcumulada();
-        }
-
-        async function enviarTodosLosCuadres() {
-            if (listaCuadresPendientes.length === 0) return;
-
-            const btn = document.getElementById("btnEnviarTodo");
-            btn.disabled = true;
-            btn.innerText = "Enviando cuadres...";
-
-            const sucursal = localStorage.getItem("sucursal");
-            const empleado = localStorage.getItem("usuario");
-
-            const promesas = listaCuadresPendientes.map(item => {
-                const params = new URLSearchParams({
-                    accion: "CuadreInventario",
-                    sucursal: sucursal,
-                    empleado: empleado,
-                    producto: item.producto,
-                    sistema: item.sistema,
-                    fisico: item.fisico,
-                    diferencia: item.diferencia,
-                    observacion: item.observacion
-                });
-                return fetch(URL_API, { method: "POST", body: params });
-            });
-
-            try {
-                await Promise.all(promesas);
-                alert("¡Todos los cuadres han sido registrados con éxito!");
-
-                const hoy = new Date().toISOString().split('T')[0];
-                const keyStorage = `contados_${empleado}_${hoy}`;
-                const contadosPrevios = JSON.parse(localStorage.getItem(keyStorage) || "[]");
-                
-                const nuevosContados = listaCuadresPendientes.map(item => item.producto);
-                const listaActualizada = [...new Set([...contadosPrevios, ...nuevosContados])];
-                
-                localStorage.setItem(keyStorage, JSON.stringify(listaActualizada));
-
-                listaCuadresPendientes = [];
-            } catch (err) {
-                console.error("Error enviando los cuadres:", err);
-                alert("Hubo un error al enviar algunos registros.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "🚀 Registrar Todos los Cuadres";
-                renderizarListaAcumulada();
-                renderizarSelectProductos();
-                toggleMenuInventario();
-            }
-        }
-
-        function cambiarOpcionesTurno() {
-            const turnoSeleccionado = document.getElementById("selectTurno").value;
-            const textoHorario = document.getElementById("textoHorario");
-            const contenedorBotones = document.getElementById("contenedorBotones");
-            const btnEntrada = document.getElementById("btnEntrada");
-            const seccionSalida = document.getElementById("seccionSalida");
-
-            if (turnoSeleccionado === "apertura" || turnoSeleccionado === "cierre") {
-                textoHorario.innerText = turnoSeleccionado === "apertura" ? "Horario: 8:00 am - 5:00 pm" : "Horario: 1:00 pm - 9:00 pm";
-                contenedorBotones.style.display = "block";
-                btnEntrada.style.display = "block"; 
-                seccionSalida.style.display = "block";
-                
-                renderizarTareas();
-            } else {
-                textoHorario.innerText = "";
-                contenedorBotones.style.display = "none";
-                document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>Selecciona un turno para ver las tareas...</p>";
-            }
-        }
-
-        function renderizarTareas() {
-            const turnoSeleccionado = document.getElementById("selectTurno").value;
-            const usuarioActual = localStorage.getItem("usuario");
-            const sucursalActual = localStorage.getItem("sucursal");
-            const contenedorTareas = document.getElementById("contenedorTareas");
-            
-            const hoy = new Date().toISOString().split('T')[0];
-            const entradaMarcada = localStorage.getItem(`entrada_${usuarioActual}_${hoy}_${turnoSeleccionado}`);
-
-            if (entradaMarcada !== "true") {
-                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #dc3545; font-weight: bold; text-align: center; margin: 10px 0;'>⚠️ Debes marcar entrada primero para ver y realizar tus tareas.</p>";
-                return;
-            }
-
-            const diaNum = new Date().getDay();
-            const diaTipoActual = (diaNum >= 1 && diaNum <= 5) ? "lv" : "sd";
-
-            let html = "";
-            let encontradas = 0;
-
-            for (let i = 1; i < tareasGlobales.length; i++) {
-                let diaFila = String(tareasGlobales[i][0] || "").trim().toLowerCase();
-                let turnoFila = String(tareasGlobales[i][1] || "").trim().toLowerCase();
-                let tareaDesc = tareasGlobales[i][4];
-                let sucursalFila = String(tareasGlobales[i][5] || "").trim();
-
-                if (diaFila === diaTipoActual && turnoFila === turnoSeleccionado && sucursalFila === sucursalActual && tareaDesc) {
-                    encontradas++;
-                    let keyTarea = `tarea_${usuarioActual}_${hoy}_${tareaDesc}`;
-                    let isChecked = localStorage.getItem(keyTarea) === "true" ? "checked" : "";
-                    
-                    html += `
-                    <label class="tarea-item">
-                        <input type="checkbox" ${isChecked} onclick="guardarTarea('${tareaDesc}', this)">
-                        <span>${tareaDesc}</span>
-                    </label>`;
-                }
-            }
-
-            if (encontradas > 0) {
-                contenedorTareas.innerHTML = html;
-            } else {
-                contenedorTareas.innerHTML = "<p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>No hay tareas programadas para esta sucursal hoy en este turno.</p>";
-            }
-        }
-
-        function validarYRegistrar(tipo) {
-            const turno = document.getElementById("selectTurno").value;
-            const usuarioActual = localStorage.getItem("usuario");
-            if (!turno) return alert("Selecciona un turno.");
-
-            const sucursalActual = localStorage.getItem("sucursal");
-            const coordenadasLocal = UBICACIONES[sucursalActual];
-
-            if (!coordenadasLocal || (coordenadasLocal.lat === 0 && coordenadasLocal.lon === 0)) {
-                return alert("⚠️ La ubicación GPS para '" + sucursalActual + "' aún no ha sido configurada.");
-            }
-
-            let horasExtra = "0";
-            if (tipo === "Salida") {
-                horasExtra = document.getElementById("selectHorasExtra").value;
-            }
-
-            if (!navigator.geolocation) {
-                return alert("Tu navegador no soporta geolocalización.");
-            }
-
-            navigator.geolocation.getCurrentPosition(pos => {
-                const dist = calcularDistancia(coordenadasLocal.lat, coordenadasLocal.lon, pos.coords.latitude, pos.coords.longitude);
-                
-                if (dist <= RADIO_METROS) {
-                    const params = new URLSearchParams({
-                        accion: "Asistencia", 
-                        sucursal: sucursalActual, 
-                        turno: turno, 
-                        tipo: tipo, 
-                        empleado: usuarioActual,
-                        horasExtra: horasExtra
-                    });
-                    fetch(URL_API, { method: "POST", body: params })
-                        .then(() => {
-                            alert(`¡Asistencia de ${tipo} registrada con éxito!`);
-                            
-                            if (tipo === "Entrada") {
-                                const hoy = new Date().toISOString().split('T')[0];
-                                localStorage.setItem(`entrada_${usuarioActual}_${hoy}_${turno}`, "true");
-                                renderizarTareas();
-                            }
-                            toggleMenuAsistencia();
-                        });
-                } else {
-                    alert(`❌ Estás muy lejos del local (${Math.round(dist)}m). Acércate para marcar.`);
-                }
-            }, () => {
-                alert("Debes permitir el acceso a tu ubicación para marcar asistencia.");
-            }, { enableHighAccuracy: true });
-        }
-
-        function calcularDistancia(lat1, lon1, lat2, lon2) {
-            const R = 6371000;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2)**2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-
-        function guardarTarea(nombreTarea, checkbox) {
-            const usuarioActual = localStorage.getItem("usuario");
-            const hoy = new Date().toISOString().split('T')[0];
-            
-            localStorage.setItem(`tarea_${usuarioActual}_${hoy}_${nombreTarea}`, checkbox.checked);
-            
-            const params = new URLSearchParams({
-                accion: "Tareas", 
-                sucursal: localStorage.getItem("sucursal"), 
-                empleado: usuarioActual, 
-                tarea: nombreTarea, 
-                estado: checkbox.checked ? "Completado" : "Pendiente"
-            });
-            fetch(URL_API, { method: "POST", body: params });
-        }
-
-        function enviarPedido() {
-            const p = document.getElementById("productoPedido").value.trim();
-            const c = document.getElementById("cantidadPedido").value;
-            if (!p || !c) return alert("Completa los datos del pedido.");
-            
-            const params = new URLSearchParams({
-                accion: "Pedidos", 
-                sucursal: localStorage.getItem("sucursal"), 
-                empleado: localStorage.getItem("usuario"), 
-                producto: p, 
-                cantidad: c
-            });
-            
-            fetch(URL_API, { method: "POST", body: params })
-                .then(() => {
-                    alert("¡Pedido enviado con éxito!");
-                    document.getElementById("productoPedido").value = "";
-                    document.getElementById("cantidadPedido").value = "1";
-                    toggleMenuPedidos();
-                })
-                .catch(err => {
-                    console.error("Error al enviar el pedido:", err);
-                    alert("Ocurrió un error al enviar el pedido.");
-                });
-        }
-
-        function cargarPedidosEnBodega() {
-            const contenedor = document.getElementById("contenedorPedidosBodega");
-            contenedor.innerHTML = `<p style="font-size: 12px; color: #888; text-align: center;">Cargando pedidos...</p>`;
-
-            fetch(URL_API + "?accion=obtenerReportesSupervisor")
-                .then(r => r.json())
-                .then(data => {
-                    const pedidos = data.pedidos;
-                    contenedor.innerHTML = "";
-
-                    // Filtrar solo los pedidos con estado "Pendiente"
-                    const pendientes = pedidos ? pedidos.filter(r => r[8] === "Pendiente") : [];
-
-                    if (pendientes.length === 0) {
-                        contenedor.innerHTML = `<p style="font-size: 12px; color: #28a745; text-align: center; font-weight: bold;">¡No hay pedidos pendientes por despachar!</p>`;
-                        return;
-                    }
-
-                    pendientes.forEach(row => {
-                        let idPed = row[0];
-                        let fecha = row[1];
-                        let sucursal = row[3];
-                        let solicita = row[4];
-                        let producto = row[5];
-                        let cantSolicitada = row[6];
-
-                        let htmlCard = `
-                        <div class="item-pedido-bodega">
-                            <header>
-                                <span>${sucursal}</span>
-                                <span style="color:#666;">${fecha}</span>
-                            </header>
-                            <p style="margin:2px 0;"><strong>Producto:</strong> ${producto}</p>
-                            <p style="margin:2px 0;"><strong>Cant. Solicitada:</strong> ${cantSolicitada} | <strong>Solicitó:</strong> ${solicita}</p>
-                            
-                            <div style="margin-top: 8px; border-top: 1px dashed #ddd; padding-top: 6px;">
-                                <label style="font-size: 11px; color:#555;">Cantidad Surtida (Física):</label>
-                                <input type="number" id="surtido_${idPed}" value="${cantSolicitada}" min="0" max="${cantSolicitada}" style="padding: 6px; font-size: 12px; margin: 4px 0;">
-                                <button onclick="procesarDespacho('${idPed}', ${cantSolicitada})" style="background-color: #28a745; padding: 8px; font-size: 12px; margin-top: 4px;">
-                                    ✅ Despachar / Enviar
-                                </button>
-                            </div>
-                        </div>`;
-                        
-                        contenedor.innerHTML += htmlCard;
-                    });
-                })
-                .catch(err => {
-                    console.error("Error al obtener pedidos en Bodega:", err);
-                    contenedor.innerHTML = `<p style="font-size: 12px; color: red; text-align: center;">Error al cargar pedidos</p>`;
-                });
-        }
-
-        function procesarDespacho(idPedido, cantSolicitada) {
-            const inputSurtido = document.getElementById(`surtido_${idPedido}`);
-            const cantSurtida = parseFloat(inputSurtido.value) || 0;
-
-            if (cantSurtida < 0) return alert("Ingresa una cantidad surtida válida.");
-
-            const params = new URLSearchParams({
-                accion: "procesarDespachoBodega",
-                idPedido: idPedido,
-                cantSolicitada: cantSolicitada,
-                cantSurtida: cantSurtida
-            });
-
-            fetch(URL_API, { method: "POST", body: params })
-                .then(() => {
-                    alert("¡Despacho procesado con éxito!");
-                    cargarPedidosEnBodega();
-                })
-                .catch(err => {
-                    console.error("Error al procesar el despacho:", err);
-                    alert("Ocurrió un error al guardar el despacho.");
-                });
-        }
-
-        function mostrarLogin() {
-            document.getElementById("loginModal").style.display = "block";
-        }
-
-        function ocultarLogin() {
-            document.getElementById("loginModal").style.display = "none";
-        }
-
-        function verificarPassword() {
-            const pass = document.getElementById("adminPassword").value;
-            if (pass === "1234" || pass === "admin") {
-                ocultarLogin();
-                document.getElementById("pantallaLogin").style.display = "none";
-                document.getElementById("pantallaPrincipal").style.display = "none";
-                document.getElementById("supervisorSection").style.display = "block";
-                cargarTablasSupervisor();
-            } else {
-                alert("Contraseña incorrecta.");
-            }
-        }
-
-        function cargarTablasSupervisor() {
-            fetch(URL_API + "?accion=obtenerReportesSupervisor")
-                .then(r => r.json())
-                .then(data => {
-                    // TABLA PEDIDOS
-                    const tbodyPed = document.querySelector("#tablaPedidos tbody");
-                    tbodyPed.innerHTML = "";
-                    (data.pedidos || []).forEach(r => {
-                        tbodyPed.innerHTML += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[7]}</td><td>${r[8]}</td></tr>`;
-                    });
-
-                    // TABLA COMPRAS
-                    const tbodyComp = document.querySelector("#tablaCompras tbody");
-                    tbodyComp.innerHTML = "";
-                    (data.compras || []).forEach(r => {
-                        tbodyComp.innerHTML += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`;
-                    });
-                });
-        }
-
-        function cerrarSupervisor() {
-            document.getElementById("supervisorSection").style.display = "none";
-            const usuarioGuardado = localStorage.getItem("usuario");
-            if (usuarioGuardado) {
-                document.getElementById("pantallaPrincipal").style.display = "block";
-            } else {
-                document.getElementById("pantallaLogin").style.display = "block";
-            }
-        }
-    </script>
 </body>
 </html>
