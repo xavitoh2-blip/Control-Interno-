@@ -32,7 +32,7 @@
         .item-cuadre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; text-align: left; }
         .btn-del { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
 
-        /* ESTILOS PROFESIONALES PARA TAREAS DEL DÍA */
+        /* ESTILOS TAREAS DEL DÍA */
         .tarea-item {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
@@ -59,6 +59,27 @@
             margin: 0;
             cursor: pointer;
             accent-color: #28a745;
+        }
+
+        /* CARD BODEGA PEDIDO */
+        .item-pedido-bodega {
+            background: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .item-pedido-bodega header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #007bff;
         }
     </style>
 </head>
@@ -207,11 +228,12 @@
                 <div id="menuPedidos" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
                     <h3 style="font-size: 15px;">Solicitud de Productos a Bodega</h3>
                     
-                    <label style="font-size: 12px; color: #555;">Producto Requerido:</label>
-                    <input type="text" id="productoPedido" placeholder="Nombre del producto">
+                    <label style="font-size: 12px; color: #555;">Buscar Producto:</label>
+                    <input type="text" id="productoPedido" list="listaCatalogo" placeholder="Escribe para buscar..." autocomplete="off">
+                    <datalist id="listaCatalogo"></datalist>
 
                     <label style="font-size: 12px; color: #555;">Cantidad Solicitada:</label>
-                    <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
+                    <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1" min="1">
 
                     <button onclick="enviarPedido()" style="background-color: #28a745; margin-top: 5px;">
                         📩 Enviar Pedido
@@ -219,32 +241,20 @@
                 </div>
             </div>
 
-            <!-- Vista para Bodega (Ver Pedidos Recibidos) -->
+            <!-- Vista para Bodega (Ver y Despachar Pedidos Recibidos) -->
             <div id="seccionVerPedidosBodega" style="display: none;">
                 <button onclick="toggleMenuPedidosBodega()" style="background-color: #17a2b8; margin: 0;">
                     📦 Ver Pedidos Recibidos
                 </button>
 
                 <div id="menuPedidosBodega" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                    <h3 style="font-size: 15px;">Pedidos Solicitados por Sucursales</h3>
+                    <h3 style="font-size: 15px;">Revision y Despacho de Pedidos</h3>
                     <button onclick="cargarPedidosEnBodega()" style="background-color: #007bff; font-size: 12px; padding: 6px; margin-bottom: 10px;">
                         🔄 Actualizar Lista
                     </button>
-                    <div style="overflow-x: auto;">
-                        <table id="tablaPedidosBodega">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Sucursal</th>
-                                    <th>Solicitó</th>
-                                    <th>Producto</th>
-                                    <th>Cant.</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="5" style="color:#888;">Cargando pedidos...</td></tr>
-                            </tbody>
-                        </table>
+                    
+                    <div id="contenedorPedidosBodega">
+                        <p style="font-size: 12px; color: #888; text-align: center;">Cargando pedidos...</p>
                     </div>
                 </div>
             </div>
@@ -298,10 +308,18 @@
             </table>
         </div>
 
-        <h4>Pedidos</h4>
+        <h4>Pedidos de Sucursales</h4>
         <div style="overflow-x: auto; max-height: 160px;">
             <table id="tablaPedidos">
-                <thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th></tr></thead>
+                <thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Solicitó</th><th>Producto</th><th>Solicitado</th><th>Surtido</th><th>Estado</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h4>Módulo de Compras (Faltantes de Bodega)</h4>
+        <div style="overflow-x: auto; max-height: 160px;">
+            <table id="tablaCompras">
+                <thead><tr><th>ID Pedido</th><th>Fecha</th><th>Sucursal</th><th>Producto</th><th>Cant. Faltante</th><th>Estado Compra</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -321,6 +339,7 @@
         let tareasGlobales = [];
         let productosInventarioGlobal = [];
         let listaCuadresPendientes = [];
+        let catalogoProductosGlobal = [];
 
         window.onload = function() {
             cargarEmpleadosDesdeSheets();
@@ -337,6 +356,7 @@
                 adaptarInterfazSegunSucursal();
                 descargarTareasConfig();
                 cargarProductosParaCuadre();
+                cargarCatalogoProductos();
             }
         };
 
@@ -362,6 +382,20 @@
                     filtrarNombresPorSucursal();
                 })
                 .catch(err => console.error("Error al obtener la lista de colaboradores:", err));
+        }
+
+        function cargarCatalogoProductos() {
+            fetch(URL_API + "?accion=verCatalogoProductos")
+                .then(r => r.json())
+                .then(data => {
+                    catalogoProductosGlobal = data;
+                    const datalist = document.getElementById("listaCatalogo");
+                    datalist.innerHTML = "";
+                    data.forEach(prod => {
+                        datalist.innerHTML += `<option value="${prod}">`;
+                    });
+                })
+                .catch(err => console.error("Error cargando catálogo de productos:", err));
         }
 
         function toggleMenuAsistencia() {
@@ -810,41 +844,79 @@
         }
 
         function cargarPedidosEnBodega() {
-            const tbody = document.querySelector("#tablaPedidosBodega tbody");
-            tbody.innerHTML = `<tr><td colspan="5" style="color:#888;">Cargando pedidos...</td></tr>`;
+            const contenedor = document.getElementById("contenedorPedidosBodega");
+            contenedor.innerHTML = `<p style="font-size: 12px; color: #888; text-align: center;">Cargando pedidos...</p>`;
 
             fetch(URL_API + "?accion=obtenerReportesSupervisor")
                 .then(r => r.json())
                 .then(data => {
                     const pedidos = data.pedidos;
-                    tbody.innerHTML = "";
+                    contenedor.innerHTML = "";
 
-                    if (!pedidos || pedidos.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" style="color:#888;">No hay pedidos registrados</td></tr>`;
+                    // Filtrar solo los pedidos con estado "Pendiente"
+                    const pendientes = pedidos ? pedidos.filter(r => r[8] === "Pendiente") : [];
+
+                    if (pendientes.length === 0) {
+                        contenedor.innerHTML = `<p style="font-size: 12px; color: #28a745; text-align: center; font-weight: bold;">¡No hay pedidos pendientes por despachar!</p>`;
                         return;
                     }
 
-                    pedidos.forEach(row => {
-                        let fecha = row[0] || "";
-                        let sucursal = row[2] || "";
-                        let empleado = row[3] || "";
-                        let producto = row[4] || "";
-                        let cantidad = row[5] || "";
+                    pendientes.forEach(row => {
+                        let idPed = row[0];
+                        let fecha = row[1];
+                        let sucursal = row[3];
+                        let solicita = row[4];
+                        let producto = row[5];
+                        let cantSolicitada = row[6];
 
-                        let tr = document.createElement("tr");
-                        tr.innerHTML = `
-                            <td>${fecha}</td>
-                            <td><strong>${sucursal}</strong></td>
-                            <td>${empleado}</td>
-                            <td>${producto}</td>
-                            <td>${cantidad}</td>
-                        `;
-                        tbody.appendChild(tr);
+                        let htmlCard = `
+                        <div class="item-pedido-bodega">
+                            <header>
+                                <span>${sucursal}</span>
+                                <span style="color:#666;">${fecha}</span>
+                            </header>
+                            <p style="margin:2px 0;"><strong>Producto:</strong> ${producto}</p>
+                            <p style="margin:2px 0;"><strong>Cant. Solicitada:</strong> ${cantSolicitada} | <strong>Solicitó:</strong> ${solicita}</p>
+                            
+                            <div style="margin-top: 8px; border-top: 1px dashed #ddd; padding-top: 6px;">
+                                <label style="font-size: 11px; color:#555;">Cantidad Surtida (Física):</label>
+                                <input type="number" id="surtido_${idPed}" value="${cantSolicitada}" min="0" max="${cantSolicitada}" style="padding: 6px; font-size: 12px; margin: 4px 0;">
+                                <button onclick="procesarDespacho('${idPed}', ${cantSolicitada})" style="background-color: #28a745; padding: 8px; font-size: 12px; margin-top: 4px;">
+                                    ✅ Despachar / Enviar
+                                </button>
+                            </div>
+                        </div>`;
+                        
+                        contenedor.innerHTML += htmlCard;
                     });
                 })
                 .catch(err => {
                     console.error("Error al obtener pedidos en Bodega:", err);
-                    tbody.innerHTML = `<tr><td colspan="5" style="color:red;">Error al cargar pedidos</td></tr>`;
+                    contenedor.innerHTML = `<p style="font-size: 12px; color: red; text-align: center;">Error al cargar pedidos</p>`;
+                });
+        }
+
+        function procesarDespacho(idPedido, cantSolicitada) {
+            const inputSurtido = document.getElementById(`surtido_${idPedido}`);
+            const cantSurtida = parseFloat(inputSurtido.value) || 0;
+
+            if (cantSurtida < 0) return alert("Ingresa una cantidad surtida válida.");
+
+            const params = new URLSearchParams({
+                accion: "procesarDespachoBodega",
+                idPedido: idPedido,
+                cantSolicitada: cantSolicitada,
+                cantSurtida: cantSurtida
+            });
+
+            fetch(URL_API, { method: "POST", body: params })
+                .then(() => {
+                    alert("¡Despacho procesado con éxito!");
+                    cargarPedidosEnBodega();
+                })
+                .catch(err => {
+                    console.error("Error al procesar el despacho:", err);
+                    alert("Ocurrió un error al guardar el despacho.");
                 });
         }
 
@@ -863,9 +935,30 @@
                 document.getElementById("pantallaLogin").style.display = "none";
                 document.getElementById("pantallaPrincipal").style.display = "none";
                 document.getElementById("supervisorSection").style.display = "block";
+                cargarTablasSupervisor();
             } else {
                 alert("Contraseña incorrecta.");
             }
+        }
+
+        function cargarTablasSupervisor() {
+            fetch(URL_API + "?accion=obtenerReportesSupervisor")
+                .then(r => r.json())
+                .then(data => {
+                    // TABLA PEDIDOS
+                    const tbodyPed = document.querySelector("#tablaPedidos tbody");
+                    tbodyPed.innerHTML = "";
+                    (data.pedidos || []).forEach(r => {
+                        tbodyPed.innerHTML += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[7]}</td><td>${r[8]}</td></tr>`;
+                    });
+
+                    // TABLA COMPRAS
+                    const tbodyComp = document.querySelector("#tablaCompras tbody");
+                    tbodyComp.innerHTML = "";
+                    (data.compras || []).forEach(r => {
+                        tbodyComp.innerHTML += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`;
+                    });
+                });
         }
 
         function cerrarSupervisor() {
