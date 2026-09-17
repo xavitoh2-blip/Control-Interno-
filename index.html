@@ -259,14 +259,14 @@
 </div>
 
 <script>
-  // PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT (la misma que ya usabas)
+  // PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT
   const URL_API = "https://script.google.com/macros/s/TU_URL_DE_APPS_SCRIPT_AQUI/exec";
 
   let catalogoLocal = [];
   let listaPedidoTemporal = [];
   let usuarioActual = { empleado: "", sucursal: "" };
 
-  // Al abrir la página, carga automáticamente los empleados desde la hoja "Nombres"
+  // Carga empleados desde la hoja "Nombres" usando tu backend
   window.onload = async function() {
     try {
       let res = await fetch(`${URL_API}?accion=verEmpleados`);
@@ -315,13 +315,19 @@
     document.getElementById("sec-login").classList.remove("hidden");
   }
 
-  // Carga el catálogo usando la acción exacta de tu Apps Script
+  // Carga los productos usando 'verProductosInventario' de tu backend actual
   async function precargarCatalogo() {
     try {
-      let res = await fetch(`${URL_API}?accion=verCatalogoProductos`);
-      catalogoLocal = await res.json();
+      let res = await fetch(`${URL_API}?accion=verProductosInventario`);
+      let datos = await res.json();
+      
+      // Extrae el nombre del producto (asumiendo que está en la columna 0 o 1 de tu inventario)
+      catalogoLocal = datos.slice(1).map(row => {
+        return row[0] || row[1] || "";
+      }).filter(p => p !== "");
+
     } catch (e) {
-      console.error("Error al cargar el catálogo de productos", e);
+      console.error("Error al cargar el inventario de productos", e);
     }
   }
 
