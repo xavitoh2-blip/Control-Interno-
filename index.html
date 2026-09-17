@@ -45,6 +45,7 @@
 
     .form-group {
       margin-bottom: 14px;
+      position: relative;
     }
 
     label {
@@ -61,6 +62,61 @@
       border-radius: 8px;
       box-sizing: border-box;
       font-size: 1rem;
+    }
+
+    /* BUSCADOR Y LISTA DESPLEGABLE */
+    .sugerencias-box {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .sugerencia-item {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .sugerencia-item:hover, .sugerencia-item:active {
+      background-color: #f1f5f9;
+      color: var(--primary-dark);
+    }
+
+    /* TABLA DE PRODUCTOS AGREGADOS AL PEDIDO */
+    .tabla-pedido {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+
+    .tabla-pedido th, .tabla-pedido td {
+      border-bottom: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .tabla-pedido th {
+      background-color: #f1f5f9;
+    }
+
+    .btn-eliminar {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
     }
 
     button {
@@ -88,6 +144,11 @@
       float: right;
     }
 
+    .btn-agregar {
+      background-color: #0284c7;
+      margin-top: 5px;
+    }
+
     .hidden {
       display: none;
     }
@@ -104,7 +165,7 @@
 
 <div class="container">
 
-  <!-- PANTALLA DE INICIO DE SESIÓN -->
+  <!-- LOGIN -->
   <div id="sec-login" class="card">
     <h2>Control Operativo</h2>
     <div class="form-group">
@@ -123,7 +184,7 @@
     <button onclick="iniciarSesion()">Ingresar</button>
   </div>
 
-  <!-- PANTALLA PRINCIPAL DE OPERACIONES -->
+  <!-- PANTALLA PRINCIPAL -->
   <div id="sec-app" class="hidden">
     
     <div class="card header-user">
@@ -154,19 +215,41 @@
       <button onclick="enviarAsistencia()">Guardar Asistencia</button>
     </div>
 
-    <!-- PEDIDOS A BODEGA -->
+    <!-- SOLICITUD DE PEDIDO CON LISTA / CARRITO -->
     <div class="card">
-      <h3>🛍️ Solicitud de Productos a Bodega</h3>
+      <h3>🛍️ Solicitud de Pedido a Bodega</h3>
+      
       <div class="form-group">
         <label>Buscar Producto:</label>
-        <input type="text" id="pedido-producto" list="listaProductos" placeholder="Escribe para buscar..." oninput="filtrarProductosLocales(this.value)">
-        <datalist id="listaProductos"></datalist>
+        <input type="text" id="pedido-producto" placeholder="Escribe para buscar..." oninput="filtrarBuscador(this.value)" autocomplete="off">
+        <div id="box-sugerencias" class="sugerencias-box hidden"></div>
       </div>
+      
       <div class="form-group">
-        <label>Cantidad Solicitada:</label>
+        <label>Cantidad:</label>
         <input type="number" id="pedido-cantidad" value="1" min="1">
       </div>
-      <button style="background-color: #10b981;" onclick="enviarPedido()">Enviar Pedido</button>
+
+      <button class="btn-agregar" onclick="agregarALaLista()">➕ Agregar a la Lista</button>
+
+      <!-- LISTA DE PRODUCTOS ACUMULADOS -->
+      <h4 style="margin-top: 20px; margin-bottom: 8px;">Lista de Pedido Actual:</h4>
+      <table class="tabla-pedido">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cant.</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-body-pedido">
+          <tr>
+            <td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button style="background-color: #10b981;" onclick="enviarListaCompleta()">🚀 Enviar Pedido Completo</button>
     </div>
 
   </div>
@@ -174,13 +257,12 @@
 </div>
 
 <script>
-  // URL de tu API en Google Apps Script
   const URL_API = "https://script.google.com/macros/s/AKfycbwqZ-RELEVANTE_REEMPLAZAR_AQUI/exec";
 
   let catalogoLocal = [];
+  let listaPedidoTemporal = []; // Guarda los productos acumulados
   let usuarioActual = { empleado: "", sucursal: "" };
 
-  // Cargar lista de empleados al abrir la página
   window.onload = async function() {
     try {
       let res = await fetch(`${URL_API}?accion=verEmpleados`);
@@ -219,7 +301,6 @@
     document.getElementById("sec-login").classList.add("hidden");
     document.getElementById("sec-app").classList.remove("hidden");
 
-    // Precargar catálogo en memoria para evitar lag al escribir
     precargarCatalogo();
   }
 
@@ -228,7 +309,6 @@
     document.getElementById("sec-login").classList.remove("hidden");
   }
 
-  // Descarga el catálogo una sola vez en memoria
   async function precargarCatalogo() {
     try {
       let res = await fetch(`${URL_API}?accion=verCatalogoProductos`);
@@ -238,23 +318,125 @@
     }
   }
 
-  // Filtra de forma rápida los primeros 10 resultados para no congelar la pantalla
-  function filtrarProductosLocales(texto) {
-    let datalist = document.getElementById("listaProductos");
-    datalist.innerHTML = "";
+  function filtrarBuscador(texto) {
+    let box = document.getElementById("box-sugerencias");
+    box.innerHTML = "";
 
-    if (!texto || texto.trim().length < 2) return;
+    if (!texto || texto.trim().length < 2) {
+      box.classList.add("hidden");
+      return;
+    }
 
     let busqueda = texto.toLowerCase();
     let filtrados = catalogoLocal
       .filter(p => String(p).toLowerCase().includes(busqueda))
-      .slice(0, 10);
+      .slice(0, 15);
+
+    if (filtrados.length === 0) {
+      box.classList.add("hidden");
+      return;
+    }
 
     filtrados.forEach(prod => {
-      let opt = document.createElement("option");
-      opt.value = prod;
-      datalist.appendChild(opt);
+      let div = document.createElement("div");
+      div.className = "sugerencia-item";
+      div.textContent = prod;
+      div.onclick = function() {
+        document.getElementById("pedido-producto").value = prod;
+        box.classList.add("hidden");
+      };
+      box.appendChild(div);
     });
+
+    box.classList.remove("hidden");
+  }
+
+  document.addEventListener("click", function(e) {
+    let input = document.getElementById("pedido-producto");
+    let box = document.getElementById("box-sugerencias");
+    if (e.target !== input && e.target !== box) {
+      box.classList.add("hidden");
+    }
+  });
+
+  // AGREGAR PRODUCTO A LA TABLA TEMPORAL
+  function agregarALaLista() {
+    let prodInput = document.getElementById("pedido-producto");
+    let cantInput = document.getElementById("pedido-cantidad");
+
+    let producto = prodInput.value.trim();
+    let cantidad = parseFloat(cantInput.value);
+
+    if (!producto || isNaN(cantidad) || cantidad <= 0) {
+      alert("Selecciona un producto y una cantidad válida.");
+      return;
+    }
+
+    // Agregar al arreglo local
+    listaPedidoTemporal.push({ producto, cantidad });
+
+    // Limpiar inputs
+    prodInput.value = "";
+    cantInput.value = "1";
+
+    // Renderizar tabla
+    actualizarTablaPedido();
+  }
+
+  // DIBUJAR LISTA EN LA PANTALLA
+  function actualizarTablaPedido() {
+    let tbody = document.getElementById("tabla-body-pedido");
+    tbody.innerHTML = "";
+
+    if (listaPedidoTemporal.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #94a3b8;">No has agregado productos</td></tr>';
+      return;
+    }
+
+    listaPedidoTemporal.forEach((item, index) => {
+      let tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.producto}</td>
+        <td><strong>${item.cantidad}</strong></td>
+        <td><button class="btn-eliminar" onclick="eliminarDelPedido(${index})">✕</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function eliminarDelPedido(index) {
+    listaPedidoTemporal.splice(index, 1);
+    actualizarTablaPedido();
+  }
+
+  // ENVIAR TODOS LOS PRODUCTOS DE LA LISTA DE UNA SOLA VEZ
+  async function enviarListaCompleta() {
+    if (listaPedidoTemporal.length === 0) {
+      alert("La lista está vacía. Agrega al menos un producto.");
+      return;
+    }
+
+    try {
+      // Enviamos cada producto a Google Sheets
+      for (let item of listaPedidoTemporal) {
+        let params = new URLSearchParams({
+          accion: "Pedidos",
+          sucursal: usuarioActual.sucursal,
+          empleado: usuarioActual.empleado,
+          producto: item.producto,
+          cantidad: item.cantidad
+        });
+
+        await fetch(URL_API, { method: "POST", body: params });
+      }
+
+      alert("¡Pedido completo enviado a Bodega exitosamente!");
+      listaPedidoTemporal = [];
+      actualizarTablaPedido();
+
+    } catch (e) {
+      alert("Ocurrió un error enviando algunos productos.");
+    }
   }
 
   async function enviarAsistencia() {
@@ -275,33 +457,6 @@
       alert("Asistencia registrada correctamente.");
     } catch (e) {
       alert("Error al guardar asistencia.");
-    }
-  }
-
-  async function enviarPedido() {
-    let prod = document.getElementById("pedido-producto").value;
-    let cant = document.getElementById("pedido-cantidad").value;
-
-    if (!prod || !cant) {
-      alert("Ingresa un producto y una cantidad válida.");
-      return;
-    }
-
-    let params = new URLSearchParams({
-      accion: "Pedidos",
-      sucursal: usuarioActual.sucursal,
-      empleado: usuarioActual.empleado,
-      producto: prod,
-      cantidad: cant
-    });
-
-    try {
-      await fetch(URL_API, { method: "POST", body: params });
-      alert("Pedido enviado a Bodega.");
-      document.getElementById("pedido-producto").value = "";
-      document.getElementById("pedido-cantidad").value = "1";
-    } catch (e) {
-      alert("Error al enviar el pedido.");
     }
   }
 </script>
