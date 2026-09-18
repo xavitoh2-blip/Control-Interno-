@@ -361,11 +361,6 @@
                 document.getElementById("pantallaPrincipal").style.display = "block";
                 
                 adaptarInterfazSegunSucursal();
-                descargarTareasConfig();
-                cargarProductosParaCuadre();
-                if (sucursalGuardada.trim().toLowerCase() !== "bodega") {
-                    cargarCatalogoProductosPedido();
-                }
             }
         };
 
@@ -400,12 +395,16 @@
 
         function toggleMenuInventario() {
             const menu = document.getElementById("menuInventario");
-            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+            const abrir = (menu.style.display === "none" || menu.style.display === "");
+            menu.style.display = abrir ? "block" : "none";
+            if (abrir && productosInventarioGlobal.length === 0) cargarProductosParaCuadre();
         }
 
         function toggleMenuPedidos() {
             const menu = document.getElementById("menuPedidos");
-            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+            const abrir = (menu.style.display === "none" || menu.style.display === "");
+            menu.style.display = abrir ? "block" : "none";
+            if (abrir && catalogoProductosPedido.length === 0) cargarCatalogoProductosPedido();
         }
 
         function toggleMenuPedidosBodega() {
@@ -449,11 +448,12 @@
         }
 
         function descargarTareasConfig() {
-            fetch(URL_API + "?accion=verTareas")
-                .then(r => r.json())
-                .then(data => { tareasGlobales = data; })
+            return fetch(URL_API + "?accion=verTareas")
+                .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+                .then(data => { tareasGlobales = Array.isArray(data) ? data : []; })
                 .catch(() => {
                     document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: red;'>Error al conectar con la configuración de tareas.</p>";
+                    throw new Error("Error cargando tareas");
                 });
         }
 
@@ -682,7 +682,11 @@
                 btnEntrada.style.display = "block"; 
                 seccionSalida.style.display = "block";
                 
-                renderizarTareas();
+                if (tareasGlobales.length === 0) {
+                    descargarTareasConfig().then(renderizarTareas);
+                } else {
+                    renderizarTareas();
+                }
             } else {
                 textoHorario.innerText = "";
                 contenedorBotones.style.display = "none";
@@ -834,20 +838,37 @@
                 .catch(err => { console.error(err); alert("Error de conexión."); });
         }
 
+        let promesaCatalogoPedido = null;
+
         function cargarCatalogoProductosPedido() {
-            fetch(URL_API + "?accion=verCatalogoProductos&_=" + Date.now())
-                .then(r => r.json())
+            if (catalogoProductosPedido.length > 0) return Promise.resolve(catalogoProductosPedido);
+            if (promesaCatalogoPedido) return promesaCatalogoPedido;
+
+            const input = document.getElementById("buscadorProductoPedido");
+            const valorAnterior = input ? input.placeholder : "";
+            if (input) input.placeholder = "Cargando productos...";
+
+            promesaCatalogoPedido = fetch(URL_API + "?accion=verCatalogoProductos")
+                .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
                 .then(data => {
                     catalogoProductosPedido = Array.isArray(data) ? data.map(item => {
-                        if (Array.isArray(item)) return { codigo: String(item[0] ?? "").trim(), producto: String(item[1] ?? "").trim() };
+                        if (Array.isArray(item)) return { codigo: String(item[0] ?? "").trim(), producto: String(item[1] ?? item[0] ?? "").trim() };
                         if (typeof item === "object" && item !== null) return { codigo: String(item.codigo ?? item.Codigo ?? "").trim(), producto: String(item.producto ?? item.Producto ?? "").trim() };
                         return { codigo: "", producto: String(item ?? "").trim() };
                     }).filter(item => item.producto) : [];
+                    return catalogoProductosPedido;
                 })
                 .catch(err => {
                     console.error("Error cargando catálogo de pedidos:", err);
                     catalogoProductosPedido = [];
+                    alert("No se pudo cargar el catálogo de productos. Revisa la conexión e inténtalo nuevamente.");
+                    throw err;
+                })
+                .finally(() => {
+                    promesaCatalogoPedido = null;
+                    if (input) input.placeholder = valorAnterior || "Buscar producto";
                 });
+            return promesaCatalogoPedido;
         }
 
         function normalizarBusquedaPedido(texto) {
@@ -864,6 +885,12 @@
             document.getElementById("productoPedidoSeleccionadoTexto").style.display = "none";
 
             if (!q) { cont.style.display = "none"; cont.innerHTML = ""; return; }
+            if (catalogoProductosPedido.length === 0) {
+                cont.innerHTML = '<div class="pedido-resultado" style="color:#888; cursor:default;">Cargando productos...</div>';
+                cont.style.display = "block";
+                cargarCatalogoProductosPedido().then(() => buscarProductoPedido()).catch(() => {});
+                return;
+            }
             const resultados = catalogoProductosPedido.filter(item =>
                 normalizarBusquedaPedido(item.codigo).includes(q) || normalizarBusquedaPedido(item.producto).includes(q)
             ).slice(0, 20);
@@ -936,31 +963,56 @@
 
         async function enviarPedidoCompleto() {
             if (!listaPedidoPendiente.length) return alert("Agrega al menos un producto al pedido.");
+
             const sucursal = localStorage.getItem("sucursal");
             const empleado = localStorage.getItem("usuario");
             const btn = document.getElementById("btnEnviarPedidoCompleto");
+            const copiaPedido = listaPedidoPendiente.map(item => ({
+                codigo: item.codigo || "",
+                producto: item.producto,
+                cantidad: item.cantidad
+            }));
+
             btn.disabled = true;
             btn.innerText = "Enviando pedido...";
+
+            const controlador = new AbortController();
+            const timeout = setTimeout(() => controlador.abort(), 30000);
+
             try {
-                for (const item of listaPedidoPendiente) {
-                    const params = new URLSearchParams({
-                        accion: "Pedidos", sucursal: sucursal, empleado: empleado,
-                        codigo: item.codigo, producto: item.producto, cantidad: item.cantidad
-                    });
-                    const r = await fetch(URL_API, { method: "POST", body: params });
-                    const res = await r.text();
-                    if (res.trim() !== "OK") throw new Error("El servidor no confirmó el registro.");
+                const params = new URLSearchParams({
+                    accion: "PedidosLote",
+                    sucursal: sucursal || "",
+                    empleado: empleado || "",
+                    productos: JSON.stringify(copiaPedido)
+                });
+
+                const r = await fetch(URL_API, { method: "POST", body: params, signal: controlador.signal });
+                const texto = await r.text();
+                let respuesta;
+                try { respuesta = JSON.parse(texto); } catch (_) { respuesta = { status: texto.trim() }; }
+
+                if (!r.ok || respuesta.status !== "OK") {
+                    throw new Error(respuesta.mensaje || "El servidor no confirmó el pedido.");
                 }
-                alert("¡Pedido completo enviado a bodega con éxito!");
+
+                alert(`¡Pedido ${respuesta.idPedido || ""} enviado a bodega con éxito!`);
                 listaPedidoPendiente = [];
                 renderizarListaPedido();
                 document.getElementById("buscadorProductoPedido").value = "";
                 document.getElementById("cantidadPedido").value = "1";
-                toggleMenuPedidos();
+                document.getElementById("productoPedidoSeleccionadoTexto").style.display = "none";
+                productoPedidoSeleccionado = null;
+                document.getElementById("menuPedidos").style.display = "none";
             } catch (err) {
                 console.error("Error enviando pedido:", err);
-                alert("Hubo un error al enviar el pedido. Revisa la conexión e inténtalo nuevamente.");
+                if (err.name === "AbortError") {
+                    alert("El servidor tardó demasiado en responder. Revisa la conexión antes de volver a enviar para evitar duplicados.");
+                } else {
+                    alert("No se pudo enviar el pedido: " + err.message);
+                }
             } finally {
+                clearTimeout(timeout);
                 btn.disabled = false;
                 btn.innerText = "📩 Enviar pedido completo a Bodega";
             }
