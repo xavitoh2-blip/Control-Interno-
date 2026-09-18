@@ -68,6 +68,13 @@
         .pedido-resultado:hover { background:#f1f5f9; }
         .pedido-codigo { color:#007bff; font-weight:700; }
         .pedido-item { background:#f8f9fa; border:1px solid #e9ecef; padding:10px; border-radius:6px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:12px; }
+        /* NAVEGACIÓN TIPO APP */
+        .modulo-pantalla { display:none; }
+        .menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .menu-modulo { min-height:92px; font-size:15px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:#fff; color:#2c3e50; border:1px solid #e4e9ef; box-shadow:0 3px 10px rgba(0,0,0,.06); }
+        .menu-modulo span { font-size:26px; }
+        .btn-volver { background:#6c757d !important; margin-bottom:12px !important; }
+        @media(max-width:420px){ .menu-grid{grid-template-columns:1fr 1fr;} }
     </style>
 </head>
 <body>
@@ -112,8 +119,19 @@
             </div>
         </div>
 
+        <div id="menuPrincipalModulos" class="card">
+            <h3 style="text-align:center;">Menú principal</h3>
+            <div class="menu-grid">
+                <button class="menu-modulo" onclick="abrirModulo('asistencia')"><span>📍</span>Asistencia</button>
+                <button class="menu-modulo" onclick="abrirModulo('tareas')"><span>📋</span>Tareas</button>
+                <button class="menu-modulo" onclick="abrirModulo('inventario')"><span>📦</span>Inventario</button>
+                <button id="btnMenuPedidos" class="menu-modulo" onclick="abrirModulo('pedidos')"><span>🛍️</span><b id="textoMenuPedidos">Hacer Pedido</b></button>
+            </div>
+        </div>
+
         <!-- REGISTRAR ASISTENCIA DESPLEGABLE -->
-        <div class="card" style="text-align: left;">
+        <div id="moduloAsistencia" class="card modulo-pantalla" style="text-align: left;">
+            <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
             <button onclick="toggleMenuAsistencia()" style="background-color: #17a2b8; margin: 0;">
                 📍 Registrar Asistencia
             </button>
@@ -149,8 +167,14 @@
         </div>
 
         <!-- TAREAS DEL DÍA -->
-        <div class="card" style="text-align: left;">
+        <div id="moduloTareas" class="card modulo-pantalla" style="text-align: left;">
+            <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
             <h3 style="text-align: center; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 8px;">📋 Tareas del Día</h3>
+            <select id="selectTurnoTareas" onchange="renderizarTareas()">
+                <option value="">-- Selecciona Turno --</option>
+                <option value="apertura">☀️ Apertura</option>
+                <option value="cierre">🌙 Cierre</option>
+            </select>
             <div id="contenedorTareas">
                 <p style="font-size: 12px; color: #666; text-align: center; margin: 10px 0;">
                     Selecciona un turno para ver las tareas...
@@ -159,7 +183,8 @@
         </div>
 
         <!-- INVENTARIO MULTI-PRODUCTO -->
-        <div class="card" style="text-align: left;">
+        <div id="moduloInventario" class="card modulo-pantalla" style="text-align: left;">
+            <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
             <button onclick="toggleMenuInventario()" style="background-color: #17a2b8; margin: 0;">
                 📦 Actualizar Inventario
             </button>
@@ -205,7 +230,8 @@
         </div>
 
         <!-- SECCIÓN DE PEDIDOS (DINÁMICA SEGÚN SUCURSAL) -->
-        <div class="card" style="text-align: left;">
+        <div id="moduloPedidos" class="card modulo-pantalla" style="text-align: left;">
+            <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
             <!-- Vista para Tiendas (Hacer Pedido) -->
             <div id="seccionHacerPedido">
                 <button onclick="toggleMenuPedidos()" style="background-color: #17a2b8; margin: 0;">
@@ -369,9 +395,12 @@
             const secHacer = document.getElementById("seccionHacerPedido");
             const secBodega = document.getElementById("seccionVerPedidosBodega");
 
-            if (sucursalActual && sucursalActual.trim().toLowerCase() === "bodega") {
+            const esBodega = sucursalActual && sucursalActual.trim().toLowerCase() === "bodega";
+            if (esBodega) {
                 secHacer.style.display = "none";
                 secBodega.style.display = "block";
+                const t = document.getElementById("textoMenuPedidos"); if (t) t.innerText = "Pedidos Recibidos";
+                const b = document.getElementById("btnMenuPedidos"); if (b) b.querySelector("span").innerText = "📦";
             } else {
                 secHacer.style.display = "block";
                 secBodega.style.display = "none";
@@ -379,13 +408,68 @@
         }
 
         function cargarEmpleadosDesdeSheets() {
-            fetch(URL_API + "?accion=verEmpleados")
-                .then(r => r.json())
+            const selectEmp = document.getElementById("nombreEmpleado");
+            const cache = localStorage.getItem("cacheEmpleados");
+            if (cache) {
+                try {
+                    const guardados = JSON.parse(cache);
+                    if (Array.isArray(guardados) && guardados.length) {
+                        listaGlobalNombres = guardados;
+                        filtrarNombresPorSucursal();
+                    }
+                } catch (_) {}
+            }
+            if (!listaGlobalNombres.length) selectEmp.innerHTML = '<option value="">Cargando empleados...</option>';
+
+            fetch(URL_API + "?accion=verEmpleados&_=" + Date.now())
+                .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
                 .then(data => {
-                    listaGlobalNombres = data.slice(1);
+                    if (!Array.isArray(data)) throw new Error("Respuesta inválida");
+                    listaGlobalNombres = data.slice(1).filter(row => Array.isArray(row) && row[0] && row[1]);
+                    localStorage.setItem("cacheEmpleados", JSON.stringify(listaGlobalNombres));
                     filtrarNombresPorSucursal();
                 })
-                .catch(err => console.error("Error al obtener la lista de colaboradores:", err));
+                .catch(err => {
+                    console.error("Error al obtener colaboradores:", err);
+                    if (!listaGlobalNombres.length) selectEmp.innerHTML = '<option value="">Error al cargar empleados</option>';
+                });
+        }
+
+        function normalizarEmpleado(texto) {
+            return String(texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+        }
+
+        function abrirModulo(nombre) {
+            document.getElementById("menuPrincipalModulos").style.display = "none";
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos"].forEach(id => document.getElementById(id).style.display = "none");
+            if (nombre === "asistencia") {
+                document.getElementById("moduloAsistencia").style.display = "block";
+                document.getElementById("menuAsistencia").style.display = "block";
+            } else if (nombre === "tareas") {
+                document.getElementById("moduloTareas").style.display = "block";
+                if (!tareasGlobales.length) descargarTareasConfig();
+            } else if (nombre === "inventario") {
+                document.getElementById("moduloInventario").style.display = "block";
+                document.getElementById("menuInventario").style.display = "block";
+                if (!productosInventarioGlobal.length) cargarProductosParaCuadre();
+            } else if (nombre === "pedidos") {
+                document.getElementById("moduloPedidos").style.display = "block";
+                const esBodega = normalizarEmpleado(localStorage.getItem("sucursal")) === "bodega";
+                if (esBodega) {
+                    document.getElementById("menuPedidosBodega").style.display = "block";
+                    cargarPedidosEnBodega();
+                } else {
+                    document.getElementById("menuPedidos").style.display = "block";
+                    if (!catalogoProductosPedido.length) cargarCatalogoProductosPedido();
+                }
+            }
+            window.scrollTo(0,0);
+        }
+
+        function volverMenuPrincipal() {
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos"].forEach(id => document.getElementById(id).style.display = "none");
+            document.getElementById("menuPrincipalModulos").style.display = "block";
+            window.scrollTo(0,0);
         }
 
         function toggleMenuAsistencia() {
@@ -420,16 +504,23 @@
         function filtrarNombresPorSucursal() {
             const sucursalSeleccionada = document.getElementById("selectSucursal").value;
             const selectEmp = document.getElementById("nombreEmpleado");
+            if (!sucursalSeleccionada) {
+                selectEmp.innerHTML = '<option value="">-- Primero selecciona sucursal --</option>';
+                return;
+            }
+            const encontrados = listaGlobalNombres.filter(row => normalizarEmpleado(row[1]) === normalizarEmpleado(sucursalSeleccionada));
             selectEmp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
-            if (!sucursalSeleccionada) return;
-            
-            listaGlobalNombres.forEach(row => {
-                let empNombre = row[0];
-                let empSucursal = row[1];
-                if (empSucursal && empSucursal.trim().toLowerCase() === sucursalSeleccionada.trim().toLowerCase()) {
-                    selectEmp.innerHTML += `<option value="${empNombre}">${empNombre}</option>`;
-                }
+            encontrados.forEach(row => {
+                const op = document.createElement("option");
+                op.value = String(row[0]).trim();
+                op.textContent = String(row[0]).trim();
+                selectEmp.appendChild(op);
             });
+            if (!encontrados.length && !listaGlobalNombres.length) {
+                selectEmp.innerHTML = '<option value="">Cargando empleados...</option>';
+            } else if (!encontrados.length) {
+                selectEmp.innerHTML = '<option value="">No hay empleados para esta sucursal</option>';
+            }
         }
 
         function iniciarSesion() {
@@ -443,7 +534,8 @@
         }
 
         function cerrarSesion() {
-            localStorage.clear();
+            localStorage.removeItem("usuario");
+            localStorage.removeItem("sucursal");
             location.reload();
         }
 
@@ -695,7 +787,9 @@
         }
 
       function renderizarTareas() {
-            const turnoSeleccionado = document.getElementById("selectTurno").value;
+            const selTareas = document.getElementById("selectTurnoTareas");
+            const moduloTareasVisible = document.getElementById("moduloTareas") && document.getElementById("moduloTareas").style.display === "block";
+            const turnoSeleccionado = moduloTareasVisible ? selTareas.value : document.getElementById("selectTurno").value;
             const usuarioActual = localStorage.getItem("usuario");
             const sucursalActual = localStorage.getItem("sucursal");
             const contenedor = document.getElementById("contenedorTareas");
@@ -734,7 +828,8 @@
 
             const sucursal = localStorage.getItem("sucursal");
             const empleado = localStorage.getItem("usuario");
-            const turno = document.getElementById("selectTurno").value;
+            const moduloTareasVisible = document.getElementById("moduloTareas") && document.getElementById("moduloTareas").style.display === "block";
+            const turno = moduloTareasVisible ? document.getElementById("selectTurnoTareas").value : document.getElementById("selectTurno").value;
 
             checkbox.disabled = document.getElementById(`div_tarea_${index}`).style.opacity = "0.6";
 
@@ -1003,7 +1098,7 @@
                 document.getElementById("cantidadPedido").value = "1";
                 document.getElementById("productoPedidoSeleccionadoTexto").style.display = "none";
                 productoPedidoSeleccionado = null;
-                document.getElementById("menuPedidos").style.display = "none";
+                volverMenuPrincipal();
             } catch (err) {
                 console.error("Error enviando pedido:", err);
                 if (err.name === "AbortError") {
