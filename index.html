@@ -127,6 +127,7 @@
                 <button class="menu-modulo" onclick="abrirModulo('inventario')"><span>📦</span>Inventario</button>
                 <button id="btnMenuPedidos" class="menu-modulo" onclick="abrirModulo('pedidos')"><span>🛍️</span><b id="textoMenuPedidos">Hacer Pedido</b></button>
                 <button id="btnMenuRecepcion" class="menu-modulo" onclick="abrirModulo('recepcion')"><span>📥</span><b>Recibir Pedido</b></button>
+                <button id="btnMenuCompras" class="menu-modulo" onclick="abrirModulo('compras')" style="display:none;"><span>🛒</span><b>Compras</b></button>
             </div>
         </div>
 
@@ -302,6 +303,29 @@
             <div id="listaRecepcionPedidos" style="margin-top:12px;"><p style="font-size:12px;color:#888;text-align:center;">Cargando pedidos...</p></div>
         </div>
 
+    <!-- MÓDULO DE COMPRAS - SOLO BODEGA -->
+    <div id="moduloCompras" class="card modulo-pantalla" style="text-align:left;">
+        <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+        <h3 style="text-align:center;">🛒 Compras</h3>
+        <p style="font-size:12px;color:#666;text-align:center;">Faltantes de pedidos y productos adicionales para abastecer Bodega.</p>
+        <button onclick="cargarComprasPendientes()" style="background:#007bff;">🔄 Actualizar compras</button>
+        <div id="listaComprasPendientes" style="margin-top:10px;"></div>
+        <div style="border-top:1px dashed #ccc;margin-top:16px;padding-top:14px;">
+            <h4 style="margin-top:0;">➕ Agregar para abastecimiento</h4>
+            <div class="pedido-buscador-wrap">
+                <input id="buscadorCompra" type="text" placeholder="Buscar producto" autocomplete="off" oninput="buscarProductoCompra()" onfocus="buscarProductoCompra()">
+                <div id="resultadosProductoCompra" class="pedido-resultados"></div>
+            </div>
+            <div id="productoCompraSeleccionado" style="display:none;background:#eaf4ff;border:1px solid #b8daff;padding:8px;border-radius:6px;margin:5px 0;font-size:12px;"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+                <button type="button" onclick="cambiarCantidadCompra(-1)" style="width:54px;margin:0;background:#6c757d;font-size:22px;">−</button>
+                <input id="cantidadCompra" type="number" min="1" value="1" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;">
+                <button type="button" onclick="cambiarCantidadCompra(1)" style="width:54px;margin:0;background:#28a745;font-size:22px;">+</button>
+            </div>
+            <button onclick="agregarCompraAbastecimiento()" style="background:#17a2b8;">➕ Agregar a Compras</button>
+        </div>
+    </div>
+
     <!-- MODAL SUPERVISOR -->
     <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 1000;">
         <h3>Clave de Supervisor</h3>
@@ -403,12 +427,14 @@
                 secHacer.style.display = "none";
                 secBodega.style.display = "block";
                 if (btnRecepcion) btnRecepcion.style.display = "none";
+                const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "flex";
                 const t = document.getElementById("textoMenuPedidos"); if (t) t.innerText = "Pedidos Recibidos";
                 const b = document.getElementById("btnMenuPedidos"); if (b) b.querySelector("span").innerText = "📦";
             } else {
                 secHacer.style.display = "block";
                 secBodega.style.display = "none";
                 if (btnRecepcion) btnRecepcion.style.display = "flex";
+                const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "none";
             }
         }
 
@@ -446,7 +472,7 @@
 
         function abrirModulo(nombre) {
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloCompras"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
@@ -470,12 +496,17 @@
             } else if (nombre === "recepcion") {
                 document.getElementById("moduloRecepcion").style.display = "block";
                 cargarPedidosParaRecepcion();
+            } else if (nombre === "compras") {
+                if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "bodega") return volverMenuPrincipal();
+                document.getElementById("moduloCompras").style.display = "block";
+                cargarComprasPendientes();
+                if (!catalogoProductosPedido.length) cargarCatalogoProductosPedido();
             }
             window.scrollTo(0,0);
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloCompras"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -1416,6 +1447,79 @@
                 alert("No se pudo guardar el despacho. Inténtalo nuevamente.");
                 if (btn) { btn.disabled = false; btn.innerText = "🚚 Confirmar pedido preparado"; }
             }
+        }
+
+        let comprasPendientesActuales = [];
+        let productoCompraActual = null;
+
+        function cargarComprasPendientes() {
+            const cont = document.getElementById("listaComprasPendientes");
+            cont.innerHTML = '<p style="font-size:12px;color:#666;text-align:center;">Cargando compras pendientes...</p>';
+            fetch(URL_API + "?accion=verComprasPendientes&_=" + Date.now())
+                .then(r => r.json()).then(data => {
+                    if (!data || data.status !== "OK") throw new Error("Respuesta inválida");
+                    comprasPendientesActuales = data.compras || [];
+                    renderizarComprasPendientes();
+                }).catch(err => {
+                    console.error(err);
+                    cont.innerHTML = '<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar las compras.</p>';
+                });
+        }
+
+        function renderizarComprasPendientes() {
+            const cont = document.getElementById("listaComprasPendientes");
+            if (!comprasPendientesActuales.length) {
+                cont.innerHTML = '<p style="font-size:13px;color:#888;text-align:center;padding:12px;">✅ No hay compras pendientes.</p>';
+                return;
+            }
+            cont.innerHTML = comprasPendientesActuales.map((c,i) => `
+                <div style="border:1px solid #e1e5ea;border-radius:10px;padding:12px;margin:9px 0;background:#fff;">
+                    <div style="font-weight:800;font-size:14px;">${escaparHtmlPedido(c.producto)}</div>
+                    <div style="font-size:12px;color:#555;margin:5px 0;">Comprar: <strong style="font-size:16px;">${c.cantidad}</strong></div>
+                    <div style="font-size:11px;color:#777;">${c.tipo === 'Abastecimiento' ? '📦 Abastecimiento de Bodega' : '⚠️ Faltante para ' + escaparHtmlPedido(c.sucursal || '')}</div>
+                    <button onclick="marcarCompraRealizada(${i})" style="background:#28a745;margin-top:9px;">✅ Marcar comprado</button>
+                </div>`).join('');
+        }
+
+        function buscarProductoCompra() {
+            const input = document.getElementById("buscadorCompra"), cont = document.getElementById("resultadosProductoCompra");
+            const q = normalizarBusquedaPedido(input.value);
+            productoCompraActual = null;
+            document.getElementById("productoCompraSeleccionado").style.display = "none";
+            if (!q) { cont.style.display="none"; return; }
+            if (!catalogoProductosPedido.length) { cargarCatalogoProductosPedido().then(buscarProductoCompra); return; }
+            const rs = catalogoProductosPedido.filter(x => normalizarBusquedaPedido(x.codigo).includes(q) || normalizarBusquedaPedido(x.producto).includes(q)).slice(0,20);
+            cont.innerHTML = rs.length ? rs.map(x => `<div class="pedido-resultado" onclick="seleccionarProductoCompra(${catalogoProductosPedido.indexOf(x)})">${escaparHtmlPedido(x.producto)}</div>`).join('') : '<div class="pedido-resultado">Sin resultados</div>';
+            cont.style.display="block";
+        }
+
+        function seleccionarProductoCompra(i) {
+            productoCompraActual = catalogoProductosPedido[i];
+            if (!productoCompraActual) return;
+            document.getElementById("buscadorCompra").value = productoCompraActual.producto;
+            document.getElementById("resultadosProductoCompra").style.display="none";
+            const d=document.getElementById("productoCompraSeleccionado"); d.innerHTML='✅ <strong>'+escaparHtmlPedido(productoCompraActual.producto)+'</strong>'; d.style.display="block";
+        }
+        function cambiarCantidadCompra(c) { const x=document.getElementById("cantidadCompra"); x.value=Math.max(1,(parseInt(x.value)||1)+c); }
+
+        async function agregarCompraAbastecimiento() {
+            if (!productoCompraActual) return alert("Selecciona un producto.");
+            const cantidad=Math.max(1,Number(document.getElementById("cantidadCompra").value)||1);
+            const params=new URLSearchParams({accion:"AgregarCompraAbastecimiento",producto:productoCompraActual.producto,cantidad:String(cantidad),empleado:localStorage.getItem("usuario")||""});
+            try {
+                const r=await fetch(URL_API,{method:"POST",body:params}); const d=await r.json();
+                if (!d || d.status!=="OK") throw new Error(d && d.mensaje || "Error");
+                productoCompraActual=null; document.getElementById("buscadorCompra").value=""; document.getElementById("cantidadCompra").value="1"; document.getElementById("productoCompraSeleccionado").style.display="none";
+                cargarComprasPendientes();
+            } catch(e) { alert("No se pudo agregar la compra."); }
+        }
+
+        async function marcarCompraRealizada(i) {
+            const c=comprasPendientesActuales[i]; if (!c) return;
+            if (!confirm(`¿Marcar como comprado ${c.producto}?`)) return;
+            const params=new URLSearchParams({accion:"MarcarCompraRealizada",fila:String(c.fila),empleado:localStorage.getItem("usuario")||""});
+            try { const r=await fetch(URL_API,{method:"POST",body:params}); const d=await r.json(); if(!d||d.status!=="OK") throw new Error("Error"); cargarComprasPendientes(); }
+            catch(e){ alert("No se pudo actualizar la compra."); }
         }
 
         function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
