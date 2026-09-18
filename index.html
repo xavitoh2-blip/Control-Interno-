@@ -60,6 +60,14 @@
             cursor: pointer;
             accent-color: #28a745;
         }
+
+        /* BUSCADOR Y LISTA DEL MÓDULO DE PEDIDOS */
+        .pedido-buscador-wrap { position: relative; }
+        .pedido-resultados { display:none; position:absolute; left:0; right:0; top:100%; z-index:50; max-height:220px; overflow-y:auto; background:#fff; border:1px solid #ced4da; border-radius:6px; box-shadow:0 5px 14px rgba(0,0,0,.12); }
+        .pedido-resultado { padding:10px; cursor:pointer; border-bottom:1px solid #eee; font-size:12px; }
+        .pedido-resultado:hover { background:#f1f5f9; }
+        .pedido-codigo { color:#007bff; font-weight:700; }
+        .pedido-item { background:#f8f9fa; border:1px solid #e9ecef; padding:10px; border-radius:6px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:12px; }
     </style>
 </head>
 <body>
@@ -207,15 +215,30 @@
                 <div id="menuPedidos" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
                     <h3 style="font-size: 15px;">Solicitud de Productos a Bodega</h3>
                     
-                    <label style="font-size: 12px; color: #555;">Producto Requerido:</label>
-                    <input type="text" id="productoPedido" placeholder="Nombre del producto">
+                    <label style="font-size: 12px; color: #555;">Buscar producto por código o nombre:</label>
+                    <div class="pedido-buscador-wrap">
+                        <input type="text" id="buscadorProductoPedido" placeholder="Ej. 1001 o Coca Cola" autocomplete="off" oninput="buscarProductoPedido()" onfocus="buscarProductoPedido()">
+                        <div id="resultadosProductoPedido" class="pedido-resultados"></div>
+                    </div>
+                    <input type="hidden" id="codigoProductoPedido">
+                    <input type="hidden" id="nombreProductoPedido">
+
+                    <div id="productoPedidoSeleccionadoTexto" style="display:none; background:#eaf4ff; border:1px solid #b8daff; padding:8px; border-radius:6px; margin:5px 0 8px; font-size:12px;"></div>
 
                     <label style="font-size: 12px; color: #555;">Cantidad Solicitada:</label>
-                    <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1">
+                    <input type="number" id="cantidadPedido" placeholder="Cantidad" value="1" min="1" step="1">
 
-                    <button onclick="enviarPedido()" style="background-color: #28a745; margin-top: 5px;">
-                        📩 Enviar Pedido
+                    <button onclick="agregarProductoAlPedido()" style="background-color: #007bff; margin-top: 5px;">
+                        ➕ Agregar a la lista
                     </button>
+
+                    <div id="contenedorListaPedido" style="display:none; margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
+                        <h4 style="font-size:13px; margin:0 0 8px 0;">Productos del pedido (<span id="cantProductosPedido">0</span>):</h4>
+                        <div id="listaPedido"></div>
+                        <button id="btnEnviarPedidoCompleto" onclick="enviarPedidoCompleto()" style="background-color:#28a745; margin-top:10px;">
+                            📩 Enviar pedido completo a Bodega
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -321,6 +344,9 @@
         let tareasGlobales = [];
         let productosInventarioGlobal = [];
         let listaCuadresPendientes = [];
+        let catalogoProductosPedido = [];
+        let listaPedidoPendiente = [];
+        let productoPedidoSeleccionado = null;
 
         window.onload = function() {
             cargarEmpleadosDesdeSheets();
@@ -337,6 +363,9 @@
                 adaptarInterfazSegunSucursal();
                 descargarTareasConfig();
                 cargarProductosParaCuadre();
+                if (sucursalGuardada.trim().toLowerCase() !== "bodega") {
+                    cargarCatalogoProductosPedido();
+                }
             }
         };
 
@@ -805,34 +834,136 @@
                 .catch(err => { console.error(err); alert("Error de conexión."); });
         }
 
-        function enviarPedido() {
-            const producto = document.getElementById("productoPedido").value.trim();
-            const cantidad = document.getElementById("cantidadPedido").value;
+        function cargarCatalogoProductosPedido() {
+            fetch(URL_API + "?accion=verCatalogoProductos&_=" + Date.now())
+                .then(r => r.json())
+                .then(data => {
+                    catalogoProductosPedido = Array.isArray(data) ? data.map(item => {
+                        if (Array.isArray(item)) return { codigo: String(item[0] ?? "").trim(), producto: String(item[1] ?? "").trim() };
+                        if (typeof item === "object" && item !== null) return { codigo: String(item.codigo ?? item.Codigo ?? "").trim(), producto: String(item.producto ?? item.Producto ?? "").trim() };
+                        return { codigo: "", producto: String(item ?? "").trim() };
+                    }).filter(item => item.producto) : [];
+                })
+                .catch(err => {
+                    console.error("Error cargando catálogo de pedidos:", err);
+                    catalogoProductosPedido = [];
+                });
+        }
+
+        function normalizarBusquedaPedido(texto) {
+            return String(texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+        }
+
+        function buscarProductoPedido() {
+            const input = document.getElementById("buscadorProductoPedido");
+            const cont = document.getElementById("resultadosProductoPedido");
+            const q = normalizarBusquedaPedido(input.value);
+            productoPedidoSeleccionado = null;
+            document.getElementById("codigoProductoPedido").value = "";
+            document.getElementById("nombreProductoPedido").value = "";
+            document.getElementById("productoPedidoSeleccionadoTexto").style.display = "none";
+
+            if (!q) { cont.style.display = "none"; cont.innerHTML = ""; return; }
+            const resultados = catalogoProductosPedido.filter(item =>
+                normalizarBusquedaPedido(item.codigo).includes(q) || normalizarBusquedaPedido(item.producto).includes(q)
+            ).slice(0, 20);
+
+            if (!resultados.length) {
+                cont.innerHTML = '<div class="pedido-resultado" style="color:#888; cursor:default;">No se encontraron productos.</div>';
+                cont.style.display = "block";
+                return;
+            }
+            cont.innerHTML = resultados.map((item, i) =>
+                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})"><span class="pedido-codigo">${escaparHtmlPedido(item.codigo)}</span>${item.codigo ? ' - ' : ''}${escaparHtmlPedido(item.producto)}</div>`
+            ).join("");
+            cont.style.display = "block";
+        }
+
+        function escaparHtmlPedido(valor) {
+            return String(valor ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+        }
+
+        function seleccionarProductoPedido(index) {
+            const item = catalogoProductosPedido[index];
+            if (!item) return;
+            productoPedidoSeleccionado = item;
+            document.getElementById("codigoProductoPedido").value = item.codigo;
+            document.getElementById("nombreProductoPedido").value = item.producto;
+            document.getElementById("buscadorProductoPedido").value = item.codigo ? `${item.codigo} - ${item.producto}` : item.producto;
+            document.getElementById("resultadosProductoPedido").style.display = "none";
+            const texto = document.getElementById("productoPedidoSeleccionadoTexto");
+            texto.innerHTML = `✅ Seleccionado: <strong>${escaparHtmlPedido(item.codigo ? item.codigo + ' - ' : '')}${escaparHtmlPedido(item.producto)}</strong>`;
+            texto.style.display = "block";
+            document.getElementById("cantidadPedido").focus();
+        }
+
+        function agregarProductoAlPedido() {
+            const cantidad = parseFloat(document.getElementById("cantidadPedido").value);
+            if (!productoPedidoSeleccionado) return alert("Primero busca y selecciona un producto del catálogo.");
+            if (!cantidad || cantidad <= 0) return alert("Ingresa una cantidad válida.");
+
+            const existente = listaPedidoPendiente.find(item => item.codigo === productoPedidoSeleccionado.codigo && item.producto === productoPedidoSeleccionado.producto);
+            if (existente) existente.cantidad += cantidad;
+            else listaPedidoPendiente.push({ codigo: productoPedidoSeleccionado.codigo, producto: productoPedidoSeleccionado.producto, cantidad: cantidad });
+
+            document.getElementById("buscadorProductoPedido").value = "";
+            document.getElementById("codigoProductoPedido").value = "";
+            document.getElementById("nombreProductoPedido").value = "";
+            document.getElementById("cantidadPedido").value = "1";
+            document.getElementById("productoPedidoSeleccionadoTexto").style.display = "none";
+            productoPedidoSeleccionado = null;
+            renderizarListaPedido();
+            document.getElementById("buscadorProductoPedido").focus();
+        }
+
+        function renderizarListaPedido() {
+            const cont = document.getElementById("contenedorListaPedido");
+            const lista = document.getElementById("listaPedido");
+            document.getElementById("cantProductosPedido").innerText = listaPedidoPendiente.length;
+            if (!listaPedidoPendiente.length) { cont.style.display = "none"; lista.innerHTML = ""; return; }
+            cont.style.display = "block";
+            lista.innerHTML = listaPedidoPendiente.map((item, index) => `
+                <div class="pedido-item">
+                    <div><strong>${escaparHtmlPedido(item.producto)}</strong><br><span style="color:#666;">Código: ${escaparHtmlPedido(item.codigo || '-')} | Cantidad: ${item.cantidad}</span></div>
+                    <button class="btn-del" onclick="eliminarProductoPedido(${index})">✕</button>
+                </div>`).join("");
+        }
+
+        function eliminarProductoPedido(index) {
+            listaPedidoPendiente.splice(index, 1);
+            renderizarListaPedido();
+        }
+
+        async function enviarPedidoCompleto() {
+            if (!listaPedidoPendiente.length) return alert("Agrega al menos un producto al pedido.");
             const sucursal = localStorage.getItem("sucursal");
             const empleado = localStorage.getItem("usuario");
-
-            if (!producto || !cantidad) return alert("Completa los datos del pedido.");
-
-            const params = new URLSearchParams({
-                accion: "Pedidos",
-                sucursal: sucursal,
-                empleado: empleado,
-                producto: producto,
-                cantidad: cantidad
-            });
-
-            fetch(URL_API, { method: "POST", body: params })
-                .then(r => r.text())
-                .then(res => {
-                    if (res === "OK") {
-                        alert("¡Pedido enviado a bodega con éxito!");
-                        document.getElementById("productoPedido").value = "";
-                        document.getElementById("cantidadPedido").value = "1";
-                        toggleMenuPedidos();
-                    } else {
-                        alert("Error al enviar el pedido.");
-                    }
-                });
+            const btn = document.getElementById("btnEnviarPedidoCompleto");
+            btn.disabled = true;
+            btn.innerText = "Enviando pedido...";
+            try {
+                for (const item of listaPedidoPendiente) {
+                    const params = new URLSearchParams({
+                        accion: "Pedidos", sucursal: sucursal, empleado: empleado,
+                        codigo: item.codigo, producto: item.producto, cantidad: item.cantidad
+                    });
+                    const r = await fetch(URL_API, { method: "POST", body: params });
+                    const res = await r.text();
+                    if (res.trim() !== "OK") throw new Error("El servidor no confirmó el registro.");
+                }
+                alert("¡Pedido completo enviado a bodega con éxito!");
+                listaPedidoPendiente = [];
+                renderizarListaPedido();
+                document.getElementById("buscadorProductoPedido").value = "";
+                document.getElementById("cantidadPedido").value = "1";
+                toggleMenuPedidos();
+            } catch (err) {
+                console.error("Error enviando pedido:", err);
+                alert("Hubo un error al enviar el pedido. Revisa la conexión e inténtalo nuevamente.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "📩 Enviar pedido completo a Bodega";
+            }
         }
 
         function cargarPedidosEnBodega() {
