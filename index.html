@@ -126,6 +126,7 @@
                 <button class="menu-modulo" onclick="abrirModulo('tareas')"><span>📋</span>Tareas</button>
                 <button class="menu-modulo" onclick="abrirModulo('inventario')"><span>📦</span>Inventario</button>
                 <button id="btnMenuPedidos" class="menu-modulo" onclick="abrirModulo('pedidos')"><span>🛍️</span><b id="textoMenuPedidos">Hacer Pedido</b></button>
+                <button id="btnMenuRecepcion" class="menu-modulo" onclick="abrirModulo('recepcion')"><span>📥</span><b>Recibir Pedido</b></button>
             </div>
         </div>
 
@@ -304,6 +305,15 @@
         </div>
     </div>
 
+    <!-- RECEPCIÓN DE PEDIDOS -->
+        <div id="moduloRecepcion" class="card modulo-pantalla" style="text-align:left;">
+            <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+            <h3 style="text-align:center;">📥 Recibir Pedido</h3>
+            <p style="font-size:12px;color:#666;text-align:center;">Revisa lo que pediste y ajusta únicamente lo que llegó diferente.</p>
+            <button id="btnCargarRecepcion" onclick="cargarPedidosParaRecepcion()" style="background-color:#007bff;">🔄 Actualizar pedidos</button>
+            <div id="listaRecepcionPedidos" style="margin-top:12px;"><p style="font-size:12px;color:#888;text-align:center;">Cargando pedidos...</p></div>
+        </div>
+
     <!-- MODAL SUPERVISOR -->
     <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 1000;">
         <h3>Clave de Supervisor</h3>
@@ -398,16 +408,19 @@
             const sucursalActual = localStorage.getItem("sucursal");
             const secHacer = document.getElementById("seccionHacerPedido");
             const secBodega = document.getElementById("seccionVerPedidosBodega");
+            const btnRecepcion = document.getElementById("btnMenuRecepcion");
 
             const esBodega = sucursalActual && sucursalActual.trim().toLowerCase() === "bodega";
             if (esBodega) {
                 secHacer.style.display = "none";
                 secBodega.style.display = "block";
+                if (btnRecepcion) btnRecepcion.style.display = "none";
                 const t = document.getElementById("textoMenuPedidos"); if (t) t.innerText = "Pedidos Recibidos";
                 const b = document.getElementById("btnMenuPedidos"); if (b) b.querySelector("span").innerText = "📦";
             } else {
                 secHacer.style.display = "block";
                 secBodega.style.display = "none";
+                if (btnRecepcion) btnRecepcion.style.display = "flex";
             }
         }
 
@@ -445,7 +458,7 @@
 
         function abrirModulo(nombre) {
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
@@ -466,12 +479,15 @@
                     document.getElementById("menuPedidos").style.display = "block";
                     if (!catalogoProductosPedido.length) cargarCatalogoProductosPedido();
                 }
+            } else if (nombre === "recepcion") {
+                document.getElementById("moduloRecepcion").style.display = "block";
+                cargarPedidosParaRecepcion();
             }
             window.scrollTo(0,0);
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -1122,6 +1138,107 @@
                 clearTimeout(timeout);
                 btn.disabled = false;
                 btn.innerText = "📩 Enviar pedido completo a Bodega";
+            }
+        }
+
+        let pedidosRecepcionActuales = [];
+
+        function cambiarCantidadRecibida(index, cambio) {
+            const input = document.getElementById(`recibido_${index}`);
+            if (!input) return;
+            let valor = Number(input.value) || 0;
+            valor = Math.max(0, valor + cambio);
+            input.value = valor;
+            actualizarEstadoRecepcion(index);
+        }
+
+        function actualizarEstadoRecepcion(index) {
+            const item = pedidosRecepcionActuales[index];
+            const input = document.getElementById(`recibido_${index}`);
+            const estado = document.getElementById(`estadoRec_${index}`);
+            if (!item || !input || !estado) return;
+            const recibido = Math.max(0, Number(input.value) || 0);
+            const dif = recibido - Number(item.cantidadPedida || 0);
+            if (dif === 0) {
+                estado.innerHTML = '<span style="color:#28a745;font-weight:700;">✅ Completo</span>';
+            } else if (dif < 0) {
+                estado.innerHTML = `<span style="color:#dc3545;font-weight:700;">⚠️ Faltan ${Math.abs(dif)}</span>`;
+            } else {
+                estado.innerHTML = `<span style="color:#007bff;font-weight:700;">➕ Sobran ${dif}</span>`;
+            }
+        }
+
+        function cargarPedidosParaRecepcion() {
+            const cont = document.getElementById("listaRecepcionPedidos");
+            const sucursal = localStorage.getItem("sucursal") || "";
+            cont.innerHTML = '<p style="font-size:12px;color:#666;text-align:center;">Cargando pedidos...</p>';
+
+            fetch(URL_API + "?accion=verPedidosRecepcion&sucursal=" + encodeURIComponent(sucursal) + "&_=" + Date.now())
+                .then(r => r.json())
+                .then(data => {
+                    if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "Respuesta inválida");
+                    pedidosRecepcionActuales = data.productos || [];
+                    if (!pedidosRecepcionActuales.length) {
+                        cont.innerHTML = '<p style="font-size:13px;color:#888;text-align:center;padding:15px;">✅ No tienes pedidos pendientes de recibir.</p>';
+                        return;
+                    }
+                    let html = '';
+                    let pedidoAnterior = '';
+                    pedidosRecepcionActuales.forEach((item, index) => {
+                        if (item.idPedido !== pedidoAnterior) {
+                            if (pedidoAnterior) html += '</div>';
+                            html += `<div style="border:1px solid #dfe5eb;border-radius:10px;padding:10px;margin-bottom:12px;background:#fff;">
+                                <div style="font-size:12px;color:#666;margin-bottom:8px;"><strong style="color:#007bff;">📦 ${escaparHtmlPedido(item.idPedido)}</strong><br>${escaparHtmlPedido(item.fecha)} · Solicitó: ${escaparHtmlPedido(item.solicito)}</div>`;
+                            pedidoAnterior = item.idPedido;
+                        }
+                        html += `<div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:8px;padding:10px;margin:8px 0;">
+                            <div style="font-weight:700;font-size:13px;margin-bottom:6px;">${escaparHtmlPedido(item.producto)}</div>
+                            <div style="font-size:12px;color:#555;margin-bottom:6px;">Pedí: <strong>${item.cantidadPedida}</strong></div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <button type="button" onclick="cambiarCantidadRecibida(${index},-1)" style="width:48px;height:44px;margin:0;background:#dc3545;font-size:20px;padding:0;">−</button>
+                                <input id="recibido_${index}" type="number" min="0" step="1" value="${item.cantidadPedida}" oninput="actualizarEstadoRecepcion(${index})" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
+                                <button type="button" onclick="cambiarCantidadRecibida(${index},1)" style="width:48px;height:44px;margin:0;background:#28a745;font-size:20px;padding:0;">+</button>
+                            </div>
+                            <div id="estadoRec_${index}" style="font-size:12px;text-align:center;margin-top:6px;"><span style="color:#28a745;font-weight:700;">✅ Completo</span></div>
+                        </div>`;
+                    });
+                    if (pedidoAnterior) html += '</div>';
+                    html += '<button id="btnConfirmarRecepcion" onclick="confirmarRecepcionPedido()" style="background:#28a745;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">✅ Confirmar recepción</button>';
+                    cont.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error("Error cargando recepción:", err);
+                    cont.innerHTML = '<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar los pedidos. Intenta nuevamente.</p>';
+                });
+        }
+
+        async function confirmarRecepcionPedido() {
+            if (!pedidosRecepcionActuales.length) return;
+            const btn = document.getElementById("btnConfirmarRecepcion");
+            if (btn) { btn.disabled = true; btn.innerText = "Guardando recepción..."; }
+            const productos = pedidosRecepcionActuales.map((item, index) => ({
+                idPedido: item.idPedido,
+                producto: item.producto,
+                cantidadPedida: Number(item.cantidadPedida) || 0,
+                cantidadRecibida: Math.max(0, Number(document.getElementById(`recibido_${index}`).value) || 0)
+            }));
+            const params = new URLSearchParams({
+                accion: "ConfirmarRecepcionPedido",
+                sucursal: localStorage.getItem("sucursal") || "",
+                empleado: localStorage.getItem("usuario") || "",
+                productos: JSON.stringify(productos)
+            });
+            try {
+                const r = await fetch(URL_API, { method:"POST", body:params });
+                const data = await r.json();
+                if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "No confirmado");
+                alert(`Recepción guardada. Completos: ${data.completos} | Con diferencia: ${data.conDiferencia}`);
+                pedidosRecepcionActuales = [];
+                cargarPedidosParaRecepcion();
+            } catch (err) {
+                console.error("Error confirmando recepción:", err);
+                alert("No se pudo guardar la recepción. Inténtalo nuevamente.");
+                if (btn) { btn.disabled = false; btn.innerText = "✅ Confirmar recepción"; }
             }
         }
 
