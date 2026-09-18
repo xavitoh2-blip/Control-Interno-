@@ -81,7 +81,7 @@
 
     <!-- LOGO Y ENCABEZADO -->
     <div class="logo-container">
-        <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.src='https://via.placeholder.com/100?text=Shop'">
+        <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2>Control Operativo</h2>
 
@@ -284,21 +284,9 @@
                     <button onclick="cargarPedidosEnBodega()" style="background-color: #007bff; font-size: 12px; padding: 6px; margin-bottom: 10px;">
                         🔄 Actualizar Lista
                     </button>
-                    <div style="overflow-x: auto;">
-                        <table id="tablaPedidosBodega">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Sucursal</th>
-                                    <th>Solicitó</th>
-                                    <th>Producto</th>
-                                    <th>Cant.</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="5" style="color:#888;">Cargando pedidos...</td></tr>
-                            </tbody>
-                        </table>
+                    <p style="font-size:12px;color:#666;text-align:center;margin:6px 0 12px;">Selecciona una sucursal y revisa si cada producto está disponible.</p>
+                    <div id="listaPedidosBodega">
+                        <p style="font-size:12px;color:#888;text-align:center;">Cargando pedidos...</p>
                     </div>
                 </div>
             </div>
@@ -1242,43 +1230,192 @@
             }
         }
 
+        let pedidosBodegaActuales = [];
+        let pedidoBodegaAbierto = null;
+
         function cargarPedidosEnBodega() {
-            fetch(URL_API + "?accion=obtenerReportesSupervisor")
+            const cont = document.getElementById("listaPedidosBodega");
+            cont.innerHTML = '<p style="font-size:12px;color:#666;text-align:center;padding:15px;">Cargando pedidos pendientes...</p>';
+
+            fetch(URL_API + "?accion=verPedidosBodega&_=" + Date.now())
                 .then(r => r.json())
                 .then(data => {
-                    const pedidos = data.pedidos || [];
-                    const tbody = document.querySelector("#tablaPedidosBodega tbody");
-                    tbody.innerHTML = "";
-
-                    if (pedidos.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" style="color:#888;">No hay pedidos registrados.</td></tr>';
-                        return;
-                    }
-
-                    pedidos.forEach(p => {
-                        let fecha = p[1];
-                        let suc = p[3];
-                        let emp = p[4];
-                        let prod = p[5];
-                        let cant = p[6];
-                        let estado = p[8];
-
-                        if (estado === "Pendiente") {
-                            tbody.innerHTML += `
-                                <tr>
-                                    <td>${fecha}</td>
-                                    <td>${suc}</td>
-                                    <td>${emp}</td>
-                                    <td>${prod}</td>
-                                    <td>${cant}</td>
-                                </tr>`;
-                        }
-                    });
-
-                    if (tbody.innerHTML === "") {
-                        tbody.innerHTML = '<tr><td colspan="5" style="color:#888;">No hay pedidos pendientes.</td></tr>';
-                    }
+                    if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "Respuesta inválida");
+                    pedidosBodegaActuales = data.pedidos || [];
+                    pedidoBodegaAbierto = null;
+                    renderizarPedidosBodega();
+                })
+                .catch(err => {
+                    console.error("Error cargando pedidos de bodega:", err);
+                    cont.innerHTML = '<p style="font-size:12px;color:#dc3545;text-align:center;padding:15px;">No se pudieron cargar los pedidos. Intenta nuevamente.</p>';
                 });
+        }
+
+        function renderizarPedidosBodega() {
+            const cont = document.getElementById("listaPedidosBodega");
+            if (!pedidosBodegaActuales.length) {
+                cont.innerHTML = '<p style="font-size:13px;color:#888;text-align:center;padding:18px;">✅ No hay pedidos pendientes en Bodega.</p>';
+                return;
+            }
+
+            if (pedidoBodegaAbierto) {
+                const pedido = pedidosBodegaActuales.find(p => p.idPedido === pedidoBodegaAbierto);
+                if (pedido) return renderizarDetallePedidoBodega(pedido);
+                pedidoBodegaAbierto = null;
+            }
+
+            cont.innerHTML = pedidosBodegaActuales.map((pedido, index) => `
+                <div style="border:1px solid #dfe5eb;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.05);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+                        <div style="text-align:left;">
+                            <div style="font-size:16px;font-weight:800;color:#2c3e50;">🏪 ${escaparHtmlPedido(pedido.sucursal)}</div>
+                            <div style="font-size:12px;color:#666;margin-top:4px;">${pedido.productos.length} productos por preparar</div>
+                        </div>
+                        <div style="font-size:24px;">📦</div>
+                    </div>
+                    <button onclick="abrirPedidoBodega(${index})" style="background:#007bff;margin-top:12px;">Ver pedido</button>
+                </div>`).join("");
+        }
+
+        function abrirPedidoBodega(index) {
+            const pedido = pedidosBodegaActuales[index];
+            if (!pedido) return;
+            pedidoBodegaAbierto = pedido.idPedido;
+            pedido.productos.forEach(p => {
+                if (p.cantidadSurtida === undefined || p.cantidadSurtida === null) p.cantidadSurtida = p.cantidadSolicitada;
+                if (!p.revisado) p.revisado = false;
+            });
+            renderizarDetallePedidoBodega(pedido);
+            window.scrollTo(0,0);
+        }
+
+        function volverListaPedidosBodega() {
+            pedidoBodegaAbierto = null;
+            renderizarPedidosBodega();
+            window.scrollTo(0,0);
+        }
+
+        function renderizarDetallePedidoBodega(pedido) {
+            const cont = document.getElementById("listaPedidosBodega");
+            const revisados = pedido.productos.filter(p => p.revisado).length;
+            const total = pedido.productos.length;
+
+            let html = `
+                <button onclick="volverListaPedidosBodega()" style="background:#6c757d;margin:0 0 10px;">← Ver sucursales</button>
+                <div style="background:#eaf4ff;border:1px solid #b8daff;border-radius:10px;padding:12px;margin-bottom:12px;text-align:center;">
+                    <div style="font-size:17px;font-weight:800;color:#2c3e50;">🏪 ${escaparHtmlPedido(pedido.sucursal)}</div>
+                    <div style="font-size:12px;color:#555;margin-top:4px;">Revisados: <strong>${revisados} de ${total}</strong></div>
+                </div>`;
+
+            pedido.productos.forEach((item, index) => {
+                const revisado = !!item.revisado;
+                const completa = Number(item.cantidadSurtida) === Number(item.cantidadSolicitada);
+                const fondo = revisado ? (completa ? '#edf9f0' : '#fff4e5') : '#f8f9fa';
+                const borde = revisado ? (completa ? '#b7e1c1' : '#ffd59a') : '#e9ecef';
+                html += `
+                    <div style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:12px;margin:9px 0;">
+                        <div style="font-size:14px;font-weight:800;color:#2c3e50;margin-bottom:5px;">${escaparHtmlPedido(item.producto)}</div>
+                        <div style="font-size:13px;color:#555;margin-bottom:9px;">Necesitan: <strong style="font-size:16px;color:#111;">${item.cantidadSolicitada}</strong></div>
+                        ${!revisado ? `
+                            <div style="display:flex;gap:8px;">
+                                <button onclick="marcarDisponibleBodega(${index})" style="background:#28a745;margin:0;flex:1;">✓ Disponible</button>
+                                <button onclick="marcarIncompletoBodega(${index})" style="background:#f0ad4e;margin:0;flex:1;">⚠ No completo</button>
+                            </div>` : `
+                            <div style="font-size:12px;font-weight:700;text-align:center;margin-bottom:7px;color:${completa ? '#28a745' : '#b26a00'};">${completa ? '✅ Disponible completo' : '⚠️ Disponible: ' + item.cantidadSurtida + ' · Faltan: ' + Math.max(0, item.cantidadSolicitada - item.cantidadSurtida)}</div>
+                            ${!completa ? `
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+                                    <button onclick="cambiarCantidadBodega(${index},-1)" style="width:48px;height:44px;margin:0;background:#dc3545;font-size:20px;padding:0;">−</button>
+                                    <input id="bodegaCant_${index}" type="number" min="0" max="${item.cantidadSolicitada}" value="${item.cantidadSurtida}" oninput="editarCantidadBodega(${index},this.value)" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
+                                    <button onclick="cambiarCantidadBodega(${index},1)" style="width:48px;height:44px;margin:0;background:#28a745;font-size:20px;padding:0;">+</button>
+                                </div>` : ''}
+                            <button onclick="revisarDeNuevoBodega(${index})" style="background:#6c757d;padding:7px;font-size:11px;margin:0;">Cambiar</button>`}
+                    </div>`;
+            });
+
+            html += `<button id="btnConfirmarDespachoBodega" onclick="confirmarDespachoBodega()" ${revisados !== total ? 'disabled' : ''} style="background:#28a745;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">🚚 ${revisados === total ? 'Confirmar pedido preparado' : 'Revisa todos los productos (' + revisados + '/' + total + ')'}</button>`;
+            cont.innerHTML = html;
+        }
+
+        function obtenerPedidoBodegaAbierto() {
+            return pedidosBodegaActuales.find(p => p.idPedido === pedidoBodegaAbierto);
+        }
+
+        function marcarDisponibleBodega(index) {
+            const pedido = obtenerPedidoBodegaAbierto();
+            if (!pedido || !pedido.productos[index]) return;
+            pedido.productos[index].cantidadSurtida = Number(pedido.productos[index].cantidadSolicitada) || 0;
+            pedido.productos[index].revisado = true;
+            renderizarDetallePedidoBodega(pedido);
+        }
+
+        function marcarIncompletoBodega(index) {
+            const pedido = obtenerPedidoBodegaAbierto();
+            if (!pedido || !pedido.productos[index]) return;
+            const solicitada = Number(pedido.productos[index].cantidadSolicitada) || 0;
+            pedido.productos[index].cantidadSurtida = Math.max(0, solicitada - 1);
+            pedido.productos[index].revisado = true;
+            renderizarDetallePedidoBodega(pedido);
+        }
+
+        function cambiarCantidadBodega(index, cambio) {
+            const pedido = obtenerPedidoBodegaAbierto();
+            if (!pedido || !pedido.productos[index]) return;
+            const item = pedido.productos[index];
+            const max = Number(item.cantidadSolicitada) || 0;
+            item.cantidadSurtida = Math.min(max, Math.max(0, (Number(item.cantidadSurtida) || 0) + cambio));
+            item.revisado = true;
+            renderizarDetallePedidoBodega(pedido);
+        }
+
+        function editarCantidadBodega(index, valor) {
+            const pedido = obtenerPedidoBodegaAbierto();
+            if (!pedido || !pedido.productos[index]) return;
+            const item = pedido.productos[index];
+            const max = Number(item.cantidadSolicitada) || 0;
+            item.cantidadSurtida = Math.min(max, Math.max(0, Number(valor) || 0));
+            item.revisado = true;
+            renderizarDetallePedidoBodega(pedido);
+        }
+
+        function revisarDeNuevoBodega(index) {
+            const pedido = obtenerPedidoBodegaAbierto();
+            if (!pedido || !pedido.productos[index]) return;
+            pedido.productos[index].revisado = false;
+            renderizarDetallePedidoBodega(pedido);
+        }
+
+        async function confirmarDespachoBodega() {
+            const pedido = obtenerPedidoBodegaAbierto();
+            if (!pedido) return;
+            if (pedido.productos.some(p => !p.revisado)) return alert("Revisa todos los productos antes de confirmar.");
+
+            const btn = document.getElementById("btnConfirmarDespachoBodega");
+            if (btn) { btn.disabled = true; btn.innerText = "Guardando despacho..."; }
+
+            const productos = pedido.productos.map(p => ({
+                producto: p.producto,
+                cantidadSolicitada: Number(p.cantidadSolicitada) || 0,
+                cantidadSurtida: Math.max(0, Number(p.cantidadSurtida) || 0)
+            }));
+            const params = new URLSearchParams({
+                accion: "ProcesarDespachoBodegaLote",
+                idPedido: pedido.idPedido,
+                empleado: localStorage.getItem("usuario") || "",
+                productos: JSON.stringify(productos)
+            });
+
+            try {
+                const r = await fetch(URL_API, { method:"POST", body:params });
+                const data = await r.json();
+                if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "No confirmado");
+                alert(`Pedido preparado. Completos: ${data.completos} | Con faltante: ${data.conFaltante}`);
+                pedidoBodegaAbierto = null;
+                cargarPedidosEnBodega();
+            } catch (err) {
+                console.error("Error guardando despacho:", err);
+                alert("No se pudo guardar el despacho. Inténtalo nuevamente.");
+                if (btn) { btn.disabled = false; btn.innerText = "🚚 Confirmar pedido preparado"; }
+            }
         }
 
         function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
