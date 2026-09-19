@@ -395,6 +395,7 @@
             <div id="resumenTotalCompras" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:8px;padding:10px;margin:10px 0;font-weight:800;">💰 Total seleccionado: $0.00</div>
             <div id="resumenProveedoresCompras" style="margin:10px 0;"></div>
             <div id="gestionComprasAdmin"><p style="font-size:12px;color:#888;">Carga las solicitudes para administrarlas.</p></div>
+            <div id="pedidosWhatsAppAdmin" style="display:none;margin-top:14px;"></div>
         </div>
     </div>
 
@@ -1558,9 +1559,11 @@
                 fetch(URL_API+"?accion=verProveedores&_="+Date.now()).then(r=>r.json())
             ]).then(([data, prov])=>{
                 if(!data||data.status!=="OK") throw new Error("Respuesta inválida");
-                gestionComprasAdminActual=data.compras||[];
+                const todas=data.compras||[];
+                gestionComprasAdminActual=todas.filter(c => !c.comprar && c.estado !== "Pedido enviado");
                 proveedoresComprasAdmin=(prov&&prov.status==="OK"?prov.proveedores:[])||[];
                 renderizarGestionComprasAdmin();
+                renderizarPedidosWhatsAppAdmin(todas);
             }).catch(e=>{console.error(e);cont.innerHTML='<p style="color:#dc3545;font-size:12px;">No se pudo cargar Gestión de Compras.</p>';});
         }
 
@@ -1720,14 +1723,114 @@
                     if(btn)btn.innerText=`Guardando ${i+1} de ${registros.length}...`;
                 }
 
-                alert("✅ Todas las asignaciones fueron guardadas correctamente.");
-                await cargarGestionComprasAdmin();
+                const guardados = registros.filter(x => x.comprar).map(x => ({
+                    ...x.c,
+                    comprar:true,
+                    cantidadComprada:Number(x.cantidad)||0,
+                    costoUnitario:Number(x.costo)||0,
+                    subtotal:(Number(x.cantidad)||0)*(Number(x.costo)||0),
+                    estado:"Listo para enviar"
+                }));
+                alert("✅ Asignaciones guardadas. Ahora puedes preparar los pedidos por proveedor.");
+                gestionComprasAdminActual = [];
+                renderizarGestionComprasAdmin();
+                renderizarPedidosWhatsAppAdmin(guardados);
             }catch(e){
                 console.error("Error guardando todas las asignaciones:",e);
                 alert("No se pudieron guardar todas las asignaciones. Revisa la conexión e inténtalo nuevamente.");
             }finally{
                 const b=document.getElementById("btnGuardarTodasAsignaciones");
                 if(b){b.disabled=false;b.innerText="💾 Guardar todas las asignaciones";}
+            }
+        }
+
+
+        function renderizarPedidosWhatsAppAdmin(compras){
+            gestionComprasWhatsAppActual=(compras||[]).slice();
+            const box=document.getElementById("pedidosWhatsAppAdmin");
+            if(!box)return;
+
+            const listas=(compras||[]).filter(c=>c.comprar && c.proveedor && c.estado!=="Pedido enviado");
+            const enviados=(compras||[]).filter(c=>c.comprar && c.proveedor && c.estado==="Pedido enviado");
+
+            if(!listas.length && !enviados.length){
+                box.style.display="none";
+                box.innerHTML="";
+                return;
+            }
+
+            box.style.display="block";
+            let grupos={};
+            listas.forEach(c=>{
+                if(!grupos[c.proveedor])grupos[c.proveedor]=[];
+                grupos[c.proveedor].push(c);
+            });
+
+            let html='<div style="border-top:1px dashed #ccd4dc;padding-top:14px;margin-top:10px;"><h4 style="margin:0 0 8px;">📲 Pedidos listos para WhatsApp</h4>';
+            if(!listas.length) html+='<p style="font-size:12px;color:#666;">No hay pedidos pendientes de enviar por WhatsApp.</p>';
+
+            Object.keys(grupos).forEach((prov,gi)=>{
+                const items=grupos[prov];
+                const total=items.reduce((s,c)=>s+(Number(c.cantidadComprada||c.cantidad)||0)*(Number(c.costoUnitario)||0),0);
+                html+=`<div style="background:#fff;border:1px solid #dfe5eb;border-left:5px solid ${colorProveedor(gi)};border-radius:10px;padding:12px;margin:10px 0;">
+                    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                        <b>${escaparHtmlPedido(prov)}</b><b>$${total.toFixed(2)}</b>
+                    </div>
+                    <div style="font-size:11px;color:#666;margin:4px 0 8px;">${items.length} producto(s)</div>
+                    ${items.map(c=>`<div style="font-size:12px;padding:5px 0;border-top:1px solid #f0f0f0;">${Number(c.cantidadComprada||c.cantidad)||0} × ${escaparHtmlPedido(c.producto)}</div>`).join("")}
+                    <button onclick='abrirWhatsAppProveedor(${JSON.stringify(prov)})' style="background:#25D366;margin-top:10px;">📲 Preparar pedido por WhatsApp</button>
+                    <button onclick='marcarPedidoProveedorEnviado(${JSON.stringify(prov)})' style="background:#007bff;margin-top:4px;">✅ Ya envié este pedido</button>
+                </div>`;
+            });
+            html+='</div>';
+
+            if(enviados.length){
+                const porProv={};
+                enviados.forEach(c=>{(porProv[c.proveedor]||(porProv[c.proveedor]=[])).push(c);});
+                html+='<details style="margin-top:12px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">📦 Pedidos enviados / esperando mercancía</summary>';
+                Object.keys(porProv).forEach(prov=>{
+                    html+=`<div style="background:#f8f9fa;border:1px solid #e1e5e9;border-radius:8px;padding:9px;margin:7px 0;font-size:12px;"><b>${escaparHtmlPedido(prov)}</b> · ${porProv[prov].length} producto(s)</div>`;
+                });
+                html+='</details>';
+            }
+            box.innerHTML=html;
+        }
+
+        function comprasPendientesWhatsAppProveedor(proveedor){
+            return (gestionComprasWhatsAppActual||[]).filter(c=>c.comprar && c.proveedor===proveedor && c.estado!=="Pedido enviado");
+        }
+
+        let gestionComprasWhatsAppActual=[];
+
+        function abrirWhatsAppProveedor(proveedor){
+            const items=gestionComprasWhatsAppActual.filter(c=>c.comprar && c.proveedor===proveedor && c.estado!=="Pedido enviado");
+            if(!items.length)return alert("No hay productos pendientes para este proveedor.");
+            let texto="Buenos días, me puede preparar el siguiente pedido:\\n\\n";
+            items.forEach(c=>{ texto+=`${Number(c.cantidadComprada||c.cantidad)||0} - ${c.producto}\\n`; });
+            texto+="\\nGracias.";
+            window.open("https://wa.me/?text="+encodeURIComponent(texto),"_blank");
+        }
+
+        async function marcarPedidoProveedorEnviado(proveedor){
+            const items=gestionComprasWhatsAppActual.filter(c=>c.comprar && c.proveedor===proveedor && c.estado!=="Pedido enviado");
+            if(!items.length)return alert("No hay productos pendientes para este proveedor.");
+            if(!confirm(`¿Confirmas que ya enviaste el pedido a ${proveedor} por WhatsApp?`))return;
+
+            try{
+                const params=new URLSearchParams({
+                    accion:"MarcarPedidoProveedorEnviado",
+                    proveedor:proveedor,
+                    filas:JSON.stringify(items.map(c=>c.fila)),
+                    empleado:localStorage.getItem("usuario")||"Administrador"
+                });
+                const r=await fetch(URL_API,{method:"POST",body:params});
+                const d=await r.json();
+                if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");
+                alert(`✅ Pedido marcado como enviado a ${proveedor}.`);
+                await cargarGestionComprasAdmin();
+            }catch(e){
+                console.error(e);
+                alert("No se pudo marcar el pedido como enviado.");
             }
         }
 
