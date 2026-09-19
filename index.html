@@ -1599,19 +1599,41 @@
                         <label style="font-size:11px;">Estado</label><select id="admEstado_${i}"><option ${c.estado==='Pendiente de Compra'?'selected':''}>Pendiente de Compra</option><option ${c.estado==='Compra parcial'?'selected':''}>Compra parcial</option><option ${c.estado==='Comprado'?'selected':''}>Comprado</option><option ${c.estado==='Recibido en Bodega'?'selected':''}>Recibido en Bodega</option></select>
                         <input id="admObs_${i}" value="${escaparHtmlPedido(c.observacion||'')}" placeholder="Observaciones">
                     </details>
-                    <button onclick="guardarGestionCompraAdmin(${i})" style="background:#28a745;margin-top:9px;">💾 Guardar asignación</button>
                 </div>`;
-            }).join('');
+            }).join('') + `
+                <div style="position:sticky;bottom:10px;z-index:30;background:rgba(255,255,255,.96);border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin:18px 0 4px;box-shadow:0 5px 18px rgba(0,0,0,.14);">
+                    <div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">Revisa cantidades, costos y proveedores antes de confirmar.</div>
+                    <button id="btnGuardarTodasAsignaciones" onclick="guardarTodasGestionComprasAdmin()" style="background:#28a745;margin:0;font-size:14px;padding:14px;">💾 Guardar todas las asignaciones</button>
+                </div>`;
             actualizarTotalAdmin();
         }
 
         function seleccionarProveedorCompra(i, pi) {
             const c=gestionComprasAdminActual[i], p=proveedoresComprasAdmin[pi];
             if(!c||!p)return;
+
+            // Guardamos la elección en memoria, pero NO enviamos nada todavía.
             c.proveedor=p;
-            const check=document.getElementById(`admComprar_${i}`); if(check) check.checked=true;
             c.comprar=true;
-            renderizarGestionComprasAdmin();
+
+            const check=document.getElementById(`admComprar_${i}`);
+            if(check) check.checked=true;
+            const card=document.getElementById(`compraCard_${i}`);
+            if(card) card.style.borderColor='#28a745';
+
+            // Cambiamos únicamente el aspecto de los botones del producto.
+            // Así no se vuelve a renderizar la lista y no se pierden cambios
+            // que todavía no se han guardado en cantidad, costo u observaciones.
+            proveedoresComprasAdmin.forEach((_, idx)=>{
+                const btn=document.getElementById(`prov_${i}_${idx}`);
+                if(!btn)return;
+                const seleccionado=idx===pi;
+                btn.style.background=seleccionado?colorProveedor(idx):'#f3f5f7';
+                btn.style.color=seleccionado?'#fff':'#333';
+            });
+            const elegido=document.getElementById(`provElegido_${i}`);
+            if(elegido)elegido.innerHTML=`Seleccionado: <b>${escaparHtmlPedido(p)}</b>`;
+            actualizarTotalAdmin();
         }
 
         function cambiarSeleccionCompra(i){
@@ -1646,12 +1668,67 @@
             }
         }
 
-        async function guardarGestionCompraAdmin(i){
-            const c=gestionComprasAdminActual[i];if(!c)return;
-            const comprar=!!document.getElementById(`admComprar_${i}`)?.checked;
-            if(comprar && !c.proveedor) return alert("Selecciona un proveedor para este producto.");
-            const params=new URLSearchParams({accion:"GuardarGestionCompra",fila:String(c.fila),proveedor:c.proveedor||'',cantidadComprada:document.getElementById(`admCant_${i}`).value,costoUnitario:document.getElementById(`admCosto_${i}`).value,estado:document.getElementById(`admEstado_${i}`).value,observacion:document.getElementById(`admObs_${i}`).value,comprar:comprar?'SI':'NO',empleado:localStorage.getItem("usuario")||"Administrador"});
-            try{const r=await fetch(URL_API,{method:"POST",body:params});const d=await r.json();if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");c.comprar=comprar;alert("Asignación guardada.");cargarGestionComprasAdmin();}catch(e){alert("No se pudo guardar la compra.");}
+        async function guardarTodasGestionComprasAdmin(){
+            if(!gestionComprasAdminActual.length) return alert("No hay compras para guardar.");
+
+            const btn=document.getElementById("btnGuardarTodasAsignaciones");
+            const registros=[];
+
+            // Primero validamos TODO. Si algo falta, no se envía ningún registro.
+            for(let i=0;i<gestionComprasAdminActual.length;i++){
+                const c=gestionComprasAdminActual[i];
+                const comprar=!!document.getElementById(`admComprar_${i}`)?.checked;
+                const cantidad=document.getElementById(`admCant_${i}`)?.value ?? "0";
+                const costo=document.getElementById(`admCosto_${i}`)?.value ?? "";
+                const estado=document.getElementById(`admEstado_${i}`)?.value ?? "Pendiente de Compra";
+                const observacion=document.getElementById(`admObs_${i}`)?.value ?? "";
+
+                if(comprar && !c.proveedor){
+                    document.getElementById(`compraCard_${i}`)?.scrollIntoView({behavior:"smooth",block:"center"});
+                    return alert(`Falta seleccionar proveedor para: ${c.producto}`);
+                }
+                if(comprar && Number(cantidad)<=0){
+                    document.getElementById(`admCant_${i}`)?.focus();
+                    return alert(`Revisa la cantidad de: ${c.producto}`);
+                }
+
+                registros.push({c,comprar,cantidad,costo,estado,observacion});
+            }
+
+            if(btn){btn.disabled=true;btn.innerText=`Guardando 0 de ${registros.length}...`;}
+
+            try{
+                // Usamos la misma acción que ya funciona en tu Apps Script,
+                // pero ahora se ejecuta para todos únicamente al pulsar el botón final.
+                for(let i=0;i<registros.length;i++){
+                    const x=registros[i];
+                    const params=new URLSearchParams({
+                        accion:"GuardarGestionCompra",
+                        fila:String(x.c.fila),
+                        proveedor:x.c.proveedor||'',
+                        cantidadComprada:x.cantidad,
+                        costoUnitario:x.costo,
+                        estado:x.estado,
+                        observacion:x.observacion,
+                        comprar:x.comprar?'SI':'NO',
+                        empleado:localStorage.getItem("usuario")||"Administrador"
+                    });
+                    const r=await fetch(URL_API,{method:"POST",body:params});
+                    const d=await r.json();
+                    if(!d||d.status!=="OK") throw new Error(d&&d.mensaje||`Error guardando ${x.c.producto}`);
+                    x.c.comprar=x.comprar;
+                    if(btn)btn.innerText=`Guardando ${i+1} de ${registros.length}...`;
+                }
+
+                alert("✅ Todas las asignaciones fueron guardadas correctamente.");
+                await cargarGestionComprasAdmin();
+            }catch(e){
+                console.error("Error guardando todas las asignaciones:",e);
+                alert("No se pudieron guardar todas las asignaciones. Revisa la conexión e inténtalo nuevamente.");
+            }finally{
+                const b=document.getElementById("btnGuardarTodasAsignaciones");
+                if(b){b.disabled=false;b.innerText="💾 Guardar todas las asignaciones";}
+            }
         }
 
         function abrirModuloAdmin(modulo) {
