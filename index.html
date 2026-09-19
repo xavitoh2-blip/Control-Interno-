@@ -1805,9 +1805,9 @@
         function abrirWhatsAppProveedor(proveedor){
             const items=gestionComprasWhatsAppActual.filter(c=>c.comprar && c.proveedor===proveedor && c.estado!=="Pedido enviado");
             if(!items.length)return alert("No hay productos pendientes para este proveedor.");
-            let texto="Buenos días, me puede preparar el siguiente pedido:\\n\\n";
-            items.forEach(c=>{ texto+=`${Number(c.cantidadComprada||c.cantidad)||0} - ${c.producto}\\n`; });
-            texto+="\\nGracias.";
+            let texto="Buenos días, me puede preparar el siguiente pedido:\n\n";
+            items.forEach(c=>{ texto+=`${Number(c.cantidadComprada||c.cantidad)||0} - ${c.producto}\n`; });
+            texto+="\nGracias.";
             window.open("https://wa.me/?text="+encodeURIComponent(texto),"_blank");
         }
 
