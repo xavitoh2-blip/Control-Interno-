@@ -335,58 +335,65 @@
         <button onclick="ocultarLogin()" style="background-color: #dc3545;">Cancelar</button>
     </div>
 
-    <!-- PANEL SUPERVISOR -->
+    <!-- PANEL ADMINISTRATIVO ORGANIZADO POR MÓDULOS -->
     <div id="supervisorSection">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; color: #007bff; border: none;">Panel de Control y Auditoría</h3>
-            <button onclick="cerrarSupervisor()" style="background-color: #dc3545; padding: 6px 12px; font-size: 12px; width: auto;">Cerrar Panel</button>
-        </div>
-        
-        <h4>Resumen de Pagos (Cálculo Automático)</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaResumenPagos">
-                <thead><tr><th>Empleado</th><th>Turnos Completados</th><th>H. Extra Totales</th></tr></thead>
-                <tbody></tbody>
-            </table>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <h3 style="margin:0;color:#007bff;border:none;">Panel Administrativo</h3>
+            <button onclick="cerrarSupervisor()" style="background:#dc3545;padding:8px 12px;font-size:12px;width:auto;">Cerrar</button>
         </div>
 
-        <h4>Registro de Asistencias</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaAsistencia">
-                <thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr></thead>
-                <tbody></tbody>
-            </table>
+        <div id="menuAdmin" style="margin-top:18px;">
+            <p style="font-size:12px;color:#666;text-align:center;">Selecciona el módulo que deseas administrar.</p>
+            <div class="menu-grid">
+                <button class="menu-modulo" onclick="abrirModuloAdmin('resumen')"><span>📊</span>Resumen</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('asistencia')"><span>👥</span>Asistencia</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('inventario')"><span>📦</span>Inventario</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('tareas')"><span>✅</span>Tareas</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('pedidos')"><span>🛍️</span>Pedidos</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('compras')"><span>🛒</span>Gestión de Compras</button>
+            </div>
         </div>
 
-        <h4>Historial de Cuadre de Inventario</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaInventario">
-                <thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Sistema</th><th>Físico</th><th>Dif.</th><th>Obs.</th></tr></thead>
-                <tbody></tbody>
-            </table>
+        <div id="adminResumen" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+            <h4>📊 Resumen</h4>
+            <div id="tarjetasResumenAdmin" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;">
+                <div style="background:#f8f9fa;border:1px solid #e3e7eb;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:11px;color:#666;">Asistencias</div><strong id="kpiAsistencias" style="font-size:24px;">0</strong></div>
+                <div style="background:#f8f9fa;border:1px solid #e3e7eb;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:11px;color:#666;">Cuadres</div><strong id="kpiInventario" style="font-size:24px;">0</strong></div>
+                <div style="background:#f8f9fa;border:1px solid #e3e7eb;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:11px;color:#666;">Tareas</div><strong id="kpiTareas" style="font-size:24px;">0</strong></div>
+                <div style="background:#f8f9fa;border:1px solid #e3e7eb;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:11px;color:#666;">Pedidos</div><strong id="kpiPedidos" style="font-size:24px;">0</strong></div>
+            </div>
+            <h4>Resumen de Pagos</h4>
+            <div style="overflow-x:auto;"><table id="tablaResumenPagos"><thead><tr><th>Empleado</th><th>Turnos Completados</th><th>H. Extra Totales</th></tr></thead><tbody></tbody></table></div>
         </div>
 
-        <h4>Tareas / Checklist</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaTareas">
-                <thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr></thead>
-                <tbody></tbody>
-            </table>
+        <div id="adminAsistencia" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button><h4>👥 Registro de Asistencias</h4>
+            <div style="overflow-x:auto;"><table id="tablaAsistencia"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr></thead><tbody></tbody></table></div>
         </div>
 
+        <div id="adminInventario" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button><h4>📦 Historial de Cuadre de Inventario</h4>
+            <div style="overflow-x:auto;"><table id="tablaInventario"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Sistema</th><th>Físico</th><th>Dif.</th><th>Obs.</th></tr></thead><tbody></tbody></table></div>
+        </div>
 
-        <h4>🛒 Gestión de Compras</h4>
-        <p style="font-size:12px;color:#666;">Solicitudes enviadas por Bodega. Los costos y proveedores se administran únicamente aquí.</p>
-        <button onclick="cargarGestionComprasAdmin()" style="background:#007bff;max-width:280px;">🔄 Actualizar Gestión de Compras</button>
-        <div id="resumenTotalCompras" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:8px;padding:10px;margin:10px 0;font-weight:800;">💰 Total estimado: $0.00</div>
-        <div id="gestionComprasAdmin"><p style="font-size:12px;color:#888;">Carga las solicitudes para administrarlas.</p></div>
+        <div id="adminTareas" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button><h4>✅ Tareas / Checklist</h4>
+            <div style="overflow-x:auto;"><table id="tablaTareas"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
+        </div>
 
-        <h4>Pedidos</h4>
-        <div style="overflow-x: auto; max-height: 160px;">
-            <table id="tablaPedidos">
-                <thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th></tr></thead>
-                <tbody></tbody>
-            </table>
+        <div id="adminPedidos" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button><h4>🛍️ Pedidos</h4>
+            <div style="overflow-x:auto;"><table id="tablaPedidos"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th></tr></thead><tbody></tbody></table></div>
+        </div>
+
+        <div id="adminCompras" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+            <h4>🛒 Gestión de Compras</h4>
+            <p style="font-size:12px;color:#666;">Solicitudes enviadas por Bodega. Los costos y proveedores se administran únicamente aquí.</p>
+            <button onclick="cargarGestionComprasAdmin()" style="background:#007bff;">🔄 Actualizar Gestión de Compras</button>
+            <div id="resumenTotalCompras" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:8px;padding:10px;margin:10px 0;font-weight:800;">💰 Total estimado: $0.00</div>
+            <div id="gestionComprasAdmin"><p style="font-size:12px;color:#888;">Carga las solicitudes para administrarlas.</p></div>
         </div>
     </div>
 
@@ -1573,9 +1580,25 @@
 
         async function guardarGestionCompraAdmin(i){const c=gestionComprasAdminActual[i];if(!c)return;const params=new URLSearchParams({accion:"GuardarGestionCompra",fila:String(c.fila),proveedor:document.getElementById(`admProv_${i}`).value,cantidadComprada:document.getElementById(`admCant_${i}`).value,costoUnitario:document.getElementById(`admCosto_${i}`).value,estado:document.getElementById(`admEstado_${i}`).value,observacion:document.getElementById(`admObs_${i}`).value,empleado:localStorage.getItem("usuario")||"Administrador"});try{const r=await fetch(URL_API,{method:"POST",body:params});const d=await r.json();if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");alert("Compra actualizada.");cargarGestionComprasAdmin();}catch(e){alert("No se pudo guardar la compra.");}}
 
+        function abrirModuloAdmin(modulo) {
+            document.getElementById("menuAdmin").style.display = "none";
+            document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras"};
+            const destino = document.getElementById(mapa[modulo]);
+            if (destino) destino.style.display = "block";
+            if (modulo === "compras") cargarGestionComprasAdmin();
+            window.scrollTo(0,0);
+        }
+
+        function volverMenuAdmin() {
+            document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
+            document.getElementById("menuAdmin").style.display = "block";
+            window.scrollTo(0,0);
+        }
+
         function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
         function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; document.getElementById("adminPassword").value = ""; }
-        function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; }
+        function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; volverMenuAdmin(); }
 
         function verificarPassword() {
             const pass = document.getElementById("adminPassword").value;
@@ -1597,7 +1620,10 @@
                     llenarTablaGenerica("tablaTareas", data.tareas);
                     llenarTablaGenerica("tablaPedidos", data.pedidos);
                     calcularResumenPagos(data.asistencias);
-                    cargarGestionComprasAdmin();
+                    document.getElementById("kpiAsistencias").innerText = (data.asistencias || []).length;
+                    document.getElementById("kpiInventario").innerText = (data.inventario || []).length;
+                    document.getElementById("kpiTareas").innerText = (data.tareas || []).length;
+                    document.getElementById("kpiPedidos").innerText = (data.pedidos || []).length;
                 });
         }
 
