@@ -1745,6 +1745,8 @@
         }
 
 
+        let gestionComprasWhatsAppActual=[];
+
         function renderizarPedidosWhatsAppAdmin(compras){
             gestionComprasWhatsAppActual=(compras||[]).slice();
             const box=document.getElementById("pedidosWhatsAppAdmin");
@@ -1760,29 +1762,39 @@
             }
 
             box.style.display="block";
-            let grupos={};
+            const grupos={};
             listas.forEach(c=>{
                 if(!grupos[c.proveedor])grupos[c.proveedor]=[];
                 grupos[c.proveedor].push(c);
             });
 
-            let html='<div style="border-top:1px dashed #ccd4dc;padding-top:14px;margin-top:10px;"><h4 style="margin:0 0 8px;">📲 Pedidos listos para WhatsApp</h4>';
-            if(!listas.length) html+='<p style="font-size:12px;color:#666;">No hay pedidos pendientes de enviar por WhatsApp.</p>';
+            let totalGeneral=0;
+            let html='<div style="border-top:1px dashed #ccd4dc;padding-top:14px;margin-top:10px;"><h4 style="margin:0 0 8px;">📲 Pedido completo listo para revisar</h4>';
 
             Object.keys(grupos).forEach((prov,gi)=>{
                 const items=grupos[prov];
                 const total=items.reduce((s,c)=>s+(Number(c.cantidadComprada||c.cantidad)||0)*(Number(c.costoUnitario)||0),0);
+                totalGeneral+=total;
                 html+=`<div style="background:#fff;border:1px solid #dfe5eb;border-left:5px solid ${colorProveedor(gi)};border-radius:10px;padding:12px;margin:10px 0;">
                     <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
                         <b>${escaparHtmlPedido(prov)}</b><b>$${total.toFixed(2)}</b>
                     </div>
                     <div style="font-size:11px;color:#666;margin:4px 0 8px;">${items.length} producto(s)</div>
                     ${items.map(c=>`<div style="font-size:12px;padding:5px 0;border-top:1px solid #f0f0f0;">${Number(c.cantidadComprada||c.cantidad)||0} × ${escaparHtmlPedido(c.producto)}</div>`).join("")}
-                    <button onclick='abrirWhatsAppProveedor(${JSON.stringify(prov)})' style="background:#25D366;margin-top:10px;">📲 Preparar pedido por WhatsApp</button>
-                    <button onclick='marcarPedidoProveedorEnviado(${JSON.stringify(prov)})' style="background:#007bff;margin-top:4px;">✅ Ya envié este pedido</button>
                 </div>`;
             });
-            html+='</div>';
+
+            if(listas.length){
+                html+=`<div style="position:sticky;bottom:10px;z-index:35;background:rgba(255,255,255,.97);border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin:16px 0 6px;box-shadow:0 5px 18px rgba(0,0,0,.14);">
+                    <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:0 4px 8px;">
+                        <span>Total del pedido</span><span>$${totalGeneral.toFixed(2)}</span>
+                    </div>
+                    <button onclick="enviarPedidoCompletoMiWhatsApp()" style="background:#25D366;margin:0 0 6px;font-size:14px;padding:14px;">📲 Enviar pedido completo a mi WhatsApp</button>
+                    <button onclick="marcarTodosPedidosEnviados()" style="background:#007bff;margin:0;font-size:14px;padding:14px;">✅ Ya envié los pedidos</button>
+                </div>`;
+            } else {
+                html+='<p style="font-size:12px;color:#666;">No hay pedidos pendientes de enviar.</p>';
+            }
 
             if(enviados.length){
                 const porProv={};
@@ -1793,44 +1805,64 @@
                 });
                 html+='</details>';
             }
+
+            html+='</div>';
             box.innerHTML=html;
         }
 
-        function comprasPendientesWhatsAppProveedor(proveedor){
-            return (gestionComprasWhatsAppActual||[]).filter(c=>c.comprar && c.proveedor===proveedor && c.estado!=="Pedido enviado");
-        }
+        function enviarPedidoCompletoMiWhatsApp(){
+            const items=gestionComprasWhatsAppActual.filter(c=>c.comprar && c.proveedor && c.estado!=="Pedido enviado");
+            if(!items.length)return alert("No hay productos pendientes para enviar.");
 
-        let gestionComprasWhatsAppActual=[];
+            const grupos={};
+            items.forEach(c=>{
+                if(!grupos[c.proveedor])grupos[c.proveedor]=[];
+                grupos[c.proveedor].push(c);
+            });
 
-        function abrirWhatsAppProveedor(proveedor){
-            const items=gestionComprasWhatsAppActual.filter(c=>c.comprar && c.proveedor===proveedor && c.estado!=="Pedido enviado");
-            if(!items.length)return alert("No hay productos pendientes para este proveedor.");
-            let texto="Buenos días, me puede preparar el siguiente pedido:\n\n";
-            items.forEach(c=>{ texto+=`${Number(c.cantidadComprada||c.cantidad)||0} - ${c.producto}\n`; });
-            texto+="\nGracias.";
+            const salto=String.fromCharCode(10);
+            let texto="📦 PEDIDO DE COMPRA"+salto+salto;
+
+            Object.keys(grupos).forEach(prov=>{
+                texto+="*"+prov+"*"+salto;
+                grupos[prov].forEach(c=>{
+                    texto+=`${Number(c.cantidadComprada||c.cantidad)||0} × ${c.producto}${salto}`;
+                });
+                texto+=salto;
+            });
+
+            texto+="Gracias.";
             window.open("https://wa.me/?text="+encodeURIComponent(texto),"_blank");
         }
 
-        async function marcarPedidoProveedorEnviado(proveedor){
-            const items=gestionComprasWhatsAppActual.filter(c=>c.comprar && c.proveedor===proveedor && c.estado!=="Pedido enviado");
-            if(!items.length)return alert("No hay productos pendientes para este proveedor.");
-            if(!confirm(`¿Confirmas que ya enviaste el pedido a ${proveedor} por WhatsApp?`))return;
+        async function marcarTodosPedidosEnviados(){
+            const items=gestionComprasWhatsAppActual.filter(c=>c.comprar && c.proveedor && c.estado!=="Pedido enviado");
+            if(!items.length)return alert("No hay pedidos pendientes.");
+            if(!confirm("¿Confirmas que ya enviaste todos los pedidos a los proveedores?"))return;
+
+            const grupos={};
+            items.forEach(c=>{
+                if(!grupos[c.proveedor])grupos[c.proveedor]=[];
+                grupos[c.proveedor].push(c);
+            });
 
             try{
-                const params=new URLSearchParams({
-                    accion:"MarcarPedidoProveedorEnviado",
-                    proveedor:proveedor,
-                    filas:JSON.stringify(items.map(c=>c.fila)),
-                    empleado:localStorage.getItem("usuario")||"Administrador"
-                });
-                const r=await fetch(URL_API,{method:"POST",body:params});
-                const d=await r.json();
-                if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");
-                alert(`✅ Pedido marcado como enviado a ${proveedor}.`);
+                for(const proveedor of Object.keys(grupos)){
+                    const params=new URLSearchParams({
+                        accion:"MarcarPedidoProveedorEnviado",
+                        proveedor:proveedor,
+                        filas:JSON.stringify(grupos[proveedor].map(c=>c.fila)),
+                        empleado:localStorage.getItem("usuario")||"Administrador"
+                    });
+                    const r=await fetch(URL_API,{method:"POST",body:params});
+                    const d=await r.json();
+                    if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");
+                }
+                alert("✅ Todos los pedidos quedaron marcados como enviados.");
                 await cargarGestionComprasAdmin();
             }catch(e){
                 console.error(e);
-                alert("No se pudo marcar el pedido como enviado.");
+                alert("No se pudieron marcar todos los pedidos como enviados.");
             }
         }
 
