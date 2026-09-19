@@ -1884,12 +1884,20 @@
 
         function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
         function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; document.getElementById("adminPassword").value = ""; }
-        function cerrarSupervisor() { document.getElementById("supervisorSection").style.display = "none"; volverMenuAdmin(); }
+        function cerrarSupervisor() {
+            document.getElementById("supervisorSection").style.display = "none";
+            const principal=document.querySelector(".container");
+            if(principal) principal.style.display="block";
+            volverMenuAdmin();
+            window.scrollTo(0,0);
+        }
 
         function verificarPassword() {
             const pass = document.getElementById("adminPassword").value;
             if (pass === "admin123") {
                 ocultarLogin();
+                const principal=document.querySelector(".container");
+                if(principal) principal.style.display="none";
                 document.getElementById("supervisorSection").style.display = "block";
                 cargarDatosSupervisor();
             } else {
