@@ -84,6 +84,18 @@
         .menu-modulo span { font-size:26px; }
         .btn-volver { background:#6c757d !important; margin-bottom:12px !important; }
         @media(max-width:420px){ .menu-grid{grid-template-columns:1fr 1fr;} }
+
+        /* Góndolas v1.2.2 */
+        .gondola-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+        .gondola-card{background:#fff;border:1px solid #dfe6ee;border-radius:10px;padding:16px 10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;font-weight:700;color:#2c3e50}
+        .gondola-card span{display:block;font-size:28px;margin-bottom:5px}
+        .gondola-producto{border:1px solid #e1e6eb;border-radius:9px;padding:10px;margin:8px 0;background:#fff}
+        .gondola-producto.seleccionado{border-color:#28a745;background:#f0fff4}
+        .gondola-producto-fila{display:flex;justify-content:space-between;align-items:center;gap:8px}
+        .gondola-cantidad{display:flex;align-items:center;gap:8px;margin-top:9px}
+        .gondola-cantidad button{width:46px;min-width:46px;height:42px;margin:0;padding:0;font-size:21px}
+        .gondola-cantidad input{height:42px;margin:0;text-align:center;font-size:18px;font-weight:700;flex:1}
+        .gondola-resumen{position:sticky;bottom:8px;background:#fff;border:1px solid #dfe6ee;border-radius:10px;padding:10px;margin-top:14px;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
     </style>
 </head>
 <body>
@@ -93,7 +105,7 @@
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.2.1</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.2.2</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -136,6 +148,7 @@
                 <button class="menu-modulo" onclick="abrirModulo('tareas')"><span>📋</span>Tareas</button>
                 <button class="menu-modulo" onclick="abrirModulo('inventario')"><span>📦</span>Inventario</button>
                 <button id="btnMenuPedidos" class="menu-modulo" onclick="abrirModulo('pedidos')"><span>🛍️</span><b id="textoMenuPedidos">Hacer Pedido</b></button>
+                <button id="btnMenuGondolas" class="menu-modulo" onclick="abrirModulo('gondolas')"><span>🗄️</span><b>Góndolas</b></button>
                 <button id="btnMenuRecepcion" class="menu-modulo" onclick="abrirModulo('recepcion')"><span>📥</span><b>Recibir Pedido</b></button>
                 <button id="btnMenuCompras" class="menu-modulo" onclick="abrirModulo('compras')" style="display:none;"><span>📝</span><b>Solicitar Compra</b></button>
             </div>
@@ -313,6 +326,22 @@
             <div id="listaRecepcionPedidos" style="margin-top:12px;"><p style="font-size:12px;color:#888;text-align:center;">Cargando pedidos...</p></div>
         </div>
 
+
+    <!-- MÓDULO GÓNDOLAS v1.2.2 -->
+    <div id="moduloGondolas" class="card modulo-pantalla" style="text-align:left;">
+        <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+        <h3 style="text-align:center;">🗄️ Revisión de Góndolas</h3>
+        <p id="gondolaSucursalTexto" style="font-size:12px;color:#666;text-align:center;margin-top:-5px;"></p>
+        <div id="gondolaNavegacion" style="font-size:12px;color:#666;margin-bottom:8px;"></div>
+        <div id="vistaGondolas"></div>
+        <div id="vistaAnaqueles" style="display:none;"></div>
+        <div id="vistaProductosGondola" style="display:none;"></div>
+        <div id="resumenGondolas" class="gondola-resumen" style="display:none;">
+            <div style="font-size:13px;font-weight:700;margin-bottom:8px;">📦 Seleccionados: <span id="cantSeleccionadosGondola">0</span></div>
+            <button id="btnEnviarGondolas" onclick="enviarFaltantesGondola()" style="background:#28a745;margin:0;">📩 Enviar solicitud a Bodega</button>
+        </div>
+    </div>
+
     <!-- MÓDULO DE COMPRAS - SOLO BODEGA -->
     <div id="moduloCompras" class="card modulo-pantalla" style="text-align:left;">
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
@@ -426,6 +455,10 @@
         let catalogoProductosPedido = [];
         let listaPedidoPendiente = [];
         let productoPedidoSeleccionado = null;
+        let datosGondolas = [];
+        let gondolaActual = "";
+        let anaquelActual = "";
+        let faltantesGondola = {};
 
         window.onload = function() {
             cargarEmpleadosDesdeSheets();
@@ -448,12 +481,14 @@
             const secHacer = document.getElementById("seccionHacerPedido");
             const secBodega = document.getElementById("seccionVerPedidosBodega");
             const btnRecepcion = document.getElementById("btnMenuRecepcion");
+            const btnGondolas = document.getElementById("btnMenuGondolas");
 
             const esBodega = sucursalActual && sucursalActual.trim().toLowerCase() === "bodega";
             if (esBodega) {
                 secHacer.style.display = "none";
                 secBodega.style.display = "block";
                 if (btnRecepcion) btnRecepcion.style.display = "none";
+                if (btnGondolas) btnGondolas.style.display = "none";
                 const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "flex";
                 const t = document.getElementById("textoMenuPedidos"); if (t) t.innerText = "Pedidos Recibidos";
                 const b = document.getElementById("btnMenuPedidos"); if (b) b.querySelector("span").innerText = "📦";
@@ -461,6 +496,7 @@
                 secHacer.style.display = "block";
                 secBodega.style.display = "none";
                 if (btnRecepcion) btnRecepcion.style.display = "flex";
+                if (btnGondolas) btnGondolas.style.display = "flex";
                 const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "none";
             }
         }
@@ -499,7 +535,7 @@
 
         function abrirModulo(nombre) {
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloCompras"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
@@ -520,6 +556,10 @@
                     document.getElementById("menuPedidos").style.display = "block";
                     if (!catalogoProductosPedido.length) cargarCatalogoProductosPedido();
                 }
+            } else if (nombre === "gondolas") {
+                if (normalizarEmpleado(localStorage.getItem("sucursal")) === "bodega") return volverMenuPrincipal();
+                document.getElementById("moduloGondolas").style.display = "block";
+                cargarGondolas();
             } else if (nombre === "recepcion") {
                 document.getElementById("moduloRecepcion").style.display = "block";
                 cargarPedidosParaRecepcion();
@@ -533,9 +573,125 @@
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloCompras"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
+        }
+
+
+        // ===== GÓNDOLAS v1.2.2 =====
+        async function cargarGondolas() {
+            const sucursal = localStorage.getItem("sucursal") || "";
+            document.getElementById("gondolaSucursalTexto").innerText = "📍 " + sucursal;
+            document.getElementById("vistaGondolas").innerHTML = '<p style="text-align:center;color:#888;font-size:12px;">Cargando góndolas...</p>';
+            document.getElementById("vistaGondolas").style.display = "block";
+            document.getElementById("vistaAnaqueles").style.display = "none";
+            document.getElementById("vistaProductosGondola").style.display = "none";
+            document.getElementById("gondolaNavegacion").innerHTML = "";
+            gondolaActual = ""; anaquelActual = "";
+            try {
+                const r = await fetch(URL_API + "?accion=verGondolas&sucursal=" + encodeURIComponent(sucursal) + "&_=" + Date.now());
+                const data = await r.json();
+                if (!r.ok || data.status !== "OK") throw new Error(data.mensaje || "No se pudieron cargar las góndolas.");
+                datosGondolas = Array.isArray(data.productos) ? data.productos : [];
+                renderGondolas();
+            } catch (e) {
+                console.error(e);
+                document.getElementById("vistaGondolas").innerHTML = '<p style="color:#dc3545;text-align:center;font-size:12px;">No fue posible cargar las góndolas. Verifica que el Apps Script v1.2.2 esté desplegado.</p>';
+            }
+            actualizarResumenGondolas();
+        }
+
+        function ordenarNumeroTexto(a,b) {
+            return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:"base"});
+        }
+
+        function renderGondolas() {
+            const cont = document.getElementById("vistaGondolas");
+            const gs = [...new Set(datosGondolas.map(x => String(x.gondola || "").trim()).filter(Boolean))].sort(ordenarNumeroTexto);
+            if (!gs.length) {
+                cont.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;">Todavía no hay productos asignados a góndolas para esta sucursal.</p>';
+                return;
+            }
+            cont.innerHTML = '<div class="gondola-grid">' + gs.map(g => `<div class="gondola-card" onclick="abrirGondola('${escaparJsGondola(g)}')"><span>🗄️</span>Góndola ${escaparHtmlPedido(g)}</div>`).join("") + '</div>';
+        }
+
+        function escaparJsGondola(t) { return String(t||"").replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
+
+        function abrirGondola(g) {
+            gondolaActual = g; anaquelActual = "";
+            document.getElementById("vistaGondolas").style.display = "none";
+            document.getElementById("vistaProductosGondola").style.display = "none";
+            const cont = document.getElementById("vistaAnaqueles");
+            cont.style.display = "block";
+            document.getElementById("gondolaNavegacion").innerHTML = `<button onclick="volverAGondolas()" style="width:auto;padding:6px 10px;margin:0;background:#6c757d;font-size:11px;">← Góndolas</button> &nbsp; <b>Góndola ${escaparHtmlPedido(g)}</b>`;
+            const as = [...new Set(datosGondolas.filter(x => String(x.gondola) === String(g)).map(x => String(x.anaquel||"").trim()).filter(Boolean))].sort(ordenarNumeroTexto);
+            cont.innerHTML = '<div class="gondola-grid">' + as.map(a => `<div class="gondola-card" onclick="abrirAnaquel('${escaparJsGondola(a)}')"><span>📚</span>Anaquel ${escaparHtmlPedido(a)}</div>`).join("") + '</div>';
+        }
+
+        function volverAGondolas() {
+            gondolaActual=""; anaquelActual="";
+            document.getElementById("vistaGondolas").style.display="block";
+            document.getElementById("vistaAnaqueles").style.display="none";
+            document.getElementById("vistaProductosGondola").style.display="none";
+            document.getElementById("gondolaNavegacion").innerHTML="";
+        }
+
+        function abrirAnaquel(a) {
+            anaquelActual = a;
+            document.getElementById("vistaAnaqueles").style.display="none";
+            document.getElementById("vistaProductosGondola").style.display="block";
+            document.getElementById("gondolaNavegacion").innerHTML = `<button onclick="abrirGondola('${escaparJsGondola(gondolaActual)}')" style="width:auto;padding:6px 10px;margin:0;background:#6c757d;font-size:11px;">← Anaqueles</button> &nbsp; <b>Góndola ${escaparHtmlPedido(gondolaActual)} · Anaquel ${escaparHtmlPedido(a)}</b>`;
+            renderProductosAnaquel();
+        }
+
+        function renderProductosAnaquel() {
+            const cont = document.getElementById("vistaProductosGondola");
+            const prods = datosGondolas.filter(x => String(x.gondola)===String(gondolaActual) && String(x.anaquel)===String(anaquelActual));
+            cont.innerHTML = prods.map((p,i) => {
+                const key = claveProductoGondola(p.producto);
+                const sel = faltantesGondola[key];
+                return `<div class="gondola-producto ${sel?'seleccionado':''}">
+                    <div class="gondola-producto-fila">
+                        <div><strong>${escaparHtmlPedido(p.producto)}</strong></div>
+                        <button onclick="toggleFaltanteGondola('${escaparJsGondola(p.producto)}')" style="width:auto;margin:0;padding:8px 10px;background:${sel?'#28a745':'#007bff'};font-size:11px;">${sel?'✓ Faltante':'Marcar faltante'}</button>
+                    </div>
+                    ${sel?`<div class="gondola-cantidad"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',-1)" style="background:#6c757d;">−</button><input readonly value="${sel.cantidad}"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',1)" style="background:#28a745;">＋</button></div>`:''}
+                </div>`;
+            }).join("") || '<p style="text-align:center;color:#888;font-size:12px;">No hay productos en este anaquel.</p>';
+        }
+
+        function claveProductoGondola(p){ return String(p||"").trim().toUpperCase(); }
+        function toggleFaltanteGondola(producto) {
+            const k=claveProductoGondola(producto);
+            if (faltantesGondola[k]) delete faltantesGondola[k]; else faltantesGondola[k]={producto:producto,cantidad:1};
+            renderProductosAnaquel(); actualizarResumenGondolas();
+        }
+        function cambiarCantidadGondola(producto,delta) {
+            const k=claveProductoGondola(producto); if(!faltantesGondola[k]) return;
+            faltantesGondola[k].cantidad=Math.max(1,(Number(faltantesGondola[k].cantidad)||1)+delta);
+            renderProductosAnaquel(); actualizarResumenGondolas();
+        }
+        function actualizarResumenGondolas(){
+            const n=Object.keys(faltantesGondola).length;
+            document.getElementById("cantSeleccionadosGondola").innerText=n;
+            document.getElementById("resumenGondolas").style.display=n?"block":"none";
+        }
+
+        async function enviarFaltantesGondola(){
+            const productos=Object.values(faltantesGondola).map(x=>({producto:x.producto,cantidad:Number(x.cantidad)||1}));
+            if(!productos.length) return alert("Selecciona al menos un producto faltante.");
+            const btn=document.getElementById("btnEnviarGondolas");
+            btn.disabled=true; btn.innerText="Enviando...";
+            try{
+                const params=new URLSearchParams({accion:"PedidosLote",sucursal:localStorage.getItem("sucursal")||"",empleado:localStorage.getItem("usuario")||"",productos:JSON.stringify(productos)});
+                const r=await fetch(URL_API,{method:"POST",body:params});
+                const texto=await r.text(); let resp; try{resp=JSON.parse(texto)}catch(_){resp={status:texto.trim()}}
+                if(!r.ok||resp.status!=="OK") throw new Error(resp.mensaje||"Bodega no confirmó el pedido.");
+                alert(`¡Solicitud ${resp.idPedido||""} enviada a Bodega con éxito!`);
+                faltantesGondola={}; actualizarResumenGondolas(); volverMenuPrincipal();
+            }catch(e){ console.error(e); alert("No se pudo enviar la solicitud: "+e.message); }
+            finally{btn.disabled=false;btn.innerText="📩 Enviar solicitud a Bodega";}
         }
 
         function toggleMenuAsistencia() {
