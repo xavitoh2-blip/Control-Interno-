@@ -1,0 +1,14 @@
+CONTROL OPERATIVO — PWA v1.2.1
+
+SUBE A GITHUB, EN LA MISMA CARPETA:
+index.html
+manifest.json
+sw.js
+icon-192.png
+icon-512.png
+apple-touch-icon.png
+
+Conserva también "logo online shop.png".
+
+Android: abre la página en Chrome > menú > Instalar app.
+iPhone: abre la página en Safari > Compartir > Añadir a pantalla de inicio.
