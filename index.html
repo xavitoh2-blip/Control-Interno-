@@ -105,7 +105,7 @@
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.2.7</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.2.8</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -151,6 +151,7 @@
                 <button id="btnMenuGondolas" class="menu-modulo" onclick="abrirModulo('gondolas')"><span>🗄️</span><b>Góndolas</b></button>
                 <button id="btnMenuRecepcion" class="menu-modulo" onclick="abrirModulo('recepcion')"><span>📥</span><b>Recibir Pedido</b></button>
                 <button id="btnMenuCompras" class="menu-modulo" onclick="abrirModulo('compras')" style="display:none;"><span>📝</span><b>Solicitar Compra</b></button>
+                <button id="btnMenuRuta" class="menu-modulo" onclick="abrirModulo('ruta')" style="display:none;"><span>🚚</span><b>Despacho Ruta</b></button>
             </div>
         </div>
 
@@ -366,6 +367,19 @@
         </div>
     </div>
 
+
+
+    <!-- DESPACHO RUTA v1.2.8 - PRIMERA ETAPA BODEGA -->
+    <div id="moduloRuta" class="card modulo-pantalla" style="text-align:left;">
+        <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+        <h3 style="text-align:center;">🚚 Despacho Ruta</h3>
+        <p style="font-size:12px;color:#666;text-align:center;">Bodega registra lo que logra sacar. El faltante queda negativo hasta completar la cantidad requerida.</p>
+        <div id="rutaResumen" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:9px;padding:10px;margin:10px 0;font-size:12px;text-align:center;">Cargando ruta...</div>
+        <button id="btnCrearRuta" onclick="crearRutaDesdeKardex()" style="background:#007bff;">➕ Crear ruta desde Pagina 1 (A:B)</button>
+        <button onclick="cargarRutaActiva()" style="background:#6c757d;">🔄 Actualizar ruta</button>
+        <div id="listaRuta" style="margin-top:12px;"></div>
+    </div>
+
     <!-- MODAL SUPERVISOR -->
     <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 1000;">
         <h3>Clave de Supervisor</h3>
@@ -482,6 +496,7 @@
             const secBodega = document.getElementById("seccionVerPedidosBodega");
             const btnRecepcion = document.getElementById("btnMenuRecepcion");
             const btnGondolas = document.getElementById("btnMenuGondolas");
+            const btnRuta = document.getElementById("btnMenuRuta");
 
             const esBodega = sucursalActual && sucursalActual.trim().toLowerCase() === "bodega";
             if (esBodega) {
@@ -489,6 +504,7 @@
                 secBodega.style.display = "block";
                 if (btnRecepcion) btnRecepcion.style.display = "none";
                 if (btnGondolas) btnGondolas.style.display = "none";
+                if (btnRuta) btnRuta.style.display = "flex";
                 const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "flex";
                 const t = document.getElementById("textoMenuPedidos"); if (t) t.innerText = "Pedidos Recibidos";
                 const b = document.getElementById("btnMenuPedidos"); if (b) b.querySelector("span").innerText = "📦";
@@ -497,6 +513,7 @@
                 secBodega.style.display = "none";
                 if (btnRecepcion) btnRecepcion.style.display = "flex";
                 if (btnGondolas) btnGondolas.style.display = "flex";
+                if (btnRuta) btnRuta.style.display = "none";
                 const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "none";
             }
         }
@@ -535,7 +552,7 @@
 
         function abrirModulo(nombre) {
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloRuta"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
@@ -563,6 +580,10 @@
             } else if (nombre === "recepcion") {
                 document.getElementById("moduloRecepcion").style.display = "block";
                 cargarPedidosParaRecepcion();
+            } else if (nombre === "ruta") {
+                if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "bodega") return volverMenuPrincipal();
+                document.getElementById("moduloRuta").style.display = "block";
+                cargarRutaActiva();
             } else if (nombre === "compras") {
                 if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "bodega") return volverMenuPrincipal();
                 document.getElementById("moduloCompras").style.display = "block";
@@ -573,7 +594,7 @@
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloRuta"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -2298,6 +2319,77 @@ function verificarPassword() {
 
             tbody.innerHTML = html || '<tr><td colspan="3" style="color:#888;">Sin turnos finalizados.</td></tr>';
         }
+
+
+        // ===== DESPACHO RUTA v1.2.8 =====
+        let rutaActiva = null;
+
+        async function cargarRutaActiva(){
+            const cont=document.getElementById("listaRuta");
+            const resumen=document.getElementById("rutaResumen");
+            const btnCrear=document.getElementById("btnCrearRuta");
+            cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando...</p>';
+            try{
+                const r=await fetch(URL_API+"?accion=verRutaActiva&_="+Date.now());
+                const data=await r.json();
+                if(!r.ok||data.status!=="OK") throw new Error(data.mensaje||"No se pudo cargar la ruta.");
+                rutaActiva=data.ruta||null;
+                if(!rutaActiva){
+                    resumen.innerHTML='No hay una ruta activa. Puedes crearla usando <b>Pagina 1, columnas A:B</b>.';
+                    cont.innerHTML=''; btnCrear.style.display='block'; return;
+                }
+                btnCrear.style.display='none';
+                renderRutaBodega();
+            }catch(e){ resumen.innerHTML='<span style="color:#dc3545;">'+escaparHtmlPedido(e.message)+'</span>'; cont.innerHTML=''; }
+        }
+
+        async function crearRutaDesdeKardex(){
+            if(!confirm("¿Crear una nueva ruta agrupando los productos de Pagina 1, columnas A:B?")) return;
+            const btn=document.getElementById("btnCrearRuta"); btn.disabled=true; btn.innerText="Creando ruta...";
+            try{
+                const p=new URLSearchParams({accion:"CrearRutaDesdePagina1",empleado:localStorage.getItem("usuario")||""});
+                const r=await fetch(URL_API,{method:"POST",body:p}); const data=await r.json();
+                if(!r.ok||data.status!=="OK") throw new Error(data.mensaje||"No se pudo crear la ruta.");
+                alert("Ruta "+data.numeroRuta+" creada con "+data.productos+" productos."); await cargarRutaActiva();
+            }catch(e){alert("No se pudo crear la ruta: "+e.message)}
+            finally{btn.disabled=false;btn.innerText="➕ Crear ruta desde Pagina 1 (A:B)";}
+        }
+
+        function renderRutaBodega(){
+            const r=rutaActiva, productos=Array.isArray(r.productos)?r.productos:[];
+            const completos=productos.filter(x=>Number(x.diferencia)>=0).length;
+            const pendientes=productos.length-completos;
+            document.getElementById("rutaResumen").innerHTML=`<b>Ruta #${escaparHtmlPedido(r.numeroRuta)}</b> · ${escaparHtmlPedido(r.fecha)}<br>✅ ${completos} completos · ⏳ ${pendientes} pendientes · Total ${productos.length}`;
+            document.getElementById("listaRuta").innerHTML=productos.map((p,i)=>{
+                const req=Number(p.cantidadRequerida)||0, prep=Number(p.prepBodega)||0, dif=Number(p.diferencia)||0;
+                const fondo=dif>=0?'#f0fff4':(prep>0?'#fff8e1':'#fff1f1');
+                const borde=dif>=0?'#9ad7a8':(prep>0?'#ffe08a':'#f5b5ba');
+                const estado=dif>=0?'✅ COMPLETO':`Faltan ${Math.abs(dif)}`;
+                return `<div style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:11px;margin:8px 0;">
+                    <div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div>
+                    <div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span style="font-weight:800;">${estado}</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <button onclick="cambiarPrepRuta(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button>
+                      <input id="rutaPrep_${i}" type="number" min="0" step="1" value="${prep}" inputmode="numeric" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;">
+                      <button onclick="cambiarPrepRuta(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button>
+                    </div>
+                    <button onclick="guardarPrepRuta(${i})" style="background:#007bff;margin-top:8px;">💾 Guardar cantidad de Bodega</button>
+                </div>`;
+            }).join('')||'<p style="text-align:center;color:#888;font-size:12px;">La ruta no tiene productos.</p>';
+        }
+
+        function cambiarPrepRuta(i,d){const el=document.getElementById('rutaPrep_'+i); el.value=Math.max(0,(Number(el.value)||0)+d);}
+
+        async function guardarPrepRuta(i){
+            const p=rutaActiva.productos[i], cantidad=Math.max(0,Number(document.getElementById('rutaPrep_'+i).value)||0);
+            try{
+                const body=new URLSearchParams({accion:'GuardarPreparacionRutaBodega',idRuta:rutaActiva.idRuta,producto:p.producto,cantidad:String(cantidad),empleado:localStorage.getItem('usuario')||''});
+                const r=await fetch(URL_API,{method:'POST',body}); const data=await r.json();
+                if(!r.ok||data.status!=='OK') throw new Error(data.mensaje||'No se pudo guardar.');
+                await cargarRutaActiva();
+            }catch(e){alert('No se pudo guardar: '+e.message);}
+        }
+
     </script>
 
 <script>
