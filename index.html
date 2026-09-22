@@ -1446,7 +1446,7 @@
 
         let pedidosBodegaActuales = [];
         let pedidoBodegaAbierto = null;
-        let sucursalBodegaAbierta = null;
+        let sucursalBodegaAbierta = "";
 
         function cargarPedidosEnBodega() {
             const cont = document.getElementById("listaPedidosBodega");
@@ -1458,7 +1458,6 @@
                     if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "Respuesta inválida");
                     pedidosBodegaActuales = data.pedidos || [];
                     pedidoBodegaAbierto = null;
-                    sucursalBodegaAbierta = null;
                     renderizarPedidosBodega();
                 })
                 .catch(err => {
@@ -1481,7 +1480,6 @@
                 cont.innerHTML = '<p style="font-size:13px;color:#888;text-align:center;padding:18px;">✅ No hay pedidos pendientes en Bodega.</p>';
                 return;
             }
-
             if (pedidoBodegaAbierto) {
                 const pedido = pedidosBodegaActuales.find(p => p.idPedido === pedidoBodegaAbierto);
                 if (pedido) return renderizarDetallePedidoBodega(pedido);
@@ -1489,70 +1487,62 @@
             }
 
             const grupos = {};
-            pedidosBodegaActuales.forEach((pedido, index) => {
-                const suc = pedido.sucursal || "Sin sucursal";
-                if (!grupos[suc]) grupos[suc] = [];
-                grupos[suc].push({pedido, index});
+            pedidosBodegaActuales.forEach((pedido,index)=>{
+                const suc=pedido.sucursal||"Sin sucursal";
+                if(!grupos[suc]) grupos[suc]=[];
+                grupos[suc].push({pedido,index});
             });
 
-            // Primera pantalla: solamente las sucursales.
-            if (!sucursalBodegaAbierta || !grupos[sucursalBodegaAbierta]) {
-                sucursalBodegaAbierta = null;
-                let html = `<div style="font-size:12px;color:#5f6b76;margin:4px 0 12px;text-align:center;">📦 ${pedidosBodegaActuales.length} pedido(s) pendiente(s) · 🏪 ${Object.keys(grupos).length} sucursal(es)</div>`;
-                Object.keys(grupos).forEach(sucursal => {
-                    const items = grupos[sucursal];
-                    const totalProductos = items.reduce((sum,x)=>sum+(x.pedido.productos||[]).length,0);
-                    html += `<button type="button" onclick="abrirSucursalBodega('${String(sucursal).replace(/\/g,'\\').replace(/'/g,"\'")}')" style="display:block;width:100%;text-align:left;background:#fff;color:#243447;border:1px solid #dfe5eb;border-left:6px solid #007bff;border-radius:12px;padding:15px;margin:10px 0;box-shadow:0 2px 7px rgba(0,0,0,.05);">
-                        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-                            <div>
-                                <div style="font-size:16px;font-weight:900;">🏪 ${escaparHtmlPedido(sucursal)}</div>
-                                <div style="font-size:12px;color:#66717c;margin-top:5px;">📋 ${items.length} pedido(s) · 📦 ${totalProductos} productos</div>
-                            </div>
-                            <div style="font-size:24px;color:#007bff;">›</div>
+            if (sucursalBodegaAbierta && grupos[sucursalBodegaAbierta]) {
+                const items=grupos[sucursalBodegaAbierta];
+                items.sort((a,b)=>(String(a.pedido.fecha||"")+" "+String(a.pedido.hora||"")).localeCompare(String(b.pedido.fecha||"")+" "+String(b.pedido.hora||"")));
+                const totalProductos=items.reduce((n,x)=>n+(x.pedido.productos||[]).length,0);
+                let html=`<button onclick="volverSucursalesBodega()" style="background:#6c757d;margin:0 0 12px;">← Volver a sucursales</button>
+                <div style="background:#eef5ff;border:1px solid #cfe2ff;border-radius:12px;padding:13px;margin-bottom:12px;text-align:center;">
+                    <div style="font-size:17px;font-weight:900;color:#243447;">🏪 ${escaparHtmlPedido(sucursalBodegaAbierta)}</div>
+                    <div style="font-size:12px;color:#66717c;margin-top:4px;">📋 ${items.length} pedido(s) pendiente(s) · 📦 ${totalProductos} productos</div>
+                </div>`;
+                items.forEach(({pedido,index})=>{
+                    const numero=String(Number(pedido.numeroPedido)||0).padStart(3,"0");
+                    html+=`<div style="border:1px solid #dfe5eb;border-radius:12px;padding:13px;margin:9px 0;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.05);">
+                        <div style="text-align:left;">
+                            <div style="font-size:15px;font-weight:900;color:#2c3e50;">📋 Pedido #${numero}</div>
+                            <div style="font-size:12px;color:#555;margin-top:5px;">📅 ${formatearFechaPedidoBodega(pedido.fecha,pedido.hora)}</div>
+                            ${pedido.solicito?`<div style="font-size:12px;color:#555;margin-top:3px;">👤 ${escaparHtmlPedido(pedido.solicito)}</div>`:""}
+                            <div style="font-size:12px;color:#666;margin-top:3px;">📦 ${pedido.productos.length} productos por preparar</div>
                         </div>
-                    </button>`;
+                        <button onclick="abrirPedidoBodega(${index})" style="background:#007bff;margin-top:11px;">Ver pedido</button>
+                    </div>`;
                 });
-                cont.innerHTML = html;
+                cont.innerHTML=html;
                 return;
             }
 
-            // Segunda pantalla: pedidos individuales de la sucursal elegida.
-            const items = grupos[sucursalBodegaAbierta] || [];
-            const totalProductos = items.reduce((sum,x)=>sum+(x.pedido.productos||[]).length,0);
-            let html = `<button onclick="volverSucursalesBodega()" style="background:#6c757d;margin:0 0 10px;">← Volver a sucursales</button>
-                <div style="margin:5px 0 12px;padding:12px;background:#eef5ff;border-left:5px solid #007bff;border-radius:9px;">
-                    <div style="font-size:17px;font-weight:900;color:#243447;">🏪 ${escaparHtmlPedido(sucursalBodegaAbierta)}</div>
-                    <div style="font-size:11px;color:#66717c;margin-top:4px;">${items.length} pedido(s) pendientes · ${totalProductos} productos por preparar</div>
-                </div>`;
-
-            items.forEach(({pedido,index}) => {
-                const numero = String(Number(pedido.numeroPedido)||0).padStart(3,"0");
-                html += `<div style="border:1px solid #dfe5eb;border-radius:12px;padding:13px;margin:8px 0;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.05);">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-                        <div style="text-align:left;min-width:0;">
-                            <div style="font-size:15px;font-weight:900;color:#2c3e50;">📋 Pedido #${numero}</div>
-                            <div style="font-size:12px;color:#555;margin-top:5px;">📅 ${formatearFechaPedidoBodega(pedido.fecha,pedido.hora)}</div>
-                            ${pedido.solicito ? `<div style="font-size:12px;color:#555;margin-top:3px;">👤 ${escaparHtmlPedido(pedido.solicito)}</div>` : ''}
-                            <div style="font-size:12px;color:#666;margin-top:3px;">📦 ${pedido.productos.length} productos por preparar</div>
-                        </div>
-                        <div style="font-size:23px;">📦</div>
+            let html=`<div style="font-size:12px;color:#5f6b76;margin:4px 0 12px;text-align:center;">📦 ${pedidosBodegaActuales.length} pedido(s) pendiente(s) · 🏪 ${Object.keys(grupos).length} sucursal(es)</div>`;
+            Object.keys(grupos).sort(ordenarNumeroTexto).forEach(sucursal=>{
+                const items=grupos[sucursal];
+                const total=items.reduce((n,x)=>n+(x.pedido.productos||[]).length,0);
+                html+=`<button onclick="abrirSucursalBodega('${escaparJsGondola(sucursal)}')" style="background:#fff;color:#243447;border:1px solid #d9e2ec;border-left:5px solid #007bff;border-radius:12px;padding:15px 13px;margin:9px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);text-align:left;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+                        <div><div style="font-size:16px;font-weight:900;">🏪 ${escaparHtmlPedido(sucursal)}</div>
+                        <div style="font-size:12px;color:#66717c;margin-top:5px;">📋 ${items.length} pedido(s) · 📦 ${total} productos por preparar</div></div>
+                        <div style="font-size:22px;color:#007bff;">›</div>
                     </div>
-                    <button onclick="abrirPedidoBodega(${index})" style="background:#007bff;margin-top:11px;">Ver pedido</button>
-                </div>`;
+                </button>`;
             });
-            cont.innerHTML = html;
+            cont.innerHTML=html;
         }
 
-        function abrirSucursalBodega(sucursal) {
-            sucursalBodegaAbierta = sucursal;
-            pedidoBodegaAbierto = null;
+        function abrirSucursalBodega(sucursal){
+            sucursalBodegaAbierta=sucursal;
+            pedidoBodegaAbierto=null;
             renderizarPedidosBodega();
             window.scrollTo(0,0);
         }
 
-        function volverSucursalesBodega() {
-            sucursalBodegaAbierta = null;
-            pedidoBodegaAbierto = null;
+        function volverSucursalesBodega(){
+            sucursalBodegaAbierta="";
+            pedidoBodegaAbierto=null;
             renderizarPedidosBodega();
             window.scrollTo(0,0);
         }
@@ -1570,6 +1560,8 @@
         }
 
         function volverListaPedidosBodega() {
+            const pedido = pedidosBodegaActuales.find(p => p.idPedido === pedidoBodegaAbierto);
+            if (pedido) sucursalBodegaAbierta = pedido.sucursal || "";
             pedidoBodegaAbierto = null;
             renderizarPedidosBodega();
             window.scrollTo(0,0);
