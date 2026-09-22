@@ -105,7 +105,7 @@
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.2.6</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.2.7</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1512,6 +1512,7 @@
                             <div style="font-size:12px;color:#666;margin-top:3px;">📦 ${pedido.productos.length} productos por preparar</div>
                         </div>
                         <button onclick="abrirPedidoBodega(${index})" style="background:#007bff;margin-top:11px;">Ver pedido</button>
+                        <button onclick="eliminarPedidoBodega(${index})" style="background:#dc3545;margin-top:5px;">🗑️ Eliminar pedido</button>
                     </div>`;
                 });
                 cont.innerHTML=html;
@@ -1545,6 +1546,40 @@
             pedidoBodegaAbierto=null;
             renderizarPedidosBodega();
             window.scrollTo(0,0);
+        }
+
+        async function eliminarPedidoBodega(index) {
+            const pedido = pedidosBodegaActuales[index];
+            if (!pedido) return;
+
+            const numero = String(Number(pedido.numeroPedido) || 0).padStart(3, "0");
+            const sucursal = pedido.sucursal || "Sin sucursal";
+
+            if (!confirm(`¿Seguro que deseas eliminar el Pedido #${numero} de ${sucursal}?\n\nSe eliminará el pedido completo.`)) return;
+
+            try {
+                const params = new URLSearchParams({
+                    accion: "EliminarPedidoBodega",
+                    idPedido: pedido.idPedido || "",
+                    empleado: localStorage.getItem("usuario") || ""
+                });
+
+                const r = await fetch(URL_API, { method: "POST", body: params });
+                const texto = await r.text();
+                let resp;
+                try { resp = JSON.parse(texto); } catch (_) { resp = {status:texto.trim()}; }
+
+                if (!r.ok || resp.status !== "OK") {
+                    throw new Error(resp.mensaje || "No se pudo eliminar el pedido.");
+                }
+
+                alert(`Pedido #${numero} eliminado correctamente.`);
+                pedidoBodegaAbierto = null;
+                await cargarPedidosEnBodega();
+            } catch (e) {
+                console.error(e);
+                alert("No se pudo eliminar el pedido: " + e.message);
+            }
         }
 
         function abrirPedidoBodega(index) {
