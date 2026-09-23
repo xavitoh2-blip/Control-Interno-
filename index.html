@@ -105,7 +105,7 @@
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.1</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.2</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2325,7 +2325,7 @@ function verificarPassword() {
         }
 
 
-        // ===== RUTEO v1.3.0 =====
+        // ===== RUTEO v1.3.2 =====
         let rutaActiva = null;
         let etapaRutaActual = 'bodega';
 
@@ -2373,11 +2373,22 @@ function verificarPassword() {
             const btn=document.getElementById("btnCrearRuta");btn.disabled=true;btn.innerText="Creando ruta...";
             try{const p=new URLSearchParams({accion:"CrearRutaDesdePagina1",empleado:localStorage.getItem("usuario")||""});const r=await fetch(URL_API,{method:"POST",body:p}),data=await r.json();if(!r.ok||data.status!=="OK")throw new Error(data.mensaje||"No se pudo crear la ruta.");alert("Ruta "+data.numeroRuta+" creada con "+data.productos+" productos.");await cargarRutaActiva();}catch(e){alert("No se pudo crear la ruta: "+e.message)}finally{btn.disabled=false;btn.innerText="➕ Crear ruta desde Pagina 1 (A:B)";}
         }
+        let mostrarCompletadosBodega = false;
+        function alternarCompletadosBodega(){
+            mostrarCompletadosBodega=!mostrarCompletadosBodega;
+            renderRutaBodega();
+        }
         function renderRutaBodega(){
             const r=rutaActiva, productos=Array.isArray(r.productos)?r.productos:[], borrador=obtenerBorradorRuta(); actualizarResumenRuta();
-            let html='<div style="font-size:12px;color:#666;text-align:center;margin:5px 0 10px;">Registra lo que Bodega logró preparar. Puedes guardar aunque queden faltantes.</div>';
-            html+=productos.map((p,i)=>{const req=Number(p.cantidadRequerida)||0;const valor=Object.prototype.hasOwnProperty.call(borrador,i)?Math.min(req,Math.max(0,Number(borrador[i])||0)):Math.min(req,Math.max(0,Number(p.prepBodega)||0));const falta=Math.max(0,req-valor),completo=valor>=req;const fondo=completo?'#f0fff4':(valor>0?'#fff8e1':'#fff1f1'),borde=completo?'#9ad7a8':(valor>0?'#ffe08a':'#f5b5ba');return `<div id="rutaCard_${i}" style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span id="rutaEstado_${i}" style="font-weight:800;">${completo?'✅ COMPLETO':'Faltan '+falta}</span></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="cambiarPrepRuta(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="rutaPrep_${i}" type="number" min="0" max="${req}" step="1" value="${valor}" inputmode="numeric" oninput="validarPrepRuta(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarPrepRuta(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;}).join('');
-            if(productos.length)html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">El avance se guarda temporalmente en este dispositivo.</div><button id="btnGuardarTodoRuteo" onclick="guardarTodoRuteo()" style="background:#28a745;margin:0;padding:14px;">💾 Guardar todo lo preparado</button></div>`;
+            const filas=productos.map((p,i)=>{const req=Number(p.cantidadRequerida)||0;const valor=Object.prototype.hasOwnProperty.call(borrador,i)?Math.min(req,Math.max(0,Number(borrador[i])||0)):Math.min(req,Math.max(0,Number(p.prepBodega)||0));return {p,i,req,valor,completo:valor>=req};});
+            const completos=filas.filter(x=>x.completo), pendientes=filas.filter(x=>!x.completo);
+            let html=`<div style="background:#eef6ff;border:1px solid #b8d8ff;border-radius:10px;padding:10px;margin:5px 0 10px;text-align:center;font-size:12px;"><b>✅ ${completos.length} completados</b> · <b>⏳ ${pendientes.length} pendientes</b></div>`;
+            if(completos.length) html+=`<button type="button" onclick="alternarCompletadosBodega()" style="background:#6c757d;margin:0 0 10px;padding:10px;font-size:12px;">${mostrarCompletadosBodega?'🙈 Ocultar completados':'👁 Ver completados ('+completos.length+')'}</button>`;
+            html+='<div style="font-size:12px;color:#666;text-align:center;margin:5px 0 10px;">La lista principal muestra lo que Bodega todavía tiene pendiente.</div>';
+            const visibles=mostrarCompletadosBodega?filas:pendientes;
+            if(!visibles.length) html+='<div style="background:#f0fff4;border:1px solid #9ad7a8;border-radius:10px;padding:16px;text-align:center;font-weight:800;margin:10px 0;">✅ Bodega completó todos los productos.</div>';
+            html+=visibles.map(({p,i,req,valor,completo})=>{const falta=Math.max(0,req-valor),fondo=completo?'#f0fff4':(valor>0?'#fff8e1':'#fff1f1'),borde=completo?'#9ad7a8':(valor>0?'#ffe08a':'#f5b5ba');return `<div id="rutaCard_${i}" style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span id="rutaEstado_${i}" style="font-weight:800;">${completo?'✅ COMPLETO':'Faltan '+falta}</span></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="cambiarPrepRuta(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="rutaPrep_${i}" type="number" min="0" max="${req}" step="1" value="${valor}" inputmode="numeric" oninput="validarPrepRuta(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarPrepRuta(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;}).join('');
+            if(pendientes.length)html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">El avance se guarda temporalmente en este dispositivo.</div><button id="btnGuardarTodoRuteo" onclick="guardarTodoRuteo()" style="background:#28a745;margin:0;padding:14px;">💾 Guardar todo lo preparado</button></div>`;
             document.getElementById("listaRuta").innerHTML=html;
         }
         function validarPrepRuta(i){if(!rutaActiva||!rutaActiva.productos[i])return;const req=Number(rutaActiva.productos[i].cantidadRequerida)||0,el=document.getElementById('rutaPrep_'+i);let v=Number(el.value);if(!Number.isFinite(v))v=0;v=Math.min(req,Math.max(0,v));el.value=v;const falta=Math.max(0,req-v),completo=v>=req,card=document.getElementById('rutaCard_'+i),est=document.getElementById('rutaEstado_'+i);if(est)est.innerText=completo?'✅ COMPLETO':'Faltan '+falta;if(card){card.style.background=completo?'#f0fff4':(v>0?'#fff8e1':'#fff1f1');card.style.borderColor=completo?'#9ad7a8':(v>0?'#ffe08a':'#f5b5ba');}guardarBorradorRuta();}
@@ -2386,7 +2397,7 @@ function verificarPassword() {
             if(!rutaActiva||!rutaActiva.productos.length)return;
             guardarBorradorRuta();
             const idRutaGuardando=rutaActiva.idRuta;
-            const productos=rutaActiva.productos.map((p,i)=>({producto:p.producto,cantidad:Math.min(Number(p.cantidadRequerida)||0,Math.max(0,Number(document.getElementById('rutaPrep_'+i)?.value)||0))}));
+            const productos=rutaActiva.productos.map((p,i)=>{const el=document.getElementById('rutaPrep_'+i);const base=Number(p.prepBodega)||0;return {producto:p.producto,cantidad:Math.min(Number(p.cantidadRequerida)||0,Math.max(0,el?Number(el.value)||0:base))};});
             const btn=document.getElementById('btnGuardarTodoRuteo');btn.disabled=true;btn.innerText='Guardando y verificando...';
             try{
                 const body=new URLSearchParams({accion:'GuardarPreparacionRutaBodegaLote',idRuta:idRutaGuardando,productos:JSON.stringify(productos),empleado:localStorage.getItem('usuario')||''});
