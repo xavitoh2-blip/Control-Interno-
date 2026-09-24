@@ -2520,7 +2520,20 @@ function verificarPassword() {
         async function confirmarFaltantesKardex(){
             const items=faltantesKardexActuales.map((x,i)=>({idRuta:x.idRuta,producto:x.producto,cantidad:Math.max(0,Number(document.getElementById('fkCant_'+i)?.value)||0)})).filter(x=>x.cantidad>0);if(!items.length)return alert('No hay cantidades para confirmar.');
             const btn=document.getElementById('btnConfirmarFaltantesKardex');btn.disabled=true;btn.innerText='Confirmando...';
-            try{const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)}),r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudo confirmar.');alert(`✅ Preparación confirmada. ${d.actualizados||0} producto(s) actualizado(s).`);await cargarFaltantesKardex();}catch(e){alert('No se pudo confirmar: '+e.message);}finally{const b=document.getElementById('btnConfirmarFaltantesKardex');if(b){b.disabled=false;b.innerText='✅ Confirmar lo preparado';}}}
+            try{
+                const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
+                const r=await fetch(URL_API,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:body.toString(),redirect:'follow',cache:'no-store'});
+                const texto=await r.text();
+                let d;
+                try{d=JSON.parse(texto);}catch(_){
+                    const esHtml=/<!doctype|<html/i.test(texto);
+                    throw new Error(esHtml?'Apps Script devolvió una página HTML. Verifica que la implementación Web App esté actualizada y con acceso permitido.':'Respuesta inválida del servidor: '+texto.slice(0,180));
+                }
+                if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudo confirmar.');
+                alert(`✅ Preparación confirmada. ${d.actualizados||0} producto(s) actualizado(s).`);
+                await cargarFaltantesKardex();
+            }catch(e){alert('No se pudo confirmar: '+e.message);}
+            finally{const b=document.getElementById('btnConfirmarFaltantesKardex');if(b){b.disabled=false;b.innerText='✅ Confirmar lo preparado';}}}
 
     </script>
 
