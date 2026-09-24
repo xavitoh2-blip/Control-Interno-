@@ -2380,7 +2380,16 @@ function verificarPassword() {
                 if(!r.ok||data.status!=="OK") throw new Error(data.mensaje||"No se pudo cargar la ruta.");
                 rutaActiva=data.ruta||null;
                 if(!rutaActiva){resumen.innerHTML='No hay una ruta activa. Puedes crearla usando <b>Pagina 1, columnas A:B</b>.';cont.innerHTML='';btnCrear.style.display='block';if(etapas)etapas.style.display='none';return;}
-                btnCrear.style.display='none'; if(etapas)etapas.style.display='flex'; actualizarResumenRuta();
+                const productosRuta=(rutaActiva.productos||[]);
+                const rutaCompleta=productosRuta.length>0 && productosRuta.every(x=>Number(x.diferencia)>=0);
+                if(rutaCompleta){
+                    btnCrear.style.display='block';
+                    btnCrear.innerText='➕ Crear nuevo Kardex desde Pagina 1';
+                    btnCrear.style.background='#007bff';
+                }else{
+                    btnCrear.style.display='none';
+                }
+                if(etapas)etapas.style.display='flex'; actualizarResumenRuta();
                 if(etapaRutaActual==='faltantes')renderRutaFaltantes();else renderRutaBodega();
             }catch(e){resumen.innerHTML='<span style="color:#dc3545;">'+escaparHtmlPedido(e.message)+'</span>';cont.innerHTML='';}
         }
@@ -2389,9 +2398,9 @@ function verificarPassword() {
             document.getElementById("rutaResumen").innerHTML=`<b>Ruta #${escaparHtmlPedido(rutaActiva.numeroRuta)}</b> · ${fechaRutaBonita(rutaActiva.fecha)}<br>✅ ${completos} completos · ⏳ ${pendientes} pendientes · Total ${p.length}`;
         }
         async function crearRutaDesdeKardex(){
-            if(!confirm("¿Crear una nueva ruta agrupando los productos de Pagina 1, columnas A:B?")) return;
+            if(!confirm(rutaActiva ? "La ruta actual está completa. ¿Crear un NUEVO Kardex con los productos que están ahora en Pagina 1?\n\nLa ruta anterior se conservará en el historial." : "¿Crear una nueva ruta agrupando los productos de Pagina 1, columnas A:B?")) return;
             const btn=document.getElementById("btnCrearRuta");btn.disabled=true;btn.innerText="Creando ruta...";
-            try{const p=new URLSearchParams({accion:"CrearRutaDesdePagina1",empleado:localStorage.getItem("usuario")||""});const r=await fetch(URL_API,{method:"POST",body:p}),data=await r.json();if(!r.ok||data.status!=="OK")throw new Error(data.mensaje||"No se pudo crear la ruta.");alert("Ruta "+data.numeroRuta+" creada con "+data.productos+" productos.");await cargarRutaActiva();}catch(e){alert("No se pudo crear la ruta: "+e.message)}finally{btn.disabled=false;btn.innerText="➕ Crear Kardex desde Pagina 1 (A:B)";}
+            try{const p=new URLSearchParams({accion:"CrearRutaDesdePagina1",empleado:localStorage.getItem("usuario")||""});const r=await fetch(URL_API,{method:"POST",body:p}),data=await r.json();if(!r.ok||data.status!=="OK")throw new Error(data.mensaje||"No se pudo crear la ruta.");alert("Ruta "+data.numeroRuta+" creada con "+data.productos+" productos.");await cargarRutaActiva();}catch(e){alert("No se pudo crear la ruta: "+e.message)}finally{btn.disabled=false;btn.innerText=rutaActiva?"➕ Crear nuevo Kardex desde Pagina 1":"➕ Crear Kardex desde Pagina 1 (A:B)";}
         }
         let mostrarCompletadosBodega = false;
         function alternarCompletadosBodega(){
