@@ -105,7 +105,7 @@
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.3</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.4</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -116,6 +116,7 @@
             <option value="Mini super">Mini super</option>
             <option value="Tienda Online Shop">Tienda Online Shop</option>
             <option value="Bodega">Bodega</option>
+            <option value="Despacho">Despacho</option>
         </select>
         
         <select id="nombreEmpleado">
@@ -512,8 +513,14 @@
             const btnGondolas = document.getElementById("btnMenuGondolas");
             const btnRuta = document.getElementById("btnMenuRuta");
 
+            const esDespacho = normalizarEmpleado(sucursalActual) === "despacho";
             const esBodega = sucursalActual && sucursalActual.trim().toLowerCase() === "bodega";
-            if (esBodega) {
+            if (esDespacho) {
+                secHacer.style.display = "none"; secBodega.style.display = "none";
+                ["btnMenuPedidos","btnMenuRecepcion","btnMenuGondolas","btnMenuRuta","btnMenuCompras"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display="none";});
+                document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex")x.style.display="none";});
+                const fk=document.getElementById("btnMenuFaltantesKardex"); if(fk)fk.style.display="flex";
+            } else if (esBodega) {
                 secHacer.style.display = "none";
                 secBodega.style.display = "block";
                 if (btnRecepcion) btnRecepcion.style.display = "none";
@@ -2451,17 +2458,17 @@ function verificarPassword() {
             if(!pendientes.length){document.getElementById('listaRuta').innerHTML=html+'<div style="background:#f0fff4;border:1px solid #9ad7a8;border-radius:10px;padding:18px;text-align:center;font-weight:800;">✅ KARDEX COMPLETO</div>';return;}
             html+=pendientes.map(({p,i})=>{
                 const req=Number(p.cantidadRequerida)||0, preparado=Math.max(0,Number(p.prepBodega)||0)+Math.max(0,Number(p.prepTienda)||0)+Math.max(0,Number(p.prepMiniSuper)||0), faltanteReal=Math.max(0,req-preparado);
-                const b=borrador[i]||{}, vb=('b' in b)?Number(b.b):asignadoProductoSucursal(p.producto,'Bodega'), vt=('t' in b)?Number(b.t):asignadoProductoSucursal(p.producto,'Tienda Online Shop'), vm=('m' in b)?Number(b.m):asignadoProductoSucursal(p.producto,'Mini super');
-                const asignado=vb+vt+vm, sinAsignar=Math.max(0,faltanteReal-asignado);
-                return `<div id="faltCard_${i}" style="background:${sinAsignar?'#fff8e1':'#f0fff4'};border:1px solid ${sinAsignar?'#ffe08a':'#9ad7a8'};border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div id="faltEstado_${i}" style="font-size:12px;margin:5px 0 9px;">Faltante real: <b>${faltanteReal}</b> · ${sinAsignar?'<b>Sin asignar '+sinAsignar+'</b>':'<b>✅ TODO ASIGNADO</b>'}</div>${campoFuenteRuta(i,'Bodega','b',vb,faltanteReal)}${campoFuenteRuta(i,'Tienda Online Shop','t',vt,faltanteReal)}${campoFuenteRuta(i,'Mini super','m',vm,faltanteReal)}</div>`;
+                const b=borrador[i]||{}, vb=('b' in b)?Number(b.b):asignadoProductoSucursal(p.producto,'Bodega'), vt=('t' in b)?Number(b.t):asignadoProductoSucursal(p.producto,'Tienda Online Shop'), vm=('m' in b)?Number(b.m):asignadoProductoSucursal(p.producto,'Mini super'), vd=('d' in b)?Number(b.d):asignadoProductoSucursal(p.producto,'Despacho');
+                const asignado=vb+vt+vm+vd, sinAsignar=Math.max(0,faltanteReal-asignado);
+                return `<div id="faltCard_${i}" style="background:${sinAsignar?'#fff8e1':'#f0fff4'};border:1px solid ${sinAsignar?'#ffe08a':'#9ad7a8'};border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div id="faltEstado_${i}" style="font-size:12px;margin:5px 0 9px;">Faltante real: <b>${faltanteReal}</b> · ${sinAsignar?'<b>Sin asignar '+sinAsignar+'</b>':'<b>✅ TODO ASIGNADO</b>'}</div>${campoFuenteRuta(i,'Bodega','b',vb,faltanteReal)}${campoFuenteRuta(i,'Tienda Online Shop','t',vt,faltanteReal)}${campoFuenteRuta(i,'Mini super','m',vm,faltanteReal)}${campoFuenteRuta(i,'Despacho','d',vd,faltanteReal)}</div>`;
             }).join('');
             html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">Asignar no significa preparado. Cada sucursal debe confirmarlo en Faltantes Kardex.</div><button id="btnGuardarFaltantes" onclick="guardarFaltantesRuta()" style="background:#28a745;margin:0;padding:14px;">💾 Guardar asignación de faltantes</button></div>`;
             document.getElementById('listaRuta').innerHTML=html;
         }
         function campoFuenteRuta(i,nombre,k,v,max){return `<div style="display:flex;align-items:center;gap:7px;margin:6px 0;"><div style="width:118px;font-size:11px;font-weight:700;">${nombre}</div><button onclick="cambiarFuenteRuta(${i},'${k}',-1)" style="width:42px;margin:0;background:#6c757d;padding:8px;">−</button><input id="falt_${k}_${i}" type="number" min="0" max="${max}" value="${v}" inputmode="numeric" oninput="validarFuentesRuta(${i},'${k}')" style="flex:1;margin:0;text-align:center;font-weight:800;"><button onclick="cambiarFuenteRuta(${i},'${k}',1)" style="width:42px;margin:0;background:#28a745;padding:8px;">＋</button></div>`;}
-        function valoresFuentesRuta(i){return ['b','t','m'].reduce((o,k)=>(o[k]=Math.max(0,Number(document.getElementById(`falt_${k}_${i}`)?.value)||0),o),{});}
+        function valoresFuentesRuta(i){return ['b','t','m','d'].reduce((o,k)=>(o[k]=Math.max(0,Number(document.getElementById(`falt_${k}_${i}`)?.value)||0),o),{});}
         function validarFuentesRuta(i,cambiado){
-            const p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,prep=(Number(p.prepBodega)||0)+(Number(p.prepTienda)||0)+(Number(p.prepMiniSuper)||0),max=Math.max(0,req-prep),v=valoresFuentesRuta(i);let total=v.b+v.t+v.m;
+            const p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,prep=(Number(p.prepBodega)||0)+(Number(p.prepTienda)||0)+(Number(p.prepMiniSuper)||0),max=Math.max(0,req-prep),v=valoresFuentesRuta(i);let total=v.b+v.t+v.m+v.d;
             if(total>max){v[cambiado]=Math.max(0,v[cambiado]-(total-max));document.getElementById(`falt_${cambiado}_${i}`).value=v[cambiado];total=max;}
             const sin=Math.max(0,max-total),est=document.getElementById('faltEstado_'+i),card=document.getElementById('faltCard_'+i);if(est)est.innerHTML=`Faltante real: <b>${max}</b> · ${sin?'<b>Sin asignar '+sin+'</b>':'<b>✅ TODO ASIGNADO</b>'}`;if(card){card.style.background=sin?'#fff8e1':'#f0fff4';card.style.borderColor=sin?'#ffe08a':'#9ad7a8';}
             const bor=leerLocal(claveBorradorFaltantes());bor[i]=v;localStorage.setItem(claveBorradorFaltantes(),JSON.stringify(bor));
@@ -2469,22 +2476,30 @@ function verificarPassword() {
         function cambiarFuenteRuta(i,k,d){const el=document.getElementById(`falt_${k}_${i}`);if(!el)return;el.value=Math.max(0,(Number(el.value)||0)+d);validarFuentesRuta(i,k);}
         async function guardarFaltantesRuta(){
             const pendientes=(rutaActiva?.productos||[]).map((p,i)=>({p,i})).filter(x=>Number(x.p.diferencia)<0);if(!pendientes.length)return;
-            const productos=pendientes.map(({p,i})=>{const v=valoresFuentesRuta(i);return{producto:p.producto,bodega:v.b,tienda:v.t,mini:v.m};});
+            const productos=pendientes.map(({p,i})=>{const v=valoresFuentesRuta(i);return{producto:p.producto,bodega:v.b,tienda:v.t,mini:v.m,despacho:v.d};});
             const btn=document.getElementById('btnGuardarFaltantes');btn.disabled=true;btn.innerText='Guardando asignaciones...';
             try{const body=new URLSearchParams({accion:'GuardarAsignacionesKardexLote',idRuta:rutaActiva.idRuta,productos:JSON.stringify(productos),empleado:localStorage.getItem('usuario')||''});const r=await fetch(URL_API,{method:'POST',body}),data=await r.json();if(!r.ok||data.status!=='OK')throw new Error(data.mensaje||'No se pudo guardar.');localStorage.removeItem(claveBorradorFaltantes());alert('✅ Asignaciones guardadas. Ya aparecen en Faltantes Kardex de cada sucursal.');await cargarRutaActiva();}catch(e){alert('No se pudo guardar: '+e.message);}finally{const b=document.getElementById('btnGuardarFaltantes');if(b){b.disabled=false;b.innerText='💾 Guardar asignación de faltantes';}}}
 
         let faltantesKardexActuales=[];
         async function cargarFaltantesKardex(){
             const suc=localStorage.getItem('sucursal')||'',cont=document.getElementById('listaFaltantesKardex'),cab=document.getElementById('faltantesKardexSucursal');
-            cab.innerHTML=`📍 <b>${escaparHtmlPedido(suc)}</b> · Solo se muestran productos asignados a esta sucursal.`;
+            const esDespacho=normalizarEmpleado(suc)==='despacho'; cab.innerHTML=esDespacho?'🚚 <b>Despacho</b> · Confirma lo que recibiste físicamente de cada lugar.':`📍 <b>${escaparHtmlPedido(suc)}</b> · Solo se muestran productos asignados a esta sucursal.`;
             cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando faltantes asignados...</p>';
-            try{const r=await fetch(URL_API+'?accion=verFaltantesKardex&sucursal='+encodeURIComponent(suc)+'&_='+Date.now(),{cache:'no-store'}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudieron cargar.');faltantesKardexActuales=d.faltantes||[];renderFaltantesKardex();}catch(e){cont.innerHTML='<div style="color:#dc3545;text-align:center;font-size:12px;">'+escaparHtmlPedido(e.message)+'</div>';}
+            try{const accion=esDespacho?'verRecepcionFaltantesKardex':'verFaltantesKardex';const r=await fetch(URL_API+'?accion='+accion+(esDespacho?'':'&sucursal='+encodeURIComponent(suc))+'&_='+Date.now(),{cache:'no-store'}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudieron cargar.');faltantesKardexActuales=d.faltantes||[];esDespacho?renderRecepcionKardex():renderFaltantesKardex();}catch(e){cont.innerHTML='<div style="color:#dc3545;text-align:center;font-size:12px;">'+escaparHtmlPedido(e.message)+'</div>';}
         }
         function renderFaltantesKardex(){
             const cont=document.getElementById('listaFaltantesKardex');
             if(!faltantesKardexActuales.length){cont.innerHTML='<div style="background:#f0fff4;border:1px solid #9ad7a8;border-radius:10px;padding:18px;text-align:center;font-weight:800;">✅ No hay faltantes asignados pendientes.</div>';return;}
             cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const asig=Number(x.cantidadAsignada)||0,prep=Number(x.cantidadPreparada)||0,pend=Math.max(0,asig-prep);return `<div style="background:#fff8e1;border:1px solid #ffe08a;border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(x.producto)}</div><div style="font-size:12px;margin:5px 0 9px;">Asignado: <b>${asig}</b> · Falta preparar: <b>${pend}</b></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="cambiarPrepFaltante(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="fkCant_${i}" type="number" min="0" max="${pend}" value="${pend}" inputmode="numeric" oninput="validarPrepFaltante(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarPrepFaltante(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;}).join('')+`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><button id="btnConfirmarFaltantesKardex" onclick="confirmarFaltantesKardex()" style="background:#28a745;margin:0;padding:14px;">✅ Confirmar lo preparado</button></div>`;
         }
+        function renderRecepcionKardex(){
+            const cont=document.getElementById('listaFaltantesKardex');
+            if(!faltantesKardexActuales.length){cont.innerHTML='<div style="background:#f0fff4;border:1px solid #9ad7a8;border-radius:10px;padding:18px;text-align:center;font-weight:800;">✅ No hay productos pendientes de recibir.</div>';return;}
+            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const max=Math.max(0,Number(x.disponibleRecibir)||0);return `<div style="background:#fff8e1;border:1px solid #ffe08a;border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(x.producto)}</div><div style="font-size:11px;color:#666;">Origen: <b>${escaparHtmlPedido(x.sucursal)}</b></div><div style="font-size:12px;margin:5px 0 9px;">Disponible para recibir: <b>${max}</b></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="cambiarRecK(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="recK_${i}" type="number" min="0" max="${max}" value="${max}" inputmode="numeric" oninput="validarRecK(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarRecK(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;}).join('')+`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><button id="btnRecK" onclick="confirmarRecK()" style="background:#28a745;margin:0;padding:14px;">🚚 Confirmar recibido</button></div>`;
+        }
+        function validarRecK(i){const x=faltantesKardexActuales[i],el=document.getElementById('recK_'+i),max=Math.max(0,Number(x.disponibleRecibir)||0);el.value=Math.min(max,Math.max(0,Number(el.value)||0));}
+        function cambiarRecK(i,d){const el=document.getElementById('recK_'+i);if(!el)return;el.value=(Number(el.value)||0)+d;validarRecK(i);}
+        async function confirmarRecK(){const items=faltantesKardexActuales.map((x,i)=>({idRuta:x.idRuta,producto:x.producto,sucursal:x.sucursal,cantidad:Math.max(0,Number(document.getElementById('recK_'+i)?.value)||0)})).filter(x=>x.cantidad>0);if(!items.length)return alert('No hay cantidades para confirmar.');const btn=document.getElementById('btnRecK');btn.disabled=true;btn.innerText='Confirmando...';try{const body=new URLSearchParams({accion:'ConfirmarRecepcionKardexLote',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)}),r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudo confirmar.');alert(`✅ Recepción confirmada. ${d.actualizados||0} producto(s).`);await cargarFaltantesKardex();}catch(e){alert('No se pudo confirmar: '+e.message);}finally{const b=document.getElementById('btnRecK');if(b){b.disabled=false;b.innerText='🚚 Confirmar recibido';}}}
         function validarPrepFaltante(i){const x=faltantesKardexActuales[i],max=Math.max(0,(Number(x.cantidadAsignada)||0)-(Number(x.cantidadPreparada)||0)),el=document.getElementById('fkCant_'+i);el.value=Math.min(max,Math.max(0,Number(el.value)||0));}
         function cambiarPrepFaltante(i,d){const el=document.getElementById('fkCant_'+i);if(!el)return;el.value=(Number(el.value)||0)+d;validarPrepFaltante(i);}
         async function confirmarFaltantesKardex(){
