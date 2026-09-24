@@ -105,7 +105,7 @@
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.4</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.5</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2398,6 +2398,11 @@ function verificarPassword() {
             mostrarCompletadosBodega=!mostrarCompletadosBodega;
             renderRutaBodega();
         }
+        function imagenProductoKardex(p){
+            const url=String(p?.imagen||'').trim();
+            if(!url) return `<div style="width:58px;height:58px;flex:0 0 58px;border-radius:14px;background:#f1f4f8;display:flex;align-items:center;justify-content:center;font-size:28px;">📦</div>`;
+            return `<img src="${escaparHtmlPedido(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div style=&quot;width:58px;height:58px;flex:0 0 58px;border-radius:14px;background:#f1f4f8;display:flex;align-items:center;justify-content:center;font-size:28px;&quot;>📦</div>'" style="width:58px;height:58px;flex:0 0 58px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #e5e9ef;padding:4px;">`;
+        }
         function renderRutaBodega(){
             const r=rutaActiva, productos=Array.isArray(r.productos)?r.productos:[], borrador=obtenerBorradorRuta(); actualizarResumenRuta();
             // El estado COMPLETO/PENDIENTE se toma del Kardex total (diferencia),
@@ -2420,8 +2425,8 @@ function verificarPassword() {
             if(!visibles.length) html+='<div style="background:#f0fff4;border:1px solid #9ad7a8;border-radius:10px;padding:16px;text-align:center;font-weight:800;margin:10px 0;">✅ KARDEX COMPLETO.</div>';
             html+=visibles.map(({p,i,req,valor,maxBodega,faltanteReal,completo})=>{
                 const fondo=completo?'#f0fff4':(valor>0?'#fff8e1':'#fff1f1'),borde=completo?'#9ad7a8':(valor>0?'#ffe08a':'#f5b5ba');
-                if(completo) return `<div id="rutaCard_${i}" style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span style="font-weight:800;">✅ COMPLETO</span></div><div style="font-size:11px;color:#666;">Preparado inicialmente por Bodega: <b>${Number(p.prepBodega)||0}</b></div></div>`;
-                return `<div id="rutaCard_${i}" style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span id="rutaEstado_${i}" style="font-weight:800;">Faltan ${faltanteReal}</span></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="cambiarPrepRuta(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="rutaPrep_${i}" type="number" min="0" max="${maxBodega}" step="1" value="${valor}" inputmode="numeric" oninput="validarPrepRuta(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarPrepRuta(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;
+                if(completo) return `<div id="rutaCard_${i}" style="background:${fondo};border:1px solid ${borde};border-radius:14px;padding:11px;margin:8px 0;"><div style="display:flex;gap:11px;align-items:center;">${imagenProductoKardex(p)}<div style="min-width:0;flex:1;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span style="font-weight:800;">✅ COMPLETO</span></div><div style="font-size:11px;color:#666;">Preparado inicialmente por Bodega: <b>${Number(p.prepBodega)||0}</b></div></div></div></div>`;
+                return `<div id="rutaCard_${i}" style="background:${fondo};border:1px solid ${borde};border-radius:14px;padding:11px;margin:8px 0;"><div style="display:flex;gap:11px;align-items:flex-start;">${imagenProductoKardex(p)}<div style="min-width:0;flex:1;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span id="rutaEstado_${i}" style="font-weight:800;">Faltan ${faltanteReal}</span></div></div></div><div style="display:flex;align-items:center;gap:8px;margin-top:9px;"><button onclick="cambiarPrepRuta(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="rutaPrep_${i}" type="number" min="0" max="${maxBodega}" step="1" value="${valor}" inputmode="numeric" oninput="validarPrepRuta(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarPrepRuta(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;
             }).join('');
             if(pendientes.length)html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">El avance se guarda temporalmente en este dispositivo.</div><button id="btnGuardarTodoRuteo" onclick="guardarTodoRuteo()" style="background:#28a745;margin:0;padding:14px;">💾 Guardar todo lo preparado</button></div>`;
             document.getElementById("listaRuta").innerHTML=html;
