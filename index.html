@@ -244,7 +244,7 @@ body{background:
 .menu-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
 .menu-modulo{
  min-height:84px!important;padding:12px!important;border-radius:19px!important;
- display:flex!important;flex-direction:row!important;align-items:center!important;
+ flex-direction:row!important;align-items:center!important;
  justify-content:flex-start!important;text-align:left!important;gap:10px!important;
  background:rgba(255,255,255,.82)!important
 }
@@ -257,10 +257,6 @@ body{background:
 .concept-banner .ico{font-size:35px}
 .concept-banner strong{display:block;font-size:13px}
 .concept-banner small{font-size:11px;opacity:.9}
-.concept-nav{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid #dfe7f0;border-radius:20px;padding:7px 4px;box-shadow:0 10px 30px rgba(28,55,90,.15);margin-top:14px}
-.concept-nav button{background:transparent!important;color:#6e7b8d!important;box-shadow:none!important;padding:4px 1px!important;min-height:45px!important;font-size:9px!important;border-radius:12px!important}
-.concept-nav button .ni{display:block;font-size:18px;margin-bottom:2px}
-.concept-nav button.active{color:#087cff!important;background:#edf6ff!important}
 .kx-search{display:grid;grid-template-columns:1fr 46px;gap:8px;margin:12px 0}
 .kx-search input{margin:0!important;background:#fff!important;padding-left:14px!important}
 .kx-search button{margin:0!important;padding:0!important;background:#fff!important;color:#344258!important;border:1px solid #dfe7f0!important;box-shadow:none!important}
@@ -282,7 +278,7 @@ body{background:
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.5.0 · Nuevo concepto</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.5.7 · Concepto completo sin barra inferior</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2903,15 +2899,7 @@ if ("serviceWorker" in navigator) {
        <div class="concept-banner"><div class="ico">📦</div><div><strong>Todo en un solo lugar</strong><small>Controla pedidos, inventario y despacho desde aquí.</small></div></div>`;
      grid.parentElement.insertBefore(hero,grid);
    }
-   if(!menu.querySelector('.concept-nav')){
-     const nav=document.createElement('div'); nav.className='concept-nav';
-     nav.innerHTML=`<button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ni">⌂</span>Inicio</button>
-       <button onclick="document.querySelector('[onclick*=\\'abrirRuta\\'],[onclick*=\\'mostrarRuta\\']')?.click()"><span class="ni">▣</span>Kardex</button>
-       <button onclick="document.querySelector('[onclick*=\\'Pedido\\'],[onclick*=\\'pedido\\']')?.click()"><span class="ni">🛒</span>Pedidos</button>
-       <button onclick="document.querySelector('[onclick*=\\'Asistencia\\'],[onclick*=\\'asistencia\\']')?.click()"><span class="ni">♧</span>Control</button>
-       <button><span class="ni">☰</span>Más</button>`;
-     menu.appendChild(nav);
-   }
+
  }
  function mejorarKardexConcepto(){
    const mod=document.getElementById('moduloRuta');
