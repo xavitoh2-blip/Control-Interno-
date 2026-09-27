@@ -602,7 +602,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.2 · Compacto corregido</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.3 · Imágenes en todos los módulos</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -718,7 +718,10 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 <h3 style="font-size: 15px;">Cuadre de Inventario Secuencial</h3>
                 
                 <label style="font-size: 12px; color: #555;">Producto a Contar (Siguiente en Lista):</label>
-                <input type="text" id="nombreProductoActual" readonly style="background-color: #e9ecef; font-weight: bold; color: #007bff;">
+                <div style="display:flex;align-items:center;gap:12px;margin:7px 0 9px;">
+                    <div id="imagenProductoInventarioActual"></div>
+                    <input type="text" id="nombreProductoActual" readonly style="background-color: #e9ecef; font-weight: bold; color: #007bff; margin:0; flex:1;">
+                </div>
                 <input type="hidden" id="selectProductoInventario">
 
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
@@ -1124,6 +1127,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
 
         // ===== GÓNDOLAS v1.2.2 =====
         async function cargarGondolas() {
+            await cargarImagenesProductosGlobal();
             const sucursal = localStorage.getItem("sucursal") || "";
             document.getElementById("gondolaSucursalTexto").innerText = "📍 " + sucursal;
             document.getElementById("vistaGondolas").innerHTML = '<p style="text-align:center;color:#888;font-size:12px;">Cargando góndolas...</p>';
@@ -1314,9 +1318,12 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 });
         }
 
-        function cargarProductosParaCuadre() {
+        async function cargarProductosParaCuadre() {
             const inputNombre = document.getElementById("nombreProductoActual");
             inputNombre.value = "Cargando productos...";
+            const imgBox=document.getElementById("imagenProductoInventarioActual");
+            if(imgBox) imgBox.innerHTML=imagenProductoGlobal("",null,64);
+            await cargarImagenesProductosGlobal();
 
             fetch(URL_API + "?accion=verProductosInventario")
                 .then(r => r.json())
@@ -1363,10 +1370,14 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             if (siguienteProducto) {
                 inputNombre.value = siguienteProducto;
                 inputIndex.value = siguienteIndex;
+                const imgBox=document.getElementById("imagenProductoInventarioActual");
+                if(imgBox) imgBox.innerHTML=imagenProductoGlobal(siguienteProducto,null,64);
                 btnAgregar.disabled = false;
                 actualizarStockSistema();
             } else {
                 inputNombre.value = "✅ ¡Todos los productos han sido agregados!";
+                const imgBox=document.getElementById("imagenProductoInventarioActual");
+                if(imgBox) imgBox.innerHTML="";
                 inputIndex.value = "";
                 document.getElementById("invSistema").value = "";
                 document.getElementById("invFisico").value = "";
@@ -1700,7 +1711,8 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
 
         let promesaCatalogoPedido = null;
 
-        function cargarCatalogoProductosPedido() {
+        async function cargarCatalogoProductosPedido() {
+            await cargarImagenesProductosGlobal();
             if (catalogoProductosPedido.length > 0) return Promise.resolve(catalogoProductosPedido);
             if (promesaCatalogoPedido) return promesaCatalogoPedido;
 
@@ -1799,6 +1811,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             promesaImagenesProductosGlobal=fetch(URL_API+'?accion=verCatalogoImagenes&_='+Date.now(),{cache:'no-store'})
               .then(r=>r.json()).then(data=>{
                 const arr=Array.isArray(data)?data:(Array.isArray(data.productos)?data.productos:[]);
+                console.log('Catálogo global de imágenes cargado:',arr.length,'productos');
                 arr.forEach(x=>{
                     const nombre=Array.isArray(x)?x[0]:(x.producto||x.Producto||x.nombre||'');
                     const imagen=Array.isArray(x)?x[1]:(x.imagen||x.Imagen||x.url||'');
@@ -1820,6 +1833,11 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             return `<div class="prod-img-global" style="${base}"><img src="${escaparHtmlPedido(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='📦';this.parentElement.style.fontSize='24px'" style="width:100%;height:100%;object-fit:contain;background:#fff;"></div>`;
         }
         function refrescarVistasConImagenes(){
+            try{
+                const n=document.getElementById('nombreProductoActual')?.value||'';
+                const b=document.getElementById('imagenProductoInventarioActual');
+                if(b && n && !n.startsWith('Cargando') && !n.startsWith('✅')) b.innerHTML=imagenProductoGlobal(n,null,64);
+            }catch(_){ }
             try{ if(document.getElementById('vistaProductosGondola')?.style.display!=='none'&&gondolaActual&&anaquelActual) renderProductosAnaquel(); }catch(_){ }
             try{ if(listaCuadresPendientes?.length) renderizarListaAcumulada(); }catch(_){ }
             try{ if(listaPedidoPendiente?.length) renderizarListaPedido(); }catch(_){ }
@@ -3108,6 +3126,7 @@ function verificarPassword() {
 
         let faltantesKardexActuales=[];
         async function cargarFaltantesKardex(){
+            await cargarImagenesProductosGlobal();
             const suc=localStorage.getItem('sucursal')||'',cont=document.getElementById('listaFaltantesKardex'),cab=document.getElementById('faltantesKardexSucursal');
             const esDespacho=normalizarEmpleado(suc)==='despacho'; cab.innerHTML=esDespacho?'🚚 <b>Despacho</b> · Confirma lo que recibiste físicamente de cada lugar.':`📍 <b>${escaparHtmlPedido(suc)}</b> · Solo se muestran productos asignados a esta sucursal.`;
             cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando faltantes asignados...</p>';
@@ -3116,12 +3135,12 @@ function verificarPassword() {
         function renderFaltantesKardex(){
             const cont=document.getElementById('listaFaltantesKardex');
             if(!faltantesKardexActuales.length){cont.innerHTML='<div class="fk-empty">✅ Todo listo<br><span style="font-size:12px;font-weight:600;">No hay faltantes asignados pendientes.</span></div>';return;}
-            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const asig=Number(x.cantidadAsignada)||0,prep=Number(x.cantidadPreparada)||0,pend=Math.max(0,asig-prep);return `<div class="fk-card"><div class="fk-name">${escaparHtmlPedido(x.producto)}</div><div class="fk-meta">Cantidad asignada · <b>${asig}</b></div><div class="fk-pill">Faltan preparar ${pend}</div><div class="fk-stepper"><button onclick="cambiarPrepFaltante(${i},-1)" style="background:#7a858e;">−</button><input id="fkCant_${i}" type="number" min="0" max="${pend}" value="${pend}" inputmode="numeric" oninput="validarPrepFaltante(${i})"><button onclick="cambiarPrepFaltante(${i},1)" style="background:#087cff;">＋</button></div><div style="font-size:10px;color:#8a95a3;text-align:center;margin-top:7px;">Cantidad que preparaste físicamente</div></div>`;}).join('')+`<div class="fk-bottom"><button id="btnConfirmarFaltantesKardex" onclick="confirmarFaltantesKardex()">✓ Confirmar lo preparado</button></div>`;
+            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const asig=Number(x.cantidadAsignada)||0,prep=Number(x.cantidadPreparada)||0,pend=Math.max(0,asig-prep);return `<div class="fk-card"><div style="display:flex;align-items:center;gap:11px;margin-bottom:8px;">${imagenProductoGlobal(x.producto,x,58)}<div class="fk-name" style="margin:0;flex:1;">${escaparHtmlPedido(x.producto)}</div></div><div class="fk-meta">Cantidad asignada · <b>${asig}</b></div><div class="fk-pill">Faltan preparar ${pend}</div><div class="fk-stepper"><button onclick="cambiarPrepFaltante(${i},-1)" style="background:#7a858e;">−</button><input id="fkCant_${i}" type="number" min="0" max="${pend}" value="${pend}" inputmode="numeric" oninput="validarPrepFaltante(${i})"><button onclick="cambiarPrepFaltante(${i},1)" style="background:#087cff;">＋</button></div><div style="font-size:10px;color:#8a95a3;text-align:center;margin-top:7px;">Cantidad que preparaste físicamente</div></div>`;}).join('')+`<div class="fk-bottom"><button id="btnConfirmarFaltantesKardex" onclick="confirmarFaltantesKardex()">✓ Confirmar lo preparado</button></div>`;
         }
         function renderRecepcionKardex(){
             const cont=document.getElementById('listaFaltantesKardex');
             if(!faltantesKardexActuales.length){cont.innerHTML='<div class="fk-empty">✅ Recepción al día<br><span style="font-size:12px;font-weight:600;">No hay productos pendientes de recibir.</span></div>';return;}
-            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const max=Math.max(0,Number(x.disponibleRecibir)||0);return `<div class="fk-card"><div class="fk-name">${escaparHtmlPedido(x.producto)}</div><div class="fk-origin">Origen · ${escaparHtmlPedido(x.sucursal)}</div><div class="fk-meta" style="margin-top:9px;">Disponible para recibir · <b>${max}</b></div><div class="fk-stepper"><button onclick="cambiarRecK(${i},-1)" style="background:#7a858e;">−</button><input id="recK_${i}" type="number" min="0" max="${max}" value="${max}" inputmode="numeric" oninput="validarRecK(${i})"><button onclick="cambiarRecK(${i},1)" style="background:#087cff;">＋</button></div><div style="font-size:10px;color:#8a95a3;text-align:center;margin-top:7px;">Cantidad recibida físicamente</div></div>`;}).join('')+`<div class="fk-bottom"><button id="btnRecK" onclick="confirmarRecK()">🚚 Confirmar recibido</button></div>`;
+            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const max=Math.max(0,Number(x.disponibleRecibir)||0);return `<div class="fk-card"><div style="display:flex;align-items:center;gap:11px;margin-bottom:8px;">${imagenProductoGlobal(x.producto,x,58)}<div class="fk-name" style="margin:0;flex:1;">${escaparHtmlPedido(x.producto)}</div></div><div class="fk-origin">Origen · ${escaparHtmlPedido(x.sucursal)}</div><div class="fk-meta" style="margin-top:9px;">Disponible para recibir · <b>${max}</b></div><div class="fk-stepper"><button onclick="cambiarRecK(${i},-1)" style="background:#7a858e;">−</button><input id="recK_${i}" type="number" min="0" max="${max}" value="${max}" inputmode="numeric" oninput="validarRecK(${i})"><button onclick="cambiarRecK(${i},1)" style="background:#087cff;">＋</button></div><div style="font-size:10px;color:#8a95a3;text-align:center;margin-top:7px;">Cantidad recibida físicamente</div></div>`;}).join('')+`<div class="fk-bottom"><button id="btnRecK" onclick="confirmarRecK()">🚚 Confirmar recibido</button></div>`;
         }
         function validarRecK(i){const x=faltantesKardexActuales[i],el=document.getElementById('recK_'+i),max=Math.max(0,Number(x.disponibleRecibir)||0);el.value=Math.min(max,Math.max(0,Number(el.value)||0));}
         function cambiarRecK(i,d){const el=document.getElementById('recK_'+i);if(!el)return;el.value=(Number(el.value)||0)+d;validarRecK(i);}
