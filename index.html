@@ -677,7 +677,26 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             object-fit:contain;background:#f5f7fa;border:1px solid #edf1f5;
         }
 
-    </style>
+    
+/* v1.6.14 · distribución visual de productos en anaqueles */
+.gv-products{gap:6px!important;align-items:stretch!important}
+.gv-slot{
+  flex:1 1 0;min-width:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;gap:3px;
+}
+.gv-slot-stock{width:100%;display:flex;justify-content:center;align-items:flex-end;gap:2px;overflow:hidden}
+.gv-slot .gv-prod{width:38px;height:38px;flex:0 0 38px}
+.gv-prod-name{
+  width:100%;font-size:7px;line-height:1.05;font-weight:800;color:#4f5b6c;
+  text-align:center;white-space:normal;overflow:hidden;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:15px;
+}
+@media(max-width:390px){
+  .gv-slot .gv-prod{width:34px;height:34px;flex-basis:34px}
+  .gv-prod-name{font-size:6.5px}
+}
+
+</style>
 </head>
 <body>
 
@@ -686,7 +705,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.13 · Buscador con imágenes</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.14 · Distribución visual de productos</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1260,6 +1279,30 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             return `<div class="gv-prod" title="${escaparHtmlPedido(p.producto)}"><img src="${escaparHtmlPedido(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<span class=&quot;gv-prod-fallback&quot;>📦</span>'"></div>`;
         }
 
+
+        function miniaturaGondolaConNombre(p, repeticiones) {
+            const nombre=String(p.producto||"").trim();
+            const url=urlImagenProducto(nombre,p);
+            const reps=Math.max(1,Math.min(Number(repeticiones)||1,4));
+            let cajas="";
+            for(let i=0;i<reps;i++){
+                cajas += url
+                    ? `<div class="gv-prod" title="${escaparHtmlPedido(nombre)}"><img src="${escaparHtmlPedido(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<span class=&quot;gv-prod-fallback&quot;>📦</span>'"></div>`
+                    : `<div class="gv-prod"><span class="gv-prod-fallback">📦</span></div>`;
+            }
+            return `<div class="gv-slot" title="${escaparHtmlPedido(nombre)}"><div class="gv-slot-stock">${cajas}</div><div class="gv-prod-name">${escaparHtmlPedido(nombre)}</div></div>`;
+        }
+
+        function productosDistribuidosAnaquel(ps) {
+            const lista=Array.isArray(ps)?ps:[];
+            if(!lista.length) return "";
+            // La repetición es solo visual: simula el frente del anaquel, no inventario.
+            const rep = lista.length===1 ? 4 : lista.length===2 ? 2 : 1;
+            const visibles=lista.slice(0,5);
+            return visibles.map(p=>miniaturaGondolaConNombre(p,rep)).join("")+
+                (lista.length>5?`<div class="gv-more">+${lista.length-5}</div>`:"");
+        }
+
         function renderGondolas() {
             const cont = document.getElementById("vistaGondolas");
             const gs = [...new Set(datosGondolas.map(x => String(x.gondola || "").trim()).filter(Boolean))].sort(ordenarNumeroTexto);
@@ -1273,8 +1316,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 const total = filas.length;
                 const shelves = anaqueles.map(a=>{
                     const ps=filas.filter(x=>String(x.anaquel||"")===String(a));
-                    const visibles=ps.slice(0,6);
-                    return `<div class="gv-shelf"><span class="gv-shelf-label">Anaquel ${escaparHtmlPedido(a)}</span><div class="gv-products">${visibles.map(miniaturaGondola).join("")}${ps.length>6?`<div class="gv-more">+${ps.length-6}</div>`:""}</div></div>`;
+                    return `<div class="gv-shelf"><span class="gv-shelf-label">Anaquel ${escaparHtmlPedido(a)}</span><div class="gv-products">${productosDistribuidosAnaquel(ps)}</div></div>`;
                 }).join("");
                 return `<div class="gv-card" onclick="abrirGondola('${escaparJsGondola(g)}')"><div class="gv-head"><div class="gv-title">Góndola ${escaparHtmlPedido(g)}</div><div class="gv-meta">${anaqueles.length} anaquel${anaqueles.length===1?'':'es'}</div></div><div class="gv-unit">${shelves}</div><div class="gv-foot"><span>${total} producto${total===1?'':'s'} ubicados</span><span class="gv-open">Ver góndola ›</span></div></div>`;
             }).join("") + '</div>';
@@ -1292,7 +1334,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             const as = [...new Set(datosGondolas.filter(x => String(x.gondola) === String(g)).map(x => String(x.anaquel||"").trim()).filter(Boolean))].sort(ordenarNumeroTexto);
             cont.innerHTML = '<div class="gv-anaquel-list">' + as.map(a => {
                 const ps=datosGondolas.filter(x=>String(x.gondola)===String(g)&&String(x.anaquel)===String(a));
-                return `<div class="gv-anaquel-card" onclick="abrirAnaquel('${escaparJsGondola(a)}')"><div class="gv-anaquel-top"><strong>Anaquel ${escaparHtmlPedido(a)}</strong><span>${ps.length} producto${ps.length===1?'':'s'} ›</span></div><div class="gv-mini-shelf">${ps.slice(0,7).map(miniaturaGondola).join("")}${ps.length>7?`<div class="gv-more">+${ps.length-7}</div>`:""}</div></div>`;
+                return `<div class="gv-anaquel-card" onclick="abrirAnaquel('${escaparJsGondola(a)}')"><div class="gv-anaquel-top"><strong>Anaquel ${escaparHtmlPedido(a)}</strong><span>${ps.length} producto${ps.length===1?'':'s'} ›</span></div><div class="gv-mini-shelf gv-products">${productosDistribuidosAnaquel(ps)}</div></div>`;
             }).join("") + '</div>';
         }
 
