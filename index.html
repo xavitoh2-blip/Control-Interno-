@@ -97,110 +97,44 @@
         .gondola-cantidad input{height:42px;margin:0;text-align:center;font-size:18px;font-weight:700;flex:1}
         .gondola-resumen{position:sticky;bottom:8px;background:#fff;border:1px solid #dfe6ee;border-radius:10px;padding:10px;margin-top:14px;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
     
-        /* ===== PRUEBA VISUAL v1.3.6 · ESTILO APP MODERNA ===== */
-        :root{
-            --app-bg:#f2f5f9;
-            --app-card:rgba(255,255,255,.88);
-            --app-text:#172033;
-            --app-muted:#6f7b8b;
-            --app-blue:#087bff;
-            --app-green:#22a559;
-            --app-red:#e5484d;
-            --app-radius:22px;
-            --app-shadow:0 10px 30px rgba(30,55,90,.10);
-        }
-        html{scroll-behavior:smooth}
-        body{
-            font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
-            background:
-              radial-gradient(circle at 10% -10%,rgba(0,122,255,.14),transparent 28%),
-              radial-gradient(circle at 95% 5%,rgba(72,187,255,.10),transparent 24%),
-              var(--app-bg);
-            color:var(--app-text);
-            padding:18px 10px 34px;
-        }
-        .logo-container{margin:4px 0 8px}
-        .logo-container img{
-            width:82px;height:82px;border:0;
-            box-shadow:0 8px 24px rgba(0,93,200,.18);
-        }
-        #tituloControlOperativo{
-            color:var(--app-text);font-size:25px;font-weight:800;
-            letter-spacing:-.5px;margin-bottom:10px;
-        }
-        #versionSistema{
-            display:inline-block;background:rgba(255,255,255,.70);
-            border:1px solid rgba(255,255,255,.9);border-radius:999px;
-            padding:5px 10px;margin-bottom:15px!important;
-            box-shadow:0 4px 16px rgba(30,55,90,.06);
-        }
-        .card{
-            max-width:390px;background:var(--app-card);
-            border:1px solid rgba(255,255,255,.9);
-            border-radius:var(--app-radius);
-            box-shadow:var(--app-shadow);
-            backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-            padding:18px;margin:12px auto;
-        }
-        h3{border-bottom:0;color:var(--app-text);font-weight:800}
-        button{
-            border-radius:14px;min-height:46px;
-            box-shadow:0 5px 14px rgba(30,55,90,.08);
-            transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease;
-        }
-        button:active{transform:scale(.975)}
-        select,input{
-            min-height:46px;border-radius:13px;border:1px solid #dce3ec;
-            box-shadow:inset 0 1px 2px rgba(20,40,70,.03);
-        }
-        select:focus,input:focus{
-            border-color:var(--app-blue);
-            box-shadow:0 0 0 4px rgba(0,122,255,.10);
-        }
-        .menu-grid{gap:11px}
-        .menu-modulo{
-            min-height:108px;border-radius:20px;border:1px solid rgba(222,229,238,.9);
-            background:rgba(255,255,255,.94);box-shadow:0 7px 20px rgba(30,55,90,.07);
-            font-size:14px;font-weight:750;
-        }
-        .menu-modulo span{
-            width:46px;height:46px;display:flex;align-items:center;justify-content:center;
-            border-radius:14px;background:#f2f7ff;font-size:25px;
-        }
-        .btn-volver{
-            width:auto!important;min-height:38px!important;padding:8px 13px!important;
-            border-radius:12px!important;background:#eef2f6!important;color:#3f4b5b!important;
-            box-shadow:none!important;
-        }
-        #rutaResumen,#faltantesKardexSucursal{
-            border:0!important;border-radius:17px!important;
-            background:linear-gradient(135deg,#eef7ff,#f8fbff)!important;
-            box-shadow:inset 0 0 0 1px #d9ebff;
-            padding:13px!important;
-        }
-        .gondola-card,.gondola-producto,.pedido-item,.item-cuadre{
-            border-radius:16px!important;border-color:#e4eaf1!important;
-            box-shadow:0 4px 14px rgba(30,55,90,.05)!important;
-        }
-        #supervisorSection{
-            border-radius:24px;background:rgba(255,255,255,.94);
-            box-shadow:var(--app-shadow);
-        }
-        table{border-radius:14px;overflow:hidden}
-        th{background:#1677e8}
-        @keyframes appEntrada{
-            from{opacity:0;transform:translateY(8px)}
-            to{opacity:1;transform:translateY(0)}
-        }
-        .card,.menu-modulo{animation:appEntrada .28s ease both}
-        @media(max-width:420px){
-            body{padding-left:8px;padding-right:8px}
-            .card{border-radius:20px;padding:16px}
-            .menu-grid{gap:9px}
-            .menu-modulo{min-height:102px}
-        }
+/* ===== v1.3.6 · REDISEÑO FUERTE KARDEX / APP ===== */
+:root{--azul:#087cff;--fondo:#eef3f9;--texto:#172033;--muted:#758195}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;background:linear-gradient(180deg,#eaf4ff 0,#f4f7fb 240px,#f4f7fb 100%);color:var(--texto);padding:14px 9px 34px}
+.logo-container img{width:72px;height:72px;border:0;box-shadow:0 10px 28px rgba(0,105,220,.18)}
+#tituloControlOperativo{font-size:24px;color:#172033;font-weight:850;letter-spacing:-.6px;margin:5px 0 8px}
+#versionSistema{display:inline-flex!important;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.95);border-radius:999px;padding:5px 11px!important;margin:0 0 14px!important;box-shadow:0 5px 18px rgba(50,80,120,.06)}
+.card{max-width:410px;border:1px solid rgba(255,255,255,.92);border-radius:26px;background:rgba(255,255,255,.90);box-shadow:0 14px 40px rgba(39,67,104,.10);padding:18px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+button{border-radius:15px;min-height:46px;border:0;box-shadow:0 6px 16px rgba(30,60,100,.09);transition:.16s transform,.16s opacity}
+button:active{transform:scale(.97)}
+select,input{border-radius:14px;min-height:46px;border:1px solid #dce4ee}
+.menu-grid{gap:11px}
+.menu-modulo{min-height:112px;border-radius:22px!important;background:linear-gradient(145deg,#fff,#f8fbff)!important;border:1px solid #e6edf5!important;box-shadow:0 8px 24px rgba(35,67,105,.08)!important;color:#243044!important}
+.menu-modulo span{display:flex;width:48px;height:48px;align-items:center;justify-content:center;border-radius:15px;background:#edf6ff;font-size:25px}
+.btn-volver{width:auto!important;min-height:38px!important;padding:8px 13px!important;border-radius:13px!important;background:#e9eef4!important;color:#465365!important;box-shadow:none!important}
 
-    </style>
+/* Kardex como tablero */
+#moduloRuta{padding:14px!important;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+#moduloRuta>h3{font-size:25px!important;text-align:left!important;border:0!important;margin:8px 4px 3px!important;letter-spacing:-.5px}
+#moduloRuta>p{background:#fff;border-radius:16px;padding:11px 13px!important;margin:8px 0 12px!important;box-shadow:0 5px 16px rgba(40,70,110,.06);text-align:left!important;line-height:1.45}
+#rutaResumen{background:linear-gradient(135deg,#087cff,#46a4ff)!important;color:white!important;border:0!important;border-radius:22px!important;padding:17px!important;box-shadow:0 12px 28px rgba(0,122,255,.22);font-size:13px!important}
+#rutaEtapas{background:#e8edf4;padding:4px;border-radius:16px;gap:4px!important}
+#rutaEtapas button{box-shadow:none!important;border-radius:13px!important;min-height:42px!important}
+#listaRuta>div{border-radius:21px!important;border:1px solid #e4ebf3!important;background:#fff!important;box-shadow:0 8px 22px rgba(40,70,110,.075)!important;padding:13px!important;margin:10px 0!important}
+#listaRuta img{width:76px!important;height:76px!important;border-radius:17px!important;background:#f6f8fb!important;object-fit:contain!important;padding:4px}
+#listaRuta input[type=number]{font-size:21px!important;font-weight:800!important;background:#f5f8fb!important}
+#listaRuta button{min-width:50px}
+
+/* Faltantes con la misma familia visual */
+#moduloFaltantesKardex{border-radius:26px}
+#faltantesKardexSucursal{border:0!important;border-radius:19px!important;background:linear-gradient(135deg,#edf7ff,#f8fbff)!important;box-shadow:inset 0 0 0 1px #dcecff}
+#listaFaltantesKardex>div{border-radius:19px!important;box-shadow:0 7px 20px rgba(40,70,110,.07)!important}
+
+/* Animación de entrada */
+@keyframes subirSuave{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card,#listaRuta>div,.menu-modulo{animation:subirSuave .3s ease both}
+@media(max-width:430px){body{padding-left:7px;padding-right:7px}.card{border-radius:23px}.menu-modulo{min-height:105px}#moduloRuta{padding:8px!important}}
+
+</style>
 </head>
 <body>
 
@@ -209,7 +143,7 @@
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.6 · Prueba visual</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.6 · Nuevo diseño</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -478,8 +412,8 @@
     <!-- KARDEX v1.3.3 -->
     <div id="moduloRuta" class="card modulo-pantalla" style="text-align:left;">
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
-        <h3 style="text-align:center;">📋 Kardex</h3>
-        <p style="font-size:12px;color:#666;text-align:center;">Bodega registra lo que logra sacar. El faltante queda negativo hasta completar la cantidad requerida.</p>
+        <h3 style="text-align:center;">Kardex de despacho</h3>
+        <p style="font-size:12px;color:#666;text-align:center;">Control visual de preparación y faltantes de la ruta.</p>
         <div id="rutaResumen" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:9px;padding:10px;margin:10px 0;font-size:12px;text-align:center;">Cargando Kardex...</div>
         <button id="btnCrearRuta" onclick="crearRutaDesdeKardex()" style="background:#007bff;">➕ Crear Kardex desde Pagina 1 (A:B)</button>
         <button onclick="cargarRutaActiva()" style="background:#6c757d;">🔄 Actualizar Kardex</button>
