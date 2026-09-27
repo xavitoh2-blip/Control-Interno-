@@ -161,6 +161,22 @@ select,input{border-radius:14px;min-height:46px;border:1px solid #dce4ee}
 .kx-save button{background:linear-gradient(135deg,#1fa958,#35c46d)!important;border-radius:16px!important;font-size:14px!important}
 .kx-complete{background:linear-gradient(135deg,#ebfff2,#f8fffa);border:1px solid #b9e8c8;border-radius:21px;padding:20px;text-align:center;font-weight:850;margin:12px 0}
 
+
+/* ===== v1.3.8 · ACCIONES PRINCIPALES EN AZUL ===== */
+/* Verde queda reservado para estados de éxito/completado. */
+#moduloRuta button[style*="background:#1fa958"],
+#moduloRuta button[style*="background:#35c46d"],
+#moduloFaltantesKardex button[style*="background:#28a745"],
+#moduloFaltantesKardex button[style*="background: #28a745"],
+#moduloFaltantesKardex button[style*="background:#24a148"],
+#moduloFaltantesKardex button[style*="background:green"],
+#moduloFaltantesKardex button[style*="background: green"]{
+    background:linear-gradient(135deg,#087cff,#3297ff)!important;
+}
+.kx-save button{
+    background:linear-gradient(135deg,#087cff,#3297ff)!important;
+}
+
 </style>
 </head>
 <body>
@@ -170,7 +186,7 @@ select,input{border-radius:14px;min-height:46px;border:1px solid #dce4ee}
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.7 · Concepto Kardex</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.3.8 · Concepto Kardex</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
