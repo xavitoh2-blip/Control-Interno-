@@ -593,6 +593,35 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
   body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos{width:calc(100% - 16px)!important}
 }
 
+
+/* ===== v1.6.8 · GÓNDOLAS VISUALES · MAQUETA 2 ===== */
+#moduloGondolas{max-width:430px!important;padding:15px!important;background:rgba(255,255,255,.91)!important}
+.gondola-visual-list{display:grid;gap:18px;margin-top:14px}
+.gv-card{background:linear-gradient(145deg,#fff,#f6f9fd);border:1px solid #e0e8f1;border-radius:25px;padding:15px 13px 17px;box-shadow:0 10px 28px rgba(34,65,102,.09);cursor:pointer;overflow:hidden}
+.gv-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding:0 3px}
+.gv-title{font-size:17px;font-weight:900;color:#172033;letter-spacing:-.3px}
+.gv-meta{font-size:10px;font-weight:800;color:#748197;background:#edf3f9;border-radius:999px;padding:6px 9px;white-space:nowrap}
+.gv-unit{position:relative;background:#20252b;border-radius:9px 9px 15px 15px;padding:9px 8px 13px;box-shadow:inset 0 0 0 2px #11161b,0 8px 18px rgba(17,25,35,.18)}
+.gv-unit:before,.gv-unit:after{content:"";position:absolute;top:5px;bottom:5px;width:7px;border-radius:4px;background:linear-gradient(90deg,#101419,#353c44,#11161b)}
+.gv-unit:before{left:2px}.gv-unit:after{right:2px}
+.gv-shelf{position:relative;margin:0 7px 7px;padding:7px 8px 10px;min-height:70px;background:linear-gradient(180deg,#f8fafc,#eef2f5);border-radius:5px 5px 2px 2px;display:flex;align-items:flex-end;gap:5px;overflow:hidden}
+.gv-shelf:last-child{margin-bottom:0}
+.gv-shelf:after{content:"";position:absolute;left:0;right:0;bottom:0;height:7px;background:linear-gradient(180deg,#3a4148,#171b20);box-shadow:0 2px 3px rgba(0,0,0,.25)}
+.gv-shelf-label{position:absolute;left:7px;top:5px;z-index:2;font-size:8px;font-weight:900;color:#778292;background:rgba(255,255,255,.88);border-radius:6px;padding:2px 5px}
+.gv-products{display:flex;align-items:flex-end;gap:4px;width:100%;padding:13px 2px 2px;overflow:hidden}
+.gv-prod{width:43px;height:43px;flex:0 0 43px;border-radius:7px;background:#fff;border:1px solid #e5e9ee;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.07)}
+.gv-prod img{width:100%;height:100%;object-fit:contain;padding:2px;background:#fff}
+.gv-prod-fallback{font-size:20px}
+.gv-more{height:43px;min-width:34px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#5f6d7d;background:#e8eef5;border-radius:7px}
+.gv-foot{display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding:0 3px;font-size:11px;color:#788493;font-weight:700}
+.gv-open{color:#087cff;font-weight:900}
+.gv-back{width:auto!important;min-height:38px!important;padding:8px 12px!important;margin:0!important;background:#e9eef4!important;color:#465365!important;box-shadow:none!important;border-radius:13px!important}
+.gv-anaquel-list{display:grid;gap:12px;margin-top:12px}
+.gv-anaquel-card{background:#fff;border:1px solid #e2e9f1;border-radius:20px;padding:12px;box-shadow:0 7px 20px rgba(35,67,105,.07);cursor:pointer}
+.gv-anaquel-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.gv-anaquel-top strong{font-size:14px}.gv-anaquel-top span{font-size:10px;color:#788493;font-weight:800}
+.gv-mini-shelf{position:relative;min-height:67px;background:#f1f4f7;border-left:7px solid #20252b;border-right:7px solid #20252b;border-bottom:8px solid #20252b;border-radius:4px 4px 7px 7px;padding:10px 7px 5px;display:flex;align-items:flex-end;gap:5px;overflow:hidden}
+@media(max-width:390px){.gv-prod{width:39px;height:39px;flex-basis:39px}.gv-shelf{min-height:64px}.gv-title{font-size:16px}}
+
 </style>
 </head>
 <body>
@@ -602,7 +631,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.6 · Mensajes dinámicos</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.8 · Góndolas visuales</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1153,6 +1182,12 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:"base"});
         }
 
+        function miniaturaGondola(p) {
+            const url = urlImagenProducto(p.producto,p);
+            if (!url) return '<div class="gv-prod"><span class="gv-prod-fallback">📦</span></div>';
+            return `<div class="gv-prod" title="${escaparHtmlPedido(p.producto)}"><img src="${escaparHtmlPedido(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<span class=&quot;gv-prod-fallback&quot;>📦</span>'"></div>`;
+        }
+
         function renderGondolas() {
             const cont = document.getElementById("vistaGondolas");
             const gs = [...new Set(datosGondolas.map(x => String(x.gondola || "").trim()).filter(Boolean))].sort(ordenarNumeroTexto);
@@ -1160,7 +1195,17 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 cont.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;">Todavía no hay productos asignados a góndolas para esta sucursal.</p>';
                 return;
             }
-            cont.innerHTML = '<div class="gondola-grid">' + gs.map(g => `<div class="gondola-card" onclick="abrirGondola('${escaparJsGondola(g)}')"><span>🗄️</span>Góndola ${escaparHtmlPedido(g)}</div>`).join("") + '</div>';
+            cont.innerHTML = '<div class="gondola-visual-list">' + gs.map(g => {
+                const filas = datosGondolas.filter(x => String(x.gondola||"")===String(g));
+                const anaqueles = [...new Set(filas.map(x=>String(x.anaquel||"").trim()).filter(Boolean))].sort(ordenarNumeroTexto);
+                const total = filas.length;
+                const shelves = anaqueles.map(a=>{
+                    const ps=filas.filter(x=>String(x.anaquel||"")===String(a));
+                    const visibles=ps.slice(0,6);
+                    return `<div class="gv-shelf"><span class="gv-shelf-label">Anaquel ${escaparHtmlPedido(a)}</span><div class="gv-products">${visibles.map(miniaturaGondola).join("")}${ps.length>6?`<div class="gv-more">+${ps.length-6}</div>`:""}</div></div>`;
+                }).join("");
+                return `<div class="gv-card" onclick="abrirGondola('${escaparJsGondola(g)}')"><div class="gv-head"><div class="gv-title">Góndola ${escaparHtmlPedido(g)}</div><div class="gv-meta">${anaqueles.length} anaquel${anaqueles.length===1?'':'es'}</div></div><div class="gv-unit">${shelves}</div><div class="gv-foot"><span>${total} producto${total===1?'':'s'} ubicados</span><span class="gv-open">Ver góndola ›</span></div></div>`;
+            }).join("") + '</div>';
         }
 
         function escaparJsGondola(t) { return String(t||"").replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
@@ -1171,9 +1216,12 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             document.getElementById("vistaProductosGondola").style.display = "none";
             const cont = document.getElementById("vistaAnaqueles");
             cont.style.display = "block";
-            document.getElementById("gondolaNavegacion").innerHTML = `<button onclick="volverAGondolas()" style="width:auto;padding:6px 10px;margin:0;background:#6c757d;font-size:11px;">← Góndolas</button> &nbsp; <b>Góndola ${escaparHtmlPedido(g)}</b>`;
+            document.getElementById("gondolaNavegacion").innerHTML = `<button class="gv-back" onclick="volverAGondolas()">← Góndolas</button> &nbsp; <b>Góndola ${escaparHtmlPedido(g)}</b>`;
             const as = [...new Set(datosGondolas.filter(x => String(x.gondola) === String(g)).map(x => String(x.anaquel||"").trim()).filter(Boolean))].sort(ordenarNumeroTexto);
-            cont.innerHTML = '<div class="gondola-grid">' + as.map(a => `<div class="gondola-card" onclick="abrirAnaquel('${escaparJsGondola(a)}')"><span>📚</span>Anaquel ${escaparHtmlPedido(a)}</div>`).join("") + '</div>';
+            cont.innerHTML = '<div class="gv-anaquel-list">' + as.map(a => {
+                const ps=datosGondolas.filter(x=>String(x.gondola)===String(g)&&String(x.anaquel)===String(a));
+                return `<div class="gv-anaquel-card" onclick="abrirAnaquel('${escaparJsGondola(a)}')"><div class="gv-anaquel-top"><strong>Anaquel ${escaparHtmlPedido(a)}</strong><span>${ps.length} producto${ps.length===1?'':'s'} ›</span></div><div class="gv-mini-shelf">${ps.slice(0,7).map(miniaturaGondola).join("")}${ps.length>7?`<div class="gv-more">+${ps.length-7}</div>`:""}</div></div>`;
+            }).join("") + '</div>';
         }
 
         function volverAGondolas() {
