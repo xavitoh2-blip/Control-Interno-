@@ -39,7 +39,7 @@
         
         .login-box { margin: 30px auto; padding: 20px; background: white; width: 90%; max-width: 320px; border-radius: 10px; box-shadow: 0px 4px 16px rgba(0,0,0,0.2); }
         .item-cuadre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; text-align: left; }
-        .btn-del { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
+        .btn-del { background:#7a858e; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
 
         /* ESTILOS PROFESIONALES PARA TAREAS DEL DÍA */
         .tarea-item {
@@ -213,6 +213,26 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
 .fk-bottom button{margin:0!important;padding:14px!important;background:linear-gradient(135deg,#087cff,#3297ff)!important;border-radius:16px!important}
 .fk-empty{background:linear-gradient(135deg,#ebfff2,#f8fffa);border:1px solid #b9e8c8;border-radius:21px;padding:22px 15px;text-align:center;font-weight:850;color:#267243}
 
+
+/* ===== v1.4.1 · RECEPCIÓN CON RESUMEN Y PROGRESO ===== */
+.rx-dashboard{background:#fff;border:1px solid #e3eaf3;border-radius:23px;padding:14px;margin:12px 0 16px;box-shadow:0 8px 24px rgba(36,67,104,.07)}
+.rx-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rx-stat{background:#fff;border:1px solid #dfe7f0;border-radius:18px;padding:12px 5px;text-align:center}
+.rx-stat strong{display:block;font-size:22px;line-height:1.1;color:#172033}
+.rx-stat span{display:block;font-size:10px;font-weight:800;color:#7b8796;margin-top:5px}
+.rx-progress-label{display:flex;justify-content:space-between;margin:12px 3px 6px;font-size:11px;font-weight:800;color:#69778a}
+.rx-progress{height:9px;background:#e3e9f1;border-radius:999px;overflow:hidden}
+.rx-progress>div{height:100%;background:linear-gradient(90deg,#087cff,#46a4ff);border-radius:999px;transition:width .25s ease}
+.rx-pill{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:850;margin-top:7px}
+.rx-pill.done{background:#e9f9ef;color:#1b8d49}
+.rx-pill.pending{background:#fff1e6;color:#b75b12}
+/* Recepción: restar gris, sumar/acción azul */
+#moduloRecepcion button[onclick*="-1"],
+#moduloRecepcion button[onclick*=", -1"],
+#moduloRecepcion button[onclick*="(-1"]{
+ background:#7a858e!important;background-image:none!important;color:#fff!important;
+}
+
 </style>
 </head>
 <body>
@@ -222,7 +242,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.4.0 · Diseño unificado</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.4.1 · Recepción moderna</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -524,7 +544,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
     <div id="supervisorSection">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
             <h3 style="margin:0;color:#007bff;border:none;">Panel Administrativo</h3>
-            <button onclick="cerrarSupervisor()" style="background:#dc3545;padding:8px 12px;font-size:12px;width:auto;">Cerrar</button>
+            <button onclick="cerrarSupervisor()" style="background:#7a858e;padding:8px 12px;font-size:12px;width:auto;">Cerrar</button>
         </div>
 
         <div id="menuAdmin" style="margin-top:18px;">
@@ -1385,6 +1405,27 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
             cont.style.display = "block";
         }
 
+        function resumenVisualRecepcion(productos){
+            const arr=Array.isArray(productos)?productos:[];
+            const total=arr.length;
+            let completos=0;
+            arr.forEach(x=>{
+                const pedido=Number(x.cantidad||x.cantidadPedida||x.pedido||x.cant||0);
+                const recibido=Number(x.recibido||x.cantidadRecibida||x.recepcion||x.cantidadPreparada||0);
+                if(pedido>0 && recibido>=pedido) completos++;
+            });
+            const pendientes=Math.max(0,total-completos);
+            const pct=total?Math.round((completos/total)*100):0;
+            return `<div class="rx-dashboard">
+                <div class="rx-stats">
+                    <div class="rx-stat"><strong>${total}</strong><span>PRODUCTOS</span></div>
+                    <div class="rx-stat"><strong>${completos}</strong><span>COMPLETOS</span></div>
+                    <div class="rx-stat"><strong>${pendientes}</strong><span>PENDIENTES</span></div>
+                </div>
+                <div class="rx-progress-label"><span>Progreso de recepción</span><span>${pct}%</span></div>
+                <div class="rx-progress"><div style="width:${pct}%"></div></div>
+            </div>`;
+        }
         function escaparHtmlPedido(valor) {
             return String(valor ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
         }
@@ -1559,7 +1600,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                             <div style="font-weight:700;font-size:13px;margin-bottom:6px;">${escaparHtmlPedido(item.producto)}</div>
                             <div style="font-size:12px;color:#555;margin-bottom:6px;">Pedí: <strong>${item.cantidadPedida}</strong></div>
                             <div style="display:flex;align-items:center;gap:8px;">
-                                <button type="button" onclick="cambiarCantidadRecibida(${index},-1)" style="width:48px;height:44px;margin:0;background:#dc3545;font-size:20px;padding:0;">−</button>
+                                <button type="button" onclick="cambiarCantidadRecibida(${index},-1)" style="width:48px;height:44px;margin:0;background:#7a858e;font-size:20px;padding:0;">−</button>
                                 <input id="recibido_${index}" type="number" min="0" step="1" value="${item.cantidadPedida}" oninput="actualizarEstadoRecepcion(${index})" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
                                 <button type="button" onclick="cambiarCantidadRecibida(${index},1)" style="width:48px;height:44px;margin:0;background:#087cff;font-size:20px;padding:0;">+</button>
                             </div>
@@ -1674,7 +1715,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                             <div style="font-size:12px;color:#666;margin-top:3px;">📦 ${pedido.productos.length} productos por preparar</div>
                         </div>
                         <button onclick="abrirPedidoBodega(${index})" style="background:#007bff;margin-top:11px;">Ver pedido</button>
-                        <button onclick="eliminarPedidoBodega(${index})" style="background:#dc3545;margin-top:5px;">🗑️ Eliminar pedido</button>
+                        <button onclick="eliminarPedidoBodega(${index})" style="background:#7a858e;margin-top:5px;">🗑️ Eliminar pedido</button>
                     </div>`;
                 });
                 cont.innerHTML=html;
@@ -1795,7 +1836,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                             <div style="font-size:12px;font-weight:700;text-align:center;margin-bottom:7px;color:${completa ? '#28a745' : '#b26a00'};">${completa ? '✅ Disponible completo' : '⚠️ Disponible: ' + item.cantidadSurtida + ' · Faltan: ' + Math.max(0, item.cantidadSolicitada - item.cantidadSurtida)}</div>
                             ${!completa ? `
                                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
-                                    <button onclick="cambiarCantidadBodega(${index},-1)" style="width:48px;height:44px;margin:0;background:#dc3545;font-size:20px;padding:0;">−</button>
+                                    <button onclick="cambiarCantidadBodega(${index},-1)" style="width:48px;height:44px;margin:0;background:#7a858e;font-size:20px;padding:0;">−</button>
                                     <input id="bodegaCant_${index}" type="number" min="0" max="${item.cantidadSolicitada}" value="${item.cantidadSurtida}" oninput="editarCantidadBodega(${index},this.value)" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
                                     <button onclick="cambiarCantidadBodega(${index},1)" style="width:48px;height:44px;margin:0;background:#087cff;font-size:20px;padding:0;">+</button>
                                 </div>` : ''}
@@ -2711,6 +2752,93 @@ if ("serviceWorker" in navigator) {
         });
     });
 }
+</script>
+
+
+<script>
+(function(){
+  function mejorarRecepcionVisual(){
+    const mod=document.getElementById('moduloRecepcion');
+    if(!mod || mod.style.display==='none') return;
+
+    // Gray decrement buttons; preserve blue + and green completion text.
+    mod.querySelectorAll('button').forEach(b=>{
+      const t=(b.textContent||'').trim();
+      if(t==='−' || t==='-'){
+        b.style.setProperty('background','#7a858e','important');
+        b.style.setProperty('background-image','none','important');
+      }
+    });
+
+    // Detect product cards by their quantity input and add compact status pills.
+    const inputs=[...mod.querySelectorAll('input[type="number"]')];
+    const cards=[];
+    inputs.forEach(inp=>{
+      let card=inp.parentElement;
+      for(let n=0;n<3 && card && card.parentElement;n++){
+        if((card.textContent||'').match(/Ped[ií]\s*:/i)){ break; }
+        card=card.parentElement;
+      }
+      if(card && !cards.includes(card)) cards.push(card);
+    });
+
+    cards.forEach(card=>{
+      const txt=card.textContent||'';
+      const m=txt.match(/Ped[ií]\s*:\s*(\d+(?:\.\d+)?)/i);
+      const inp=card.querySelector('input[type="number"]');
+      if(!m || !inp) return;
+      const pedido=Number(m[1])||0, recibido=Number(inp.value)||0;
+      let pill=card.querySelector('.rx-pill');
+      if(!pill){
+        pill=document.createElement('div');
+        card.appendChild(pill);
+      }
+      const falta=Math.max(0,pedido-recibido);
+      pill.className='rx-pill '+(falta<=0?'done':'pending');
+      pill.textContent=falta<=0?'✓ Completo':'Faltan '+falta;
+    });
+
+    // Summary calculated directly from the visible reception cards.
+    const total=cards.length;
+    if(total){
+      let completos=0;
+      cards.forEach(card=>{
+        const txt=card.textContent||'';
+        const m=txt.match(/Ped[ií]\s*:\s*(\d+(?:\.\d+)?)/i);
+        const inp=card.querySelector('input[type="number"]');
+        if(m && inp && Number(inp.value)>=Number(m[1])) completos++;
+      });
+      const pendientes=total-completos, pct=Math.round(completos/total*100);
+      let dash=mod.querySelector('.rx-dashboard');
+      if(!dash){
+        dash=document.createElement('div');
+        dash.className='rx-dashboard';
+        const firstList=cards[0];
+        firstList.parentElement.insertBefore(dash,firstList);
+      }
+      dash.innerHTML=`<div class="rx-stats">
+        <div class="rx-stat"><strong>${total}</strong><span>PRODUCTOS</span></div>
+        <div class="rx-stat"><strong>${completos}</strong><span>COMPLETOS</span></div>
+        <div class="rx-stat"><strong>${pendientes}</strong><span>PENDIENTES</span></div>
+      </div>
+      <div class="rx-progress-label"><span>Progreso de recepción</span><span>${pct}%</span></div>
+      <div class="rx-progress"><div style="width:${pct}%"></div></div>`;
+    }
+  }
+
+  document.addEventListener('input',e=>{
+    if(e.target && e.target.closest && e.target.closest('#moduloRecepcion')) setTimeout(mejorarRecepcionVisual,0);
+  });
+  document.addEventListener('click',e=>{
+    if(e.target && e.target.closest && e.target.closest('#moduloRecepcion')) setTimeout(mejorarRecepcionVisual,80);
+  });
+  const obs=new MutationObserver(()=>setTimeout(mejorarRecepcionVisual,0));
+  window.addEventListener('load',()=>{
+    const mod=document.getElementById('moduloRecepcion');
+    if(mod) obs.observe(mod,{childList:true,subtree:true});
+    mejorarRecepcionVisual();
+  });
+})();
 </script>
 
 </body>
