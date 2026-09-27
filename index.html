@@ -646,6 +646,37 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         }
         #adminGondolaResultados .pedido-resultado:last-child{border-bottom:0;}
 
+    
+        /* v1.6.13 · autocomplete de productos */
+        #adminGondolaBuscar{position:relative;z-index:32;}
+        #adminGondolaResultados{
+            position:absolute !important;
+            left:0 !important;
+            right:0 !important;
+            top:100% !important;
+            z-index:9999 !important;
+            max-height:300px !important;
+            overflow-y:auto !important;
+            -webkit-overflow-scrolling:touch;
+            margin-top:6px !important;
+            border:1px solid #d9e2ef !important;
+            border-radius:16px !important;
+            background:#fff !important;
+            box-shadow:0 14px 32px rgba(31,55,85,.18) !important;
+        }
+        #adminGondolaResultados .pedido-resultado{
+            min-height:62px;
+            padding:8px 12px !important;
+            display:flex !important;
+            align-items:center !important;
+            gap:10px !important;
+            background:#fff !important;
+        }
+        #adminGondolaResultados .admin-gondola-thumb{
+            width:46px;height:46px;min-width:46px;border-radius:10px;
+            object-fit:contain;background:#f5f7fa;border:1px solid #edf1f5;
+        }
+
     </style>
 </head>
 <body>
@@ -655,7 +686,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.12 · Buscador móvil optimizado</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.13 · Buscador con imágenes</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1024,8 +1055,8 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             <h4>🗄️ Ubicación de productos</h4>
             <p style="font-size:12px;color:#667085;">Asigna productos a una góndola y anaquel. Se guarda directamente en la hoja <b>Gondolas</b>.</p>
             <label>Sucursal</label><select id="adminGondolaSucursal" onchange="cambioSucursalAdminGondola()"><option>Tienda Online Shop</option><option>Mini super</option></select>
-            <label style="margin-top:10px;">Buscar producto</label><input id="adminGondolaBuscar" type="text" placeholder="Escribe el producto..." oninput="buscarProductoAdminGondola()" autocomplete="off">
-            <div id="adminGondolaResultados" class="pedido-resultados" style="display:none;"></div>
+            <label style="margin-top:10px;">Buscar producto</label><div id="adminGondolaSearchWrap" style="position:relative;"><input id="adminGondolaBuscar" type="text" placeholder="Escribe el producto..." oninput="buscarProductoAdminGondola()" autocomplete="off">
+            <div id="adminGondolaResultados" class="pedido-resultados" style="display:none;"></div></div>
             <div id="adminGondolaProductoActual" style="display:none;margin:12px 0;background:#f7faff;border:1px solid #dce9f8;border-radius:18px;padding:12px;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div><label>Góndola</label><input id="adminGondolaNumero" type="number" min="1" inputmode="numeric" placeholder="Ej. 3"></div><div><label>Anaquel</label><input id="adminAnaquelNumero" type="number" min="1" inputmode="numeric" placeholder="Ej. 2"></div></div>
             <button onclick="guardarUbicacionAdminGondola()" style="background:#0878f9;margin-top:12px;">💾 Guardar ubicación</button>
@@ -2898,9 +2929,13 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
 
         let productoAdminGondola=null, ubicacionesAdminGondola=[];
         async function iniciarAdminGondolas(){
-            // v1.6.10: carga ligera para iPhone. No renderiza todas las ubicaciones al entrar.
-            if(!catalogoProductosPedido.length) await cargarCatalogoProductosPedido();
-            document.getElementById("listaUbicacionesAdminGondola").innerHTML='<p style="font-size:12px;color:#718096;text-align:center;">Selecciona una sucursal y pulsa “Ver ubicaciones” solo cuando lo necesites.</p>';
+            // Carga una sola vez catálogo + mapa de imágenes; no renderiza todas las ubicaciones.
+            await Promise.all([
+                catalogoProductosPedido.length?Promise.resolve():cargarCatalogoProductosPedido(),
+                Object.keys(mapaImagenesProductosGlobal||{}).length?Promise.resolve():cargarImagenesProductosGlobal()
+            ]);
+            const lista=document.getElementById("listaUbicacionesAdminGondola");
+            if(lista) lista.innerHTML='<p style="font-size:12px;color:#718096;text-align:center;">Selecciona una sucursal y pulsa “Ver ubicaciones” solo cuando lo necesites.</p>';
         }
         function cambioSucursalAdminGondola(){
             productoAdminGondola=null;
@@ -2909,7 +2944,19 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             document.getElementById("btnQuitarUbicacionGondola").style.display="none";
             document.getElementById("listaUbicacionesAdminGondola").innerHTML='<p style="font-size:12px;color:#718096;text-align:center;">Pulsa “Ver ubicaciones” para cargar esta sucursal.</p>';
         }
-        function buscarProductoAdminGondola(){const q=normalizarBusquedaPedido(document.getElementById("adminGondolaBuscar").value),c=document.getElementById("adminGondolaResultados");if(!q){c.innerHTML="";c.style.display="none";return;}const rs=catalogoProductosPedido.filter(x=>normalizarBusquedaPedido(typeof x==="string"?x:x.producto).includes(q)).slice(0,5);c.style.display="block";c.innerHTML=rs.length?rs.map(x=>{const n=typeof x==="string"?x:x.producto,i=catalogoProductosPedido.indexOf(x);return `<div class="pedido-resultado" onclick="seleccionarProductoAdminGondola(${i})"><div>${escaparHtmlPedido(n)}</div></div>`}).join(""):'<div class="pedido-resultado">Sin resultados</div>'; }
+        function buscarProductoAdminGondola(){
+            const q=normalizarBusquedaPedido(document.getElementById("adminGondolaBuscar").value);
+            const c=document.getElementById("adminGondolaResultados");
+            if(!q){c.innerHTML="";c.style.display="none";return;}
+            const rs=catalogoProductosPedido.filter(x=>normalizarBusquedaPedido(typeof x==="string"?x:x.producto).includes(q)).slice(0,5);
+            c.style.display="block";
+            c.innerHTML=rs.length?rs.map(x=>{
+                const n=typeof x==="string"?x:x.producto,i=catalogoProductosPedido.indexOf(x);
+                const u=urlImagenProducto(n,x);
+                const img=u?`<img class="admin-gondola-thumb" src="${escaparHtmlPedido(u)}" loading="lazy" onerror="this.style.display='none'">`:`<div class="admin-gondola-thumb" style="display:flex;align-items:center;justify-content:center;">📦</div>`;
+                return `<div class="pedido-resultado" onclick="seleccionarProductoAdminGondola(${i})">${img}<div>${escaparHtmlPedido(n)}</div></div>`;
+            }).join(""):'<div class="pedido-resultado">Sin resultados</div>';
+        }
         function seleccionarProductoAdminGondola(i){
             const listaResultados=document.getElementById("adminGondolaResultados");
             if(listaResultados){listaResultados.innerHTML="";listaResultados.style.display="none";}const x=catalogoProductosPedido[i];if(!x)return;const n=typeof x==="string"?x:x.producto;productoAdminGondola={producto:n};document.getElementById("adminGondolaBuscar").value=n;document.getElementById("adminGondolaResultados").style.display="none";const u=ubicacionesAdminGondola.find(z=>claveImagenProducto(z.producto)===claveImagenProducto(n));document.getElementById("adminGondolaNumero").value=u?u.gondola:"";document.getElementById("adminAnaquelNumero").value=u?u.anaquel:"";const b=document.getElementById("adminGondolaProductoActual");b.style.display="flex";b.style.alignItems="center";b.style.gap="12px";b.innerHTML=`${imagenProductoGlobal(n,x,58)}<div><b>${escaparHtmlPedido(n)}</b><div style="font-size:11px;color:#667085;margin-top:4px;">${u?`Actualmente: Góndola ${u.gondola} · Anaquel ${u.anaquel}`:"Sin ubicación en esta sucursal"}</div></div>`;document.getElementById("btnQuitarUbicacionGondola").style.display=u?"block":"none";}
