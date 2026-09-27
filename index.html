@@ -631,7 +631,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.10 · Administrador optimizado</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.11 · Estabilidad móvil</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2885,7 +2885,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             document.getElementById("btnQuitarUbicacionGondola").style.display="none";
             document.getElementById("listaUbicacionesAdminGondola").innerHTML='<p style="font-size:12px;color:#718096;text-align:center;">Pulsa “Ver ubicaciones” para cargar esta sucursal.</p>';
         }
-        function buscarProductoAdminGondola(){const q=normalizarBusquedaPedido(document.getElementById("adminGondolaBuscar").value),c=document.getElementById("adminGondolaResultados");if(!q){c.style.display="none";return;}const rs=catalogoProductosPedido.filter(x=>normalizarBusquedaPedido(typeof x==="string"?x:x.producto).includes(q)).slice(0,20);c.style.display="block";c.innerHTML=rs.length?rs.map(x=>{const n=typeof x==="string"?x:x.producto,i=catalogoProductosPedido.indexOf(x);return `<div class="pedido-resultado" onclick="seleccionarProductoAdminGondola(${i})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(n,x,42)}<div>${escaparHtmlPedido(n)}</div></div>`}).join(""):'<div class="pedido-resultado">Sin resultados</div>';}
+        function buscarProductoAdminGondola(){const q=normalizarBusquedaPedido(document.getElementById("adminGondolaBuscar").value),c=document.getElementById("adminGondolaResultados");if(!q){c.innerHTML="";c.style.display="none";return;}const rs=catalogoProductosPedido.filter(x=>normalizarBusquedaPedido(typeof x==="string"?x:x.producto).includes(q)).slice(0,8);c.style.display="block";c.innerHTML=rs.length?rs.map(x=>{const n=typeof x==="string"?x:x.producto,i=catalogoProductosPedido.indexOf(x);return `<div class="pedido-resultado" onclick="seleccionarProductoAdminGondola(${i})"><div>${escaparHtmlPedido(n)}</div></div>`}).join(""):'<div class="pedido-resultado">Sin resultados</div>'; }
         function seleccionarProductoAdminGondola(i){const x=catalogoProductosPedido[i];if(!x)return;const n=typeof x==="string"?x:x.producto;productoAdminGondola={producto:n};document.getElementById("adminGondolaBuscar").value=n;document.getElementById("adminGondolaResultados").style.display="none";const u=ubicacionesAdminGondola.find(z=>claveImagenProducto(z.producto)===claveImagenProducto(n));document.getElementById("adminGondolaNumero").value=u?u.gondola:"";document.getElementById("adminAnaquelNumero").value=u?u.anaquel:"";const b=document.getElementById("adminGondolaProductoActual");b.style.display="flex";b.style.alignItems="center";b.style.gap="12px";b.innerHTML=`${imagenProductoGlobal(n,x,58)}<div><b>${escaparHtmlPedido(n)}</b><div style="font-size:11px;color:#667085;margin-top:4px;">${u?`Actualmente: Góndola ${u.gondola} · Anaquel ${u.anaquel}`:"Sin ubicación en esta sucursal"}</div></div>`;document.getElementById("btnQuitarUbicacionGondola").style.display=u?"block":"none";}
         async function cargarUbicacionesAdminGondola(){const s=document.getElementById("adminGondolaSucursal").value,c=document.getElementById("listaUbicacionesAdminGondola");c.innerHTML="<p>Cargando...</p>";try{const r=await fetch(URL_API+"?accion=verGondolas&sucursal="+encodeURIComponent(s)+"&_="+Date.now(),{cache:"no-store"}),d=await r.json();ubicacionesAdminGondola=Array.isArray(d)?d:(d.productos||[]);const gr={};ubicacionesAdminGondola.forEach(x=>{const k=x.gondola+"|"+x.anaquel;(gr[k]||(gr[k]=[])).push(x)});c.innerHTML=Object.keys(gr).length?Object.keys(gr).sort().map(k=>{const [g,a]=k.split("|"),ps=gr[k];return `<div style="background:#f8fafc;border:1px solid #e1e8ef;border-radius:16px;padding:10px;margin:8px 0;"><b>Góndola ${g} · Anaquel ${a}</b><div style="font-size:11px;color:#718096;margin:3px 0 8px;">${ps.length} productos</div><div style="font-size:11px;color:#526273;line-height:1.55;">${ps.slice(0,12).map(p=>escaparHtmlPedido(p.producto)).join(" · ")}${ps.length>12?` · +${ps.length-12} más`:``}</div></div>`}).join(""):'<p style="font-size:12px;color:#888;text-align:center;">No hay productos ubicados.</p>';}catch(e){c.innerHTML='<p style="color:#dc3545;">No se pudieron cargar las ubicaciones.</p>';}}
         async function guardarUbicacionAdminGondola(){if(!productoAdminGondola)return alert("Selecciona un producto.");const g=document.getElementById("adminGondolaNumero").value.trim(),a=document.getElementById("adminAnaquelNumero").value.trim();if(!g||!a)return alert("Indica góndola y anaquel.");await enviarUbicacionAdminGondola("guardar",g,a);}
@@ -2904,6 +2904,14 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         }
 
         function volverMenuAdmin() {
+            const rg=document.getElementById("adminGondolaResultados");
+            if(rg){rg.innerHTML="";rg.style.display="none";}
+            const lg=document.getElementById("listaUbicacionesAdminGondola");
+            if(lg) lg.innerHTML="";
+            const pa=document.getElementById("adminGondolaProductoActual");
+            if(pa){pa.innerHTML="";pa.style.display="none";}
+            productoAdminGondola=null;
+            ubicacionesAdminGondola=[];
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
             document.getElementById("menuAdmin").style.display = "block";
             window.scrollTo(0,0);
@@ -3404,8 +3412,10 @@ if ("serviceWorker" in navigator) {
    }
  }
  const run=()=>{mejorarInicioConcepto();mejorarKardexConcepto();};
- window.addEventListener('load',()=>{run();new MutationObserver(()=>setTimeout(run,0)).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});});
- document.addEventListener('click',()=>setTimeout(run,100));
+ let runPendiente=false;
+ const runSeguro=()=>{if(runPendiente)return;runPendiente=true;requestAnimationFrame(()=>{runPendiente=false;run();});};
+ window.addEventListener('load',runSeguro);
+ document.addEventListener('click',()=>setTimeout(runSeguro,100));
 })();
 </script>
 
