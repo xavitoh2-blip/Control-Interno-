@@ -602,7 +602,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.3 · Imágenes en todos los módulos</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.4 · Catálogo de imágenes corregido</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1811,7 +1811,13 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             promesaImagenesProductosGlobal=fetch(URL_API+'?accion=verCatalogoImagenes&_='+Date.now(),{cache:'no-store'})
               .then(r=>r.json()).then(data=>{
                 const arr=Array.isArray(data)?data:(Array.isArray(data.productos)?data.productos:[]);
-                console.log('Catálogo global de imágenes cargado:',arr.length,'productos');
+                if(data && data.mapa && typeof data.mapa==='object'){
+                    Object.keys(data.mapa).forEach(nombre=>{
+                        const url=data.mapa[nombre];
+                        if(url) mapaImagenesProductosGlobal[claveImagenProducto(nombre)]=String(url).trim();
+                    });
+                }
+                console.log('Catálogo global de imágenes cargado:',arr.length,'productos · mapa:',Object.keys(mapaImagenesProductosGlobal).length);
                 arr.forEach(x=>{
                     const nombre=Array.isArray(x)?x[0]:(x.producto||x.Producto||x.nombre||'');
                     const imagen=Array.isArray(x)?x[1]:(x.imagen||x.Imagen||x.url||'');
@@ -2953,12 +2959,16 @@ function verificarPassword() {
         }
 
         async function cargarRutaActiva(){
+            await cargarImagenesProductosGlobal();
             const cont=document.getElementById("listaRuta"), resumen=document.getElementById("rutaResumen"), btnCrear=document.getElementById("btnCrearRuta"), etapas=document.getElementById('rutaEtapas');
             cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando...</p>';
             try{
                 const r=await fetch(URL_API+"?accion=verRutaActiva&_="+Date.now()), data=await r.json();
                 if(!r.ok||data.status!=="OK") throw new Error(data.mensaje||"No se pudo cargar la ruta.");
                 rutaActiva=data.ruta||null;
+                if(rutaActiva && Array.isArray(rutaActiva.productos)){
+                    rutaActiva.productos.forEach(p=>{ if(!p.imagen) p.imagen=urlImagenProducto(p.producto,p); });
+                }
                 if(!rutaActiva){resumen.innerHTML='No hay una ruta activa. Puedes crearla usando <b>Pagina 1, columnas A:B</b>.';cont.innerHTML='';btnCrear.style.display='block';if(etapas)etapas.style.display='none';return;}
                 btnCrear.style.display='none'; if(etapas)etapas.style.display='flex'; actualizarResumenRuta();
                 if(etapaRutaActual==='faltantes')renderRutaFaltantes();else renderRutaBodega();
