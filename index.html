@@ -631,7 +631,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.8 · Góndolas visuales</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.9 · Administrar Góndolas</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -948,6 +948,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 <button class="menu-modulo" onclick="abrirModuloAdmin('tareas')"><span>✅</span>Tareas</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('pedidos')"><span>🛍️</span>Pedidos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('compras')"><span>🛒</span>Gestión de Compras</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
             </div>
         </div>
 
@@ -993,6 +994,22 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             <div id="resumenProveedoresCompras" style="margin:10px 0;"></div>
             <div id="gestionComprasAdmin"><p style="font-size:12px;color:#888;">Carga las solicitudes para administrarlas.</p></div>
             <div id="pedidosWhatsAppAdmin" style="display:none;margin-top:14px;"></div>
+        </div>
+        <div id="adminGondolas" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+            <h4>🗄️ Ubicación de productos</h4>
+            <p style="font-size:12px;color:#667085;">Asigna productos a una góndola y anaquel. Se guarda directamente en la hoja <b>Gondolas</b>.</p>
+            <label>Sucursal</label><select id="adminGondolaSucursal" onchange="cambioSucursalAdminGondola()"><option>Tienda Online Shop</option><option>Mini super</option></select>
+            <label style="margin-top:10px;">Buscar producto</label><input id="adminGondolaBuscar" type="text" placeholder="Escribe el producto..." oninput="buscarProductoAdminGondola()" autocomplete="off">
+            <div id="adminGondolaResultados" class="pedido-resultados" style="display:none;"></div>
+            <div id="adminGondolaProductoActual" style="display:none;margin:12px 0;background:#f7faff;border:1px solid #dce9f8;border-radius:18px;padding:12px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div><label>Góndola</label><input id="adminGondolaNumero" type="number" min="1" inputmode="numeric" placeholder="Ej. 3"></div><div><label>Anaquel</label><input id="adminAnaquelNumero" type="number" min="1" inputmode="numeric" placeholder="Ej. 2"></div></div>
+            <button onclick="guardarUbicacionAdminGondola()" style="background:#0878f9;margin-top:12px;">💾 Guardar ubicación</button>
+            <button id="btnQuitarUbicacionGondola" onclick="quitarUbicacionAdminGondola()" style="display:none;background:#e53945;margin-top:8px;">✕ Quitar ubicación</button>
+            <div id="estadoAdminGondola" style="font-size:12px;text-align:center;margin:10px 0;"></div>
+            <hr style="border:none;border-top:1px solid #e4e9ef;margin:18px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;"><h4 style="margin:0;">Productos ubicados</h4><button onclick="cargarUbicacionesAdminGondola()" style="width:auto;padding:8px 11px;background:#6c757d;font-size:11px;">🔄 Actualizar</button></div>
+            <div id="listaUbicacionesAdminGondola" style="margin-top:10px;"></div>
         </div>
     </div>
 
@@ -2854,13 +2871,25 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             }
         }
 
+
+        let productoAdminGondola=null, ubicacionesAdminGondola=[];
+        async function iniciarAdminGondolas(){await Promise.all([cargarCatalogoProductosPedido(),cargarImagenesProductosGlobal()]);await cargarUbicacionesAdminGondola();}
+        function cambioSucursalAdminGondola(){productoAdminGondola=null;document.getElementById("adminGondolaProductoActual").style.display="none";document.getElementById("btnQuitarUbicacionGondola").style.display="none";cargarUbicacionesAdminGondola();}
+        function buscarProductoAdminGondola(){const q=normalizarBusquedaPedido(document.getElementById("adminGondolaBuscar").value),c=document.getElementById("adminGondolaResultados");if(!q){c.style.display="none";return;}const rs=catalogoProductosPedido.filter(x=>normalizarBusquedaPedido(typeof x==="string"?x:x.producto).includes(q)).slice(0,20);c.style.display="block";c.innerHTML=rs.length?rs.map(x=>{const n=typeof x==="string"?x:x.producto,i=catalogoProductosPedido.indexOf(x);return `<div class="pedido-resultado" onclick="seleccionarProductoAdminGondola(${i})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(n,x,42)}<div>${escaparHtmlPedido(n)}</div></div>`}).join(""):'<div class="pedido-resultado">Sin resultados</div>';}
+        function seleccionarProductoAdminGondola(i){const x=catalogoProductosPedido[i];if(!x)return;const n=typeof x==="string"?x:x.producto;productoAdminGondola={producto:n};document.getElementById("adminGondolaBuscar").value=n;document.getElementById("adminGondolaResultados").style.display="none";const u=ubicacionesAdminGondola.find(z=>claveImagenProducto(z.producto)===claveImagenProducto(n));document.getElementById("adminGondolaNumero").value=u?u.gondola:"";document.getElementById("adminAnaquelNumero").value=u?u.anaquel:"";const b=document.getElementById("adminGondolaProductoActual");b.style.display="flex";b.style.alignItems="center";b.style.gap="12px";b.innerHTML=`${imagenProductoGlobal(n,x,58)}<div><b>${escaparHtmlPedido(n)}</b><div style="font-size:11px;color:#667085;margin-top:4px;">${u?`Actualmente: Góndola ${u.gondola} · Anaquel ${u.anaquel}`:"Sin ubicación en esta sucursal"}</div></div>`;document.getElementById("btnQuitarUbicacionGondola").style.display=u?"block":"none";}
+        async function cargarUbicacionesAdminGondola(){const s=document.getElementById("adminGondolaSucursal").value,c=document.getElementById("listaUbicacionesAdminGondola");c.innerHTML="<p>Cargando...</p>";try{const r=await fetch(URL_API+"?accion=verGondolas&sucursal="+encodeURIComponent(s)+"&_="+Date.now(),{cache:"no-store"}),d=await r.json();ubicacionesAdminGondola=Array.isArray(d)?d:(d.productos||[]);const gr={};ubicacionesAdminGondola.forEach(x=>{const k=x.gondola+"|"+x.anaquel;(gr[k]||(gr[k]=[])).push(x)});c.innerHTML=Object.keys(gr).length?Object.keys(gr).sort().map(k=>{const [g,a]=k.split("|"),ps=gr[k];return `<div style="background:#f8fafc;border:1px solid #e1e8ef;border-radius:16px;padding:10px;margin:8px 0;"><b>Góndola ${g} · Anaquel ${a}</b><div style="font-size:11px;color:#718096;margin:3px 0 8px;">${ps.length} productos</div><div style="display:flex;gap:7px;overflow-x:auto;">${ps.map(p=>imagenProductoGlobal(p.producto,p,46)).join("")}</div></div>`}).join(""):'<p style="font-size:12px;color:#888;text-align:center;">No hay productos ubicados.</p>';}catch(e){c.innerHTML='<p style="color:#dc3545;">No se pudieron cargar las ubicaciones.</p>';}}
+        async function guardarUbicacionAdminGondola(){if(!productoAdminGondola)return alert("Selecciona un producto.");const g=document.getElementById("adminGondolaNumero").value.trim(),a=document.getElementById("adminAnaquelNumero").value.trim();if(!g||!a)return alert("Indica góndola y anaquel.");await enviarUbicacionAdminGondola("guardar",g,a);}
+        async function quitarUbicacionAdminGondola(){if(productoAdminGondola&&confirm("¿Quitar esta ubicación?"))await enviarUbicacionAdminGondola("quitar","","");}
+        async function enviarUbicacionAdminGondola(m,g,a){const e=document.getElementById("estadoAdminGondola");e.textContent="Guardando...";try{const p=new URLSearchParams({accion:"GuardarUbicacionGondola",modo:m,sucursal:document.getElementById("adminGondolaSucursal").value,producto:productoAdminGondola.producto,gondola:g,anaquel:a});const r=await fetch(URL_API,{method:"POST",body:p}),d=await r.json();if(d.status!=="OK")throw Error(d.mensaje||"Error");e.style.color="#198754";e.textContent=m==="quitar"?"✓ Ubicación eliminada":"✓ Ubicación guardada";await cargarUbicacionesAdminGondola();const i=catalogoProductosPedido.findIndex(x=>claveImagenProducto(typeof x==="string"?x:x.producto)===claveImagenProducto(productoAdminGondola.producto));seleccionarProductoAdminGondola(i);}catch(err){console.error(err);e.style.color="#dc3545";e.textContent="No se pudo guardar.";}}
+
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
+            if (modulo === "gondolas") iniciarAdminGondolas();
             window.scrollTo(0,0);
         }
 
