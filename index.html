@@ -450,6 +450,82 @@ body{
   #pantallaLogin{margin-top:30px!important}
 }
 
+
+
+/* ===== v1.6.0 · MENÚ PRINCIPAL COMPACTO · iOS LIQUID GLASS ===== */
+/* El login aprobado v1.5.9 se conserva. Estos ajustes aplican al menú ya iniciado. */
+#menuPrincipal{
+  max-width:820px!important;
+  margin:18px auto 34px!important;
+  padding:18px!important;
+  border-radius:30px!important;
+  background:rgba(255,255,255,.68)!important;
+  border:1px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 18px 45px rgba(48,91,136,.12)!important;
+  backdrop-filter:blur(24px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(145%)!important;
+}
+/* Encabezado general mucho más compacto después de iniciar sesión */
+body:has(#menuPrincipal[style*="display: block"]) #encabezadoLogo,
+body:has(#menuPrincipal:not([style*="display: none"])) #encabezadoLogo{
+  margin:14px 0 5px!important;
+}
+body:has(#menuPrincipal[style*="display: block"]) #encabezadoLogo img,
+body:has(#menuPrincipal:not([style*="display: none"])) #encabezadoLogo img{
+  width:48px!important;height:48px!important;padding:7px!important;
+  box-shadow:0 8px 20px rgba(35,118,205,.15)!important;
+}
+body:has(#menuPrincipal[style*="display: block"]) #tituloControlOperativo,
+body:has(#menuPrincipal:not([style*="display: none"])) #tituloControlOperativo{
+  margin:4px 0 8px!important;font-size:21px!important;letter-spacing:-.55px!important;
+}
+body:has(#menuPrincipal[style*="display: block"]) #tituloControlOperativo::after,
+body:has(#menuPrincipal:not([style*="display: none"])) #tituloControlOperativo::after{
+  display:none!important;
+}
+/* La versión no debe atravesar las tarjetas del menú */
+body:has(#menuPrincipal[style*="display: block"]) #versionSistema,
+body:has(#menuPrincipal:not([style*="display: none"])) #versionSistema{
+  position:static!important;margin:18px auto 8px!important;
+  font-size:11px!important;color:#7588a3!important;
+}
+/* Tarjeta azul de bienvenida: notablemente más baja */
+#menuPrincipal .concept-hero{
+  min-height:0!important;
+  padding:18px 20px!important;
+  border-radius:25px!important;
+  margin:12px 0 18px!important;
+}
+#menuPrincipal .concept-hero h3{
+  margin:0 0 2px!important;font-size:27px!important;line-height:1.05!important;
+}
+#menuPrincipal .concept-hero p{
+  margin:5px 0 10px!important;font-size:14px!important;line-height:1.35!important;
+}
+#menuPrincipal .concept-hero-inner{
+  min-height:0!important;padding:12px 14px!important;border-radius:19px!important;
+  display:flex!important;align-items:center!important;gap:12px!important;
+}
+#menuPrincipal .concept-hero-inner .hero-icon{
+  flex:0 0 auto!important;font-size:30px!important;
+}
+#menuPrincipal .concept-hero-inner h4{
+  margin:0 0 3px!important;font-size:15px!important;
+}
+#menuPrincipal .concept-hero-inner p{
+  margin:0!important;font-size:13px!important;line-height:1.35!important;
+}
+/* Módulos ligeramente más compactos para mostrar más en la primera pantalla */
+#menuPrincipal .menu-grid{gap:13px!important}
+#menuPrincipal .menu-modulo{
+  min-height:92px!important;padding:13px 14px!important;border-radius:22px!important;
+}
+@media(max-width:430px){
+  #menuPrincipal{width:calc(100% - 16px)!important;padding:16px!important;margin-top:12px!important}
+  #menuPrincipal .concept-hero{padding:16px!important;border-radius:23px!important}
+  #menuPrincipal .menu-modulo{min-height:88px!important}
+}
+
 </style>
 </head>
 <body>
@@ -459,7 +535,7 @@ body{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.5.9</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.0 · Menú compacto</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
