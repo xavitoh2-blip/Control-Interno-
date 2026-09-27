@@ -22,7 +22,7 @@
         h2 { color: #007bff; margin: 5px 0 15px 0; font-size: 22px; }
         h3 { color: #2c3e50; margin-top: 0; font-size: 16px; border-bottom: 2px solid #eef2f5; padding-bottom: 8px; }
         h4 { color: #495057; margin: 15px 0 8px 0; font-size: 14px; text-align: left; }
-        button { background-color: #28a745; color: white; border: none; padding: 12px 15px; margin: 6px 0; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%; transition: background 0.2s; }
+        button { background-color:#087cff; color: white; border: none; padding: 12px 15px; margin: 6px 0; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%; transition: background 0.2s; }
         button:hover { opacity: 0.9; }
         button:disabled { background-color: #6c757d !important; cursor: not-allowed; }
         select, input { padding: 10px; margin: 6px 0; width: 100%; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; background-color: #fff; }
@@ -39,7 +39,7 @@
         
         .login-box { margin: 30px auto; padding: 20px; background: white; width: 90%; max-width: 320px; border-radius: 10px; box-shadow: 0px 4px 16px rgba(0,0,0,0.2); }
         .item-cuadre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; text-align: left; }
-        .btn-del { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
+        .btn-del { background:#7a858e; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
 
         /* ESTILOS PROFESIONALES PARA TAREAS DEL DÍA */
         .tarea-item {
@@ -97,134 +97,6 @@
         .gondola-cantidad input{height:42px;margin:0;text-align:center;font-size:18px;font-weight:700;flex:1}
         .gondola-resumen{position:sticky;bottom:8px;background:#fff;border:1px solid #dfe6ee;border-radius:10px;padding:10px;margin-top:14px;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
     
-        /* ===== PRUEBA VISUAL v1.3.6 · ESTILO APP MODERNA ===== */
-        :root{
-            --app-bg:#f2f5f9;
-            --app-card:rgba(255,255,255,.88);
-            --app-text:#172033;
-            --app-muted:#6f7b8b;
-            --app-blue:#087bff;
-            --app-green:#22a559;
-            --app-red:#e5484d;
-            --app-radius:22px;
-            --app-shadow:0 10px 30px rgba(30,55,90,.10);
-        }
-        html{scroll-behavior:smooth}
-        body{
-            font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
-            background:
-              radial-gradient(circle at 10% -10%,rgba(0,122,255,.14),transparent 28%),
-              radial-gradient(circle at 95% 5%,rgba(72,187,255,.10),transparent 24%),
-              var(--app-bg);
-            color:var(--app-text);
-            padding:18px 10px 34px;
-        }
-        .logo-container{margin:4px 0 8px}
-        .logo-container img{
-            width:82px;height:82px;border:0;
-            box-shadow:0 8px 24px rgba(0,93,200,.18);
-        }
-        #tituloControlOperativo{
-            color:var(--app-text);font-size:25px;font-weight:800;
-            letter-spacing:-.5px;margin-bottom:10px;
-        }
-        #versionSistema{
-            display:inline-block;background:rgba(255,255,255,.70);
-            border:1px solid rgba(255,255,255,.9);border-radius:999px;
-            padding:5px 10px;margin-bottom:15px!important;
-            box-shadow:0 4px 16px rgba(30,55,90,.06);
-        }
-        .card{
-            max-width:390px;background:var(--app-card);
-            border:1px solid rgba(255,255,255,.9);
-            border-radius:var(--app-radius);
-            box-shadow:var(--app-shadow);
-            backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-            padding:18px;margin:12px auto;
-        }
-        h3{border-bottom:0;color:var(--app-text);font-weight:800}
-        button{
-            border-radius:14px;min-height:46px;
-            box-shadow:0 5px 14px rgba(30,55,90,.08);
-            transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease;
-        }
-        button:active{transform:scale(.975)}
-        select,input{
-            min-height:46px;border-radius:13px;border:1px solid #dce3ec;
-            box-shadow:inset 0 1px 2px rgba(20,40,70,.03);
-        }
-        select:focus,input:focus{
-            border-color:var(--app-blue);
-            box-shadow:0 0 0 4px rgba(0,122,255,.10);
-        }
-        .menu-grid{gap:11px}
-        .menu-modulo{
-            min-height:108px;border-radius:20px;border:1px solid rgba(222,229,238,.9);
-            background:rgba(255,255,255,.94);box-shadow:0 7px 20px rgba(30,55,90,.07);
-            font-size:14px;font-weight:750;
-        }
-        .menu-modulo span{
-            width:46px;height:46px;display:flex;align-items:center;justify-content:center;
-            border-radius:14px;background:#f2f7ff;font-size:25px;
-        }
-        .btn-volver{
-            width:auto!important;min-height:38px!important;padding:8px 13px!important;
-            border-radius:12px!important;background:#eef2f6!important;color:#3f4b5b!important;
-            box-shadow:none!important;
-        }
-        #rutaResumen,#faltantesKardexSucursal{
-            border:0!important;border-radius:17px!important;
-            background:linear-gradient(135deg,#eef7ff,#f8fbff)!important;
-            box-shadow:inset 0 0 0 1px #d9ebff;
-            padding:13px!important;
-        }
-        .gondola-card,.gondola-producto,.pedido-item,.item-cuadre{
-            border-radius:16px!important;border-color:#e4eaf1!important;
-            box-shadow:0 4px 14px rgba(30,55,90,.05)!important;
-        }
-        #supervisorSection{
-            border-radius:24px;background:rgba(255,255,255,.94);
-            box-shadow:var(--app-shadow);
-        }
-        table{border-radius:14px;overflow:hidden}
-        th{background:#1677e8}
-        @keyframes appEntrada{
-            from{opacity:0;transform:translateY(8px)}
-            to{opacity:1;transform:translateY(0)}
-        }
-        .card,.menu-modulo{animation:appEntrada .28s ease both}
-        @media(max-width:420px){
-            body{padding-left:8px;padding-right:8px}
-            .card{border-radius:20px;padding:16px}
-            .menu-grid{gap:9px}
-            .menu-modulo{min-height:102px}
-        }
-
-    
-        /* ===== v1.5.2 · CONCEPTO VISUAL · SOLO PRESENTACIÓN ===== */
-        body{padding-bottom:34px;background:linear-gradient(180deg,#edf5ff 0,#f7faff 38%,#f1f5f9 100%);}
-        #pantallaPrincipal>.card:first-child{max-width:420px;background:linear-gradient(135deg,#0d4487,#087bff);color:#fff;border:0;box-shadow:0 14px 30px rgba(8,91,190,.20);}
-        #pantallaPrincipal>.card:first-child #saludoUsuario{color:#fff!important;font-size:20px!important;font-weight:850!important;}
-        #pantallaPrincipal>.card:first-child #infoSucursal{color:rgba(255,255,255,.82)!important;}
-        #pantallaPrincipal>.card:first-child button{background:rgba(255,255,255,.17)!important;border:1px solid rgba(255,255,255,.24)!important;box-shadow:none!important;}
-        #menuPrincipalModulos{max-width:420px;padding:16px;background:rgba(255,255,255,.76);}
-        #menuPrincipalModulos>h3{text-align:left!important;font-size:19px;margin:2px 2px 14px;}
-        #menuPrincipalModulos>h3:after{content:'\A Selecciona una opción';white-space:pre;display:block;font-size:11px;font-weight:500;color:#7b8794;margin-top:3px;}
-        .menu-grid{grid-template-columns:1fr 1fr;gap:10px;}
-        .menu-modulo{min-height:96px!important;padding:13px!important;border-radius:19px!important;flex-direction:row!important;justify-content:flex-start!important;text-align:left!important;gap:11px!important;background:#fff!important;color:#1d2a3e!important;border:1px solid #e3eaf2!important;box-shadow:0 7px 18px rgba(36,61,92,.065)!important;}
-        .menu-modulo span{flex:0 0 47px;width:47px;height:47px;border-radius:15px;background:#edf6ff!important;font-size:24px!important;}
-        .menu-modulo b{font-size:13px;line-height:1.2;}
-        .modulo-pantalla{max-width:420px!important;padding:17px!important;}
-        .modulo-pantalla>h3{font-size:19px!important;text-align:left!important;margin:4px 0 8px!important;}
-        .btn-volver{font-size:12px!important;}
-        #moduloRuta,#moduloFaltantesKardex,#moduloRecepcion,#moduloCompras,#moduloPedidos,#moduloInventario,#moduloGondolas,#moduloTareas,#moduloAsistencia{background:rgba(255,255,255,.94)!important;}
-        #rutaResumen,#faltantesKardexSucursal{background:linear-gradient(135deg,#edf7ff,#f7fbff)!important;border:1px solid #d7eaff!important;border-radius:16px!important;}
-        #listaRuta>div,#listaFaltantesKardex>div,#listaRecepcionPedidos>div,#listaComprasPendientes>div{border-radius:17px!important;box-shadow:0 5px 15px rgba(30,55,90,.05);}
-        @media(max-width:350px){.menu-grid{grid-template-columns:1fr}.menu-modulo{min-height:78px!important}}
-
-    
-
-/* ===== v1.5.5 · ESTILO RECUPERADO DE v1.4.0 · SOLO CSS ===== */
 /* ===== v1.3.6 · REDISEÑO FUERTE KARDEX / APP ===== */
 :root{--azul:#087cff;--fondo:#eef3f9;--texto:#172033;--muted:#758195}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;background:linear-gradient(180deg,#eaf4ff 0,#f4f7fb 240px,#f4f7fb 100%);color:var(--texto);padding:14px 9px 34px}
@@ -342,11 +214,64 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
 .fk-empty{background:linear-gradient(135deg,#ebfff2,#f8fffa);border:1px solid #b9e8c8;border-radius:21px;padding:22px 15px;text-align:center;font-weight:850;color:#267243}
 
 
-/* La visibilidad de módulos la decide únicamente la lógica de sucursal */
-#menuPrincipalModulos .menu-modulo[style*="display:none"],
-#menuPrincipalModulos .menu-modulo[style*="display: none"]{
-    display:none!important;
+/* ===== v1.4.1 · RECEPCIÓN CON RESUMEN Y PROGRESO ===== */
+.rx-dashboard{background:#fff;border:1px solid #e3eaf3;border-radius:23px;padding:14px;margin:12px 0 16px;box-shadow:0 8px 24px rgba(36,67,104,.07)}
+.rx-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rx-stat{background:#fff;border:1px solid #dfe7f0;border-radius:18px;padding:12px 5px;text-align:center}
+.rx-stat strong{display:block;font-size:22px;line-height:1.1;color:#172033}
+.rx-stat span{display:block;font-size:10px;font-weight:800;color:#7b8796;margin-top:5px}
+.rx-progress-label{display:flex;justify-content:space-between;margin:12px 3px 6px;font-size:11px;font-weight:800;color:#69778a}
+.rx-progress{height:9px;background:#e3e9f1;border-radius:999px;overflow:hidden}
+.rx-progress>div{height:100%;background:linear-gradient(90deg,#087cff,#46a4ff);border-radius:999px;transition:width .25s ease}
+.rx-pill{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:850;margin-top:7px}
+.rx-pill.done{background:#e9f9ef;color:#1b8d49}
+.rx-pill.pending{background:#fff1e6;color:#b75b12}
+/* Recepción: restar gris, sumar/acción azul */
+#moduloRecepcion button[onclick*="-1"],
+#moduloRecepcion button[onclick*=", -1"],
+#moduloRecepcion button[onclick*="(-1"]{
+ background:#7a858e!important;background-image:none!important;color:#fff!important;
 }
+
+
+/* ===== v1.5.0 · CONCEPTO PRINCIPAL ONLINE SHOP ===== */
+body{background:
+ radial-gradient(circle at 80px 120px,rgba(26,129,255,.15),transparent 190px),
+ radial-gradient(circle at 90% 18%,rgba(94,160,255,.14),transparent 230px),
+ linear-gradient(180deg,#eef5fd,#f6f9fd 48%,#eef4fa)!important}
+.card{max-width:430px!important}
+#tituloControlOperativo{font-size:20px!important}
+.menu-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
+.menu-modulo{
+ min-height:84px!important;padding:12px!important;border-radius:19px!important;
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:flex-start!important;text-align:left!important;gap:10px!important;
+ background:rgba(255,255,255,.82)!important
+}
+.menu-modulo span{flex:0 0 44px!important;width:44px!important;height:44px!important;border-radius:14px!important}
+.menu-modulo b,.menu-modulo strong{font-size:12px!important}
+.concept-hero{background:linear-gradient(135deg,#0b3979,#087cff);color:#fff;border-radius:22px;padding:16px;margin:8px 0 14px;box-shadow:0 12px 28px rgba(5,78,170,.22);text-align:left}
+.concept-hero .hello{font-size:22px;font-weight:900;letter-spacing:-.4px}
+.concept-hero .sub{font-size:12px;opacity:.88;margin-top:3px}
+.concept-banner{display:flex;align-items:center;gap:12px;margin-top:14px;background:rgba(0,0,0,.14);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:12px}
+.concept-banner .ico{font-size:35px}
+.concept-banner strong{display:block;font-size:13px}
+.concept-banner small{font-size:11px;opacity:.9}
+.concept-nav{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid #dfe7f0;border-radius:20px;padding:7px 4px;box-shadow:0 10px 30px rgba(28,55,90,.15);margin-top:14px}
+.concept-nav button{background:transparent!important;color:#6e7b8d!important;box-shadow:none!important;padding:4px 1px!important;min-height:45px!important;font-size:9px!important;border-radius:12px!important}
+.concept-nav button .ni{display:block;font-size:18px;margin-bottom:2px}
+.concept-nav button.active{color:#087cff!important;background:#edf6ff!important}
+.kx-search{display:grid;grid-template-columns:1fr 46px;gap:8px;margin:12px 0}
+.kx-search input{margin:0!important;background:#fff!important;padding-left:14px!important}
+.kx-search button{margin:0!important;padding:0!important;background:#fff!important;color:#344258!important;border:1px solid #dfe7f0!important;box-shadow:none!important}
+.kx-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#e8edf4;padding:4px;border-radius:16px;margin:10px 0}
+.kx-tabs button{margin:0!important;min-height:39px!important;background:transparent!important;color:#5e6b7c!important;box-shadow:none!important;font-size:11px!important;padding:6px!important}
+.kx-tabs button.active{background:#087cff!important;color:#fff!important}
+#listaRuta .kx-product{padding:10px!important;border-radius:18px!important}
+#listaRuta .kx-top{gap:10px!important}
+#listaRuta .kx-photo{width:64px!important;height:64px!important;flex-basis:64px!important;border-radius:15px!important}
+#listaRuta .kx-name{font-size:13px!important}
+#listaRuta .kx-stepper{margin-top:9px!important}
 
 </style>
 </head>
@@ -357,7 +282,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.5.5 · Estilo v1.4.0 + lógica actual</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.5.0 · Nuevo concepto</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -428,7 +353,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                 <p id="textoHorario" style="font-size: 13px; color: #007bff; font-weight: bold; margin: 5px 0; text-align: center;"></p>
                 
                 <div id="contenedorBotones" style="display: none; margin-top: 10px;">
-                    <button id="btnEntrada" onclick="validarYRegistrar('Entrada')" style="background-color: #28a745;">Marcar Entrada</button>
+                    <button id="btnEntrada" onclick="validarYRegistrar('Entrada')" style="background-color:#087cff;">Marcar Entrada</button>
                     
                     <div id="seccionSalida" style="display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
                         <label style="font-size: 12px; color: #555; display: block; text-align: left; margin-bottom: 3px;">Horas Extra (Opcional):</label>
@@ -502,7 +427,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                     <h4 style="font-size: 13px; margin: 0 0 8px 0; color: #333;">Productos Listos para Enviar (<span id="cantLista">0</span>):</h4>
                     <div id="listaProductosAcumulados"></div>
                     
-                    <button id="btnEnviarTodo" onclick="enviarTodosLosCuadres()" style="background-color: #28a745; margin-top: 10px;">
+                    <button id="btnEnviarTodo" onclick="enviarTodosLosCuadres()" style="background-color:#087cff; margin-top: 10px;">
                         🚀 Registrar Todos los Cuadres
                     </button>
                 </div>
@@ -535,7 +460,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                     <div style="display:flex; align-items:center; gap:10px; margin:6px 0 10px;">
                         <button type="button" onclick="cambiarCantidadPedido(-1)" style="width:64px; min-width:64px; height:52px; margin:0; padding:0; background:#6c757d; font-size:25px;">−</button>
                         <input type="number" id="cantidadPedido" value="1" min="1" step="1" inputmode="numeric" style="height:52px; margin:0; text-align:center; font-size:22px; font-weight:700; flex:1;">
-                        <button type="button" onclick="cambiarCantidadPedido(1)" style="width:64px; min-width:64px; height:52px; margin:0; padding:0; background:#28a745; font-size:25px;">＋</button>
+                        <button type="button" onclick="cambiarCantidadPedido(1)" style="width:64px; min-width:64px; height:52px; margin:0; padding:0; background:#087cff; font-size:25px;">＋</button>
                     </div>
 
                     <button onclick="agregarProductoAlPedido()" style="background-color: #007bff; margin-top: 5px;">
@@ -545,7 +470,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                     <div id="contenedorListaPedido" style="display:none; margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
                         <h4 style="font-size:13px; margin:0 0 8px 0;">Productos del pedido (<span id="cantProductosPedido">0</span>):</h4>
                         <div id="listaPedido"></div>
-                        <button id="btnEnviarPedidoCompleto" onclick="enviarPedidoCompleto()" style="background-color:#28a745; margin-top:10px;">
+                        <button id="btnEnviarPedidoCompleto" onclick="enviarPedidoCompleto()" style="background-color:#087cff; margin-top:10px;">
                             📩 Enviar pedido completo a Bodega
                         </button>
                     </div>
@@ -593,7 +518,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
         <div id="vistaProductosGondola" style="display:none;"></div>
         <div id="resumenGondolas" class="gondola-resumen" style="display:none;">
             <div style="font-size:13px;font-weight:700;margin-bottom:8px;">📦 Seleccionados: <span id="cantSeleccionadosGondola">0</span></div>
-            <button id="btnEnviarGondolas" onclick="enviarFaltantesGondola()" style="background:#28a745;margin:0;">📩 Enviar solicitud a Bodega</button>
+            <button id="btnEnviarGondolas" onclick="enviarFaltantesGondola()" style="background:#087cff;margin:0;">📩 Enviar solicitud a Bodega</button>
         </div>
     </div>
 
@@ -614,10 +539,10 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
             <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
                 <button type="button" onclick="cambiarCantidadCompra(-1)" style="width:54px;margin:0;background:#6c757d;font-size:22px;">−</button>
                 <input id="cantidadCompra" type="number" min="1" value="1" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;">
-                <button type="button" onclick="cambiarCantidadCompra(1)" style="width:54px;margin:0;background:#28a745;font-size:22px;">+</button>
+                <button type="button" onclick="cambiarCantidadCompra(1)" style="width:54px;margin:0;background:#087cff;font-size:22px;">+</button>
             </div>
             <button onclick="agregarCompraAbastecimiento()" style="background:#17a2b8;">➕ Agregar a la solicitud</button>
-            <button id="btnEnviarSolicitudCompra" onclick="enviarSolicitudCompra()" style="background:#28a745;margin-top:12px;">📤 Enviar solicitud al Administrador</button>
+            <button id="btnEnviarSolicitudCompra" onclick="enviarSolicitudCompra()" style="background:#087cff;margin-top:12px;">📤 Enviar solicitud al Administrador</button>
         </div>
     </div>
 
@@ -626,8 +551,8 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
     <!-- KARDEX v1.3.3 -->
     <div id="moduloRuta" class="card modulo-pantalla" style="text-align:left;">
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
-        <h3 style="text-align:center;">📋 Kardex</h3>
-        <p style="font-size:12px;color:#666;text-align:center;">Bodega registra lo que logra sacar. El faltante queda negativo hasta completar la cantidad requerida.</p>
+        <h3 style="text-align:center;">Kardex de despacho</h3>
+        <p style="font-size:12px;color:#666;text-align:center;">Control visual de preparación y faltantes de la ruta.</p>
         <div id="rutaResumen" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:9px;padding:10px;margin:10px 0;font-size:12px;text-align:center;">Cargando Kardex...</div>
         <button id="btnCrearRuta" onclick="crearRutaDesdeKardex()" style="background:#007bff;">➕ Crear Kardex desde Pagina 1 (A:B)</button>
         <button onclick="cargarRutaActiva()" style="background:#6c757d;">🔄 Actualizar Kardex</button>
@@ -659,7 +584,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
     <div id="supervisorSection">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
             <h3 style="margin:0;color:#007bff;border:none;">Panel Administrativo</h3>
-            <button onclick="cerrarSupervisor()" style="background:#dc3545;padding:8px 12px;font-size:12px;width:auto;">Cerrar</button>
+            <button onclick="cerrarSupervisor()" style="background:#7a858e;padding:8px 12px;font-size:12px;width:auto;">Cerrar</button>
         </div>
 
         <div id="menuAdmin" style="margin-top:18px;">
@@ -953,7 +878,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                         <div><strong>${escaparHtmlPedido(p.producto)}</strong></div>
                         <button onclick="toggleFaltanteGondola('${escaparJsGondola(p.producto)}')" style="width:auto;margin:0;padding:8px 10px;background:${sel?'#28a745':'#007bff'};font-size:11px;">${sel?'✓ Faltante':'Marcar faltante'}</button>
                     </div>
-                    ${sel?`<div class="gondola-cantidad"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',-1)" style="background:#6c757d;">−</button><input readonly value="${sel.cantidad}"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',1)" style="background:#28a745;">＋</button></div>`:''}
+                    ${sel?`<div class="gondola-cantidad"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',-1)" style="background:#6c757d;">−</button><input readonly value="${sel.cantidad}"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',1)" style="background:#087cff;">＋</button></div>`:''}
                 </div>`;
             }).join("") || '<p style="text-align:center;color:#888;font-size:12px;">No hay productos en este anaquel.</p>';
         }
@@ -1520,6 +1445,27 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
             cont.style.display = "block";
         }
 
+        function resumenVisualRecepcion(productos){
+            const arr=Array.isArray(productos)?productos:[];
+            const total=arr.length;
+            let completos=0;
+            arr.forEach(x=>{
+                const pedido=Number(x.cantidad||x.cantidadPedida||x.pedido||x.cant||0);
+                const recibido=Number(x.recibido||x.cantidadRecibida||x.recepcion||x.cantidadPreparada||0);
+                if(pedido>0 && recibido>=pedido) completos++;
+            });
+            const pendientes=Math.max(0,total-completos);
+            const pct=total?Math.round((completos/total)*100):0;
+            return `<div class="rx-dashboard">
+                <div class="rx-stats">
+                    <div class="rx-stat"><strong>${total}</strong><span>PRODUCTOS</span></div>
+                    <div class="rx-stat"><strong>${completos}</strong><span>COMPLETOS</span></div>
+                    <div class="rx-stat"><strong>${pendientes}</strong><span>PENDIENTES</span></div>
+                </div>
+                <div class="rx-progress-label"><span>Progreso de recepción</span><span>${pct}%</span></div>
+                <div class="rx-progress"><div style="width:${pct}%"></div></div>
+            </div>`;
+        }
         function escaparHtmlPedido(valor) {
             return String(valor ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
         }
@@ -1694,15 +1640,15 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                             <div style="font-weight:700;font-size:13px;margin-bottom:6px;">${escaparHtmlPedido(item.producto)}</div>
                             <div style="font-size:12px;color:#555;margin-bottom:6px;">Pedí: <strong>${item.cantidadPedida}</strong></div>
                             <div style="display:flex;align-items:center;gap:8px;">
-                                <button type="button" onclick="cambiarCantidadRecibida(${index},-1)" style="width:48px;height:44px;margin:0;background:#dc3545;font-size:20px;padding:0;">−</button>
+                                <button type="button" onclick="cambiarCantidadRecibida(${index},-1)" style="width:48px;height:44px;margin:0;background:#7a858e;font-size:20px;padding:0;">−</button>
                                 <input id="recibido_${index}" type="number" min="0" step="1" value="${item.cantidadPedida}" oninput="actualizarEstadoRecepcion(${index})" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
-                                <button type="button" onclick="cambiarCantidadRecibida(${index},1)" style="width:48px;height:44px;margin:0;background:#28a745;font-size:20px;padding:0;">+</button>
+                                <button type="button" onclick="cambiarCantidadRecibida(${index},1)" style="width:48px;height:44px;margin:0;background:#087cff;font-size:20px;padding:0;">+</button>
                             </div>
                             <div id="estadoRec_${index}" style="font-size:12px;text-align:center;margin-top:6px;"><span style="color:#28a745;font-weight:700;">✅ Completo</span></div>
                         </div>`;
                     });
                     if (pedidoAnterior) html += '</div>';
-                    html += '<button id="btnConfirmarRecepcion" onclick="confirmarRecepcionPedido()" style="background:#28a745;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">✅ Confirmar recepción</button>';
+                    html += '<button id="btnConfirmarRecepcion" onclick="confirmarRecepcionPedido()" style="background:#087cff;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">✅ Confirmar recepción</button>';
                     cont.innerHTML = html;
                 })
                 .catch(err => {
@@ -1809,7 +1755,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                             <div style="font-size:12px;color:#666;margin-top:3px;">📦 ${pedido.productos.length} productos por preparar</div>
                         </div>
                         <button onclick="abrirPedidoBodega(${index})" style="background:#007bff;margin-top:11px;">Ver pedido</button>
-                        <button onclick="eliminarPedidoBodega(${index})" style="background:#dc3545;margin-top:5px;">🗑️ Eliminar pedido</button>
+                        <button onclick="eliminarPedidoBodega(${index})" style="background:#7a858e;margin-top:5px;">🗑️ Eliminar pedido</button>
                     </div>`;
                 });
                 cont.innerHTML=html;
@@ -1924,21 +1870,21 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
                         <div style="font-size:13px;color:#555;margin-bottom:9px;">Necesitan: <strong style="font-size:16px;color:#111;">${item.cantidadSolicitada}</strong></div>
                         ${!revisado ? `
                             <div style="display:flex;gap:8px;">
-                                <button onclick="marcarDisponibleBodega(${index})" style="background:#28a745;margin:0;flex:1;">✓ Disponible</button>
+                                <button onclick="marcarDisponibleBodega(${index})" style="background:#087cff;margin:0;flex:1;">✓ Disponible</button>
                                 <button onclick="marcarIncompletoBodega(${index})" style="background:#f0ad4e;margin:0;flex:1;">⚠ No completo</button>
                             </div>` : `
                             <div style="font-size:12px;font-weight:700;text-align:center;margin-bottom:7px;color:${completa ? '#28a745' : '#b26a00'};">${completa ? '✅ Disponible completo' : '⚠️ Disponible: ' + item.cantidadSurtida + ' · Faltan: ' + Math.max(0, item.cantidadSolicitada - item.cantidadSurtida)}</div>
                             ${!completa ? `
                                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
-                                    <button onclick="cambiarCantidadBodega(${index},-1)" style="width:48px;height:44px;margin:0;background:#dc3545;font-size:20px;padding:0;">−</button>
+                                    <button onclick="cambiarCantidadBodega(${index},-1)" style="width:48px;height:44px;margin:0;background:#7a858e;font-size:20px;padding:0;">−</button>
                                     <input id="bodegaCant_${index}" type="number" min="0" max="${item.cantidadSolicitada}" value="${item.cantidadSurtida}" oninput="editarCantidadBodega(${index},this.value)" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
-                                    <button onclick="cambiarCantidadBodega(${index},1)" style="width:48px;height:44px;margin:0;background:#28a745;font-size:20px;padding:0;">+</button>
+                                    <button onclick="cambiarCantidadBodega(${index},1)" style="width:48px;height:44px;margin:0;background:#087cff;font-size:20px;padding:0;">+</button>
                                 </div>` : ''}
                             <button onclick="revisarDeNuevoBodega(${index})" style="background:#6c757d;padding:7px;font-size:11px;margin:0;">Cambiar</button>`}
                     </div>`;
             });
 
-            html += `<button id="btnConfirmarDespachoBodega" onclick="confirmarDespachoBodega()" ${revisados !== total ? 'disabled' : ''} style="background:#28a745;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">🚚 ${revisados === total ? 'Confirmar pedido preparado' : 'Revisa todos los productos (' + revisados + '/' + total + ')'}</button>`;
+            html += `<button id="btnConfirmarDespachoBodega" onclick="confirmarDespachoBodega()" ${revisados !== total ? 'disabled' : ''} style="background:#087cff;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">🚚 ${revisados === total ? 'Confirmar pedido preparado' : 'Revisa todos los productos (' + revisados + '/' + total + ')'}</button>`;
             cont.innerHTML = html;
         }
 
@@ -2190,7 +2136,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
             }).join('') + `
                 <div style="position:sticky;bottom:10px;z-index:30;background:rgba(255,255,255,.96);border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin:18px 0 4px;box-shadow:0 5px 18px rgba(0,0,0,.14);">
                     <div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">Revisa cantidades, costos y proveedores antes de confirmar.</div>
-                    <button id="btnGuardarTodasAsignaciones" onclick="guardarTodasGestionComprasAdmin()" style="background:#28a745;margin:0;font-size:14px;padding:14px;">💾 Guardar todas las asignaciones</button>
+                    <button id="btnGuardarTodasAsignaciones" onclick="guardarTodasGestionComprasAdmin()" style="background:#087cff;margin:0;font-size:14px;padding:14px;">💾 Guardar todas las asignaciones</button>
                 </div>`;
             actualizarTotalAdmin();
         }
@@ -2655,10 +2601,13 @@ function verificarPassword() {
             if(!url) return `<div style="width:58px;height:58px;flex:0 0 58px;border-radius:14px;background:#f1f4f8;display:flex;align-items:center;justify-content:center;font-size:28px;">📦</div>`;
             return `<img src="${escaparHtmlPedido(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div style=&quot;width:58px;height:58px;flex:0 0 58px;border-radius:14px;background:#f1f4f8;display:flex;align-items:center;justify-content:center;font-size:28px;&quot;>📦</div>'" style="width:58px;height:58px;flex:0 0 58px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #e5e9ef;padding:4px;">`;
         }
+        function imagenProductoKardexConcepto(p){
+            const url=String(p?.imagen||'').trim();
+            if(!url) return `<div class="kx-photo"><div class="fallback">📦</div></div>`;
+            return `<div class="kx-photo"><img src="${escaparHtmlPedido(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<div class=&quot;fallback&quot;>📦</div>'"></div>`;
+        }
         function renderRutaBodega(){
             const r=rutaActiva, productos=Array.isArray(r.productos)?r.productos:[], borrador=obtenerBorradorRuta(); actualizarResumenRuta();
-            // El estado COMPLETO/PENDIENTE se toma del Kardex total (diferencia),
-            // no solamente de lo preparado inicialmente por Bodega.
             const filas=productos.map((p,i)=>{
                 const req=Number(p.cantidadRequerida)||0;
                 const baseBodega=Math.min(req,Math.max(0,Number(p.prepBodega)||0));
@@ -2670,20 +2619,61 @@ function verificarPassword() {
                 return {p,i,req,valor,maxBodega,faltanteReal,completo:Number(p.diferencia)>=0};
             });
             const completos=filas.filter(x=>x.completo), pendientes=filas.filter(x=>!x.completo);
-            let html=`<div style="background:#eef6ff;border:1px solid #b8d8ff;border-radius:10px;padding:10px;margin:5px 0 10px;text-align:center;font-size:12px;"><b>✅ ${completos.length} completados</b> · <b>⏳ ${pendientes.length} pendientes</b></div>`;
-            if(completos.length) html+=`<button type="button" onclick="alternarCompletadosBodega()" style="background:#6c757d;margin:0 0 10px;padding:10px;font-size:12px;">${mostrarCompletadosBodega?'🙈 Ocultar completados':'👁 Ver completados ('+completos.length+')'}</button>`;
-            html+='<div style="font-size:12px;color:#666;text-align:center;margin:5px 0 10px;">La lista principal muestra únicamente lo que todavía falta completar en el Kardex.</div>';
+            const total=filas.length||1, porcentaje=Math.round((completos.length/total)*100);
+
+            let html=`<div class="kx-dashboard">
+                <div class="kx-stats">
+                    <div class="kx-stat"><strong>${filas.length}</strong><span>PRODUCTOS</span></div>
+                    <div class="kx-stat"><strong>${completos.length}</strong><span>COMPLETOS</span></div>
+                    <div class="kx-stat"><strong>${pendientes.length}</strong><span>PENDIENTES</span></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#657184;padding:0 2px;">
+                    <span>Progreso de preparación</span><span>${porcentaje}%</span>
+                </div>
+                <div class="kx-progress"><div style="width:${porcentaje}%"></div></div>
+            </div>`;
+
+            if(completos.length) html+=`<button type="button" onclick="alternarCompletadosBodega()" style="background:#e9eef4;color:#465365;box-shadow:none;margin:10px 0 8px;font-size:12px;">${mostrarCompletadosBodega?'Ocultar completados':'Ver completados · '+completos.length}</button>`;
+
             const visibles=mostrarCompletadosBodega?filas:pendientes;
-            if(!visibles.length) html+='<div style="background:#f0fff4;border:1px solid #9ad7a8;border-radius:10px;padding:16px;text-align:center;font-weight:800;margin:10px 0;">✅ KARDEX COMPLETO.</div>';
+            if(!visibles.length) html+='<div class="kx-complete">✅ Kardex completo<br><span style="font-size:12px;font-weight:600;color:#598067;">Todos los productos de esta ruta están preparados.</span></div>';
+
             html+=visibles.map(({p,i,req,valor,maxBodega,faltanteReal,completo})=>{
-                const fondo=completo?'#f0fff4':(valor>0?'#fff8e1':'#fff1f1'),borde=completo?'#9ad7a8':(valor>0?'#ffe08a':'#f5b5ba');
-                if(completo) return `<div id="rutaCard_${i}" style="background:${fondo};border:1px solid ${borde};border-radius:14px;padding:11px;margin:8px 0;"><div style="display:flex;gap:11px;align-items:center;">${imagenProductoKardex(p)}<div style="min-width:0;flex:1;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span style="font-weight:800;">✅ COMPLETO</span></div><div style="font-size:11px;color:#666;">Preparado inicialmente por Bodega: <b>${Number(p.prepBodega)||0}</b></div></div></div></div>`;
-                return `<div id="rutaCard_${i}" style="background:${fondo};border:1px solid ${borde};border-radius:14px;padding:11px;margin:8px 0;"><div style="display:flex;gap:11px;align-items:flex-start;">${imagenProductoKardex(p)}<div style="min-width:0;flex:1;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div style="font-size:12px;margin:5px 0;">Requerido: <b>${req}</b> · <span id="rutaEstado_${i}" style="font-weight:800;">Faltan ${faltanteReal}</span></div></div></div><div style="display:flex;align-items:center;gap:8px;margin-top:9px;"><button onclick="cambiarPrepRuta(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="rutaPrep_${i}" type="number" min="0" max="${maxBodega}" step="1" value="${valor}" inputmode="numeric" oninput="validarPrepRuta(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarPrepRuta(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;
+                if(completo) return `<div id="rutaCard_${i}" class="kx-product">
+                    <div class="kx-top">
+                        ${imagenProductoKardexConcepto(p)}
+                        <div class="kx-info">
+                            <div class="kx-name">${escaparHtmlPedido(p.producto)}</div>
+                            <div class="kx-meta">Cantidad requerida · <b>${req}</b></div>
+                            <div class="kx-status done">✓ Completo</div>
+                        </div>
+                    </div>
+                </div>`;
+                return `<div id="rutaCard_${i}" class="kx-product">
+                    <div class="kx-top">
+                        ${imagenProductoKardexConcepto(p)}
+                        <div class="kx-info">
+                            <div class="kx-name">${escaparHtmlPedido(p.producto)}</div>
+                            <div class="kx-meta">Cantidad requerida · <b>${req}</b></div>
+                            <div id="rutaEstado_${i}" class="kx-status pending">Faltan ${faltanteReal}</div>
+                        </div>
+                    </div>
+                    <div class="kx-stepper">
+                        <button onclick="cambiarPrepRuta(${i},-1)" style="background:#e9eef4;color:#435064;box-shadow:none;">−</button>
+                        <input id="rutaPrep_${i}" type="number" min="0" max="${maxBodega}" step="1" value="${valor}" inputmode="numeric" oninput="validarPrepRuta(${i})">
+                        <button onclick="cambiarPrepRuta(${i},1)" style="background:#087cff;">＋</button>
+                    </div>
+                    <div style="font-size:10px;color:#8a95a3;text-align:center;margin-top:7px;">Preparado por Bodega</div>
+                </div>`;
             }).join('');
-            if(pendientes.length)html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">El avance se guarda temporalmente en este dispositivo.</div><button id="btnGuardarTodoRuteo" onclick="guardarTodoRuteo()" style="background:#28a745;margin:0;padding:14px;">💾 Guardar todo lo preparado</button></div>`;
+
+            if(pendientes.length) html+=`<div class="kx-save">
+                <div style="font-size:10px;color:#788493;text-align:center;margin-bottom:7px;">Tu avance queda guardado temporalmente en este dispositivo.</div>
+                <button id="btnGuardarTodoRuteo" onclick="guardarTodoRuteo()" style="margin:0;padding:14px;">✓ Guardar preparación</button>
+            </div>`;
             document.getElementById("listaRuta").innerHTML=html;
         }
-        function validarPrepRuta(i){if(!rutaActiva||!rutaActiva.productos[i])return;const p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,base=Math.max(0,Number(p.prepBodega)||0),faltanteReal=Math.max(0,-Number(p.diferencia||0)),max=Math.min(req,base+faltanteReal),el=document.getElementById('rutaPrep_'+i);let v=Number(el.value);if(!Number.isFinite(v))v=base;v=Math.min(max,Math.max(0,v));el.value=v;const agregado=Math.max(0,v-base),falta=Math.max(0,faltanteReal-agregado),card=document.getElementById('rutaCard_'+i),est=document.getElementById('rutaEstado_'+i);if(est)est.innerText=falta<=0?'✅ COMPLETO':'Faltan '+falta;if(card){card.style.background=falta<=0?'#f0fff4':(v>0?'#fff8e1':'#fff1f1');card.style.borderColor=falta<=0?'#9ad7a8':(v>0?'#ffe08a':'#f5b5ba');}guardarBorradorRuta();}
+        function validarPrepRuta(i){if(!rutaActiva||!rutaActiva.productos[i])return;const p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,base=Math.max(0,Number(p.prepBodega)||0),faltanteReal=Math.max(0,-Number(p.diferencia||0)),max=Math.min(req,base+faltanteReal),el=document.getElementById('rutaPrep_'+i);let v=Number(el.value);if(!Number.isFinite(v))v=base;v=Math.min(max,Math.max(0,v));el.value=v;const agregado=Math.max(0,v-base),falta=Math.max(0,faltanteReal-agregado),card=document.getElementById('rutaCard_'+i),est=document.getElementById('rutaEstado_'+i);if(est){est.innerText=falta<=0?'✓ Completo':'Faltan '+falta;est.className='kx-status '+(falta<=0?'done':'pending');}guardarBorradorRuta();}
         function cambiarPrepRuta(i,d){const el=document.getElementById('rutaPrep_'+i),p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,base=Math.max(0,Number(p.prepBodega)||0),faltanteReal=Math.max(0,-Number(p.diferencia||0)),max=Math.min(req,base+faltanteReal);el.value=Math.min(max,Math.max(0,(Number(el.value)||0)+d));validarPrepRuta(i);}
         async function guardarTodoRuteo(){
             if(!rutaActiva||!rutaActiva.productos.length)return;
@@ -2734,10 +2724,10 @@ function verificarPassword() {
                 const asignado=vb+vt+vm+vd, sinAsignar=Math.max(0,faltanteReal-asignado);
                 return `<div id="faltCard_${i}" style="background:${sinAsignar?'#fff8e1':'#f0fff4'};border:1px solid ${sinAsignar?'#ffe08a':'#9ad7a8'};border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(p.producto)}</div><div id="faltEstado_${i}" style="font-size:12px;margin:5px 0 9px;">Faltante real: <b>${faltanteReal}</b> · ${sinAsignar?'<b>Sin asignar '+sinAsignar+'</b>':'<b>✅ TODO ASIGNADO</b>'}</div>${campoFuenteRuta(i,'Bodega','b',vb,faltanteReal)}${campoFuenteRuta(i,'Tienda Online Shop','t',vt,faltanteReal)}${campoFuenteRuta(i,'Mini super','m',vm,faltanteReal)}${campoFuenteRuta(i,'Despacho','d',vd,faltanteReal)}</div>`;
             }).join('');
-            html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">Asignar no significa preparado. Cada sucursal debe confirmarlo en Faltantes Kardex.</div><button id="btnGuardarFaltantes" onclick="guardarFaltantesRuta()" style="background:#28a745;margin:0;padding:14px;">💾 Guardar asignación de faltantes</button></div>`;
+            html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">Asignar no significa preparado. Cada sucursal debe confirmarlo en Faltantes Kardex.</div><button id="btnGuardarFaltantes" onclick="guardarFaltantesRuta()" style="background:#087cff;margin:0;padding:14px;">💾 Guardar asignación de faltantes</button></div>`;
             document.getElementById('listaRuta').innerHTML=html;
         }
-        function campoFuenteRuta(i,nombre,k,v,max){return `<div style="display:flex;align-items:center;gap:7px;margin:6px 0;"><div style="width:118px;font-size:11px;font-weight:700;">${nombre}</div><button onclick="cambiarFuenteRuta(${i},'${k}',-1)" style="width:42px;margin:0;background:#6c757d;padding:8px;">−</button><input id="falt_${k}_${i}" type="number" min="0" max="${max}" value="${v}" inputmode="numeric" oninput="validarFuentesRuta(${i},'${k}')" style="flex:1;margin:0;text-align:center;font-weight:800;"><button onclick="cambiarFuenteRuta(${i},'${k}',1)" style="width:42px;margin:0;background:#28a745;padding:8px;">＋</button></div>`;}
+        function campoFuenteRuta(i,nombre,k,v,max){return `<div style="display:flex;align-items:center;gap:7px;margin:6px 0;"><div style="width:118px;font-size:11px;font-weight:700;">${nombre}</div><button onclick="cambiarFuenteRuta(${i},'${k}',-1)" style="width:42px;margin:0;background:#6c757d;padding:8px;">−</button><input id="falt_${k}_${i}" type="number" min="0" max="${max}" value="${v}" inputmode="numeric" oninput="validarFuentesRuta(${i},'${k}')" style="flex:1;margin:0;text-align:center;font-weight:800;"><button onclick="cambiarFuenteRuta(${i},'${k}',1)" style="width:42px;margin:0;background:#087cff;padding:8px;">＋</button></div>`;}
         function valoresFuentesRuta(i){return ['b','t','m','d'].reduce((o,k)=>(o[k]=Math.max(0,Number(document.getElementById(`falt_${k}_${i}`)?.value)||0),o),{});}
         function validarFuentesRuta(i,cambiado){
             const p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,prep=(Number(p.prepBodega)||0)+(Number(p.prepTienda)||0)+(Number(p.prepMiniSuper)||0),max=Math.max(0,req-prep),v=valoresFuentesRuta(i);let total=v.b+v.t+v.m+v.d;
@@ -2761,13 +2751,13 @@ function verificarPassword() {
         }
         function renderFaltantesKardex(){
             const cont=document.getElementById('listaFaltantesKardex');
-            if(!faltantesKardexActuales.length){cont.innerHTML='<div style="background:#f0fff4;border:1px solid #9ad7a8;border-radius:10px;padding:18px;text-align:center;font-weight:800;">✅ No hay faltantes asignados pendientes.</div>';return;}
-            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const asig=Number(x.cantidadAsignada)||0,prep=Number(x.cantidadPreparada)||0,pend=Math.max(0,asig-prep);return `<div style="background:#fff8e1;border:1px solid #ffe08a;border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(x.producto)}</div><div style="font-size:12px;margin:5px 0 9px;">Asignado: <b>${asig}</b> · Falta preparar: <b>${pend}</b></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="cambiarPrepFaltante(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="fkCant_${i}" type="number" min="0" max="${pend}" value="${pend}" inputmode="numeric" oninput="validarPrepFaltante(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarPrepFaltante(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;}).join('')+`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><button id="btnConfirmarFaltantesKardex" onclick="confirmarFaltantesKardex()" style="background:#28a745;margin:0;padding:14px;">✅ Confirmar lo preparado</button></div>`;
+            if(!faltantesKardexActuales.length){cont.innerHTML='<div class="fk-empty">✅ Todo listo<br><span style="font-size:12px;font-weight:600;">No hay faltantes asignados pendientes.</span></div>';return;}
+            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const asig=Number(x.cantidadAsignada)||0,prep=Number(x.cantidadPreparada)||0,pend=Math.max(0,asig-prep);return `<div class="fk-card"><div class="fk-name">${escaparHtmlPedido(x.producto)}</div><div class="fk-meta">Cantidad asignada · <b>${asig}</b></div><div class="fk-pill">Faltan preparar ${pend}</div><div class="fk-stepper"><button onclick="cambiarPrepFaltante(${i},-1)" style="background:#7a858e;">−</button><input id="fkCant_${i}" type="number" min="0" max="${pend}" value="${pend}" inputmode="numeric" oninput="validarPrepFaltante(${i})"><button onclick="cambiarPrepFaltante(${i},1)" style="background:#087cff;">＋</button></div><div style="font-size:10px;color:#8a95a3;text-align:center;margin-top:7px;">Cantidad que preparaste físicamente</div></div>`;}).join('')+`<div class="fk-bottom"><button id="btnConfirmarFaltantesKardex" onclick="confirmarFaltantesKardex()">✓ Confirmar lo preparado</button></div>`;
         }
         function renderRecepcionKardex(){
             const cont=document.getElementById('listaFaltantesKardex');
-            if(!faltantesKardexActuales.length){cont.innerHTML='<div style="background:#f0fff4;border:1px solid #9ad7a8;border-radius:10px;padding:18px;text-align:center;font-weight:800;">✅ No hay productos pendientes de recibir.</div>';return;}
-            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const max=Math.max(0,Number(x.disponibleRecibir)||0);return `<div style="background:#fff8e1;border:1px solid #ffe08a;border-radius:10px;padding:11px;margin:8px 0;"><div style="font-weight:800;font-size:13px;">${escaparHtmlPedido(x.producto)}</div><div style="font-size:11px;color:#666;">Origen: <b>${escaparHtmlPedido(x.sucursal)}</b></div><div style="font-size:12px;margin:5px 0 9px;">Disponible para recibir: <b>${max}</b></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="cambiarRecK(${i},-1)" style="width:52px;margin:0;background:#6c757d;font-size:22px;">−</button><input id="recK_${i}" type="number" min="0" max="${max}" value="${max}" inputmode="numeric" oninput="validarRecK(${i})" style="flex:1;margin:0;text-align:center;font-size:20px;font-weight:800;"><button onclick="cambiarRecK(${i},1)" style="width:52px;margin:0;background:#28a745;font-size:22px;">＋</button></div></div>`;}).join('')+`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.16);"><button id="btnRecK" onclick="confirmarRecK()" style="background:#28a745;margin:0;padding:14px;">🚚 Confirmar recibido</button></div>`;
+            if(!faltantesKardexActuales.length){cont.innerHTML='<div class="fk-empty">✅ Recepción al día<br><span style="font-size:12px;font-weight:600;">No hay productos pendientes de recibir.</span></div>';return;}
+            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const max=Math.max(0,Number(x.disponibleRecibir)||0);return `<div class="fk-card"><div class="fk-name">${escaparHtmlPedido(x.producto)}</div><div class="fk-origin">Origen · ${escaparHtmlPedido(x.sucursal)}</div><div class="fk-meta" style="margin-top:9px;">Disponible para recibir · <b>${max}</b></div><div class="fk-stepper"><button onclick="cambiarRecK(${i},-1)" style="background:#7a858e;">−</button><input id="recK_${i}" type="number" min="0" max="${max}" value="${max}" inputmode="numeric" oninput="validarRecK(${i})"><button onclick="cambiarRecK(${i},1)" style="background:#087cff;">＋</button></div><div style="font-size:10px;color:#8a95a3;text-align:center;margin-top:7px;">Cantidad recibida físicamente</div></div>`;}).join('')+`<div class="fk-bottom"><button id="btnRecK" onclick="confirmarRecK()">🚚 Confirmar recibido</button></div>`;
         }
         function validarRecK(i){const x=faltantesKardexActuales[i],el=document.getElementById('recK_'+i),max=Math.max(0,Number(x.disponibleRecibir)||0);el.value=Math.min(max,Math.max(0,Number(el.value)||0));}
         function cambiarRecK(i,d){const el=document.getElementById('recK_'+i);if(!el)return;el.value=(Number(el.value)||0)+d;validarRecK(i);}
@@ -2802,6 +2792,159 @@ if ("serviceWorker" in navigator) {
         });
     });
 }
+</script>
+
+
+<script>
+(function(){
+  function mejorarRecepcionVisual(){
+    const mod=document.getElementById('moduloRecepcion');
+    if(!mod || mod.style.display==='none') return;
+
+    // Gray decrement buttons; preserve blue + and green completion text.
+    mod.querySelectorAll('button').forEach(b=>{
+      const t=(b.textContent||'').trim();
+      if(t==='−' || t==='-'){
+        b.style.setProperty('background','#7a858e','important');
+        b.style.setProperty('background-image','none','important');
+      }
+    });
+
+    // Detect product cards by their quantity input and add compact status pills.
+    const inputs=[...mod.querySelectorAll('input[type="number"]')];
+    const cards=[];
+    inputs.forEach(inp=>{
+      let card=inp.parentElement;
+      for(let n=0;n<3 && card && card.parentElement;n++){
+        if((card.textContent||'').match(/Ped[ií]\s*:/i)){ break; }
+        card=card.parentElement;
+      }
+      if(card && !cards.includes(card)) cards.push(card);
+    });
+
+    cards.forEach(card=>{
+      const txt=card.textContent||'';
+      const m=txt.match(/Ped[ií]\s*:\s*(\d+(?:\.\d+)?)/i);
+      const inp=card.querySelector('input[type="number"]');
+      if(!m || !inp) return;
+      const pedido=Number(m[1])||0, recibido=Number(inp.value)||0;
+      let pill=card.querySelector('.rx-pill');
+      if(!pill){
+        pill=document.createElement('div');
+        card.appendChild(pill);
+      }
+      const falta=Math.max(0,pedido-recibido);
+      pill.className='rx-pill '+(falta<=0?'done':'pending');
+      pill.textContent=falta<=0?'✓ Completo':'Faltan '+falta;
+    });
+
+    // Summary calculated directly from the visible reception cards.
+    const total=cards.length;
+    if(total){
+      let completos=0;
+      cards.forEach(card=>{
+        const txt=card.textContent||'';
+        const m=txt.match(/Ped[ií]\s*:\s*(\d+(?:\.\d+)?)/i);
+        const inp=card.querySelector('input[type="number"]');
+        if(m && inp && Number(inp.value)>=Number(m[1])) completos++;
+      });
+      const pendientes=total-completos, pct=Math.round(completos/total*100);
+      let dash=mod.querySelector('.rx-dashboard');
+      if(!dash){
+        dash=document.createElement('div');
+        dash.className='rx-dashboard';
+        const firstList=cards[0];
+        firstList.parentElement.insertBefore(dash,firstList);
+      }
+      dash.innerHTML=`<div class="rx-stats">
+        <div class="rx-stat"><strong>${total}</strong><span>PRODUCTOS</span></div>
+        <div class="rx-stat"><strong>${completos}</strong><span>COMPLETOS</span></div>
+        <div class="rx-stat"><strong>${pendientes}</strong><span>PENDIENTES</span></div>
+      </div>
+      <div class="rx-progress-label"><span>Progreso de recepción</span><span>${pct}%</span></div>
+      <div class="rx-progress"><div style="width:${pct}%"></div></div>`;
+    }
+  }
+
+  document.addEventListener('input',e=>{
+    if(e.target && e.target.closest && e.target.closest('#moduloRecepcion')) setTimeout(mejorarRecepcionVisual,0);
+  });
+  document.addEventListener('click',e=>{
+    if(e.target && e.target.closest && e.target.closest('#moduloRecepcion')) setTimeout(mejorarRecepcionVisual,80);
+  });
+  const obs=new MutationObserver(()=>setTimeout(mejorarRecepcionVisual,0));
+  window.addEventListener('load',()=>{
+    const mod=document.getElementById('moduloRecepcion');
+    if(mod) obs.observe(mod,{childList:true,subtree:true});
+    mejorarRecepcionVisual();
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+ function nombreUsuarioConcepto(){
+   try{
+     return String(window.usuarioActual?.nombre||window.empleadoActual?.nombre||localStorage.getItem('nombreEmpleado')||'').trim();
+   }catch(e){return '';}
+ }
+ function mejorarInicioConcepto(){
+   const candidatos=[...document.querySelectorAll('.card')];
+   const menu=candidatos.find(c=>c.querySelector('.menu-grid') && c.offsetParent!==null);
+   if(!menu) return;
+   if(!menu.querySelector('.concept-hero')){
+     const grid=menu.querySelector('.menu-grid');
+     const hero=document.createElement('div');
+     hero.className='concept-hero';
+     const n=nombreUsuarioConcepto();
+     hero.innerHTML=`<div class="hello">Hola${n?', '+n:''} 👋</div>
+       <div class="sub">¿Qué deseas hacer hoy?</div>
+       <div class="concept-banner"><div class="ico">📦</div><div><strong>Todo en un solo lugar</strong><small>Controla pedidos, inventario y despacho desde aquí.</small></div></div>`;
+     grid.parentElement.insertBefore(hero,grid);
+   }
+   if(!menu.querySelector('.concept-nav')){
+     const nav=document.createElement('div'); nav.className='concept-nav';
+     nav.innerHTML=`<button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ni">⌂</span>Inicio</button>
+       <button onclick="document.querySelector('[onclick*=\\'abrirRuta\\'],[onclick*=\\'mostrarRuta\\']')?.click()"><span class="ni">▣</span>Kardex</button>
+       <button onclick="document.querySelector('[onclick*=\\'Pedido\\'],[onclick*=\\'pedido\\']')?.click()"><span class="ni">🛒</span>Pedidos</button>
+       <button onclick="document.querySelector('[onclick*=\\'Asistencia\\'],[onclick*=\\'asistencia\\']')?.click()"><span class="ni">♧</span>Control</button>
+       <button><span class="ni">☰</span>Más</button>`;
+     menu.appendChild(nav);
+   }
+ }
+ function mejorarKardexConcepto(){
+   const mod=document.getElementById('moduloRuta');
+   if(!mod || mod.style.display==='none') return;
+   const lista=document.getElementById('listaRuta');
+   if(!lista) return;
+   if(!mod.querySelector('.kx-search')){
+     const tools=document.createElement('div');
+     tools.innerHTML=`<div class="kx-search"><input id="kxBuscar" type="search" placeholder="Buscar producto..."><button type="button">⚙</button></div>
+       <div class="kx-tabs"><button class="active" data-kf="all">Todos</button><button data-kf="pending">Pendientes</button><button data-kf="done">Completos</button></div>`;
+     lista.parentElement.insertBefore(tools,lista);
+     const buscar=tools.querySelector('#kxBuscar');
+     const aplicar=()=>{
+       const q=(buscar.value||'').toLowerCase().trim();
+       const active=tools.querySelector('.kx-tabs button.active')?.dataset.kf||'all';
+       lista.querySelectorAll('.kx-product').forEach(card=>{
+         const text=(card.textContent||'').toLowerCase();
+         const done=!!card.querySelector('.kx-status.done');
+         const filtro=active==='all'||(active==='done'&&done)||(active==='pending'&&!done);
+         card.style.display=(filtro && (!q||text.includes(q)))?'':'none';
+       });
+     };
+     buscar.addEventListener('input',aplicar);
+     tools.querySelectorAll('.kx-tabs button').forEach(b=>b.addEventListener('click',()=>{
+       tools.querySelectorAll('.kx-tabs button').forEach(x=>x.classList.remove('active'));
+       b.classList.add('active'); aplicar();
+     }));
+   }
+ }
+ const run=()=>{mejorarInicioConcepto();mejorarKardexConcepto();};
+ window.addEventListener('load',()=>{run();new MutationObserver(()=>setTimeout(run,0)).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});});
+ document.addEventListener('click',()=>setTimeout(run,100));
+})();
 </script>
 
 </body>
