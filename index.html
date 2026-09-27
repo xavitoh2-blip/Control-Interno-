@@ -602,7 +602,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.1 · Compacto corregido</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.2 · Compacto corregido</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1069,6 +1069,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         }
 
         function abrirModulo(nombre) {
+            cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
             ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloRuta","moduloFaltantesKardex"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "asistencia") {
@@ -1195,7 +1196,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 const sel = faltantesGondola[key];
                 return `<div class="gondola-producto ${sel?'seleccionado':''}">
                     <div class="gondola-producto-fila">
-                        <div><strong>${escaparHtmlPedido(p.producto)}</strong></div>
+                        <div style="display:flex;align-items:center;gap:10px;min-width:0;">${imagenProductoGlobal(p.producto,p,50)}<div><strong>${escaparHtmlPedido(p.producto)}</strong></div></div>
                         <button onclick="toggleFaltanteGondola('${escaparJsGondola(p.producto)}')" style="width:auto;margin:0;padding:8px 10px;background:${sel?'#28a745':'#007bff'};font-size:11px;">${sel?'✓ Faltante':'Marcar faltante'}</button>
                     </div>
                     ${sel?`<div class="gondola-cantidad"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',-1)" style="background:#6c757d;">−</button><input readonly value="${sel.cantidad}"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',1)" style="background:#087cff;">＋</button></div>`:''}
@@ -1459,9 +1460,9 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             listaCuadresPendientes.forEach((item, index) => {
                 html += `
                 <div class="item-cuadre">
-                    <div>
-                        <strong>${item.producto}</strong><br>
-                        <span style="color:#666;">Físico: ${item.fisico} | Dif: ${item.diferencia > 0 ? '+' + item.diferencia : item.diferencia}</span>
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                        ${imagenProductoGlobal(item.producto,item,50)}<div><strong>${escaparHtmlPedido(item.producto)}</strong><br>
+                        <span style="color:#666;">Físico: ${item.fisico} | Dif: ${item.diferencia > 0 ? '+' + item.diferencia : item.diferencia}</span></div>
                     </div>
                     <button class="btn-del" onclick="eliminarDeLaLista(${index})">✕</button>
                 </div>`;
@@ -1760,7 +1761,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 return;
             }
             cont.innerHTML = resultados.map((item, i) =>
-                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})"><span class="pedido-codigo">${escaparHtmlPedido(item.codigo)}</span>${item.codigo ? ' - ' : ''}${escaparHtmlPedido(item.producto)}</div>`
+                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(item.producto,item,42)}<div><span class="pedido-codigo">${escaparHtmlPedido(item.codigo)}</span>${item.codigo ? ' - ' : ''}${escaparHtmlPedido(item.producto)}</div></div>`
             ).join("");
             cont.style.display = "block";
         }
@@ -1786,6 +1787,49 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 <div class="rx-progress"><div style="width:${pct}%"></div></div>
             </div>`;
         }
+        // ===== IMÁGENES GLOBALES DE PRODUCTOS v1.6.2 =====
+        let mapaImagenesProductosGlobal = {};
+        let promesaImagenesProductosGlobal = null;
+        function claveImagenProducto(nombre){
+            return String(nombre||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase();
+        }
+        function cargarImagenesProductosGlobal(){
+            if(Object.keys(mapaImagenesProductosGlobal).length) return Promise.resolve(mapaImagenesProductosGlobal);
+            if(promesaImagenesProductosGlobal) return promesaImagenesProductosGlobal;
+            promesaImagenesProductosGlobal=fetch(URL_API+'?accion=verCatalogoImagenes&_='+Date.now(),{cache:'no-store'})
+              .then(r=>r.json()).then(data=>{
+                const arr=Array.isArray(data)?data:(Array.isArray(data.productos)?data.productos:[]);
+                arr.forEach(x=>{
+                    const nombre=Array.isArray(x)?x[0]:(x.producto||x.Producto||x.nombre||'');
+                    const imagen=Array.isArray(x)?x[1]:(x.imagen||x.Imagen||x.url||'');
+                    if(nombre&&imagen) mapaImagenesProductosGlobal[claveImagenProducto(nombre)]=String(imagen).trim();
+                });
+                return mapaImagenesProductosGlobal;
+              }).catch(e=>{console.warn('No se pudo cargar catálogo de imágenes:',e);return mapaImagenesProductosGlobal;})
+              .finally(()=>{promesaImagenesProductosGlobal=null;});
+            return promesaImagenesProductosGlobal;
+        }
+        function urlImagenProducto(nombre,obj){
+            const directa=String(obj?.imagen||obj?.Imagen||'').trim();
+            return directa||mapaImagenesProductosGlobal[claveImagenProducto(nombre)]||'';
+        }
+        function imagenProductoGlobal(nombre,obj,tam=54){
+            const url=urlImagenProducto(nombre,obj);
+            const base=`width:${tam}px;height:${tam}px;flex:0 0 ${tam}px;border-radius:13px;border:1px solid #e4e8ee;background:#f3f5f7;display:flex;align-items:center;justify-content:center;overflow:hidden;`;
+            if(!url) return `<div class="prod-img-global" style="${base}font-size:24px;">📦</div>`;
+            return `<div class="prod-img-global" style="${base}"><img src="${escaparHtmlPedido(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='📦';this.parentElement.style.fontSize='24px'" style="width:100%;height:100%;object-fit:contain;background:#fff;"></div>`;
+        }
+        function refrescarVistasConImagenes(){
+            try{ if(document.getElementById('vistaProductosGondola')?.style.display!=='none'&&gondolaActual&&anaquelActual) renderProductosAnaquel(); }catch(_){ }
+            try{ if(listaCuadresPendientes?.length) renderizarListaAcumulada(); }catch(_){ }
+            try{ if(listaPedidoPendiente?.length) renderizarListaPedido(); }catch(_){ }
+            try{ if(pedidosRecepcionActuales?.length) cargarPedidosParaRecepcion(); }catch(_){ }
+            try{ if(pedidoBodegaAbierto) renderizarDetallePedidoBodega(pedidoBodegaAbierto); }catch(_){ }
+            try{ if(comprasPendientesActuales?.length) renderizarComprasPendientes(); }catch(_){ }
+            try{ if(gestionComprasAdminActual?.length) renderizarGestionComprasAdmin(); }catch(_){ }
+        }
+        window.addEventListener('load',()=>cargarImagenesProductosGlobal().then(refrescarVistasConImagenes));
+
         function escaparHtmlPedido(valor) {
             return String(valor ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
         }
@@ -1839,7 +1883,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             cont.style.display = "block";
             lista.innerHTML = listaPedidoPendiente.map((item, index) => `
                 <div class="pedido-item">
-                    <div><strong>${escaparHtmlPedido(item.producto)}</strong><br><span style="color:#666;">Código: ${escaparHtmlPedido(item.codigo || '-')} | Cantidad: ${item.cantidad}</span></div>
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0;">${imagenProductoGlobal(item.producto,item,50)}<div><strong>${escaparHtmlPedido(item.producto)}</strong><br><span style="color:#666;">Código: ${escaparHtmlPedido(item.codigo || '-')} | Cantidad: ${item.cantidad}</span></div></div>
                     <button class="btn-del" onclick="eliminarProductoPedido(${index})">✕</button>
                 </div>`).join("");
         }
@@ -1957,7 +2001,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                             pedidoAnterior = item.idPedido;
                         }
                         html += `<div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:8px;padding:10px;margin:8px 0;">
-                            <div style="font-weight:700;font-size:13px;margin-bottom:6px;">${escaparHtmlPedido(item.producto)}</div>
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">${imagenProductoGlobal(item.producto,item,52)}<div style="font-weight:700;font-size:13px;">${escaparHtmlPedido(item.producto)}</div></div>
                             <div style="font-size:12px;color:#555;margin-bottom:6px;">Pedí: <strong>${item.cantidadPedida}</strong></div>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <button type="button" onclick="cambiarCantidadRecibida(${index},-1)" style="width:48px;height:44px;margin:0;background:#7a858e;font-size:20px;padding:0;">−</button>
@@ -2186,7 +2230,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 const borde = revisado ? (completa ? '#b7e1c1' : '#ffd59a') : '#e9ecef';
                 html += `
                     <div style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:12px;margin:9px 0;">
-                        <div style="font-size:14px;font-weight:800;color:#2c3e50;margin-bottom:5px;">${escaparHtmlPedido(item.producto)}</div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">${imagenProductoGlobal(item.producto,item,54)}<div style="font-size:14px;font-weight:800;color:#2c3e50;">${escaparHtmlPedido(item.producto)}</div></div>
                         <div style="font-size:13px;color:#555;margin-bottom:9px;">Necesitan: <strong style="font-size:16px;color:#111;">${item.cantidadSolicitada}</strong></div>
                         ${!revisado ? `
                             <div style="display:flex;gap:8px;">
@@ -2319,7 +2363,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             if (btn) btn.disabled = false;
             cont.innerHTML = comprasPendientesActuales.map(c => `
                 <div style="border:1px solid #e1e5ea;border-radius:10px;padding:12px;margin:9px 0;background:#fff;">
-                    <div style="font-weight:800;font-size:14px;">${escaparHtmlPedido(c.producto)}</div>
+                    <div style="display:flex;align-items:center;gap:10px;">${imagenProductoGlobal(c.producto,c,52)}<div style="font-weight:800;font-size:14px;">${escaparHtmlPedido(c.producto)}</div></div>
                     <div style="font-size:12px;color:#555;margin:5px 0;">Solicitar: <strong style="font-size:16px;">${c.cantidad}</strong></div>
                     <div style="font-size:11px;color:#777;">${c.tipo === 'Abastecimiento' ? '📦 Abastecimiento de Bodega' : '⚠️ Faltante para ' + escaparHtmlPedido(c.sucursal || '')}</div>
                 </div>`).join('');
@@ -2333,7 +2377,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             if (!q) { cont.style.display="none"; return; }
             if (!catalogoProductosPedido.length) { cargarCatalogoProductosPedido().then(buscarProductoCompra); return; }
             const rs = catalogoProductosPedido.filter(x => normalizarBusquedaPedido(x.codigo).includes(q) || normalizarBusquedaPedido(x.producto).includes(q)).slice(0,20);
-            cont.innerHTML = rs.length ? rs.map(x => `<div class="pedido-resultado" onclick="seleccionarProductoCompra(${catalogoProductosPedido.indexOf(x)})">${escaparHtmlPedido(x.producto)}</div>`).join('') : '<div class="pedido-resultado">Sin resultados</div>';
+            cont.innerHTML = rs.length ? rs.map(x => `<div class="pedido-resultado" onclick="seleccionarProductoCompra(${catalogoProductosPedido.indexOf(x)})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(x.producto,x,42)}<div>${escaparHtmlPedido(x.producto)}</div></div>`).join('') : '<div class="pedido-resultado">Sin resultados</div>';
             cont.style.display="block";
         }
 
@@ -2441,7 +2485,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                     <label style="display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;margin-bottom:8px;cursor:pointer;">
                         <input id="admComprar_${i}" type="checkbox" ${comprar?'checked':''} onchange="cambiarSeleccionCompra(${i})" style="width:21px;height:21px;margin:0;accent-color:#28a745;"> ☑️ Comprar este producto
                     </label>
-                    <div style="font-weight:800;font-size:15px;">${escaparHtmlPedido(c.producto)}</div>
+                    <div style="display:flex;align-items:center;gap:10px;">${imagenProductoGlobal(c.producto,c,54)}<div style="font-weight:800;font-size:15px;">${escaparHtmlPedido(c.producto)}</div></div>
                     <div style="font-size:11px;color:#666;margin:4px 0 9px;">Solicitado: <b>${c.cantidad}</b> · ${escaparHtmlPedido(c.tipo)} · ${escaparHtmlPedido(c.sucursal||'Bodega')}</div>
                     <div style="display:flex;gap:8px;"><div style="flex:1;"><label style="font-size:11px;">Cantidad</label><input id="admCant_${i}" type="number" min="0" value="${c.cantidadComprada||c.cantidad}" oninput="actualizarTotalAdmin()"></div><div style="flex:1;"><label style="font-size:11px;">Costo unitario $ <span style="color:#28a745;">(Catálogo)</span></label><input id="admCosto_${i}" type="number" min="0" step="0.0001" value="${c.costoUnitario||''}" oninput="actualizarTotalAdmin()"></div></div>
                     <div id="admSub_${i}" style="font-weight:800;text-align:right;margin:4px 0 10px;">Subtotal: $${sub.toFixed(2)}</div>
