@@ -526,6 +526,73 @@ body:has(#menuPrincipal:not([style*="display: none"])) #versionSistema{
   #menuPrincipal .menu-modulo{min-height:88px!important}
 }
 
+
+
+/* ===== v1.6.1 · CORRECCIÓN REAL DEL MENÚ COMPACTO ===== */
+/* Se activa únicamente cuando el login ya está oculto. */
+body:has(#pantallaLogin[style*="display: none"]) #encabezadoLogo{
+  margin:14px 0 4px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #encabezadoLogo img{
+  width:46px!important;height:46px!important;padding:6px!important;border-radius:15px!important;
+  box-shadow:0 7px 18px rgba(35,118,205,.14)!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #tituloControlOperativo{
+  margin:3px 0 12px!important;font-size:20px!important;line-height:1.05!important;
+  letter-spacing:-.45px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #tituloControlOperativo::after{
+  display:none!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #pantallaPrincipal{
+  margin-top:0!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #pantallaPrincipal > .card:first-child{
+  margin-top:8px!important;padding:14px 16px!important;border-radius:24px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos{
+  margin-top:14px!important;padding:16px!important;border-radius:28px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos > h3{
+  margin:2px 0 10px!important;padding-bottom:10px!important;font-size:20px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .concept-hero{
+  padding:14px 16px!important;margin:10px 0 16px!important;border-radius:23px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .concept-hero .hello{
+  font-size:24px!important;line-height:1.05!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .concept-hero .sub{
+  margin-top:4px!important;font-size:13px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .concept-banner{
+  min-height:0!important;margin-top:11px!important;padding:10px 12px!important;
+  border-radius:17px!important;display:flex!important;align-items:center!important;gap:10px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .concept-banner .ico{
+  font-size:27px!important;flex:0 0 auto!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .concept-banner strong{
+  font-size:14px!important;line-height:1.2!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .concept-banner small{
+  margin-top:2px!important;font-size:11.5px!important;line-height:1.25!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .menu-grid{
+  gap:12px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos .menu-modulo{
+  min-height:88px!important;padding:12px!important;border-radius:21px!important;
+}
+body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
+  position:static!important;margin:16px auto 7px!important;padding:0!important;
+  font-size:11px!important;background:transparent!important;border:0!important;box-shadow:none!important;
+}
+@media(max-width:430px){
+  body:has(#pantallaLogin[style*="display: none"]) #encabezadoLogo{margin-top:10px!important}
+  body:has(#pantallaLogin[style*="display: none"]) #menuPrincipalModulos{width:calc(100% - 16px)!important}
+}
+
 </style>
 </head>
 <body>
@@ -535,7 +602,7 @@ body:has(#menuPrincipal:not([style*="display: none"])) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.0 · Menú compacto</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.1 · Compacto corregido</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
