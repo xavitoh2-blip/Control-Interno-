@@ -233,6 +233,46 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
  background:#7a858e!important;background-image:none!important;color:#fff!important;
 }
 
+
+/* ===== v1.5.0 · CONCEPTO PRINCIPAL ONLINE SHOP ===== */
+body{background:
+ radial-gradient(circle at 80px 120px,rgba(26,129,255,.15),transparent 190px),
+ radial-gradient(circle at 90% 18%,rgba(94,160,255,.14),transparent 230px),
+ linear-gradient(180deg,#eef5fd,#f6f9fd 48%,#eef4fa)!important}
+.card{max-width:430px!important}
+#tituloControlOperativo{font-size:20px!important}
+.menu-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
+.menu-modulo{
+ min-height:84px!important;padding:12px!important;border-radius:19px!important;
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:flex-start!important;text-align:left!important;gap:10px!important;
+ background:rgba(255,255,255,.82)!important
+}
+.menu-modulo span{flex:0 0 44px!important;width:44px!important;height:44px!important;border-radius:14px!important}
+.menu-modulo b,.menu-modulo strong{font-size:12px!important}
+.concept-hero{background:linear-gradient(135deg,#0b3979,#087cff);color:#fff;border-radius:22px;padding:16px;margin:8px 0 14px;box-shadow:0 12px 28px rgba(5,78,170,.22);text-align:left}
+.concept-hero .hello{font-size:22px;font-weight:900;letter-spacing:-.4px}
+.concept-hero .sub{font-size:12px;opacity:.88;margin-top:3px}
+.concept-banner{display:flex;align-items:center;gap:12px;margin-top:14px;background:rgba(0,0,0,.14);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:12px}
+.concept-banner .ico{font-size:35px}
+.concept-banner strong{display:block;font-size:13px}
+.concept-banner small{font-size:11px;opacity:.9}
+.concept-nav{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid #dfe7f0;border-radius:20px;padding:7px 4px;box-shadow:0 10px 30px rgba(28,55,90,.15);margin-top:14px}
+.concept-nav button{background:transparent!important;color:#6e7b8d!important;box-shadow:none!important;padding:4px 1px!important;min-height:45px!important;font-size:9px!important;border-radius:12px!important}
+.concept-nav button .ni{display:block;font-size:18px;margin-bottom:2px}
+.concept-nav button.active{color:#087cff!important;background:#edf6ff!important}
+.kx-search{display:grid;grid-template-columns:1fr 46px;gap:8px;margin:12px 0}
+.kx-search input{margin:0!important;background:#fff!important;padding-left:14px!important}
+.kx-search button{margin:0!important;padding:0!important;background:#fff!important;color:#344258!important;border:1px solid #dfe7f0!important;box-shadow:none!important}
+.kx-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#e8edf4;padding:4px;border-radius:16px;margin:10px 0}
+.kx-tabs button{margin:0!important;min-height:39px!important;background:transparent!important;color:#5e6b7c!important;box-shadow:none!important;font-size:11px!important;padding:6px!important}
+.kx-tabs button.active{background:#087cff!important;color:#fff!important}
+#listaRuta .kx-product{padding:10px!important;border-radius:18px!important}
+#listaRuta .kx-top{gap:10px!important}
+#listaRuta .kx-photo{width:64px!important;height:64px!important;flex-basis:64px!important;border-radius:15px!important}
+#listaRuta .kx-name{font-size:13px!important}
+#listaRuta .kx-stepper{margin-top:9px!important}
+
 </style>
 </head>
 <body>
@@ -242,7 +282,7 @@ button[onclick*="cambiarAsignacion"][data-delta="-1"]{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.4.1 · Recepción moderna</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.5.0 · Nuevo concepto</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2838,6 +2878,72 @@ if ("serviceWorker" in navigator) {
     if(mod) obs.observe(mod,{childList:true,subtree:true});
     mejorarRecepcionVisual();
   });
+})();
+</script>
+
+
+<script>
+(function(){
+ function nombreUsuarioConcepto(){
+   try{
+     return String(window.usuarioActual?.nombre||window.empleadoActual?.nombre||localStorage.getItem('nombreEmpleado')||'').trim();
+   }catch(e){return '';}
+ }
+ function mejorarInicioConcepto(){
+   const candidatos=[...document.querySelectorAll('.card')];
+   const menu=candidatos.find(c=>c.querySelector('.menu-grid') && c.offsetParent!==null);
+   if(!menu) return;
+   if(!menu.querySelector('.concept-hero')){
+     const grid=menu.querySelector('.menu-grid');
+     const hero=document.createElement('div');
+     hero.className='concept-hero';
+     const n=nombreUsuarioConcepto();
+     hero.innerHTML=`<div class="hello">Hola${n?', '+n:''} 👋</div>
+       <div class="sub">¿Qué deseas hacer hoy?</div>
+       <div class="concept-banner"><div class="ico">📦</div><div><strong>Todo en un solo lugar</strong><small>Controla pedidos, inventario y despacho desde aquí.</small></div></div>`;
+     grid.parentElement.insertBefore(hero,grid);
+   }
+   if(!menu.querySelector('.concept-nav')){
+     const nav=document.createElement('div'); nav.className='concept-nav';
+     nav.innerHTML=`<button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ni">⌂</span>Inicio</button>
+       <button onclick="document.querySelector('[onclick*=\\'abrirRuta\\'],[onclick*=\\'mostrarRuta\\']')?.click()"><span class="ni">▣</span>Kardex</button>
+       <button onclick="document.querySelector('[onclick*=\\'Pedido\\'],[onclick*=\\'pedido\\']')?.click()"><span class="ni">🛒</span>Pedidos</button>
+       <button onclick="document.querySelector('[onclick*=\\'Asistencia\\'],[onclick*=\\'asistencia\\']')?.click()"><span class="ni">♧</span>Control</button>
+       <button><span class="ni">☰</span>Más</button>`;
+     menu.appendChild(nav);
+   }
+ }
+ function mejorarKardexConcepto(){
+   const mod=document.getElementById('moduloRuta');
+   if(!mod || mod.style.display==='none') return;
+   const lista=document.getElementById('listaRuta');
+   if(!lista) return;
+   if(!mod.querySelector('.kx-search')){
+     const tools=document.createElement('div');
+     tools.innerHTML=`<div class="kx-search"><input id="kxBuscar" type="search" placeholder="Buscar producto..."><button type="button">⚙</button></div>
+       <div class="kx-tabs"><button class="active" data-kf="all">Todos</button><button data-kf="pending">Pendientes</button><button data-kf="done">Completos</button></div>`;
+     lista.parentElement.insertBefore(tools,lista);
+     const buscar=tools.querySelector('#kxBuscar');
+     const aplicar=()=>{
+       const q=(buscar.value||'').toLowerCase().trim();
+       const active=tools.querySelector('.kx-tabs button.active')?.dataset.kf||'all';
+       lista.querySelectorAll('.kx-product').forEach(card=>{
+         const text=(card.textContent||'').toLowerCase();
+         const done=!!card.querySelector('.kx-status.done');
+         const filtro=active==='all'||(active==='done'&&done)||(active==='pending'&&!done);
+         card.style.display=(filtro && (!q||text.includes(q)))?'':'none';
+       });
+     };
+     buscar.addEventListener('input',aplicar);
+     tools.querySelectorAll('.kx-tabs button').forEach(b=>b.addEventListener('click',()=>{
+       tools.querySelectorAll('.kx-tabs button').forEach(x=>x.classList.remove('active'));
+       b.classList.add('active'); aplicar();
+     }));
+   }
+ }
+ const run=()=>{mejorarInicioConcepto();mejorarKardexConcepto();};
+ window.addEventListener('load',()=>{run();new MutationObserver(()=>setTimeout(run,0)).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});});
+ document.addEventListener('click',()=>setTimeout(run,100));
 })();
 </script>
 
