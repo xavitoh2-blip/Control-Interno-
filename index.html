@@ -602,7 +602,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.4 · Catálogo de imágenes corregido</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.6 · Mensajes dinámicos</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1811,13 +1811,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             promesaImagenesProductosGlobal=fetch(URL_API+'?accion=verCatalogoImagenes&_='+Date.now(),{cache:'no-store'})
               .then(r=>r.json()).then(data=>{
                 const arr=Array.isArray(data)?data:(Array.isArray(data.productos)?data.productos:[]);
-                if(data && data.mapa && typeof data.mapa==='object'){
-                    Object.keys(data.mapa).forEach(nombre=>{
-                        const url=data.mapa[nombre];
-                        if(url) mapaImagenesProductosGlobal[claveImagenProducto(nombre)]=String(url).trim();
-                    });
-                }
-                console.log('Catálogo global de imágenes cargado:',arr.length,'productos · mapa:',Object.keys(mapaImagenesProductosGlobal).length);
+                console.log('Catálogo global de imágenes cargado:',arr.length,'productos');
                 arr.forEach(x=>{
                     const nombre=Array.isArray(x)?x[0]:(x.producto||x.Producto||x.nombre||'');
                     const imagen=Array.isArray(x)?x[1]:(x.imagen||x.Imagen||x.url||'');
@@ -2959,16 +2953,12 @@ function verificarPassword() {
         }
 
         async function cargarRutaActiva(){
-            await cargarImagenesProductosGlobal();
             const cont=document.getElementById("listaRuta"), resumen=document.getElementById("rutaResumen"), btnCrear=document.getElementById("btnCrearRuta"), etapas=document.getElementById('rutaEtapas');
             cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando...</p>';
             try{
                 const r=await fetch(URL_API+"?accion=verRutaActiva&_="+Date.now()), data=await r.json();
                 if(!r.ok||data.status!=="OK") throw new Error(data.mensaje||"No se pudo cargar la ruta.");
                 rutaActiva=data.ruta||null;
-                if(rutaActiva && Array.isArray(rutaActiva.productos)){
-                    rutaActiva.productos.forEach(p=>{ if(!p.imagen) p.imagen=urlImagenProducto(p.producto,p); });
-                }
                 if(!rutaActiva){resumen.innerHTML='No hay una ruta activa. Puedes crearla usando <b>Pagina 1, columnas A:B</b>.';cont.innerHTML='';btnCrear.style.display='block';if(etapas)etapas.style.display='none';return;}
                 btnCrear.style.display='none'; if(etapas)etapas.style.display='flex'; actualizarResumenRuta();
                 if(etapaRutaActual==='faltantes')renderRutaFaltantes();else renderRutaBodega();
@@ -3293,7 +3283,7 @@ if ("serviceWorker" in navigator) {
      const n=nombreUsuarioConcepto();
      hero.innerHTML=`<div class="hello">Hola${n?', '+n:''} 👋</div>
        <div class="sub">¿Qué deseas hacer hoy?</div>
-       <div class="concept-banner"><div class="ico">📦</div><div><strong>Todo en un solo lugar</strong><small>Controla pedidos, inventario y despacho desde aquí.</small></div></div>`;
+       <div class="concept-banner" id="panelMensajeDinamico"><div class="ico" id="mensajeIcono">📌</div><div><strong id="mensajeTitulo">Recordatorio</strong><small id="mensajeTexto">Cargando mensajes...</small><small id="mensajeIndicador" style="opacity:.65;font-size:10px;margin-top:4px"></small></div></div>`;
      grid.parentElement.insertBefore(hero,grid);
    }
 
@@ -3330,6 +3320,28 @@ if ("serviceWorker" in navigator) {
  window.addEventListener('load',()=>{run();new MutationObserver(()=>setTimeout(run,0)).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});});
  document.addEventListener('click',()=>setTimeout(run,100));
 })();
+</script>
+
+
+<script>
+let mensajesDinamicos=[],indiceMensajeDinamico=0,timerMensajeDinamico=null;
+function visualMensaje(t){t=String(t||'').toLowerCase();if(t.includes('record'))return['📌','Recordatorio'];if(t.includes('fe')||t.includes('dios'))return['🙏','Mensaje de fe'];return['✨','Para ti'];}
+function mostrarMensajeDinamico(i){
+ if(!mensajesDinamicos.length)return; indiceMensajeDinamico=(i+mensajesDinamicos.length)%mensajesDinamicos.length;
+ const m=mensajesDinamicos[indiceMensajeDinamico],v=visualMensaje(m.tipo),p=document.getElementById('panelMensajeDinamico');
+ if(p){p.style.transition='opacity .25s ease,transform .25s ease';p.style.opacity='.35';p.style.transform='translateY(3px)';}
+ setTimeout(()=>{let a=document.getElementById('mensajeIcono'),b=document.getElementById('mensajeTitulo'),c=document.getElementById('mensajeTexto'),d=document.getElementById('mensajeIndicador');if(a)a.textContent=v[0];if(b)b.textContent=v[1];if(c)c.textContent=m.mensaje;if(d)d.textContent=(indiceMensajeDinamico+1)+' / '+mensajesDinamicos.length;if(p){p.style.opacity='1';p.style.transform='translateY(0)';}},160);
+}
+async function cargarMensajesDinamicos(){
+ try{
+  const s=(document.getElementById('selectSucursal')?.value||'').trim();
+  const r=await fetch(URL_API+'?accion=verMensajes&sucursal='+encodeURIComponent(s)+'&_='+Date.now(),{cache:'no-store'}),data=await r.json();
+  mensajesDinamicos=Array.isArray(data.mensajes)?data.mensajes:[];
+ }catch(e){mensajesDinamicos=[];}
+ if(!mensajesDinamicos.length)mensajesDinamicos=[{tipo:'Motivación',mensaje:'Cada día es una nueva oportunidad para hacer un excelente trabajo.'}];
+ mostrarMensajeDinamico(0);if(timerMensajeDinamico)clearInterval(timerMensajeDinamico);timerMensajeDinamico=setInterval(()=>mostrarMensajeDinamico(indiceMensajeDinamico+1),10000);
+}
+window.addEventListener('load',()=>setTimeout(cargarMensajesDinamicos,1200));
 </script>
 
 </body>
