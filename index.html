@@ -705,7 +705,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.14 · Distribución visual de productos</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.15 · Imágenes por lote</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1023,6 +1023,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 <button class="menu-modulo" onclick="abrirModuloAdmin('pedidos')"><span>🛍️</span>Pedidos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('compras')"><span>🛒</span>Gestión de Compras</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
             </div>
         </div>
 
@@ -1084,6 +1085,33 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             <hr style="border:none;border-top:1px solid #e4e9ef;margin:18px 0;">
             <div style="display:flex;justify-content:space-between;align-items:center;"><h4 style="margin:0;">Productos ubicados</h4><button onclick="cargarUbicacionesAdminGondola()" style="width:auto;padding:8px 11px;background:#0878f9;font-size:11px;">👁 Ver ubicaciones</button></div>
             <div id="listaUbicacionesAdminGondola" style="margin-top:10px;"></div>
+        </div>
+
+        <div id="adminImagenes" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+            <h4>🖼️ Imágenes de productos</h4>
+            <p style="font-size:12px;color:#667085;">Busca un producto, pega el enlace de su imagen y agrégalo a la lista. Puedes guardar todo el lote de una sola vez.</p>
+
+            <label>Buscar producto</label>
+            <div style="position:relative;">
+                <input id="adminImgBuscar" type="text" placeholder="Escribe el producto..." oninput="buscarProductoAdminImagen()" autocomplete="off">
+                <div id="adminImgResultados" class="pedido-resultados" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:9999;max-height:280px;overflow-y:auto;background:#fff;border:1px solid #d9e2ef;border-radius:16px;box-shadow:0 14px 32px rgba(31,55,85,.18);"></div>
+            </div>
+
+            <div id="adminImgProducto" style="display:none;margin:12px 0;background:#f7faff;border:1px solid #dce9f8;border-radius:18px;padding:12px;"></div>
+
+            <label>Link de imagen</label>
+            <input id="adminImgLink" type="url" inputmode="url" placeholder="https://..." oninput="vistaPreviaAdminImagen()">
+            <div id="adminImgPreview" style="display:none;text-align:center;margin:10px 0;"></div>
+            <button onclick="agregarImagenPendiente()" style="background:#0878f9;">＋ Agregar a la lista</button>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+                <h4 style="margin:0;">Pendientes</h4>
+                <span id="adminImgContador" style="font-size:12px;font-weight:800;color:#0878f9;">0 imágenes</span>
+            </div>
+            <div id="adminImgLista" style="margin-top:10px;"><p style="font-size:12px;color:#888;text-align:center;">Todavía no has agregado imágenes.</p></div>
+            <button id="adminImgGuardarTodo" onclick="guardarLoteImagenes()" style="display:none;background:#198754;margin-top:14px;">💾 Guardar todas las imágenes</button>
+            <div id="adminImgEstado" style="font-size:12px;text-align:center;margin:10px 0;"></div>
         </div>
     </div>
 
@@ -3007,14 +3035,124 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         async function quitarUbicacionAdminGondola(){if(productoAdminGondola&&confirm("¿Quitar esta ubicación?"))await enviarUbicacionAdminGondola("quitar","","");}
         async function enviarUbicacionAdminGondola(m,g,a){const e=document.getElementById("estadoAdminGondola");e.textContent="Guardando...";try{const p=new URLSearchParams({accion:"GuardarUbicacionGondola",modo:m,sucursal:document.getElementById("adminGondolaSucursal").value,producto:productoAdminGondola.producto,gondola:g,anaquel:a});const r=await fetch(URL_API,{method:"POST",body:p}),d=await r.json();if(d.status!=="OK")throw Error(d.mensaje||"Error");e.style.color="#198754";e.textContent=m==="quitar"?"✓ Ubicación eliminada":"✓ Ubicación guardada";ubicacionesAdminGondola=[];document.getElementById("listaUbicacionesAdminGondola").innerHTML='<p style="font-size:12px;color:#718096;text-align:center;">Ubicación actualizada. Pulsa “Ver ubicaciones” para recargar la lista.</p>';const i=catalogoProductosPedido.findIndex(x=>claveImagenProducto(typeof x==="string"?x:x.producto)===claveImagenProducto(productoAdminGondola.producto));seleccionarProductoAdminGondola(i);}catch(err){console.error(err);e.style.color="#dc3545";e.textContent="No se pudo guardar.";}}
 
+
+        // ===== ADMINISTRAR IMÁGENES POR LOTE v1.6.15 =====
+        let productoAdminImagen=null;
+        let imagenesPendientesAdmin=[];
+
+        async function iniciarAdminImagenes(){
+            if(!catalogoProductosPedido.length) await cargarCatalogoProductosPedido();
+            if(!Object.keys(mapaImagenesProductosGlobal||{}).length) await cargarImagenesProductosGlobal();
+            renderImagenesPendientesAdmin();
+        }
+
+        function buscarProductoAdminImagen(){
+            const q=normalizarBusquedaPedido(document.getElementById("adminImgBuscar").value);
+            const c=document.getElementById("adminImgResultados");
+            if(!q){c.innerHTML="";c.style.display="none";return;}
+            const rs=catalogoProductosPedido.filter(x=>normalizarBusquedaPedido(typeof x==="string"?x:x.producto).includes(q)).slice(0,5);
+            c.style.display="block";
+            c.innerHTML=rs.length?rs.map(x=>{
+                const n=typeof x==="string"?x:x.producto, i=catalogoProductosPedido.indexOf(x);
+                const u=urlImagenProducto(n,x);
+                return `<div class="pedido-resultado" onclick="seleccionarProductoAdminImagen(${i})" style="display:flex;align-items:center;gap:10px;padding:9px 12px;">
+                    ${u?`<img src="${escaparHtmlPedido(u)}" style="width:44px;height:44px;object-fit:contain;border-radius:9px;background:#f5f7fa;" loading="lazy">`:`<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:#f5f7fa;border-radius:9px;">📦</div>`}
+                    <div>${escaparHtmlPedido(n)}</div>
+                </div>`;
+            }).join(""):'<div class="pedido-resultado">Sin resultados</div>';
+        }
+
+        function seleccionarProductoAdminImagen(i){
+            const x=catalogoProductosPedido[i]; if(!x)return;
+            const n=typeof x==="string"?x:x.producto;
+            productoAdminImagen={producto:n};
+            document.getElementById("adminImgBuscar").value=n;
+            document.getElementById("adminImgResultados").innerHTML="";
+            document.getElementById("adminImgResultados").style.display="none";
+            const actual=urlImagenProducto(n,x)||"";
+            const box=document.getElementById("adminImgProducto");
+            box.style.display="flex"; box.style.alignItems="center"; box.style.gap="12px";
+            box.innerHTML=`${actual?`<img src="${escaparHtmlPedido(actual)}" style="width:64px;height:64px;object-fit:contain;border-radius:12px;background:#fff;">`:`<div style="width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:12px;font-size:28px;">📦</div>`}<div><b>${escaparHtmlPedido(n)}</b><div style="font-size:11px;color:#667085;margin-top:4px;">${actual?"Imagen actual":"Sin imagen actual"}</div></div>`;
+            document.getElementById("adminImgLink").value=actual;
+            vistaPreviaAdminImagen();
+        }
+
+        function vistaPreviaAdminImagen(){
+            const u=document.getElementById("adminImgLink").value.trim(), p=document.getElementById("adminImgPreview");
+            if(!u){p.style.display="none";p.innerHTML="";return;}
+            p.style.display="block";
+            p.innerHTML=`<img src="${escaparHtmlPedido(u)}" style="max-width:130px;height:100px;object-fit:contain;border-radius:14px;background:#f5f7fa;border:1px solid #e5eaf0;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div style="display:none;color:#dc3545;font-size:12px;">No se pudo mostrar la vista previa.</div>`;
+        }
+
+        function agregarImagenPendiente(){
+            if(!productoAdminImagen)return alert("Selecciona un producto.");
+            const link=document.getElementById("adminImgLink").value.trim();
+            if(!/^https?:\/\//i.test(link))return alert("Pega un enlace de imagen válido que comience con http:// o https://");
+            const key=claveImagenProducto(productoAdminImagen.producto);
+            const existente=imagenesPendientesAdmin.findIndex(x=>claveImagenProducto(x.producto)===key);
+            const item={producto:productoAdminImagen.producto,imagen:link};
+            if(existente>=0) imagenesPendientesAdmin[existente]=item; else imagenesPendientesAdmin.push(item);
+            renderImagenesPendientesAdmin();
+            document.getElementById("adminImgEstado").textContent="✓ Agregado a pendientes";
+        }
+
+        function quitarImagenPendiente(i){
+            imagenesPendientesAdmin.splice(i,1);
+            renderImagenesPendientesAdmin();
+        }
+
+        function editarImagenPendiente(i){
+            const x=imagenesPendientesAdmin[i]; if(!x)return;
+            productoAdminImagen={producto:x.producto};
+            document.getElementById("adminImgBuscar").value=x.producto;
+            document.getElementById("adminImgLink").value=x.imagen;
+            const box=document.getElementById("adminImgProducto");
+            box.style.display="flex";box.style.alignItems="center";box.style.gap="12px";
+            box.innerHTML=`<img src="${escaparHtmlPedido(x.imagen)}" style="width:64px;height:64px;object-fit:contain;border-radius:12px;background:#fff;"><div><b>${escaparHtmlPedido(x.producto)}</b><div style="font-size:11px;color:#667085;">Editando pendiente</div></div>`;
+            vistaPreviaAdminImagen(); window.scrollTo(0,0);
+        }
+
+        function renderImagenesPendientesAdmin(){
+            const c=document.getElementById("adminImgLista"), n=imagenesPendientesAdmin.length;
+            document.getElementById("adminImgContador").textContent=n+(n===1?" imagen":" imágenes");
+            document.getElementById("adminImgGuardarTodo").style.display=n?"block":"none";
+            if(!n){c.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Todavía no has agregado imágenes.</p>';return;}
+            c.innerHTML=imagenesPendientesAdmin.map((x,i)=>`<div style="display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:9px;margin:7px 0;">
+                <img src="${escaparHtmlPedido(x.imagen)}" style="width:48px;height:48px;object-fit:contain;border-radius:9px;background:#fff;" loading="lazy">
+                <div style="flex:1;min-width:0;"><b style="font-size:12px;">${escaparHtmlPedido(x.producto)}</b><div style="font-size:10px;color:#718096;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escaparHtmlPedido(x.imagen)}</div></div>
+                <button onclick="editarImagenPendiente(${i})" style="width:auto;padding:7px;background:#0878f9;font-size:11px;">✏️</button>
+                <button onclick="quitarImagenPendiente(${i})" style="width:auto;padding:7px;background:#dc3545;font-size:11px;">✕</button>
+            </div>`).join("");
+        }
+
+        async function guardarLoteImagenes(){
+            if(!imagenesPendientesAdmin.length)return;
+            const btn=document.getElementById("adminImgGuardarTodo"), estado=document.getElementById("adminImgEstado");
+            btn.disabled=true; estado.style.color="#667085"; estado.textContent="Guardando "+imagenesPendientesAdmin.length+" imágenes...";
+            try{
+                const p=new URLSearchParams({accion:"GuardarImagenesProductos",items:JSON.stringify(imagenesPendientesAdmin)});
+                const r=await fetch(URL_API,{method:"POST",body:p});
+                const d=await r.json();
+                if(d.status!=="OK")throw Error(d.mensaje||"No se pudieron guardar.");
+                imagenesPendientesAdmin.forEach(x=>mapaImagenesProductosGlobal[claveImagenProducto(x.producto)]=x.imagen);
+                const total=imagenesPendientesAdmin.length;
+                imagenesPendientesAdmin=[];
+                renderImagenesPendientesAdmin();
+                estado.style.color="#198754";estado.textContent="✓ "+total+" imágenes guardadas correctamente.";
+            }catch(err){
+                console.error(err);estado.style.color="#dc3545";estado.textContent="No se pudieron guardar las imágenes.";
+            }finally{btn.disabled=false;}
+        }
+
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
             if (modulo === "gondolas") iniciarAdminGondolas();
+            if (modulo === "imagenes") iniciarAdminImagenes();
             window.scrollTo(0,0);
         }
 
