@@ -705,7 +705,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.16 · Ubicaciones por lote</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.17 · Pedidos Bodega corregidos</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2288,9 +2288,12 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
 
         function formatearFechaPedidoBodega(fecha, hora) {
             if (!fecha) return "Fecha no disponible";
-            const partes = String(fecha).split("-");
-            const f = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : String(fecha);
-            let h = String(hora || "").slice(0,5);
+            let texto=String(fecha).trim(), f=texto;
+            const iso=texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if(iso) f=`${iso[3]}/${iso[2]}/${iso[1]}`;
+            let h=String(hora||"").trim();
+            const hm=h.match(/(\d{1,2}):(\d{2})/);
+            if(hm) h=`${String(hm[1]).padStart(2,"0")}:${hm[2]}`; else h="";
             return h ? `${f} · ${h}` : f;
         }
 
@@ -2323,7 +2326,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                     <div style="font-size:12px;color:#66717c;margin-top:4px;">📋 ${items.length} pedido(s) pendiente(s) · 📦 ${totalProductos} productos</div>
                 </div>`;
                 items.forEach(({pedido,index})=>{
-                    const numero=String(Number(pedido.numeroPedido)||0).padStart(3,"0");
+                    const numero=index+1;
                     html+=`<div style="border:1px solid #dfe5eb;border-radius:12px;padding:13px;margin:9px 0;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.05);">
                         <div style="text-align:left;">
                             <div style="font-size:15px;font-weight:900;color:#2c3e50;">📋 Pedido #${numero}</div>
