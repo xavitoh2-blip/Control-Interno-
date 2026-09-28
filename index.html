@@ -705,7 +705,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.17 · Pedidos Bodega corregidos</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.18 · Compras agrupadas iOS</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2659,67 +2659,75 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             return colores[i%colores.length];
         }
 
+        function claveGrupoCompra(nombre){
+            return String(nombre||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase();
+        }
+
+        function gruposGestionComprasAdmin(){
+            const mapa={}, orden=[];
+            gestionComprasAdminActual.forEach((c,i)=>{
+                const k=claveGrupoCompra(c.producto);
+                if(!mapa[k]){mapa[k]={clave:k,producto:c.producto,indices:[],cantidad:0,fechas:[],sucursales:[],comprar:false};orden.push(k);}
+                const g=mapa[k]; g.indices.push(i); g.cantidad+=Number(c.cantidadComprada||c.cantidad)||0;
+                if(c.fecha && !g.fechas.includes(String(c.fecha)))g.fechas.push(String(c.fecha));
+                if(c.sucursal && !g.sucursales.includes(String(c.sucursal)))g.sucursales.push(String(c.sucursal));
+                if(c.comprar)g.comprar=true;
+            });
+            return orden.map(k=>mapa[k]);
+        }
+
+        function controlesOcultosCompra(){
+            return gestionComprasAdminActual.map((c,i)=>{
+                const comprar=!!c.comprar;
+                return `<div style="display:none" aria-hidden="true">
+                    <input id="admEstadoSel_${i}" class="adm-estado-sel" type="checkbox">
+                    <input id="admComprar_${i}" type="checkbox" ${comprar?'checked':''}>
+                    <input id="admCant_${i}" type="number" value="${Number(c.cantidadComprada||c.cantidad)||0}">
+                    <input id="admCosto_${i}" type="number" value="${Number(c.costoUnitario)||0}">
+                    <span id="admSub_${i}"></span>
+                    <select id="admEstado_${i}"><option ${c.estado==='Pendiente de Compra'?'selected':''}>Pendiente de Compra</option><option ${c.estado==='Compra parcial'?'selected':''}>Compra parcial</option><option ${c.estado==='Comprado'?'selected':''}>Comprado</option><option ${c.estado==='Recibido en Bodega'?'selected':''}>Recibido en Bodega</option></select>
+                    <input id="admObs_${i}" value="${escaparHtmlPedido(c.observacion||'')}">
+                    <div id="compraCard_${i}"></div>
+                </div>`;
+            }).join('');
+        }
+
         function renderizarGestionComprasAdmin() {
             const cont=document.getElementById("gestionComprasAdmin");
             if(!gestionComprasAdminActual.length){
-                cont.innerHTML='<p style="font-size:12px;color:#888;">No hay solicitudes enviadas.</p>';
+                cont.innerHTML='<div style="padding:26px;text-align:center;background:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.9);border-radius:24px;color:#667085;">✓ No hay solicitudes pendientes de compra.</div>';
                 document.getElementById("resumenTotalCompras").innerText='💰 Total seleccionado: $0.00';
-                document.getElementById("resumenProveedoresCompras").innerHTML='';
-                return;
+                document.getElementById("resumenProveedoresCompras").innerHTML=''; return;
             }
-            const barraEstadoMasivo = `
-                <div style="position:sticky;top:8px;z-index:29;background:#f8f9fa;border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin:8px 0 12px;box-shadow:0 3px 12px rgba(0,0,0,.08);">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
-                        <label style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;margin:0;cursor:pointer;">
-                            <input id="admEstadoSeleccionarTodos" type="checkbox" onchange="seleccionarTodosEstadoMasivo(this.checked)" style="width:20px;height:20px;margin:0;accent-color:#007bff;"> Seleccionar todos
-                        </label>
-                        <span id="admEstadoCantidadSeleccionados" style="font-size:11px;color:#666;">0 seleccionados</span>
-                    </div>
-                    <div style="display:flex;gap:7px;align-items:stretch;">
-                        <select id="admEstadoMasivo" style="flex:1;margin:0;">
-                            <option value="">Cambiar estado a...</option>
-                            <option>Pendiente de Compra</option>
-                            <option>Compra parcial</option>
-                            <option>Comprado</option>
-                            <option>Recibido en Bodega</option>
-                        </select>
-                        <button type="button" onclick="aplicarEstadoMasivo()" style="width:auto;margin:0;padding:10px 13px;background:#007bff;white-space:nowrap;">Aplicar</button>
-                    </div>
-                    <div style="font-size:10px;color:#777;margin-top:6px;">Solo cambia el estado. El proveedor de cada producto permanece igual.</div>
+            const grupos=gruposGestionComprasAdmin(), pendientes=grupos.filter(g=>!g.comprar), compra=grupos.filter(g=>g.comprar);
+            const tarjeta=(g,gi,enCompra)=>{
+                const first=gestionComprasAdminActual[g.indices[0]]||{};
+                const fechas=g.fechas.length?g.fechas:[];
+                const desde=fechas.length?fechas[0]:'Sin fecha', ultima=fechas.length?fechas[fechas.length-1]:'';
+                const proveedor=first.proveedor||'';
+                const costo=Number(first.costoUnitario)||0;
+                const subtotal=g.indices.reduce((t,i)=>{const c=gestionComprasAdminActual[i];return t+(Number(c.cantidadComprada||c.cantidad)||0)*(Number(c.costoUnitario)||0)},0);
+                const provBtns=proveedoresComprasAdmin.map((p,pi)=>`<button type="button" onclick="seleccionarProveedorGrupoCompra('${encodeURIComponent(g.clave)}',${pi})" style="width:auto;flex:1;min-width:42%;margin:0;padding:10px 8px;border-radius:14px;background:${proveedor===p?colorProveedor(pi):'rgba(255,255,255,.72)'};color:${proveedor===p?'#fff':'#344054'};border:1.5px solid ${colorProveedor(pi)};font-size:11px;font-weight:800;">${escaparHtmlPedido(p)}</button>`).join('');
+                return `<div style="background:linear-gradient(145deg,rgba(255,255,255,.90),rgba(246,249,255,.76));border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 30px rgba(31,65,114,.10);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:24px;padding:14px;margin:10px 0;">
+                    <div style="display:flex;gap:11px;align-items:center;">${imagenProductoGlobal(g.producto,first,52)}<div style="min-width:0;flex:1;"><div style="font-size:15px;font-weight:850;color:#101828;">${escaparHtmlPedido(g.producto)}</div><div style="font-size:11px;color:#667085;margin-top:3px;">${g.indices.length} solicitud${g.indices.length===1?'':'es'} · ${g.sucursales.map(escaparHtmlPedido).join(', ')}</div></div><div style="text-align:right;"><div style="font-size:10px;color:#667085;">Faltante</div><div style="font-size:20px;font-weight:900;color:#0a74ff;">${g.cantidad}</div></div></div>
+                    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:11px 0 4px;"><span style="font-size:10px;background:rgba(10,116,255,.08);padding:6px 9px;border-radius:999px;color:#175cd3;">📅 Desde ${escaparHtmlPedido(desde)}</span>${ultima&&ultima!==desde?`<span style="font-size:10px;background:rgba(10,116,255,.08);padding:6px 9px;border-radius:999px;color:#175cd3;">Última ${escaparHtmlPedido(ultima)}</span>`:''}</div>
+                    <details style="margin-top:8px;"><summary style="cursor:pointer;font-size:11px;font-weight:750;color:#667085;">Ver detalle de solicitudes</summary><div style="margin-top:7px;">${g.indices.map(i=>{const c=gestionComprasAdminActual[i];return `<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid rgba(152,162,179,.15);font-size:11px;"><span>${escaparHtmlPedido(c.fecha||'Sin fecha')} · ${escaparHtmlPedido(c.sucursal||'')}</span><b>${Number(c.cantidad)||0} u.</b></div>`}).join('')}</div></details>
+                    ${enCompra?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(152,162,179,.18);"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;"><div><label style="font-size:10px;color:#667085;">Cantidad total</label><div style="height:42px;display:flex;align-items:center;padding:0 12px;border-radius:14px;background:rgba(255,255,255,.7);font-weight:850;">${g.cantidad}</div></div><div><label style="font-size:10px;color:#667085;">Costo unitario $</label><input type="number" min="0" step="0.0001" value="${costo||''}" oninput="cambiarCostoGrupoCompra('${encodeURIComponent(g.clave)}',this.value)" style="margin:0;border-radius:14px;"></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 8px;"><b style="font-size:12px;">Proveedor</b><b style="font-size:14px;color:#101828;">$${subtotal.toFixed(2)}</b></div><div style="display:flex;flex-wrap:wrap;gap:7px;">${provBtns||'<span style="font-size:11px;color:#b42318;">No hay proveedores activos.</span>'}</div><button type="button" onclick="regresarGrupoPendiente('${encodeURIComponent(g.clave)}')" style="margin-top:10px;background:rgba(152,162,179,.13);color:#475467;border:1px solid rgba(152,162,179,.22);border-radius:14px;padding:10px;">↩ Regresar a pendientes</button></div>`:`<button type="button" onclick="pasarGrupoACompra('${encodeURIComponent(g.clave)}')" style="margin-top:12px;background:linear-gradient(135deg,#0a84ff,#0066e6);border-radius:16px;padding:12px;font-weight:850;box-shadow:0 7px 18px rgba(10,132,255,.20);">＋ Pasar a compra</button>`}
                 </div>`;
-            cont.innerHTML=barraEstadoMasivo + gestionComprasAdminActual.map((c,i)=>{
-                const costo=Number(c.costoUnitario)||0, cant=Number(c.cantidadComprada||c.cantidad)||0, sub=costo*cant;
-                const comprar=!!c.comprar;
-                const botones=proveedoresComprasAdmin.map((p,pi)=>{
-                    const sel=(c.proveedor||'')===p;
-                    return `<button type="button" id="prov_${i}_${pi}" onclick="seleccionarProveedorCompra(${i},${pi})" style="width:auto;min-width:46%;flex:1;margin:3px;padding:9px 7px;background:${sel?colorProveedor(pi):'#f3f5f7'};color:${sel?'#fff':'#333'};border:2px solid ${colorProveedor(pi)};font-size:11px;">${escaparHtmlPedido(p)}</button>`;
-                }).join('');
-                return `<div id="compraCard_${i}" style="border:2px solid ${comprar?'#28a745':'#dfe5eb'};border-radius:12px;padding:12px;margin:12px 0;background:#fff;">
-                    <label style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;margin-bottom:8px;cursor:pointer;color:#495057;">
-                        <input id="admEstadoSel_${i}" class="adm-estado-sel" type="checkbox" onchange="actualizarSeleccionEstadoMasivo()" style="width:19px;height:19px;margin:0;accent-color:#007bff;"> Seleccionar para cambiar estado
-                    </label>
-                    <label style="display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;margin-bottom:8px;cursor:pointer;">
-                        <input id="admComprar_${i}" type="checkbox" ${comprar?'checked':''} onchange="cambiarSeleccionCompra(${i})" style="width:21px;height:21px;margin:0;accent-color:#28a745;"> ☑️ Comprar este producto
-                    </label>
-                    <div style="display:flex;align-items:center;gap:10px;">${imagenProductoGlobal(c.producto,c,54)}<div style="font-weight:800;font-size:15px;">${escaparHtmlPedido(c.producto)}</div></div>
-                    <div style="font-size:11px;color:#666;margin:4px 0 9px;">Solicitado: <b>${c.cantidad}</b> · ${escaparHtmlPedido(c.tipo)} · ${escaparHtmlPedido(c.sucursal||'Bodega')}</div>
-                    <div style="display:flex;gap:8px;"><div style="flex:1;"><label style="font-size:11px;">Cantidad</label><input id="admCant_${i}" type="number" min="0" value="${c.cantidadComprada||c.cantidad}" oninput="actualizarTotalAdmin()"></div><div style="flex:1;"><label style="font-size:11px;">Costo unitario $ <span style="color:#28a745;">(Catálogo)</span></label><input id="admCosto_${i}" type="number" min="0" step="0.0001" value="${c.costoUnitario||''}" oninput="actualizarTotalAdmin()"></div></div>
-                    <div id="admSub_${i}" style="font-weight:800;text-align:right;margin:4px 0 10px;">Subtotal: $${sub.toFixed(2)}</div>
-                    <div style="font-size:12px;font-weight:700;margin:5px 0;">¿A qué proveedor se comprará?</div>
-                    <div style="display:flex;flex-wrap:wrap;gap:3px;">${botones || '<span style="font-size:11px;color:#dc3545;">No hay proveedores activos.</span>'}</div>
-                    <div id="provElegido_${i}" style="font-size:11px;margin:6px 0;color:#555;">${c.proveedor?'Seleccionado: <b>'+escaparHtmlPedido(c.proveedor)+'</b>':'Sin proveedor asignado'}</div>
-                    <details style="margin-top:8px;"><summary style="font-size:12px;color:#555;cursor:pointer;">Más opciones</summary>
-                        <label style="font-size:11px;">Estado</label><select id="admEstado_${i}"><option ${c.estado==='Pendiente de Compra'?'selected':''}>Pendiente de Compra</option><option ${c.estado==='Compra parcial'?'selected':''}>Compra parcial</option><option ${c.estado==='Comprado'?'selected':''}>Comprado</option><option ${c.estado==='Recibido en Bodega'?'selected':''}>Recibido en Bodega</option></select>
-                        <input id="admObs_${i}" value="${escaparHtmlPedido(c.observacion||'')}" placeholder="Observaciones">
-                    </details>
-                </div>`;
-            }).join('') + `
-                <div style="position:sticky;bottom:10px;z-index:30;background:rgba(255,255,255,.96);border:1px solid #dfe5eb;border-radius:12px;padding:10px;margin:18px 0 4px;box-shadow:0 5px 18px rgba(0,0,0,.14);">
-                    <div style="font-size:11px;color:#666;text-align:center;margin-bottom:7px;">Revisa cantidades, costos y proveedores antes de confirmar.</div>
-                    <button id="btnGuardarTodasAsignaciones" onclick="guardarTodasGestionComprasAdmin()" style="background:#087cff;margin:0;font-size:14px;padding:14px;">💾 Guardar todas las asignaciones</button>
-                </div>`;
+            };
+            cont.innerHTML=controlesOcultosCompra()+`
+                <div style="display:flex;gap:8px;margin:12px 0;position:sticky;top:8px;z-index:20;background:rgba(244,248,253,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:7px;border-radius:18px;border:1px solid rgba(255,255,255,.9);"><button type="button" onclick="document.getElementById('listaPendientesCompra').scrollIntoView({behavior:'smooth'})" style="margin:0;background:#fff;color:#175cd3;border:1px solid #d0e3ff;border-radius:13px;padding:10px;">📋 Pendientes <b>${pendientes.length}</b></button><button type="button" onclick="document.getElementById('listaCompraArmada').scrollIntoView({behavior:'smooth'})" style="margin:0;background:#0a84ff;border-radius:13px;padding:10px;">🛒 Lista de compra <b>${compra.length}</b></button></div>
+                <section id="listaPendientesCompra"><div style="display:flex;justify-content:space-between;align-items:end;margin:14px 2px 6px;"><div><div style="font-size:18px;font-weight:900;color:#101828;">Pendientes</div><div style="font-size:11px;color:#667085;">Productos repetidos agrupados automáticamente</div></div><span style="font-size:11px;font-weight:800;color:#667085;">${pendientes.length} productos</span></div>${pendientes.length?pendientes.map((g,i)=>tarjeta(g,i,false)).join(''):'<div style="padding:18px;text-align:center;color:#667085;">No quedan productos por revisar.</div>'}</section>
+                <section id="listaCompraArmada" style="margin-top:22px;"><div style="display:flex;justify-content:space-between;align-items:end;margin:14px 2px 6px;"><div><div style="font-size:18px;font-weight:900;color:#101828;">🛒 Lista de compra</div><div style="font-size:11px;color:#667085;">Aquí se calculan los totales por proveedor</div></div><span style="font-size:11px;font-weight:800;color:#667085;">${compra.length} productos</span></div>${compra.length?compra.map((g,i)=>tarjeta(g,i,true)).join(''):'<div style="padding:22px;text-align:center;background:rgba(255,255,255,.55);border:1px dashed #b9c8dc;border-radius:20px;color:#667085;font-size:12px;">Los productos que decidas comprar aparecerán aquí.</div>'}</section>
+                <div style="position:sticky;bottom:10px;z-index:30;background:rgba(255,255,255,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.95);border-radius:20px;padding:10px;margin:18px 0 4px;box-shadow:0 10px 30px rgba(31,65,114,.16);"><button id="btnGuardarTodasAsignaciones" onclick="guardarTodasGestionComprasAdmin()" style="background:linear-gradient(135deg,#0a84ff,#0066e6);margin:0;border-radius:15px;font-size:14px;padding:14px;">💾 Guardar lista de compra</button></div>`;
             actualizarTotalAdmin();
         }
+
+        function obtenerGrupoPorClave(claveCod){const k=decodeURIComponent(claveCod);return gruposGestionComprasAdmin().find(g=>g.clave===k);}
+        function pasarGrupoACompra(claveCod){const g=obtenerGrupoPorClave(claveCod);if(!g)return;g.indices.forEach(i=>gestionComprasAdminActual[i].comprar=true);renderizarGestionComprasAdmin();}
+        function regresarGrupoPendiente(claveCod){const g=obtenerGrupoPorClave(claveCod);if(!g)return;g.indices.forEach(i=>{gestionComprasAdminActual[i].comprar=false;});renderizarGestionComprasAdmin();}
+        function seleccionarProveedorGrupoCompra(claveCod,pi){const g=obtenerGrupoPorClave(claveCod),p=proveedoresComprasAdmin[pi];if(!g||!p)return;g.indices.forEach(i=>{gestionComprasAdminActual[i].proveedor=p;gestionComprasAdminActual[i].comprar=true;});renderizarGestionComprasAdmin();}
+        function cambiarCostoGrupoCompra(claveCod,valor){const g=obtenerGrupoPorClave(claveCod);if(!g)return;const v=Math.max(0,Number(valor)||0);g.indices.forEach(i=>{gestionComprasAdminActual[i].costoUnitario=v;const el=document.getElementById(`admCosto_${i}`);if(el)el.value=v;});actualizarTotalAdmin();}
 
         function actualizarSeleccionEstadoMasivo(){
             const checks=[...document.querySelectorAll('.adm-estado-sel')];
