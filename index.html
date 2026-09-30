@@ -798,10 +798,10 @@ body.catalogo-cliente{padding:0!important;background:#fff!important}body.catalog
 @media(min-width:1100px) and (orientation:landscape){.cr-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 body.catalogo-cliente .cr-nav{display:none!important}
 body.catalogo-cliente .cr-tap-hint{display:block!important}
-/* v1.6.28 · Modo cliente más limpio: oculta el título repetido de categoría */
-body.catalogo-cliente .cr-page-title h4{display:none!important}
-body.catalogo-cliente .cr-cover h2{display:none!important}
-body.catalogo-cliente .cr-page-title{justify-content:flex-end!important}
+/* v1.6.30 · Modo cliente: solo productos y categoría */
+body.catalogo-cliente .cr-cover{display:none!important}
+body.catalogo-cliente .cr-page-title h4{display:block!important}
+body.catalogo-cliente .cr-page-title{justify-content:space-between!important}
 
 </style>
 </head>
@@ -812,7 +812,7 @@ body.catalogo-cliente .cr-page-title{justify-content:flex-end!important}
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.30 · Modo cliente sin título CATÁLOGO · catálogo tipo libro</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.30 · Modo cliente · productos por categoría</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3370,7 +3370,7 @@ body.catalogo-cliente .cr-page-title{justify-content:flex-end!important}
             cats.innerHTML=catalogoRutaCategorias.map((c,i)=>`<button class="cr-cat ${c===catalogoRutaCategoria?'active':''}" onclick="seleccionarCategoriaRuta(${i})">${escRuta(c==='TODOS'?'Todos':c)}</button>`).join('');
             const paginas=Math.max(1,Math.ceil(arr.length/CR_POR_PAGINA)); catalogoRutaPagina=Math.max(0,Math.min(catalogoRutaPagina,paginas-1));
             const desde=catalogoRutaPagina*CR_POR_PAGINA, pagina=arr.slice(desde,desde+CR_POR_PAGINA);
-            document.getElementById("crTituloCategoria").textContent=catalogoRutaCategoria==='TODOS'?'CATÁLOGO':catalogoRutaCategoria;
+            document.getElementById("crTituloCategoria").textContent=catalogoRutaCategoria==='TODOS'?(document.body.classList.contains('catalogo-cliente')?'Todos los productos':'CATÁLOGO'):catalogoRutaCategoria;
             document.getElementById("crContador").textContent=arr.length?`Página ${catalogoRutaPagina+1} de ${paginas} · ${arr.length} productos`:'0 productos';
             grid.classList.remove('cr-turn-next','cr-turn-prev'); void grid.offsetWidth; if(animacion)grid.classList.add(animacion>0?'cr-turn-next':'cr-turn-prev');
             grid.innerHTML=pagina.length?pagina.map(x=>`<article class="cr-prod ${x.destacado?'destacado':''}">${x.destacado?'<div class="cr-star">⭐ RECOMENDADO</div>':''}<div class="cr-img">${x.imagen?`<img loading="lazy" src="${escRuta(x.imagen)}" alt="${escRuta(x.producto)}" onerror="this.outerHTML='<div class=&quot;cr-fallback&quot;>📦</div>'">`:'<div class="cr-fallback">📦</div>'}</div><div class="cr-info"><div class="cr-name">${escRuta(x.producto)}</div>${x.precio?`<div class="cr-price">$${Number(x.precio).toFixed(2)}</div>`:''}</div></article>`).join(''):'<div class="cr-empty">No hay productos para mostrar.</div>';
@@ -3394,8 +3394,8 @@ body.catalogo-cliente .cr-page-title{justify-content:flex-end!important}
             grid.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.25){moverPaginaCatalogoRuta(dx<0?1:-1);return;}if(!mov){const r=grid.getBoundingClientRect(),x=t.clientX-r.left;if(x<r.width*.24)moverPaginaCatalogoRuta(-1);else if(x>r.width*.76)moverPaginaCatalogoRuta(1);}},{passive:true});
             grid.addEventListener('click',e=>{if('ontouchstart' in window)return;const r=grid.getBoundingClientRect(),x=e.clientX-r.left;if(x<r.width*.24)moverPaginaCatalogoRuta(-1);else if(x>r.width*.76)moverPaginaCatalogoRuta(1);});
         }
-        function activarModoCliente(){document.body.classList.add('catalogo-cliente');document.getElementById('crSalirCliente').style.display='block';activarGestosCatalogoRuta();const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});else if(el.webkitRequestFullscreen)try{el.webkitRequestFullscreen();}catch(_){} }
-        function desactivarModoCliente(){document.body.classList.remove('catalogo-cliente');document.getElementById('crSalirCliente').style.display='none';if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});}
+        function activarModoCliente(){document.body.classList.add('catalogo-cliente');document.getElementById('crSalirCliente').style.display='block';renderCatalogoRuta();activarGestosCatalogoRuta();const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});else if(el.webkitRequestFullscreen)try{el.webkitRequestFullscreen();}catch(_){} }
+        function desactivarModoCliente(){document.body.classList.remove('catalogo-cliente');document.getElementById('crSalirCliente').style.display='none';renderCatalogoRuta();if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});}
         async function cargarAdminCatalogoRuta(){const l=document.getElementById('acrLista');l.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando productos…</p>';try{const r=await fetch(URL_API+'?accion=verCatalogoRutaAdmin&_='+Date.now(),{cache:'no-store'}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error');adminCatalogoRuta=d.productos||[];renderAdminCatalogoRuta();}catch(e){console.error(e);l.innerHTML='<p style="color:#dc3545;text-align:center;">No se pudo cargar el catálogo.</p>';}}
         function renderAdminCatalogoRuta(){const q=normalizarEmpleado(document.getElementById('acrBuscar')?.value||''),arr=adminCatalogoRuta.filter(x=>!q||normalizarEmpleado(x.producto).includes(q)||normalizarEmpleado(x.categoria).includes(q));document.getElementById('acrResumen').textContent=`${adminCatalogoRuta.filter(x=>x.activo).length} activos · ${adminCatalogoRuta.filter(x=>x.destacado).length} destacados · ${adminCatalogoRuta.length} productos`;document.getElementById('acrLista').innerHTML=arr.map(x=>`<div class="acr-row"><div>${x.imagen?`<img loading="lazy" src="${escRuta(x.imagen)}" onerror="this.style.display='none'">`:'📦'}</div><div><div class="acr-name">${escRuta(x.producto)}</div><div class="acr-meta">${escRuta(x.categoria||'Sin categoría')} · ${x.precio?'$'+Number(x.precio).toFixed(2):'Sin precio'}</div></div><div class="acr-actions"><button class="${x.activo?'acr-on':'acr-off'}" onclick="cambiarEstadoCatalogoRuta(${x.fila},'activo',${x.activo?'false':'true'})">${x.activo?'Visible':'Oculto'}</button><button class="${x.destacado?'acr-star':'acr-off'}" onclick="cambiarEstadoCatalogoRuta(${x.fila},'destacado',${x.destacado?'false':'true'})">${x.destacado?'⭐ Impulsar':'☆ Normal'}</button></div></div>`).join('')||'<p style="font-size:12px;color:#888;text-align:center;">Sin resultados.</p>';}
         async function cambiarEstadoCatalogoRuta(fila,campo,valor){try{const p=new URLSearchParams();p.append('accion','ActualizarCatalogoRuta');p.append('fila',fila);p.append('campo',campo);p.append('valor',valor?'SI':'NO');const r=await fetch(URL_API,{method:'POST',body:p}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error');const x=adminCatalogoRuta.find(z=>Number(z.fila)===Number(fila));if(x)x[campo]=valor;renderAdminCatalogoRuta();}catch(e){alert('No se pudo actualizar el producto.');}}
