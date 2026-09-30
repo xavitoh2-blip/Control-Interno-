@@ -697,7 +697,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
 }
 
 
-/* ===== v1.6.23 · DESPACHO ORGANIZADO + CIERRE KARDEX ===== */
+/* ===== v1.6.24 · DESPACHO ORGANIZADO + CIERRE KARDEX CORREGIDO ===== */
 .rx23-search{margin:12px 0 8px}.rx23-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#e8edf4;padding:4px;border-radius:16px;margin:8px 0 12px}.rx23-tabs button{margin:0!important;min-height:39px!important;background:transparent!important;color:#5e6b7c!important;box-shadow:none!important;font-size:11px!important;padding:6px!important}.rx23-tabs button.active{background:#087cff!important;color:#fff!important}.rx23-group{margin:15px 0 7px;padding:9px 12px;border-radius:15px;background:#eaf4ff;color:#0869c7;font-size:12px;font-weight:900;text-align:left}.rx23-state{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:850;margin-top:7px}.rx23-state.wait{background:#f1f3f6;color:#69778a}.rx23-state.ready{background:#fff1e6;color:#b75b12}.rx23-state.done{background:#e9f9ef;color:#198747}.kx-close{background:linear-gradient(135deg,#fff8e6,#fff);border:1px solid #f0d28a;border-radius:21px;padding:14px;margin:14px 0;text-align:left}.kx-close.ok{background:linear-gradient(135deg,#effff4,#fff);border-color:#b9e8c8}.kx-close button{margin-top:10px!important}
 </style>
 </head>
@@ -708,7 +708,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.23 · Recepción organizada y cierre en Bodega</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.24 · Recepción organizada · cierre Kardex corregido</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3466,7 +3466,7 @@ function verificarPassword() {
             const box=document.getElementById('resumenCierreKardex23');if(!box||!rutaActiva)return;
             try{const r=await fetch(URL_API+'?accion=verResumenCierreKardex&_='+Date.now(),{cache:'no-store'}),d=await r.json();if(!r.ok||d.status!=='OK'||!d.ruta)return;const x=d.ruta;
               if(x.puedeFinalizar){const falt=(x.faltantes||[]).slice().sort((a,b)=>String(a.producto||'').localeCompare(String(b.producto||''),'es',{sensitivity:'base'}));box.innerHTML=`<div class="kx-close ok"><b>✅ Kardex listo para finalizar</b><div style="font-size:12px;margin-top:7px;">${x.productosCompletos} productos completos · ${x.productosConFaltante} con faltante · ${x.unidadesFaltantes} unidades faltantes</div>${falt.length?`<div style="margin-top:9px;font-size:11px;">${falt.map(y=>`⚠️ ${escaparHtmlPedido(y.producto)} · Requerido ${y.requerido} · Recibido ${y.recibido} · <b>Faltó ${y.faltante}</b>`).join('<br>')}</div>`:'<div style="font-size:11px;margin-top:8px;color:#267243;">Todo fue completado.</div>'}<button onclick="finalizarKardex23()">🔒 Finalizar Kardex</button></div>`;}
-              else{box.innerHTML=`<div class="kx-close"><b>⏳ Kardex todavía en proceso</b><div style="font-size:11px;margin-top:7px;color:#6d7785;">Antes de finalizar:</div><div style="font-size:11px;margin-top:5px;">${(x.bloqueos||[]).map(y=>'• '+escaparHtmlPedido(y)).join('<br>')}</div></div>`;}
+              else{box.innerHTML='';}
             }catch(_){box.innerHTML='';}
         }
         async function finalizarKardex23(){if(!rutaActiva)return;if(!confirm('¿Finalizar este Kardex? Después podrás crear el siguiente.'))return;try{const body=new URLSearchParams({accion:'FinalizarKardex',idRuta:rutaActiva.idRuta,empleado:localStorage.getItem('usuario')||''}),r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error((d.mensaje||'No se pudo finalizar.')+(d.bloqueos?.length?'\n'+d.bloqueos.join('\n'):''));alert(d.estado==='COMPLETA'?'✅ Kardex finalizado completo. Ya puedes crear el siguiente.':'⚠️ Kardex finalizado con faltantes. Ya puedes crear el siguiente.');await cargarRutaActiva();}catch(e){alert('No se pudo finalizar: '+e.message);}}
