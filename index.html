@@ -773,6 +773,32 @@ body.catalogo-cliente{padding:0!important;background:#fff!important}body.catalog
 @media(min-width:700px){.cr-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.cr-name{font-size:13px}.cr-price{font-size:18px}.cr-cover{min-height:210px;padding:30px}.cr-cover h2{font-size:42px!important}}
 @media(min-width:1100px) and (orientation:landscape){.cr-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
+
+/* ===== v1.6.27 · CATÁLOGO 6 POR PÁGINA + NAVEGACIÓN TIPO LIBRO ===== */
+.cr-grid{position:relative;transform-origin:center;will-change:transform,opacity;min-height:420px}
+.cr-grid.cr-turn-next{animation:crTurnNext .30s ease both}
+.cr-grid.cr-turn-prev{animation:crTurnPrev .30s ease both}
+@keyframes crTurnNext{0%{opacity:.45;transform:perspective(900px) rotateY(-7deg) translateX(16px)}100%{opacity:1;transform:none}}
+@keyframes crTurnPrev{0%{opacity:.45;transform:perspective(900px) rotateY(7deg) translateX(-16px)}100%{opacity:1;transform:none}}
+.cr-prod{display:flex;flex-direction:column;height:100%}
+.cr-img{flex:1 1 auto;min-height:0}
+.cr-info{flex:0 0 76px;min-height:76px!important;padding:8px 9px!important}
+.cr-name{min-height:27px;display:flex;align-items:center;justify-content:center}
+.cr-page-dots{display:flex;justify-content:center;align-items:center;gap:6px;margin:11px 0 2px}
+.cr-page-dot{width:7px;height:7px;border-radius:999px;background:#c9d3df;transition:.18s ease}
+.cr-page-dot.active{width:22px;background:#087cff}
+.cr-tap-hint{font-size:10px;color:#8190a3;text-align:center;margin-top:7px;font-weight:700}
+@media(min-width:700px){
+ .cr-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr));min-height:610px}
+ .cr-info{flex-basis:82px;min-height:82px!important}.cr-name{min-height:30px}
+}
+@media(max-width:699px){
+ .cr-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr));min-height:760px}
+}
+@media(min-width:1100px) and (orientation:landscape){.cr-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+body.catalogo-cliente .cr-nav{display:none!important}
+body.catalogo-cliente .cr-tap-hint{display:block!important}
+
 </style>
 </head>
 <body>
@@ -782,7 +808,7 @@ body.catalogo-cliente{padding:0!important;background:#fff!important}body.catalog
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.26 · Vendedor de Ruta · Catálogo</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.27 · Catálogo 6 por página · efecto libro</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1094,6 +1120,8 @@ body.catalogo-cliente{padding:0!important;background:#fff!important}body.catalog
         <div id="crCategorias" class="cr-cats"></div>
         <div class="cr-page-title"><h4 id="crTituloCategoria">Productos</h4><span id="crContador"></span></div>
         <div id="crGrid" class="cr-grid"><div class="cr-empty">Cargando catálogo…</div></div>
+        <div id="crPageDots" class="cr-page-dots"></div>
+        <div class="cr-tap-hint">Toca el lado izquierdo o derecho · también puedes deslizar</div>
         <div class="cr-nav"><button id="crAnterior" onclick="moverCategoriaRuta(-1)" style="background:#6c757d;">← Anterior</button><button id="crSiguiente" onclick="moverCategoriaRuta(1)">Siguiente →</button></div>
         <button id="crSalirCliente" onclick="desactivarModoCliente()" style="display:none;margin-top:12px;background:#0b3979;">✕ Salir del modo cliente</button>
     </div>
@@ -3319,27 +3347,50 @@ body.catalogo-cliente{padding:0!important;background:#fff!important}body.catalog
 
 
 
-        // ===== VENDEDOR DE RUTA · CATÁLOGO v1.6.26 =====
-        let catalogoRutaProductos=[], catalogoRutaCategorias=[], catalogoRutaCategoria="TODOS", catalogoRutaIndice=0, adminCatalogoRuta=[];
+        // ===== VENDEDOR DE RUTA · CATÁLOGO v1.6.27 =====
+        let catalogoRutaProductos=[], catalogoRutaCategorias=[], catalogoRutaCategoria="TODOS", catalogoRutaIndice=0, catalogoRutaPagina=0, adminCatalogoRuta=[];
+        const CR_POR_PAGINA=6;
         function escRuta(t){return String(t??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
         async function cargarCatalogoRuta(){
             const grid=document.getElementById("crGrid"); if(grid)grid.innerHTML='<div class="cr-empty">Cargando catálogo…</div>';
-            try{const r=await fetch(URL_API+"?accion=verCatalogoRuta&_="+Date.now(),{cache:"no-store"}),d=await r.json();if(d.status!=="OK")throw Error(d.mensaje||"Error");catalogoRutaProductos=d.productos||[];catalogoRutaCategorias=["TODOS",...new Set(catalogoRutaProductos.map(x=>String(x.categoria||"OTROS").trim()||"OTROS"))];catalogoRutaCategoria=catalogoRutaCategorias[0];catalogoRutaIndice=0;renderCatalogoRuta();}catch(e){console.error(e);grid.innerHTML='<div class="cr-empty">No se pudo cargar el catálogo.</div>';}
+            try{const r=await fetch(URL_API+"?accion=verCatalogoRuta&_="+Date.now(),{cache:"no-store"}),d=await r.json();if(d.status!=="OK")throw Error(d.mensaje||"Error");catalogoRutaProductos=d.productos||[];catalogoRutaCategorias=["TODOS",...new Set(catalogoRutaProductos.map(x=>String(x.categoria||"OTROS").trim()||"OTROS"))];catalogoRutaCategoria=catalogoRutaCategorias[0];catalogoRutaIndice=0;catalogoRutaPagina=0;renderCatalogoRuta();activarGestosCatalogoRuta();}catch(e){console.error(e);grid.innerHTML='<div class="cr-empty">No se pudo cargar el catálogo.</div>';}
         }
-        function renderCatalogoRuta(){
-            const cats=document.getElementById("crCategorias"),grid=document.getElementById("crGrid"),q=normalizarEmpleado(document.getElementById("crBuscar")?.value||"");
-            cats.innerHTML=catalogoRutaCategorias.map((c,i)=>`<button class="cr-cat ${c===catalogoRutaCategoria?'active':''}" onclick="seleccionarCategoriaRuta(${i})">${escRuta(c==='TODOS'?'Todos':c)}</button>`).join('');
+        function productosPaginaCatalogoRuta(){
+            const q=normalizarEmpleado(document.getElementById("crBuscar")?.value||"");
             let arr=catalogoRutaProductos.filter(x=>(catalogoRutaCategoria==='TODOS'||String(x.categoria||'OTROS')===catalogoRutaCategoria)&&(!q||normalizarEmpleado(x.producto).includes(q)));
             arr.sort((a,b)=>(Number(b.destacado)-Number(a.destacado))||(Number(a.prioridad||999)-Number(b.prioridad||999))||String(a.producto).localeCompare(String(b.producto),'es'));
-            document.getElementById("crTituloCategoria").textContent=catalogoRutaCategoria==='TODOS'?'CATÁLOGO':catalogoRutaCategoria;
-            document.getElementById("crContador").textContent=arr.length+' productos';
-            grid.innerHTML=arr.length?arr.map(x=>`<article class="cr-prod ${x.destacado?'destacado':''}">${x.destacado?'<div class="cr-star">⭐ RECOMENDADO</div>':''}<div class="cr-img">${x.imagen?`<img loading="lazy" src="${escRuta(x.imagen)}" alt="${escRuta(x.producto)}" onerror="this.outerHTML='<div class=&quot;cr-fallback&quot;>📦</div>'">`:'<div class="cr-fallback">📦</div>'}</div><div class="cr-info"><div class="cr-name">${escRuta(x.producto)}</div>${x.precio?`<div class="cr-price">$${Number(x.precio).toFixed(2)}</div>`:''}</div></article>`).join(''):'<div class="cr-empty">No hay productos para mostrar.</div>';
-            document.getElementById("crAnterior").disabled=catalogoRutaIndice<=0;document.getElementById("crSiguiente").disabled=catalogoRutaIndice>=catalogoRutaCategorias.length-1;
+            return arr;
         }
-        function filtrarCatalogoRuta(){renderCatalogoRuta();}
-        function seleccionarCategoriaRuta(i){catalogoRutaIndice=Math.max(0,Math.min(i,catalogoRutaCategorias.length-1));catalogoRutaCategoria=catalogoRutaCategorias[catalogoRutaIndice]||'TODOS';renderCatalogoRuta();document.getElementById('crGrid')?.scrollIntoView({behavior:'smooth',block:'start'});}
-        function moverCategoriaRuta(d){seleccionarCategoriaRuta(catalogoRutaIndice+d);}
-        function activarModoCliente(){document.body.classList.add('catalogo-cliente');document.getElementById('crSalirCliente').style.display='block';const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});else if(el.webkitRequestFullscreen)try{el.webkitRequestFullscreen();}catch(_){}}
+        function renderCatalogoRuta(animacion){
+            const cats=document.getElementById("crCategorias"),grid=document.getElementById("crGrid"),arr=productosPaginaCatalogoRuta();
+            cats.innerHTML=catalogoRutaCategorias.map((c,i)=>`<button class="cr-cat ${c===catalogoRutaCategoria?'active':''}" onclick="seleccionarCategoriaRuta(${i})">${escRuta(c==='TODOS'?'Todos':c)}</button>`).join('');
+            const paginas=Math.max(1,Math.ceil(arr.length/CR_POR_PAGINA)); catalogoRutaPagina=Math.max(0,Math.min(catalogoRutaPagina,paginas-1));
+            const desde=catalogoRutaPagina*CR_POR_PAGINA, pagina=arr.slice(desde,desde+CR_POR_PAGINA);
+            document.getElementById("crTituloCategoria").textContent=catalogoRutaCategoria==='TODOS'?'CATÁLOGO':catalogoRutaCategoria;
+            document.getElementById("crContador").textContent=arr.length?`Página ${catalogoRutaPagina+1} de ${paginas} · ${arr.length} productos`:'0 productos';
+            grid.classList.remove('cr-turn-next','cr-turn-prev'); void grid.offsetWidth; if(animacion)grid.classList.add(animacion>0?'cr-turn-next':'cr-turn-prev');
+            grid.innerHTML=pagina.length?pagina.map(x=>`<article class="cr-prod ${x.destacado?'destacado':''}">${x.destacado?'<div class="cr-star">⭐ RECOMENDADO</div>':''}<div class="cr-img">${x.imagen?`<img loading="lazy" src="${escRuta(x.imagen)}" alt="${escRuta(x.producto)}" onerror="this.outerHTML='<div class=&quot;cr-fallback&quot;>📦</div>'">`:'<div class="cr-fallback">📦</div>'}</div><div class="cr-info"><div class="cr-name">${escRuta(x.producto)}</div>${x.precio?`<div class="cr-price">$${Number(x.precio).toFixed(2)}</div>`:''}</div></article>`).join(''):'<div class="cr-empty">No hay productos para mostrar.</div>';
+            const dots=document.getElementById('crPageDots'); dots.innerHTML=arr.length?Array.from({length:paginas},(_,i)=>`<span class="cr-page-dot ${i===catalogoRutaPagina?'active':''}"></span>`).join(''):'';
+            document.getElementById("crAnterior").disabled=(catalogoRutaIndice<=0&&catalogoRutaPagina<=0);
+            document.getElementById("crSiguiente").disabled=(catalogoRutaIndice>=catalogoRutaCategorias.length-1&&catalogoRutaPagina>=paginas-1);
+        }
+        function filtrarCatalogoRuta(){catalogoRutaPagina=0;renderCatalogoRuta();}
+        function seleccionarCategoriaRuta(i){catalogoRutaIndice=Math.max(0,Math.min(i,catalogoRutaCategorias.length-1));catalogoRutaCategoria=catalogoRutaCategorias[catalogoRutaIndice]||'TODOS';catalogoRutaPagina=0;renderCatalogoRuta();document.getElementById('crGrid')?.scrollIntoView({behavior:'smooth',block:'start'});}
+        function moverPaginaCatalogoRuta(d){
+            const arr=productosPaginaCatalogoRuta(), paginas=Math.max(1,Math.ceil(arr.length/CR_POR_PAGINA));
+            if(d>0){if(catalogoRutaPagina<paginas-1){catalogoRutaPagina++;renderCatalogoRuta(1);return;}if(catalogoRutaIndice<catalogoRutaCategorias.length-1){catalogoRutaIndice++;catalogoRutaCategoria=catalogoRutaCategorias[catalogoRutaIndice];catalogoRutaPagina=0;renderCatalogoRuta(1);}}
+            else{if(catalogoRutaPagina>0){catalogoRutaPagina--;renderCatalogoRuta(-1);return;}if(catalogoRutaIndice>0){catalogoRutaIndice--;catalogoRutaCategoria=catalogoRutaCategorias[catalogoRutaIndice];const a=productosPaginaCatalogoRuta();catalogoRutaPagina=Math.max(0,Math.ceil(a.length/CR_POR_PAGINA)-1);renderCatalogoRuta(-1);}}
+        }
+        function moverCategoriaRuta(d){moverPaginaCatalogoRuta(d);}
+        let crGestosActivos=false;
+        function activarGestosCatalogoRuta(){
+            if(crGestosActivos)return; const grid=document.getElementById('crGrid'); if(!grid)return; crGestosActivos=true; let sx=0,sy=0,mov=false;
+            grid.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;mov=false;},{passive:true});
+            grid.addEventListener('touchmove',e=>{const t=e.touches[0];if(Math.abs(t.clientX-sx)>18||Math.abs(t.clientY-sy)>18)mov=true;},{passive:true});
+            grid.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.25){moverPaginaCatalogoRuta(dx<0?1:-1);return;}if(!mov){const r=grid.getBoundingClientRect(),x=t.clientX-r.left;if(x<r.width*.24)moverPaginaCatalogoRuta(-1);else if(x>r.width*.76)moverPaginaCatalogoRuta(1);}},{passive:true});
+            grid.addEventListener('click',e=>{if('ontouchstart' in window)return;const r=grid.getBoundingClientRect(),x=e.clientX-r.left;if(x<r.width*.24)moverPaginaCatalogoRuta(-1);else if(x>r.width*.76)moverPaginaCatalogoRuta(1);});
+        }
+        function activarModoCliente(){document.body.classList.add('catalogo-cliente');document.getElementById('crSalirCliente').style.display='block';activarGestosCatalogoRuta();const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});else if(el.webkitRequestFullscreen)try{el.webkitRequestFullscreen();}catch(_){} }
         function desactivarModoCliente(){document.body.classList.remove('catalogo-cliente');document.getElementById('crSalirCliente').style.display='none';if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});}
         async function cargarAdminCatalogoRuta(){const l=document.getElementById('acrLista');l.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando productos…</p>';try{const r=await fetch(URL_API+'?accion=verCatalogoRutaAdmin&_='+Date.now(),{cache:'no-store'}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error');adminCatalogoRuta=d.productos||[];renderAdminCatalogoRuta();}catch(e){console.error(e);l.innerHTML='<p style="color:#dc3545;text-align:center;">No se pudo cargar el catálogo.</p>';}}
         function renderAdminCatalogoRuta(){const q=normalizarEmpleado(document.getElementById('acrBuscar')?.value||''),arr=adminCatalogoRuta.filter(x=>!q||normalizarEmpleado(x.producto).includes(q)||normalizarEmpleado(x.categoria).includes(q));document.getElementById('acrResumen').textContent=`${adminCatalogoRuta.filter(x=>x.activo).length} activos · ${adminCatalogoRuta.filter(x=>x.destacado).length} destacados · ${adminCatalogoRuta.length} productos`;document.getElementById('acrLista').innerHTML=arr.map(x=>`<div class="acr-row"><div>${x.imagen?`<img loading="lazy" src="${escRuta(x.imagen)}" onerror="this.style.display='none'">`:'📦'}</div><div><div class="acr-name">${escRuta(x.producto)}</div><div class="acr-meta">${escRuta(x.categoria||'Sin categoría')} · ${x.precio?'$'+Number(x.precio).toFixed(2):'Sin precio'}</div></div><div class="acr-actions"><button class="${x.activo?'acr-on':'acr-off'}" onclick="cambiarEstadoCatalogoRuta(${x.fila},'activo',${x.activo?'false':'true'})">${x.activo?'Visible':'Oculto'}</button><button class="${x.destacado?'acr-star':'acr-off'}" onclick="cambiarEstadoCatalogoRuta(${x.fila},'destacado',${x.destacado?'false':'true'})">${x.destacado?'⭐ Impulsar':'☆ Normal'}</button></div></div>`).join('')||'<p style="font-size:12px;color:#888;text-align:center;">Sin resultados.</p>';}
