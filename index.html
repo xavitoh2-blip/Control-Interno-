@@ -760,6 +760,19 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
   }
 }
 
+
+
+/* ===== v1.6.26 · VENDEDOR DE RUTA + CATÁLOGO VISUAL ===== */
+#moduloCatalogoRuta{max-width:1100px!important;padding:16px!important;background:rgba(255,255,255,.84)!important}
+.cr-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 0 12px}.cr-head h3{border:0!important;margin:0!important;font-size:24px!important}.cr-actions{display:flex;gap:7px}.cr-actions button{width:auto!important;min-height:40px!important;padding:8px 12px!important;margin:0!important}
+.cr-cover{position:relative;overflow:hidden;min-height:170px;border-radius:26px;padding:22px;text-align:left;color:#fff;background:linear-gradient(135deg,#0b3979,#087cff 62%,#4aa7ff);box-shadow:0 14px 30px rgba(8,124,255,.22);margin-bottom:14px}.cr-cover:after{content:"";position:absolute;width:180px;height:180px;border-radius:40px;background:rgba(255,255,255,.10);right:-55px;bottom:-90px;transform:rotate(28deg)}.cr-cover small{font-weight:800;letter-spacing:2.2px;opacity:.85}.cr-cover h2{color:#fff!important;font-size:31px!important;line-height:1!important;margin:9px 0 8px!important;letter-spacing:-1px}.cr-cover p{font-size:13px;max-width:540px;margin:0;opacity:.92}.cr-search{display:grid;grid-template-columns:1fr 46px;gap:8px;margin:12px 0}.cr-search input,.cr-search button{margin:0!important}.cr-search button{padding:0!important;background:#fff!important;color:#334155!important;border:1px solid #dce5ef!important;box-shadow:none!important}
+.cr-cats{display:flex;gap:7px;overflow-x:auto;padding:2px 1px 9px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.cr-cats::-webkit-scrollbar{display:none}.cr-cat{width:auto!important;min-height:38px!important;white-space:nowrap;margin:0!important;padding:8px 13px!important;border-radius:999px!important;background:#edf3f9!important;color:#516074!important;box-shadow:none!important}.cr-cat.active{background:#087cff!important;color:#fff!important}.cr-page-title{display:flex;align-items:end;justify-content:space-between;text-align:left;margin:11px 2px}.cr-page-title h4{font-size:21px!important;color:#0d3974!important;margin:0!important}.cr-page-title span{font-size:11px;color:#758195;font-weight:800}
+.cr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.cr-prod{position:relative;background:#fff;border:1px solid #e5ecf4;border-radius:20px;overflow:hidden;box-shadow:0 7px 20px rgba(35,67,105,.07);min-width:0}.cr-prod.destacado{box-shadow:0 9px 24px rgba(8,124,255,.16);border-color:#b9d9ff}.cr-star{position:absolute;top:8px;right:8px;z-index:2;background:#087cff;color:#fff;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:900}.cr-img{aspect-ratio:1.1/1;background:#fff;display:flex;align-items:center;justify-content:center;padding:10px}.cr-img img{width:100%;height:100%;object-fit:contain;display:block}.cr-fallback{font-size:42px}.cr-info{background:linear-gradient(135deg,#0b3979,#087cff);color:#fff;padding:9px 10px;min-height:66px;text-align:center;display:flex;flex-direction:column;justify-content:center}.cr-name{font-size:11px;font-weight:900;line-height:1.15;text-transform:uppercase}.cr-price{font-size:16px;font-weight:950;margin-top:5px}.cr-nav{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.cr-nav button{margin:0!important}.cr-empty{padding:28px 15px;text-align:center;color:#718096;background:#fff;border-radius:20px;border:1px solid #e5ecf4;grid-column:1/-1}
+body.catalogo-cliente{padding:0!important;background:#fff!important}body.catalogo-cliente #encabezadoLogo,body.catalogo-cliente #tituloControlOperativo,body.catalogo-cliente #versionSistema,body.catalogo-cliente #pantallaPrincipal>.card:first-child{display:none!important}body.catalogo-cliente #moduloCatalogoRuta{display:block!important;max-width:none!important;width:100%!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:100vh!important;padding:18px!important}body.catalogo-cliente .cr-admin-hide{display:none!important}
+#adminCatalogoRuta .acr-row{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid #e4ebf3;border-radius:17px;padding:9px;margin:8px 0}.acr-row img{width:54px;height:54px;object-fit:contain;border-radius:11px;background:#f6f8fb}.acr-name{font-size:12px;font-weight:850;text-align:left}.acr-meta{font-size:10px;color:#758195;text-align:left;margin-top:3px}.acr-actions{display:flex;flex-direction:column;gap:5px}.acr-actions button{width:auto!important;min-height:31px!important;padding:5px 8px!important;margin:0!important;font-size:10px!important}.acr-on{background:#198754!important}.acr-off{background:#7a858e!important}.acr-star{background:#087cff!important}
+@media(min-width:700px){.cr-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.cr-name{font-size:13px}.cr-price{font-size:18px}.cr-cover{min-height:210px;padding:30px}.cr-cover h2{font-size:42px!important}}
+@media(min-width:1100px) and (orientation:landscape){.cr-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -769,7 +782,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.25 · iPad responsive · Kardex intacto</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.26 · Vendedor de Ruta · Catálogo</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -781,6 +794,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             <option value="Tienda Online Shop">Tienda Online Shop</option>
             <option value="Bodega">Bodega</option>
             <option value="Despacho">Despacho</option>
+            <option value="Vendedor de Ruta">🚚 Vendedor de Ruta</option>
         </select>
         
         <select id="nombreEmpleado">
@@ -818,6 +832,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 <button id="btnMenuCompras" class="menu-modulo" onclick="abrirModulo('compras')" style="display:none;"><span>📝</span><b>Solicitar Compra</b></button>
                 <button id="btnMenuRuta" class="menu-modulo" onclick="abrirModulo('ruta')" style="display:none;"><span>📋</span><b>Kardex</b></button>
                 <button id="btnMenuFaltantesKardex" class="menu-modulo" onclick="abrirModulo('faltantesKardex')"><span>📦</span><b>Faltantes Kardex</b></button>
+                <button id="btnMenuCatalogoRuta" class="menu-modulo" onclick="abrirModulo('catalogoRuta')" style="display:none;"><span>📖</span><b>Catálogo</b></button>
             </div>
         </div>
 
@@ -1062,6 +1077,27 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         <div id="listaFaltantesKardex" style="margin-top:12px;"></div>
     </div>
 
+
+
+    <!-- VENDEDOR DE RUTA · CATÁLOGO VISUAL v1.6.26 -->
+    <div id="moduloCatalogoRuta" class="card modulo-pantalla" style="display:none;">
+        <div class="cr-head cr-admin-hide">
+            <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver</button>
+            <div class="cr-actions"><button onclick="activarModoCliente()" style="background:#0b3979;">👁 Mostrar al cliente</button></div>
+        </div>
+        <div class="cr-cover">
+            <small>ONLINE SHOP · 2026</small>
+            <h2>CATÁLOGO</h2>
+            <p>Ventas mayoreo y detalle · Distribuidora</p>
+        </div>
+        <div class="cr-search"><input id="crBuscar" type="search" placeholder="Buscar producto..." oninput="filtrarCatalogoRuta()"><button onclick="document.getElementById('crBuscar').value='';filtrarCatalogoRuta()">✕</button></div>
+        <div id="crCategorias" class="cr-cats"></div>
+        <div class="cr-page-title"><h4 id="crTituloCategoria">Productos</h4><span id="crContador"></span></div>
+        <div id="crGrid" class="cr-grid"><div class="cr-empty">Cargando catálogo…</div></div>
+        <div class="cr-nav"><button id="crAnterior" onclick="moverCategoriaRuta(-1)" style="background:#6c757d;">← Anterior</button><button id="crSiguiente" onclick="moverCategoriaRuta(1)">Siguiente →</button></div>
+        <button id="crSalirCliente" onclick="desactivarModoCliente()" style="display:none;margin-top:12px;background:#0b3979;">✕ Salir del modo cliente</button>
+    </div>
+
     <!-- MODAL SUPERVISOR -->
     <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 1000;">
         <h3>Clave de Supervisor</h3>
@@ -1088,6 +1124,7 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
                 <button class="menu-modulo" onclick="abrirModuloAdmin('compras')"><span>🛒</span>Gestión de Compras</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoRuta')"><span>📖</span>Catálogo de Ruta</button>
             </div>
         </div>
 
@@ -1154,6 +1191,16 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             <hr style="border:none;border-top:1px solid #e4e9ef;margin:18px 0;">
             <div style="display:flex;justify-content:space-between;align-items:center;"><h4 style="margin:0;">Productos ubicados</h4><button onclick="cargarUbicacionesAdminGondola()" style="width:auto;padding:8px 11px;background:#0878f9;font-size:11px;">👁 Ver ubicaciones</button></div>
             <div id="listaUbicacionesAdminGondola" style="margin-top:10px;"></div>
+        </div>
+
+
+        <div id="adminCatalogoRuta" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+            <h4>📖 Catálogo de Ruta</h4>
+            <p style="font-size:12px;color:#667085;">Activa u oculta productos del catálogo y marca los que quieres impulsar. Los costos no se muestran al vendedor ni al cliente.</p>
+            <input id="acrBuscar" type="search" placeholder="Buscar producto..." oninput="renderAdminCatalogoRuta()">
+            <div id="acrResumen" style="font-size:11px;color:#667085;margin:7px 2px;"></div>
+            <div id="acrLista"><p style="font-size:12px;color:#888;text-align:center;">Cargando productos…</p></div>
         </div>
 
         <div id="adminImagenes" class="admin-modulo" style="display:none;margin-top:18px;">
@@ -1232,7 +1279,11 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
 
             const esDespacho = normalizarEmpleado(sucursalActual) === "despacho";
             const esBodega = sucursalActual && sucursalActual.trim().toLowerCase() === "bodega";
-            if (esDespacho) {
+            const esVendedorRuta = normalizarEmpleado(sucursalActual) === "vendedor de ruta";
+            if (esVendedorRuta) {
+                document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>x.style.display="none");
+                const cat=document.getElementById("btnMenuCatalogoRuta"); if(cat)cat.style.display="flex";
+            } else if (esDespacho) {
                 secHacer.style.display = "none"; secBodega.style.display = "none";
                 ["btnMenuPedidos","btnMenuRecepcion","btnMenuGondolas","btnMenuRuta","btnMenuCompras"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display="none";});
                 document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex")x.style.display="none";});
@@ -1289,9 +1340,9 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
         }
 
         function abrirModulo(nombre) {
-            cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
+            if(nombre !== "catalogoRuta") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloRuta","moduloFaltantesKardex"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloRuta","moduloFaltantesKardex","moduloCatalogoRuta"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
@@ -1326,6 +1377,10 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             } else if (nombre === "faltantesKardex") {
                 document.getElementById("moduloFaltantesKardex").style.display = "block";
                 cargarFaltantesKardex();
+            } else if (nombre === "catalogoRuta") {
+                if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "vendedor de ruta") return volverMenuPrincipal();
+                document.getElementById("moduloCatalogoRuta").style.display = "block";
+                cargarCatalogoRuta();
             } else if (nombre === "compras") {
                 if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "bodega") return volverMenuPrincipal();
                 document.getElementById("moduloCompras").style.display = "block";
@@ -3262,15 +3317,44 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
             }finally{btn.disabled=false;}
         }
 
+
+
+        // ===== VENDEDOR DE RUTA · CATÁLOGO v1.6.26 =====
+        let catalogoRutaProductos=[], catalogoRutaCategorias=[], catalogoRutaCategoria="TODOS", catalogoRutaIndice=0, adminCatalogoRuta=[];
+        function escRuta(t){return String(t??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+        async function cargarCatalogoRuta(){
+            const grid=document.getElementById("crGrid"); if(grid)grid.innerHTML='<div class="cr-empty">Cargando catálogo…</div>';
+            try{const r=await fetch(URL_API+"?accion=verCatalogoRuta&_="+Date.now(),{cache:"no-store"}),d=await r.json();if(d.status!=="OK")throw Error(d.mensaje||"Error");catalogoRutaProductos=d.productos||[];catalogoRutaCategorias=["TODOS",...new Set(catalogoRutaProductos.map(x=>String(x.categoria||"OTROS").trim()||"OTROS"))];catalogoRutaCategoria=catalogoRutaCategorias[0];catalogoRutaIndice=0;renderCatalogoRuta();}catch(e){console.error(e);grid.innerHTML='<div class="cr-empty">No se pudo cargar el catálogo.</div>';}
+        }
+        function renderCatalogoRuta(){
+            const cats=document.getElementById("crCategorias"),grid=document.getElementById("crGrid"),q=normalizarEmpleado(document.getElementById("crBuscar")?.value||"");
+            cats.innerHTML=catalogoRutaCategorias.map((c,i)=>`<button class="cr-cat ${c===catalogoRutaCategoria?'active':''}" onclick="seleccionarCategoriaRuta(${i})">${escRuta(c==='TODOS'?'Todos':c)}</button>`).join('');
+            let arr=catalogoRutaProductos.filter(x=>(catalogoRutaCategoria==='TODOS'||String(x.categoria||'OTROS')===catalogoRutaCategoria)&&(!q||normalizarEmpleado(x.producto).includes(q)));
+            arr.sort((a,b)=>(Number(b.destacado)-Number(a.destacado))||(Number(a.prioridad||999)-Number(b.prioridad||999))||String(a.producto).localeCompare(String(b.producto),'es'));
+            document.getElementById("crTituloCategoria").textContent=catalogoRutaCategoria==='TODOS'?'CATÁLOGO':catalogoRutaCategoria;
+            document.getElementById("crContador").textContent=arr.length+' productos';
+            grid.innerHTML=arr.length?arr.map(x=>`<article class="cr-prod ${x.destacado?'destacado':''}">${x.destacado?'<div class="cr-star">⭐ RECOMENDADO</div>':''}<div class="cr-img">${x.imagen?`<img loading="lazy" src="${escRuta(x.imagen)}" alt="${escRuta(x.producto)}" onerror="this.outerHTML='<div class=&quot;cr-fallback&quot;>📦</div>'">`:'<div class="cr-fallback">📦</div>'}</div><div class="cr-info"><div class="cr-name">${escRuta(x.producto)}</div>${x.precio?`<div class="cr-price">$${Number(x.precio).toFixed(2)}</div>`:''}</div></article>`).join(''):'<div class="cr-empty">No hay productos para mostrar.</div>';
+            document.getElementById("crAnterior").disabled=catalogoRutaIndice<=0;document.getElementById("crSiguiente").disabled=catalogoRutaIndice>=catalogoRutaCategorias.length-1;
+        }
+        function filtrarCatalogoRuta(){renderCatalogoRuta();}
+        function seleccionarCategoriaRuta(i){catalogoRutaIndice=Math.max(0,Math.min(i,catalogoRutaCategorias.length-1));catalogoRutaCategoria=catalogoRutaCategorias[catalogoRutaIndice]||'TODOS';renderCatalogoRuta();document.getElementById('crGrid')?.scrollIntoView({behavior:'smooth',block:'start'});}
+        function moverCategoriaRuta(d){seleccionarCategoriaRuta(catalogoRutaIndice+d);}
+        function activarModoCliente(){document.body.classList.add('catalogo-cliente');document.getElementById('crSalirCliente').style.display='block';const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});else if(el.webkitRequestFullscreen)try{el.webkitRequestFullscreen();}catch(_){}}
+        function desactivarModoCliente(){document.body.classList.remove('catalogo-cliente');document.getElementById('crSalirCliente').style.display='none';if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});}
+        async function cargarAdminCatalogoRuta(){const l=document.getElementById('acrLista');l.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando productos…</p>';try{const r=await fetch(URL_API+'?accion=verCatalogoRutaAdmin&_='+Date.now(),{cache:'no-store'}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error');adminCatalogoRuta=d.productos||[];renderAdminCatalogoRuta();}catch(e){console.error(e);l.innerHTML='<p style="color:#dc3545;text-align:center;">No se pudo cargar el catálogo.</p>';}}
+        function renderAdminCatalogoRuta(){const q=normalizarEmpleado(document.getElementById('acrBuscar')?.value||''),arr=adminCatalogoRuta.filter(x=>!q||normalizarEmpleado(x.producto).includes(q)||normalizarEmpleado(x.categoria).includes(q));document.getElementById('acrResumen').textContent=`${adminCatalogoRuta.filter(x=>x.activo).length} activos · ${adminCatalogoRuta.filter(x=>x.destacado).length} destacados · ${adminCatalogoRuta.length} productos`;document.getElementById('acrLista').innerHTML=arr.map(x=>`<div class="acr-row"><div>${x.imagen?`<img loading="lazy" src="${escRuta(x.imagen)}" onerror="this.style.display='none'">`:'📦'}</div><div><div class="acr-name">${escRuta(x.producto)}</div><div class="acr-meta">${escRuta(x.categoria||'Sin categoría')} · ${x.precio?'$'+Number(x.precio).toFixed(2):'Sin precio'}</div></div><div class="acr-actions"><button class="${x.activo?'acr-on':'acr-off'}" onclick="cambiarEstadoCatalogoRuta(${x.fila},'activo',${x.activo?'false':'true'})">${x.activo?'Visible':'Oculto'}</button><button class="${x.destacado?'acr-star':'acr-off'}" onclick="cambiarEstadoCatalogoRuta(${x.fila},'destacado',${x.destacado?'false':'true'})">${x.destacado?'⭐ Impulsar':'☆ Normal'}</button></div></div>`).join('')||'<p style="font-size:12px;color:#888;text-align:center;">Sin resultados.</p>';}
+        async function cambiarEstadoCatalogoRuta(fila,campo,valor){try{const p=new URLSearchParams();p.append('accion','ActualizarCatalogoRuta');p.append('fila',fila);p.append('campo',campo);p.append('valor',valor?'SI':'NO');const r=await fetch(URL_API,{method:'POST',body:p}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error');const x=adminCatalogoRuta.find(z=>Number(z.fila)===Number(fila));if(x)x[campo]=valor;renderAdminCatalogoRuta();}catch(e){alert('No se pudo actualizar el producto.');}}
+
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
             if (modulo === "gondolas") iniciarAdminGondolas();
             if (modulo === "imagenes") iniciarAdminImagenes();
+            if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
             window.scrollTo(0,0);
         }
 
