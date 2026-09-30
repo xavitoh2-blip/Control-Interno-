@@ -798,6 +798,9 @@ body.catalogo-cliente{padding:0!important;background:#fff!important}body.catalog
 @media(min-width:1100px) and (orientation:landscape){.cr-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 body.catalogo-cliente .cr-nav{display:none!important}
 body.catalogo-cliente .cr-tap-hint{display:block!important}
+/* v1.6.28 · Modo cliente más limpio: oculta el título repetido de categoría */
+body.catalogo-cliente .cr-page-title h4{display:none!important}
+body.catalogo-cliente .cr-page-title{justify-content:flex-end!important}
 
 </style>
 </head>
@@ -808,7 +811,7 @@ body.catalogo-cliente .cr-tap-hint{display:block!important}
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.27 · Catálogo 6 por página · efecto libro</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.29 · Selector uniforme · catálogo tipo libro</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -820,7 +823,7 @@ body.catalogo-cliente .cr-tap-hint{display:block!important}
             <option value="Tienda Online Shop">Tienda Online Shop</option>
             <option value="Bodega">Bodega</option>
             <option value="Despacho">Despacho</option>
-            <option value="Vendedor de Ruta">🚚 Vendedor de Ruta</option>
+            <option value="Vendedor de Ruta">Vendedor de Ruta</option>
         </select>
         
         <select id="nombreEmpleado">
