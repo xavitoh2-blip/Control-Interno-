@@ -839,7 +839,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.34 · Pedidos · Presentaciones primero · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.35 · Góndolas · Solicitud acumulada + capacidad · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1079,8 +1079,16 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <div id="vistaAnaqueles" style="display:none;"></div>
         <div id="vistaProductosGondola" style="display:none;"></div>
         <div id="resumenGondolas" class="gondola-resumen" style="display:none;">
-            <div style="font-size:13px;font-weight:700;margin-bottom:8px;">📦 Seleccionados: <span id="cantSeleccionadosGondola">0</span></div>
+            <div style="font-size:13px;font-weight:800;margin-bottom:8px;">📦 Solicitud acumulada: <span id="cantSeleccionadosGondola">0</span> producto(s)</div>
+            <button onclick="verSolicitudGondola()" style="background:#eef5ff;color:#0878f9;border:1px solid #cfe2ff;margin:0 0 8px;">👁 Ver solicitud</button>
             <button id="btnEnviarGondolas" onclick="enviarFaltantesGondola()" style="background:#087cff;margin:0;">📩 Enviar solicitud a Bodega</button>
+        </div>
+        <div id="modalSolicitudGondola" style="display:none;position:fixed;inset:0;background:rgba(20,35,55,.38);z-index:9999;padding:18px;align-items:flex-end;justify-content:center;">
+          <div style="background:rgba(255,255,255,.98);width:min(520px,100%);max-height:78vh;overflow:auto;border-radius:26px;padding:18px;box-shadow:0 20px 60px rgba(20,40,70,.25);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><div><b style="font-size:18px;">📦 Solicitud a Bodega</b><div style="font-size:12px;color:#667085;">Productos seleccionados de todas las góndolas</div></div><button onclick="cerrarSolicitudGondola()" style="width:auto;margin:0;background:#eef2f6;color:#475467;padding:9px 12px;">✕</button></div>
+            <div id="listaSolicitudGondola" style="margin-top:14px;"></div>
+            <button onclick="enviarFaltantesGondola()" style="background:#087cff;margin-top:12px;">📩 Enviar solicitud completa</button>
+          </div>
         </div>
     </div>
 
@@ -1245,6 +1253,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div id="adminGondolaResultados" class="pedido-resultados" style="display:none;"></div></div>
             <div id="adminGondolaProductoActual" style="display:none;margin:12px 0;background:#f7faff;border:1px solid #dce9f8;border-radius:18px;padding:12px;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div><label>Góndola</label><input id="adminGondolaNumero" type="number" min="1" inputmode="numeric" placeholder="Ej. 3"></div><div><label>Anaquel</label><input id="adminAnaquelNumero" type="number" min="1" inputmode="numeric" placeholder="Ej. 2"></div></div>
+            <div style="margin-top:10px;"><label>Capacidad del espacio</label><input id="adminGondolaCapacidad" type="number" min="1" inputmode="numeric" placeholder="Ej. 20"><div style="font-size:10px;color:#667085;margin-top:3px;">Cantidad que cabe físicamente de este producto en ese espacio.</div></div>
             <button onclick="guardarUbicacionAdminGondola()" style="background:#0878f9;margin-top:12px;">💾 Guardar ubicación</button>
             <button id="btnQuitarUbicacionGondola" onclick="quitarUbicacionAdminGondola()" style="display:none;background:#e53945;margin-top:8px;">✕ Quitar ubicación</button>
             <div id="estadoAdminGondola" style="font-size:12px;text-align:center;margin:10px 0;"></div>
@@ -1579,7 +1588,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const sel = faltantesGondola[key];
                 return `<div class="gondola-producto ${sel?'seleccionado':''}">
                     <div class="gondola-producto-fila">
-                        <div style="display:flex;align-items:center;gap:10px;min-width:0;">${imagenProductoGlobal(p.producto,p,50)}<div><strong>${escaparHtmlPedido(p.producto)}</strong></div></div>
+                        <div style="display:flex;align-items:center;gap:10px;min-width:0;">${imagenProductoGlobal(p.producto,p,50)}<div><strong>${escaparHtmlPedido(p.producto)}</strong>${Number(p.capacidad)>0?`<div style="font-size:11px;color:#0878f9;font-weight:800;margin-top:3px;">Caben: ${Number(p.capacidad)}</div>`:""}</div></div>
                         <button onclick="toggleFaltanteGondola('${escaparJsGondola(p.producto)}')" style="width:auto;margin:0;padding:8px 10px;background:${sel?'#28a745':'#007bff'};font-size:11px;">${sel?'✓ Faltante':'Marcar faltante'}</button>
                     </div>
                     ${sel?`<div class="gondola-cantidad"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',-1)" style="background:#6c757d;">−</button><input readonly value="${sel.cantidad}"><button onclick="cambiarCantidadGondola('${escaparJsGondola(p.producto)}',1)" style="background:#087cff;">＋</button></div>`:''}
@@ -1603,6 +1612,16 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             document.getElementById("cantSeleccionadosGondola").innerText=n;
             document.getElementById("resumenGondolas").style.display=n?"block":"none";
         }
+
+        function verSolicitudGondola(){
+            const items=Object.values(faltantesGondola), modal=document.getElementById("modalSolicitudGondola"), lista=document.getElementById("listaSolicitudGondola");
+            if(!items.length)return alert("Todavía no has seleccionado productos.");
+            lista.innerHTML=items.map(x=>`<div style="border:1px solid #e3eaf2;border-radius:16px;padding:11px;margin:8px 0;background:#fff;"><div style="font-weight:800;font-size:13px;margin-bottom:8px;">${escaparHtmlPedido(x.producto)}</div><div style="display:grid;grid-template-columns:48px 1fr 48px 42px;gap:8px;align-items:center;"><button onclick="cambiarCantidadSolicitudGondola('${escaparJsGondola(x.producto)}',-1)" style="margin:0;background:#7b8794;padding:9px;">−</button><div style="text-align:center;font-weight:900;font-size:18px;border:1px solid #dce5ef;border-radius:12px;padding:9px;">${Number(x.cantidad)||1}</div><button onclick="cambiarCantidadSolicitudGondola('${escaparJsGondola(x.producto)}',1)" style="margin:0;background:#087cff;padding:9px;">＋</button><button onclick="quitarSolicitudGondola('${escaparJsGondola(x.producto)}')" style="margin:0;background:#e53945;padding:9px;">✕</button></div></div>`).join("");
+            modal.style.display="flex";
+        }
+        function cerrarSolicitudGondola(){document.getElementById("modalSolicitudGondola").style.display="none";}
+        function cambiarCantidadSolicitudGondola(producto,delta){const k=claveProductoGondola(producto);if(!faltantesGondola[k])return;faltantesGondola[k].cantidad=Math.max(1,(Number(faltantesGondola[k].cantidad)||1)+delta);actualizarResumenGondolas();verSolicitudGondola();if(gondolaActual&&anaquelActual)renderProductosAnaquel();}
+        function quitarSolicitudGondola(producto){delete faltantesGondola[claveProductoGondola(producto)];actualizarResumenGondolas();if(Object.keys(faltantesGondola).length)verSolicitudGondola();else cerrarSolicitudGondola();if(gondolaActual&&anaquelActual)renderProductosAnaquel();}
 
         async function enviarFaltantesGondola(){
             const productos=Object.values(faltantesGondola).map(x=>({producto:x.producto,cantidad:Number(x.cantidad)||1}));
@@ -3249,7 +3268,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
         function seleccionarProductoAdminGondola(i){
             const listaResultados=document.getElementById("adminGondolaResultados");
-            if(listaResultados){listaResultados.innerHTML="";listaResultados.style.display="none";}const x=catalogoProductosPedido[i];if(!x)return;const n=typeof x==="string"?x:x.producto;productoAdminGondola={producto:n};document.getElementById("adminGondolaBuscar").value=n;document.getElementById("adminGondolaResultados").style.display="none";const u=ubicacionesAdminGondola.find(z=>claveImagenProducto(z.producto)===claveImagenProducto(n));document.getElementById("adminGondolaNumero").value=u?u.gondola:"";document.getElementById("adminAnaquelNumero").value=u?u.anaquel:"";const b=document.getElementById("adminGondolaProductoActual");b.style.display="flex";b.style.alignItems="center";b.style.gap="12px";b.innerHTML=`${imagenProductoGlobal(n,x,58)}<div><b>${escaparHtmlPedido(n)}</b><div style="font-size:11px;color:#667085;margin-top:4px;">${u?`Actualmente: Góndola ${u.gondola} · Anaquel ${u.anaquel}`:"Sin ubicación en esta sucursal"}</div></div>`;document.getElementById("btnQuitarUbicacionGondola").style.display=u?"block":"none";}
+            if(listaResultados){listaResultados.innerHTML="";listaResultados.style.display="none";}const x=catalogoProductosPedido[i];if(!x)return;const n=typeof x==="string"?x:x.producto;productoAdminGondola={producto:n};document.getElementById("adminGondolaBuscar").value=n;document.getElementById("adminGondolaResultados").style.display="none";const u=ubicacionesAdminGondola.find(z=>claveImagenProducto(z.producto)===claveImagenProducto(n));document.getElementById("adminGondolaNumero").value=u?u.gondola:"";document.getElementById("adminAnaquelNumero").value=u?u.anaquel:"";document.getElementById("adminGondolaCapacidad").value=u&&Number(u.capacidad)>0?Number(u.capacidad):"";const b=document.getElementById("adminGondolaProductoActual");b.style.display="flex";b.style.alignItems="center";b.style.gap="12px";b.innerHTML=`${imagenProductoGlobal(n,x,58)}<div><b>${escaparHtmlPedido(n)}</b><div style="font-size:11px;color:#667085;margin-top:4px;">${u?`Actualmente: Góndola ${u.gondola} · Anaquel ${u.anaquel}`:"Sin ubicación en esta sucursal"}</div></div>`;document.getElementById("btnQuitarUbicacionGondola").style.display=u?"block":"none";}
         async function cargarUbicacionesAdminGondola(){
             const s=document.getElementById("adminGondolaSucursal").value,c=document.getElementById("listaUbicacionesAdminGondola");c.innerHTML='<p style="font-size:12px;text-align:center;">Cargando...</p>';
             try{const r=await fetch(URL_API+"?accion=verGondolas&sucursal="+encodeURIComponent(s)+"&_="+Date.now()),d=await r.json();if(d.status!=="OK")throw Error("Error");
@@ -3259,9 +3278,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             c.innerHTML=Object.keys(gs).sort(ord).map((g,i)=>{const z=gs[g],id="ag_"+i,ana=Object.keys(z.a).sort(ord).map(a=>{const ps=z.a[a];return `<div style="padding:10px;border-top:1px solid #edf1f5;"><b style="font-size:12px;">Anaquel ${escaparHtmlPedido(a)} · ${ps.length}</b><div style="font-size:10px;color:#667085;line-height:1.5;margin-top:4px;">${ps.map(p=>escaparHtmlPedido(p.producto)).join(" · ")}</div></div>`}).join("");return `<div style="border:1px solid #dfe7f1;border-radius:15px;margin:8px 0;overflow:hidden;"><button onclick="const e=document.getElementById('${id}');e.style.display=e.style.display==='none'?'block':'none'" style="width:100%;background:#f7faff;color:#1d2939;border-radius:0;padding:12px;display:flex;justify-content:space-between;"><span>🗄️ <b>Góndola ${escaparHtmlPedido(g)}</b></span><span>${z.total} productos ▾</span></button><div id="${id}" style="display:none;">${ana}</div></div>`}).join("");
             }catch(err){c.innerHTML='<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar las ubicaciones.</p>';}
         }
-        async function guardarUbicacionAdminGondola(){if(!productoAdminGondola)return alert("Selecciona un producto.");const g=document.getElementById("adminGondolaNumero").value.trim(),a=document.getElementById("adminAnaquelNumero").value.trim();if(!g||!a)return alert("Indica góndola y anaquel.");await enviarUbicacionAdminGondola("guardar",g,a);}
-        async function quitarUbicacionAdminGondola(){if(productoAdminGondola&&confirm("¿Quitar esta ubicación?"))await enviarUbicacionAdminGondola("quitar","","");}
-        async function enviarUbicacionAdminGondola(m,g,a){const e=document.getElementById("estadoAdminGondola");e.textContent="Guardando...";try{const p=new URLSearchParams({accion:"GuardarUbicacionGondola",modo:m,sucursal:document.getElementById("adminGondolaSucursal").value,producto:productoAdminGondola.producto,gondola:g,anaquel:a});const r=await fetch(URL_API,{method:"POST",body:p}),d=await r.json();if(d.status!=="OK")throw Error(d.mensaje||"Error");e.style.color="#198754";e.textContent=m==="quitar"?"✓ Ubicación eliminada":"✓ Ubicación guardada";ubicacionesAdminGondola=[];document.getElementById("listaUbicacionesAdminGondola").innerHTML='<p style="font-size:12px;color:#718096;text-align:center;">Ubicación actualizada. Pulsa “Ver ubicaciones” para recargar la lista.</p>';const i=catalogoProductosPedido.findIndex(x=>claveImagenProducto(typeof x==="string"?x:x.producto)===claveImagenProducto(productoAdminGondola.producto));seleccionarProductoAdminGondola(i);}catch(err){console.error(err);e.style.color="#dc3545";e.textContent="No se pudo guardar.";}}
+        async function guardarUbicacionAdminGondola(){if(!productoAdminGondola)return alert("Selecciona un producto.");const g=document.getElementById("adminGondolaNumero").value.trim(),a=document.getElementById("adminAnaquelNumero").value.trim(),c=document.getElementById("adminGondolaCapacidad").value.trim();if(!g||!a)return alert("Indica góndola y anaquel.");if(!c||Number(c)<1)return alert("Indica la capacidad del espacio.");await enviarUbicacionAdminGondola("guardar",g,a,c);}
+        async function quitarUbicacionAdminGondola(){if(productoAdminGondola&&confirm("¿Quitar esta ubicación?"))await enviarUbicacionAdminGondola("quitar","","","");}
+        async function enviarUbicacionAdminGondola(m,g,a,c){const e=document.getElementById("estadoAdminGondola");e.textContent="Guardando...";try{const p=new URLSearchParams({accion:"GuardarUbicacionGondola",modo:m,sucursal:document.getElementById("adminGondolaSucursal").value,producto:productoAdminGondola.producto,gondola:g,anaquel:a,capacidad:c||""});const r=await fetch(URL_API,{method:"POST",body:p}),d=await r.json();if(d.status!=="OK")throw Error(d.mensaje||"Error");e.style.color="#198754";e.textContent=m==="quitar"?"✓ Ubicación eliminada":"✓ Ubicación guardada";ubicacionesAdminGondola=[];document.getElementById("listaUbicacionesAdminGondola").innerHTML='<p style="font-size:12px;color:#718096;text-align:center;">Ubicación actualizada. Pulsa “Ver ubicaciones” para recargar la lista.</p>';const i=catalogoProductosPedido.findIndex(x=>claveImagenProducto(typeof x==="string"?x:x.producto)===claveImagenProducto(productoAdminGondola.producto));seleccionarProductoAdminGondola(i);}catch(err){console.error(err);e.style.color="#dc3545";e.textContent="No se pudo guardar.";}}
 
 
 
@@ -3269,9 +3288,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         let ubicacionesPendientesAdmin=[];
         function agregarUbicacionPendiente(){
             if(!productoAdminGondola)return alert("Selecciona un producto.");
-            const suc=document.getElementById("adminGondolaSucursal").value,g=document.getElementById("adminGondolaNumero").value.trim(),a=document.getElementById("adminAnaquelNumero").value.trim();
+            const suc=document.getElementById("adminGondolaSucursal").value,g=document.getElementById("adminGondolaNumero").value.trim(),a=document.getElementById("adminAnaquelNumero").value.trim(),c=document.getElementById("adminGondolaCapacidad").value.trim();
             if(!g||!a)return alert("Escribe la góndola y el anaquel.");
-            const item={producto:productoAdminGondola.producto,sucursal:suc,gondola:g,anaquel:a},key=claveImagenProducto(item.producto)+"|"+normalizarBusquedaPedido(suc);
+            if(!c||Number(c)<1)return alert("Escribe la capacidad del espacio.");
+            const item={producto:productoAdminGondola.producto,sucursal:suc,gondola:g,anaquel:a,capacidad:Number(c)},key=claveImagenProducto(item.producto)+"|"+normalizarBusquedaPedido(suc);
             const ix=ubicacionesPendientesAdmin.findIndex(x=>claveImagenProducto(x.producto)+"|"+normalizarBusquedaPedido(x.sucursal)===key);
             if(ix>=0)ubicacionesPendientesAdmin[ix]=item;else ubicacionesPendientesAdmin.push(item);
             renderUbicacionesPendientes();
