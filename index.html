@@ -839,7 +839,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.35 · Pedidos · Cantidad editable · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.36 · Faltantes del día · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -887,6 +887,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button id="btnMenuGondolas" class="menu-modulo" onclick="abrirModulo('gondolas')"><span>🗄️</span><b>Góndolas</b></button>
                 <button id="btnMenuRecepcion" class="menu-modulo" onclick="abrirModulo('recepcion')"><span>📥</span><b>Recibir Pedido</b></button>
                 <button id="btnMenuCompras" class="menu-modulo" onclick="abrirModulo('compras')" style="display:none;"><span>📝</span><b>Solicitar Compra</b></button>
+                <button id="btnMenuFaltantesDia" class="menu-modulo" onclick="abrirModulo('faltantesDia')" style="display:none;"><span>🟠</span><b>Faltantes del día</b></button>
                 <button id="btnMenuRuta" class="menu-modulo" onclick="abrirModulo('ruta')" style="display:none;"><span>📋</span><b>Kardex</b></button>
                 <button id="btnMenuFaltantesKardex" class="menu-modulo" onclick="abrirModulo('faltantesKardex')"><span>📦</span><b>Faltantes Kardex</b></button>
                 <button id="btnMenuCatalogoRuta" class="menu-modulo" onclick="abrirModulo('catalogoRuta')" style="display:none;"><span>📖</span><b>Catálogo</b></button>
@@ -1082,6 +1083,15 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div style="font-size:13px;font-weight:700;margin-bottom:8px;">📦 Seleccionados: <span id="cantSeleccionadosGondola">0</span></div>
             <button id="btnEnviarGondolas" onclick="enviarFaltantesGondola()" style="background:#087cff;margin:0;">📩 Enviar solicitud a Bodega</button>
         </div>
+    </div>
+
+    <!-- FALTANTES DEL DÍA v1.6.36 - SOLO BODEGA -->
+    <div id="moduloFaltantesDia" class="card modulo-pantalla" style="text-align:left;">
+        <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+        <h3 style="text-align:center;">🟠 Faltantes del día</h3>
+        <p style="font-size:12px;color:#666;text-align:center;">Faltantes confirmados por la sucursal. Si el producto entra después, prepara el complemento; si no llega, pásalo a Compras.</p>
+        <button onclick="cargarFaltantesDelDia()" style="background:#007bff;">🔄 Actualizar faltantes</button>
+        <div id="listaFaltantesDia" style="margin-top:10px;"></div>
     </div>
 
     <!-- MÓDULO DE COMPRAS - SOLO BODEGA -->
@@ -1350,7 +1360,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const cat=document.getElementById("btnMenuCatalogoRuta"); if(cat)cat.style.display="flex";
             } else if (esDespacho) {
                 secHacer.style.display = "none"; secBodega.style.display = "none";
-                ["btnMenuPedidos","btnMenuRecepcion","btnMenuGondolas","btnMenuRuta","btnMenuCompras"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display="none";});
+                ["btnMenuPedidos","btnMenuRecepcion","btnMenuGondolas","btnMenuRuta","btnMenuCompras","btnMenuFaltantesDia"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display="none";});
                 document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex")x.style.display="none";});
                 const fk=document.getElementById("btnMenuFaltantesKardex"); if(fk)fk.style.display="flex";
             } else if (esBodega) {
@@ -1360,6 +1370,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if (btnGondolas) btnGondolas.style.display = "none";
                 if (btnRuta) btnRuta.style.display = "flex";
                 const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "flex";
+                const bfd = document.getElementById("btnMenuFaltantesDia"); if (bfd) bfd.style.display = "flex";
                 const t = document.getElementById("textoMenuPedidos"); if (t) t.innerText = "Pedidos Recibidos";
                 const b = document.getElementById("btnMenuPedidos"); if (b) b.querySelector("span").innerText = "📦";
             } else {
@@ -1369,6 +1380,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if (btnGondolas) btnGondolas.style.display = "flex";
                 if (btnRuta) btnRuta.style.display = "none";
                 const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "none";
+                const bfd = document.getElementById("btnMenuFaltantesDia"); if (bfd) bfd.style.display = "none";
             }
         }
 
@@ -1407,7 +1419,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModulo(nombre) {
             if(nombre !== "catalogoRuta") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloRuta","moduloFaltantesKardex","moduloCatalogoRuta"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloCatalogoRuta"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
@@ -1446,6 +1458,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "vendedor de ruta") return volverMenuPrincipal();
                 document.getElementById("moduloCatalogoRuta").style.display = "block";
                 cargarCatalogoRuta();
+            } else if (nombre === "faltantesDia") {
+                if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "bodega") return volverMenuPrincipal();
+                document.getElementById("moduloFaltantesDia").style.display = "block";
+                cargarFaltantesDelDia();
             } else if (nombre === "compras") {
                 if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "bodega") return volverMenuPrincipal();
                 document.getElementById("moduloCompras").style.display = "block";
@@ -1456,7 +1472,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloRuta","moduloFaltantesKardex"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -2764,6 +2780,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if (btn) { btn.disabled = false; btn.innerText = "🚚 Confirmar pedido preparado"; }
             }
         }
+
+        let faltantesDiaActuales=[];
+        function cargarFaltantesDelDia(){const cont=document.getElementById("listaFaltantesDia");if(!cont)return;cont.innerHTML='<p style="font-size:12px;color:#666;text-align:center;">Cargando faltantes...</p>';fetch(URL_API+"?accion=verFaltantesDelDia&_="+Date.now()).then(r=>r.json()).then(d=>{if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Respuesta inválida");faltantesDiaActuales=d.faltantes||[];renderizarFaltantesDelDia();}).catch(e=>{console.error(e);cont.innerHTML='<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar los faltantes.</p>';});}
+        function renderizarFaltantesDelDia(){const cont=document.getElementById("listaFaltantesDia");if(!cont)return;if(!faltantesDiaActuales.length){cont.innerHTML='<div style="padding:20px;text-align:center;background:#f0fff4;border:1px solid #c7ead3;border-radius:18px;color:#267243;font-weight:800;">✅ No hay faltantes pendientes del día.</div>';return;}cont.innerHTML=faltantesDiaActuales.map((x,i)=>`<div style="background:#fff;border:1px solid #e5ecf4;border-radius:20px;padding:13px;margin:10px 0;box-shadow:0 7px 20px rgba(36,67,104,.07);"><div style="display:flex;gap:10px;align-items:center;">${imagenProductoGlobal(x.producto,x,52)}<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:850;">${escaparHtmlPedido(x.producto)}</div><div style="font-size:11px;color:#667085;margin-top:4px;">${escaparHtmlPedido(x.sucursal)} · Pedido ${escaparHtmlPedido(x.idPedido)}</div></div><div style="text-align:right;"><div style="font-size:10px;color:#667085;">Pendiente</div><b style="font-size:22px;color:#e67e22;">${Number(x.pendiente)||0}</b></div></div><div style="font-size:11px;color:#667085;margin-top:9px;">Pedido: <b>${Number(x.cantidadPedida)||0}</b> · Recibido: <b>${Number(x.cantidadRecibida)||0}</b> · Complementado: <b>${Number(x.complementado)||0}</b></div><div style="display:grid;grid-template-columns:50px 1fr 50px;gap:7px;margin-top:10px;"><button type="button" onclick="cambiarComplementoFaltante(${i},-1)" style="margin:0;background:#7a858e;font-size:20px;padding:0;">−</button><input id="faltDiaCant_${i}" type="number" min="1" max="${Number(x.pendiente)||0}" value="${Number(x.pendiente)||1}" style="margin:0;text-align:center;font-size:18px;font-weight:800;"><button type="button" onclick="cambiarComplementoFaltante(${i},1)" style="margin:0;background:#087cff;font-size:20px;padding:0;">+</button></div><button type="button" onclick="completarFaltanteDia(${i})" style="margin-top:9px;background:#087cff;">📦 Preparar complemento</button><button type="button" onclick="enviarFaltanteDiaCompras(${i})" style="margin-top:7px;background:#6c757d;">🛒 No llegó · Pasar a Compras</button></div>`).join('');}
+        function cambiarComplementoFaltante(i,d){const x=faltantesDiaActuales[i],el=document.getElementById(`faltDiaCant_${i}`);if(!x||!el)return;el.value=Math.max(1,Math.min(Number(x.pendiente)||1,(Number(el.value)||1)+d));}
+        async function completarFaltanteDia(i){const x=faltantesDiaActuales[i],el=document.getElementById(`faltDiaCant_${i}`);if(!x||!el)return;const cantidad=Math.max(1,Math.min(Number(x.pendiente)||1,Number(el.value)||1));if(!confirm(`¿Preparar ${cantidad} de ${x.producto} para ${x.sucursal}?`))return;try{const body=new URLSearchParams({accion:"CompletarFaltanteDia",fila:x.fila,cantidad,empleado:localStorage.getItem("usuario")||""}),r=await fetch(URL_API,{method:"POST",body}),d=await r.json();if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");alert(d.pendiente>0?`Complemento registrado. Aún faltan ${d.pendiente}.`:'✅ Faltante completado.');cargarFaltantesDelDia();}catch(e){alert("No se pudo registrar el complemento: "+e.message);}}
+        async function enviarFaltanteDiaCompras(i){const x=faltantesDiaActuales[i];if(!x)return;if(!confirm(`¿Enviar a Compras las ${x.pendiente} unidad(es) pendientes de ${x.producto}?`))return;try{const body=new URLSearchParams({accion:"EnviarFaltanteDiaACompras",fila:x.fila,empleado:localStorage.getItem("usuario")||""}),r=await fetch(URL_API,{method:"POST",body}),d=await r.json();if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");alert("Producto enviado a Solicitud de Compras.");cargarFaltantesDelDia();}catch(e){alert("No se pudo enviar a Compras: "+e.message);}}
 
         let comprasPendientesActuales = [];
         let productoCompraActual = null;
