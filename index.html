@@ -839,7 +839,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.38 · Despacho · Estados corregidos · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.39 · Imágenes de productos restauradas · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2257,6 +2257,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             try{ if(pedidoBodegaAbierto) renderizarDetallePedidoBodega(pedidoBodegaAbierto); }catch(_){ }
             try{ if(comprasPendientesActuales?.length) renderizarComprasPendientes(); }catch(_){ }
             try{ if(gestionComprasAdminActual?.length) renderizarGestionComprasAdmin(); }catch(_){ }
+            // v1.6.39: estas vistas pueden dibujarse antes de que termine de cargar el catálogo global.
+            // Al llegar las imágenes, se vuelven a renderizar sin volver a consultar el servidor.
+            try{ if(typeof rutaActiva!=='undefined' && rutaActiva?.productos?.length && document.getElementById('moduloRuta')?.style.display!=='none') renderRutaBodega(); }catch(_){ }
+            try{ if(typeof faltantesKardexActuales!=='undefined' && faltantesKardexActuales?.length && document.getElementById('moduloFaltantesKardex')?.style.display!=='none'){ normalizarEmpleado(localStorage.getItem('sucursal')||'')==='despacho' ? renderRecepcionKardex() : renderFaltantesKardex(); } }catch(_){ }
+            try{ if(typeof faltantesDiaActuales!=='undefined' && faltantesDiaActuales?.length && document.getElementById('listaFaltantesDia')) renderizarFaltantesDelDia(); }catch(_){ }
         }
         window.addEventListener('load',()=>cargarImagenesProductosGlobal().then(refrescarVistasConImagenes));
 
