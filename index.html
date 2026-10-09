@@ -830,6 +830,32 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 @media(min-width:700px){.cr-client-cats{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.cr-client-cat{min-height:110px!important;font-size:16px!important}body.catalogo-cliente #moduloCatalogoRuta{padding:24px 28px!important}}
 @media(min-width:1100px) and (orientation:landscape){.cr-client-cats{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
+
+/* Entrada de Mercadería – borradores locales/Sheets (sin envío Akasia) */
+#moduloEntradaMercaderia{max-width:540px!important}
+#moduloEntradaMercaderia .em-alerta{border:1px solid #f2d18c;border-radius:16px;padding:13px;background:#fff8e8;color:#77530a;margin:10px 0 14px;display:grid;gap:5px;font-size:12px;line-height:1.5}
+#moduloEntradaMercaderia .em-alerta strong{font-size:13px}
+#moduloEntradaMercaderia .em-label{display:block;font-size:12px;color:#45576e;font-weight:800;margin-top:13px}
+#moduloEntradaMercaderia .em-hint{font-size:12px;color:#788493;line-height:1.5;margin:8px 0}
+#moduloEntradaMercaderia .em-resultados{max-height:240px;overflow:auto;border-radius:15px}
+#moduloEntradaMercaderia .em-resultados button{display:block;background:#fff;color:#15253c;border:1px solid #e0e8f2;box-shadow:none;text-align:left;font-size:13px;line-height:1.3;margin:5px 0;padding:11px;min-height:40px}
+#moduloEntradaMercaderia .em-resultados small{display:block;color:#789;margin-top:4px;font-size:11px}
+#moduloEntradaMercaderia .em-seleccion{background:#f2f7ff;padding:13px;border:1px solid #dce9f8;border-radius:19px;margin:13px 0}
+#moduloEntradaMercaderia .em-controls{display:grid;grid-template-columns:55px 1fr 55px;gap:8px;align-items:center;margin:10px 0}
+#moduloEntradaMercaderia .em-controls button{margin:0!important;font-size:23px}
+#moduloEntradaMercaderia .em-controls input{text-align:center;font-size:20px;font-weight:850;margin:0!important}
+#moduloEntradaMercaderia .em-menos{background:#6c757d!important}
+#moduloEntradaMercaderia .em-resumen{background:#fff;border:1px solid #e0e8f2;padding:13px;border-radius:20px;margin-top:18px}
+#moduloEntradaMercaderia .em-resumen-head,#moduloEntradaMercaderia .em-total{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:5px 0 12px}
+#moduloEntradaMercaderia .em-total{padding:12px 0;border-top:1px solid #e2eaf4;font-size:14px;margin-top:12px}
+#moduloEntradaMercaderia .em-total strong{font-size:22px;color:#0969cb}
+#moduloEntradaMercaderia .em-linea{border-bottom:1px solid #e6edf6;padding:10px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
+#moduloEntradaMercaderia .em-linea p{font-size:12px;color:#677;margin:4px 0}
+#moduloEntradaMercaderia .em-linea strong{font-size:13px}
+#moduloEntradaMercaderia .em-linea button{width:34px;min-height:34px;background:#f9e5e5;color:#ba3535;margin:0;padding:4px;border-radius:9px}
+#moduloEntradaMercaderia .em-limpiar,#moduloEntradaMercaderia .em-secundario{background:#eaf1f9;color:#37516f;box-shadow:none}
+#moduloEntradaMercaderia .em-reciente{padding:10px 12px;background:#f6f9fc;border:1px solid #e3eaf2;border-radius:13px;margin:7px 0;font-size:12px}
+
 </style>
 </head>
 <body>
@@ -839,7 +865,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.40 · Imágenes Kardex corregidas · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.41 · Entrada de Mercadería (borradores) · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -885,6 +911,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModulo('inventario')"><span>📦</span>Inventario</button>
                 <button id="btnMenuPedidos" class="menu-modulo" onclick="abrirModulo('pedidos')"><span>🛍️</span><b id="textoMenuPedidos">Hacer Pedido</b></button>
                 <button id="btnMenuGondolas" class="menu-modulo" onclick="abrirModulo('gondolas')"><span>🗄️</span><b>Góndolas</b></button>
+                <button id="btnMenuEntradaMercaderia" class="menu-modulo" onclick="abrirModulo('entradaMercaderia')"><span>🚚</span><b>Entrada de Mercadería</b></button>
                 <button id="btnMenuRecepcion" class="menu-modulo" onclick="abrirModulo('recepcion')"><span>📥</span><b>Recibir Pedido</b></button>
                 <button id="btnMenuCompras" class="menu-modulo" onclick="abrirModulo('compras')" style="display:none;"><span>📝</span><b>Solicitar Compra</b></button>
                 <button id="btnMenuFaltantesDia" class="menu-modulo" onclick="abrirModulo('faltantesDia')" style="display:none;"><span>🟠</span><b>Faltantes del día</b></button>
@@ -1069,6 +1096,44 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div id="listaRecepcionPedidos" style="margin-top:12px;"><p style="font-size:12px;color:#888;text-align:center;">Cargando pedidos...</p></div>
         </div>
 
+
+
+    <!-- ENTRADA DE MERCADERÍA / BORRADORES. NO MODIFICA AKASIA. -->
+    <div id="moduloEntradaMercaderia" class="card modulo-pantalla" style="text-align:left;">
+        <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+        <h3 style="font-size:21px;border:0;margin:0 0 8px;">🚚 Entrada de Mercadería</h3>
+        <div class="em-alerta"><strong>Modo preparación · No enviado a Akasia</strong><span>Los registros se guardan como borradores en Google Sheets. NO modifican existencias, precios ni movimientos de Akasia.</span></div>
+        <label class="em-label" for="emSucursal">Sucursal de destino</label>
+        <select id="emSucursal" onchange="entradaSucursalCambio()"><option value="">Selecciona la sucursal...</option><option value="SUCURSAL MATRIZ">SUCURSAL MATRIZ</option><option value="MINI SUPER 1">MINI SUPER 1</option><option value="BODEGA PRINCIPAL">BODEGA PRINCIPAL</option></select>
+        <label class="em-label" for="emProveedor">Proveedor de esta entrada</label>
+        <input id="emProveedor" type="text" maxlength="90" placeholder="Ej.: OTRO PROVEEDOR" autocomplete="off" oninput="entradaGuardarLocal()">
+        <label class="em-label" for="emBuscador">Buscar producto</label>
+        <input id="emBuscador" type="search" placeholder="Escribe un nombre del catálogo..." autocomplete="off" oninput="entradaBuscar()">
+        <p class="em-hint">El catálogo proviene de la hoja CatalogoProductos. Todavía no incluye identificadores ni existencias en vivo de Akasia.</p>
+        <div id="emResultados" class="em-resultados" aria-live="polite"></div>
+        <div id="emProductoSeleccionado" class="em-seleccion" style="display:none">
+            <strong id="emNombreElegido"></strong>
+            <div class="em-controls">
+                <button type="button" class="em-menos" onclick="entradaCambiarCantidad(-1)" aria-label="Restar una unidad">−</button>
+                <input id="emCantidad" type="number" min="0.001" step="any" inputmode="decimal" value="1" aria-label="Cantidad recibida">
+                <button type="button" onclick="entradaCambiarCantidad(1)" aria-label="Sumar una unidad">+</button>
+            </div>
+            <label class="em-label" for="emCosto">Costo unitario para este borrador ($)</label>
+            <input id="emCosto" type="number" min="0" step="0.0001" inputmode="decimal" value="0">
+            <button onclick="entradaAgregar()">＋ Agregar producto</button>
+        </div>
+        <div class="em-resumen">
+            <div class="em-resumen-head"><b>Productos preparados</b><b id="emConteo">0</b></div>
+            <div id="emLista"><p class="em-hint">Busca y agrega productos para comenzar.</p></div>
+            <div class="em-total"><span>Total estimado</span><strong id="emTotal">$0.00</strong></div>
+            <button id="emGuardar" onclick="entradaGuardarBorrador()" disabled>💾 Guardar borrador en Google Sheets</button>
+            <button class="em-limpiar" onclick="entradaLimpiar()">Vaciar preparación</button>
+            <div id="emEstado" role="status" aria-live="polite" class="em-hint"></div>
+        </div>
+        <h4 style="margin-top:18px;">Borradores recientes de esta sucursal</h4>
+        <button class="em-secundario" onclick="entradaCargarRecientes()">↻ Consultar borradores</button>
+        <div id="emRecientes" class="em-hint">Selecciona una sucursal para ver borradores.</div>
+    </div>
 
     <!-- MÓDULO GÓNDOLAS v1.2.2 -->
     <div id="moduloGondolas" class="card modulo-pantalla" style="text-align:left;">
@@ -1419,7 +1484,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModulo(nombre) {
             if(nombre !== "catalogoRuta") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloCatalogoRuta"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloEntradaMercaderia","moduloCatalogoRuta"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
@@ -1444,6 +1509,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if (normalizarEmpleado(localStorage.getItem("sucursal")) === "bodega") return volverMenuPrincipal();
                 document.getElementById("moduloGondolas").style.display = "block";
                 cargarGondolas();
+            } else if (nombre === "entradaMercaderia") {
+                const origen = normalizarEmpleado(localStorage.getItem("sucursal"));
+                if (!["tienda online shop","mini super","bodega"].includes(origen)) return volverMenuPrincipal();
+                document.getElementById("moduloEntradaMercaderia").style.display = "block";
+                entradaIniciar();
             } else if (nombre === "recepcion") {
                 document.getElementById("moduloRecepcion").style.display = "block";
                 cargarPedidosParaRecepcion();
@@ -1472,7 +1542,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloEntradaMercaderia"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -3922,6 +3992,136 @@ function verificarPassword() {
             if(!confirm('¿Terminar la revisión? Lo que no encontraste quedará registrado como faltante real.'))return;
             const btn=document.getElementById('btnConfirmarFaltantesKardex');if(btn){btn.disabled=true;btn.innerText='Finalizando revisión...';}
             try{const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudo confirmar.');alert('✅ Revisión terminada. Lo preparado ya está disponible para Despacho.');await cargarFaltantesKardex();}catch(e){alert('No se pudo confirmar: '+e.message);}finally{const b=document.getElementById('btnConfirmarFaltantesKardex');if(b){b.disabled=false;b.innerText='✓ Terminar revisión';}}}
+
+
+        // ===== ENTRADA DE MERCADERÍA · Solo preparación (NO Akasia) =====
+        let entradaCatalogo = [], entradaCarrito = [], entradaElegido = null, entradaGuardando = false;
+        const entradaMoney = n => '$' + Number(n || 0).toFixed(2);
+        const entradaHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const entradaClave = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
+        function entradaNombreSucursal() {
+            const usuario = (localStorage.getItem('sucursal')||'').trim().toLowerCase();
+            if (usuario === 'mini super') return 'MINI SUPER 1';
+            if (usuario === 'tienda online shop') return 'SUCURSAL MATRIZ';
+            if (usuario === 'bodega') return 'BODEGA PRINCIPAL';
+            return '';
+        }
+        function entradaClaveLocal(){return 'onlineShopEntradaBorrador_v1_'+(localStorage.getItem('usuario')||'')+'_'+(localStorage.getItem('sucursal')||'');}
+        function entradaGuardarLocal(){
+            try {localStorage.setItem(entradaClaveLocal(),JSON.stringify({sucursal:document.getElementById('emSucursal').value, proveedor:document.getElementById('emProveedor').value,items:entradaCarrito}));}catch(e){}
+        }
+        function entradaIniciar(){
+            const sel=document.getElementById('emSucursal');
+            const pref=entradaNombreSucursal();
+            sel.value=pref;
+            // Una sucursal no puede introducir borradores para otra mediante este menú.
+            sel.disabled=true;
+            entradaCarrito=[];
+            try {
+                const d=JSON.parse(localStorage.getItem(entradaClaveLocal())||'null');
+                if(d&&d.sucursal===pref){entradaCarrito=Array.isArray(d.items)?d.items:[]; document.getElementById('emProveedor').value=d.proveedor||'';}
+            }catch(e){}
+            entradaCarrito=entradaCarrito.filter(x=>x&&typeof x.nombre==='string'&&Number(x.cantidad)>0&&Number(x.costo)>=0);
+            entradaElegido=null;
+            document.getElementById('emProductoSeleccionado').style.display='none';
+            document.getElementById('emBuscador').value='';
+            document.getElementById('emResultados').textContent='Cargando catálogo...';
+            entradaRender();entradaCargarRecientes();
+            // Este catálogo es de Google Sheets y NO se presume actualizado respecto a Akasia.
+            fetch(URL_API+'?accion=verCatalogoEntradaMercaderia&_='+Date.now(),{cache:'no-store'})
+                .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
+                .then(d=>{if(!d||d.status!=='OK'||!Array.isArray(d.productos))throw Error(d&&d.mensaje||'Actualiza el Apps Script');entradaCatalogo=d.productos;entradaBuscar();})
+                .catch(e=>{document.getElementById('emResultados').textContent='No se pudo cargar el catálogo. Publica primero el nuevo Apps Script. '+e.message;});
+        }
+        function entradaSucursalCambio(){entradaGuardarLocal();entradaCargarRecientes();}
+        function entradaBuscar(){
+            const q=entradaClave(document.getElementById('emBuscador').value);
+            const el=document.getElementById('emResultados');el.replaceChildren();
+            if(!q){el.textContent='Escribe el nombre del producto.';return;}
+            const encontrados=entradaCatalogo.filter(x=>entradaClave(x.nombre).includes(q)).slice(0,30);
+            if(!encontrados.length){el.textContent='No se encontraron productos en CatalogoProductos.';return;}
+            encontrados.forEach(x=>{
+                const b=document.createElement('button');b.type='button';
+                const nm=document.createElement('span');nm.textContent=x.nombre;
+                const sub=document.createElement('small');sub.textContent='Costo de catálogo: '+entradaMoney(x.costo)+' · Sin existencia en vivo';
+                b.append(nm,sub);b.onclick=()=>entradaSeleccionar(x);el.appendChild(b);
+            });
+        }
+        function entradaSeleccionar(x){
+            entradaElegido={nombre:String(x.nombre),costo:Number(x.costo)||0};
+            document.getElementById('emNombreElegido').textContent=entradaElegido.nombre;
+            document.getElementById('emCantidad').value='1';
+            document.getElementById('emCosto').value=entradaElegido.costo.toFixed(4);
+            document.getElementById('emProductoSeleccionado').style.display='block';
+        }
+        function entradaCambiarCantidad(delta){const el=document.getElementById('emCantidad');el.value=Math.max(1,Math.round((Number(el.value)||1)+delta));}
+        function entradaAgregar(){
+            if(!entradaElegido)return;
+            const qty=Number(document.getElementById('emCantidad').value), costo=Number(document.getElementById('emCosto').value);
+            if(!Number.isFinite(qty)||qty<=0||qty>100000||!Number.isFinite(costo)||costo<0||costo>1000000)return alert('Revisa la cantidad y el costo.');
+            const item=entradaCarrito.find(x=>entradaClave(x.nombre)===entradaClave(entradaElegido.nombre));
+            if(item){item.cantidad=Number((Number(item.cantidad)+qty).toFixed(4));item.costo=costo;}
+            else entradaCarrito.push({nombre:entradaElegido.nombre,cantidad:qty,costo:costo});
+            if(entradaCarrito.length>80){entradaCarrito.pop();return alert('Máximo 80 productos por borrador.');}
+            entradaElegido=null;document.getElementById('emProductoSeleccionado').style.display='none';
+            document.getElementById('emBuscador').value='';entradaBuscar();entradaRender();entradaGuardarLocal();
+        }
+        function entradaQuitar(i){entradaCarrito.splice(i,1);entradaRender();entradaGuardarLocal();}
+        function entradaRender(){
+            const lista=document.getElementById('emLista');lista.replaceChildren();
+            document.getElementById('emConteo').textContent=String(entradaCarrito.length);
+            if(!entradaCarrito.length){const p=document.createElement('p');p.className='em-hint';p.textContent='Aún no hay productos preparados.';lista.appendChild(p);}
+            entradaCarrito.forEach((x,i)=>{
+                const div=document.createElement('div');div.className='em-linea';
+                const info=document.createElement('div');info.style.minWidth='0';
+                const titulo=document.createElement('strong');titulo.textContent=x.nombre;
+                const desc=document.createElement('p');desc.textContent=x.cantidad+' × '+entradaMoney(x.costo)+' = '+entradaMoney(x.cantidad*x.costo);
+                const del=document.createElement('button');del.type='button';del.textContent='×';del.setAttribute('aria-label','Quitar '+x.nombre);del.onclick=()=>entradaQuitar(i);
+                info.append(titulo,desc);div.append(info,del);lista.appendChild(div);
+            });
+            document.getElementById('emTotal').textContent=entradaMoney(entradaCarrito.reduce((t,x)=>t+x.cantidad*x.costo,0));
+            document.getElementById('emGuardar').disabled=!entradaCarrito.length||entradaGuardando;
+        }
+        function entradaLimpiar(){if(entradaCarrito.length&&!confirm('¿Vaciar los productos preparados?'))return;entradaCarrito=[];entradaRender();entradaGuardarLocal();document.getElementById('emEstado').textContent='Preparación vaciada.';}
+        async function entradaGuardarBorrador(){
+            if(entradaGuardando||!entradaCarrito.length)return;
+            const sucursal=document.getElementById('emSucursal').value, proveedor=document.getElementById('emProveedor').value.trim();
+            if(sucursal!==entradaNombreSucursal())return alert('La sucursal no coincide con la sesión.');
+            if(!proveedor)return alert('Escribe el proveedor.');
+            if(!confirm('¿Guardar este borrador en Google Sheets? No se enviará a Akasia ni cambiará las existencias.'))return;
+            entradaGuardando=true;entradaRender();
+            const boton=document.getElementById('emGuardar');boton.textContent='Guardando borrador...';
+            // Reusar el identificador si reintentamos EXACTAMENTE el mismo borrador.
+            const fingerprint=JSON.stringify({sucursal,proveedor,empleado:localStorage.getItem('usuario')||'',productos:entradaCarrito});
+            const keyPendiente=entradaClaveLocal()+'_envio';
+            let pendiente=null;
+            try{pendiente=JSON.parse(localStorage.getItem(keyPendiente)||'null');}catch(e){}
+            const id=(pendiente&&pendiente.fingerprint===fingerprint&&/^[a-zA-Z0-9-]{10,90}$/.test(pendiente.id))
+                ?pendiente.id
+                :((window.crypto&&window.crypto.randomUUID)?window.crypto.randomUUID():(Date.now()+'-'+Math.random().toString(36).slice(2)));
+            try{localStorage.setItem(keyPendiente,JSON.stringify({fingerprint,id}));}catch(e){}
+            const body=new URLSearchParams({accion:'GuardarBorradorEntradaMercaderia',idSolicitud:id,sucursal:sucursal,proveedor:proveedor,empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(entradaCarrito)});
+            try{
+                const r=await fetch(URL_API,{method:'POST',body:body});if(!r.ok)throw Error('HTTP '+r.status);
+                const d=await r.json();if(!d||d.status!=='OK')throw Error(d&&d.mensaje||'Error del servidor');
+                entradaCarrito=[];entradaGuardarLocal();entradaRender();
+                try{localStorage.removeItem(keyPendiente);}catch(e){}
+                document.getElementById('emEstado').textContent='Borrador guardado en Google Sheets · ID '+d.id+' · No enviado a Akasia.';
+                entradaCargarRecientes();
+            }catch(e){document.getElementById('emEstado').textContent='No se pudo confirmar el guardado. Revisa la lista de borradores antes de volver a intentar. '+e.message;}
+            finally{entradaGuardando=false;boton.textContent='💾 Guardar borrador en Google Sheets';entradaRender();}
+        }
+        async function entradaCargarRecientes(){
+            const e=document.getElementById('emRecientes'), suc=document.getElementById('emSucursal').value;
+            if(!suc){e.textContent='Selecciona una sucursal.';return;}
+            e.textContent='Consultando borradores...';
+            try{
+                const r=await fetch(URL_API+'?accion=verBorradoresEntradaMercaderia&sucursal='+encodeURIComponent(suc)+'&_='+Date.now(),{cache:'no-store'});
+                const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error');e.replaceChildren();
+                if(!d.borradores.length){e.textContent='Aún no hay borradores guardados.';return;}
+                d.borradores.forEach(x=>{const div=document.createElement('div');div.className='em-reciente';div.textContent=(x.fecha||'')+' · '+x.proveedor+' · '+x.productos+' producto(s) · '+entradaMoney(x.total)+' · BORRADOR (no Akasia)';e.appendChild(div);});
+            }catch(error){e.textContent='No se pudieron consultar los borradores. '+error.message;}
+        }
 
     </script>
 
