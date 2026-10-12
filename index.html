@@ -856,16 +856,39 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloEntradaMercaderia .em-limpiar,#moduloEntradaMercaderia .em-secundario{background:#eaf1f9;color:#37516f;box-shadow:none}
 #moduloEntradaMercaderia .em-reciente{padding:10px 12px;background:#f6f9fc;border:1px solid #e3eaf2;border-radius:13px;margin:7px 0;font-size:12px}
 
+/* v1.6.42 BETA: estilos exclusivos del nuevo módulo (sin tocar módulos existentes) */
+#moduloConteosAsignados .c42-item,#adminConteosAsignados .c42-item{background:#f8fbff;border:1px solid #e3eaf3;border-radius:14px;padding:12px;margin:8px 0;text-align:left}
+#moduloConteosAsignados .c42-meta,#adminConteosAsignados .c42-meta{font-size:12px;color:#68788f;line-height:1.5}
+#moduloConteosAsignados .c42-row,#adminConteosAsignados .c42-row{display:flex;gap:9px;align-items:center;justify-content:space-between}
+#moduloConteosAsignados .c42-stepper{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:8px;margin-top:10px}
+#moduloConteosAsignados .c42-stepper button{font-size:22px;margin:0;padding:0}
+#moduloConteosAsignados .c42-stepper input{margin:0;text-align:center;font-size:20px;font-weight:800}
+#moduloConteosAsignados .c42-estado,#adminConteosAsignados .c42-estado{font-size:12px;padding:10px;border-radius:12px;background:#eaf4ff;color:#21466e;margin:10px 0;line-height:1.5}
+#adminConteosAsignados .c42-prods{max-height:285px;overflow:auto;padding:4px}
+#adminConteosAsignados .c42-prods button{background:#fff;color:#173e6b;border:1px solid #d8e6f7;min-height:41px;text-align:left;font-size:12px;margin:3px 0}
+#adminConteosAsignados .c42-prods button:disabled{background:#ecf0f3!important;color:#999!important}
 </style>
 </head>
 <body>
+<div id="c42PortalPrueba" class="card" style="display:none;max-width:490px;text-align:left;">
+  <h3>🧪 Conteos Asignados · Versión BETA</h3>
+  <p style="font-size:12px;color:#65758a">Prueba privada: asignar productos, elegir empleado, registrar cantidades y revisar resultados.</p>
+  <button type="button" onclick="c42VistaPrueba('admin')">🔐 Administrar asignaciones</button>
+  <label style="font-size:12px;font-weight:800">Sucursal</label>
+  <select id="c42SucursalPrueba" onchange="c42ActualizarEmpleadosPrueba()"><option value="Tienda Online Shop">Tienda Online Shop</option><option value="Mini super">Mini super</option></select>
+  <label style="font-size:12px;font-weight:800">Colaborador</label>
+  <select id="c42EmpleadoPrueba"><option value="">Cargando empleados…</option></select>
+  <button type="button" onclick="c42VistaPrueba('empleado')">🧮 Abrir mis conteos</button>
+  <div id="c42MensajePrueba" style="font-size:12px;color:#536d8d;padding:6px"></div>
+</div>
+
 
     <!-- LOGO Y ENCABEZADO -->
     <div id="encabezadoLogo" class="logo-container">
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.41 · Entrada de Mercadería (borradores) · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.42 BETA · Conteos Asignados · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -918,10 +941,30 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button id="btnMenuRuta" class="menu-modulo" onclick="abrirModulo('ruta')" style="display:none;"><span>📋</span><b>Kardex</b></button>
                 <button id="btnMenuFaltantesKardex" class="menu-modulo" onclick="abrirModulo('faltantesKardex')"><span>📦</span><b>Faltantes Kardex</b></button>
                 <button id="btnMenuCatalogoRuta" class="menu-modulo" onclick="abrirModulo('catalogoRuta')" style="display:none;"><span>📖</span><b>Catálogo</b></button>
+                <!-- ÚNICO botón adicional en el menú principal, v1.6.42 BETA -->
+                <button id="btnMenuConteosAsignados" class="menu-modulo" onclick="abrirModulo('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
             </div>
         </div>
 
-        <!-- REGISTRAR ASISTENCIA DESPLEGABLE -->
+    
+    <!-- v1.6.42 BETA · módulo nuevo: no sustituye Inventario ni Kardex -->
+    <div id="moduloConteosAsignados" class="card modulo-pantalla" style="text-align:left;">
+        <button class="btn-volver" onclick="c42ModoPrivado&&document.body.getAttribute('data-c42-beta')==='1'?c42VistaPrueba('inicio'):volverMenuPrincipal()">← Volver al menú</button>
+        <h3>🧮 Mis conteos asignados</h3>
+        <p class="c42-meta">Solo registra las unidades que tienes físicamente. No modifica las existencias del sistema.</p>
+        <button onclick="c42CargarMisConteos()" style="background:#087cff;">↻ Actualizar mis asignaciones</button>
+        <div id="c42EstadoEmpleado" class="c42-estado">Abre una asignación para comenzar.</div>
+        <div id="c42MisLista"></div>
+        <div id="c42Detalle" style="display:none;">
+            <h4 id="c42DetalleTitulo">Conteo</h4>
+            <div id="c42Productos"></div>
+            <button id="c42GuardarBtn" onclick="c42Guardar(false)">💾 Guardar avance</button>
+            <button id="c42FinalizarBtn" onclick="c42Guardar(true)" style="background:#188a4e;">✓ Finalizar conteo</button>
+            <button onclick="c42CerrarDetalle()" style="background:#7a858e;">← Mis asignaciones</button>
+        </div>
+    </div>
+
+    <!-- REGISTRAR ASISTENCIA DESPLEGABLE -->
         <div id="moduloAsistencia" class="card modulo-pantalla" style="text-align: left;">
             <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
             <button onclick="toggleMenuAsistencia()" style="background-color: #17a2b8; margin: 0;">
@@ -1265,6 +1308,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoRuta')"><span>📖</span>Catálogo de Ruta</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
             </div>
         </div>
 
@@ -1333,6 +1377,30 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div id="listaUbicacionesAdminGondola" style="margin-top:10px;"></div>
         </div>
 
+
+
+        <!-- v1.6.42 BETA: pantalla exclusiva para administrar conteos -->
+        <div id="adminConteosAsignados" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="c42ModoPrivado&&document.body.getAttribute('data-c42-beta')==='1'?c42VistaPrueba('inicio'):volverMenuAdmin()">← Volver al panel</button>
+            <h4>🧮 Asignar conteos</h4>
+            <p class="c42-meta">Prueba inicial de hasta cinco productos. Los conteos se guardan en Sheets y no actualizan Akasia.</p>
+            <label class="c42-meta">Clave administrativa de conteos</label>
+            <input type="password" id="c42ClaveAdmin" placeholder="Clave configurada en Apps Script" autocomplete="off">
+            <label class="c42-meta">Sucursal</label>
+            <select id="c42SucursalAdmin" onchange="c42LlenarEmpleados()"><option value="Tienda Online Shop">Tienda Online Shop</option><option value="Mini super">Mini super</option></select>
+            <label class="c42-meta">Colaborador</label>
+            <select id="c42EmpleadoAdmin"><option value="">Selecciona un colaborador</option></select>
+            <label class="c42-meta">Buscar productos</label>
+            <input type="search" id="c42BuscarAdmin" placeholder="Escribe el nombre de un producto" oninput="c42FiltrarCatalogo()">
+            <div id="c42ResultadosAdmin" class="c42-prods"></div>
+            <h4>Seleccionados (<span id="c42SeleccionadosTotal">0</span>/5)</h4>
+            <div id="c42SeleccionadosAdmin"></div>
+            <button id="c42CrearBtn" onclick="c42CrearAsignacion()">＋ Asignar productos al colaborador</button>
+            <div id="c42EstadoAdmin" class="c42-estado">Selecciona hasta cinco productos.</div>
+            <hr style="border:0;border-top:1px solid #e4eaf4;margin:17px 0;">
+            <button onclick="c42RevisarAsignaciones()" style="background:#087cff;">↻ Revisar conteos recibidos</button>
+            <div id="c42RevisionAdmin"></div>
+        </div>
 
         <div id="adminCatalogoRuta" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
@@ -1484,8 +1552,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModulo(nombre) {
             if(nombre !== "catalogoRuta") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloEntradaMercaderia","moduloCatalogoRuta"].forEach(id => document.getElementById(id).style.display = "none");
-            if (nombre === "asistencia") {
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloEntradaMercaderia","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            if (nombre === "conteosAsignados") {
+                document.getElementById("moduloConteosAsignados").style.display = "block";
+                c42CargarMisConteos();
+            } else if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
             } else if (nombre === "tareas") {
@@ -1542,7 +1613,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloEntradaMercaderia"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloEntradaMercaderia","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -3569,13 +3640,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
             if (modulo === "gondolas") iniciarAdminGondolas();
             if (modulo === "imagenes") iniciarAdminImagenes();
             if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
+            if (modulo === "conteosAsignados") c42AbrirAdmin();
             window.scrollTo(0,0);
         }
 
@@ -4304,5 +4376,197 @@ async function cargarMensajesDinamicos(){
 window.addEventListener('load',()=>setTimeout(cargarMensajesDinamicos,1200));
 </script>
 
+<script>
+
+
+// =====================================================================
+// ONLINE SHOP v1.6.42 BETA - ÚNICAMENTE EL MÓDULO NUEVO DE CONTEOS
+// Las funciones antiguas se conservan sin alteraciones.
+// =====================================================================
+let c42Catalogo = [];
+let c42Seleccionados = [];
+let c42AsignacionActiva = null;
+let c42Contando = [];
+let c42Bloqueando = false;
+function c42Esc(v){return String(v==null?'':v).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));}
+function c42Norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();}
+function c42Aviso(id,mensaje,error){const el=document.getElementById(id);if(!el)return;el.textContent=mensaje;el.style.background=error?'#fff0ef':'#eaf4ff';el.style.color=error?'#aa2424':'#21466e';}
+function c42EjecutarPrivado(accion,params){
+ return new Promise((resolve,reject)=>{
+  google.script.run.withSuccessHandler(d=>{
+    if(!d||d.status!=='OK')reject(Error(d&&d.mensaje||'No se pudo completar.'));else resolve(d);
+  }).withFailureHandler(e=>reject(Error(e&&e.message||String(e)))).c42Rpc(accion,params);
+ });
+}
+const c42ModoPrivado=typeof google!=='undefined'&&!!(google.script&&google.script.run);
+let c42EmpleadoPruebaActivo=null;
+function c42NombreActual(){return c42EmpleadoPruebaActivo?c42EmpleadoPruebaActivo.empleado:(localStorage.getItem('usuario')||'');}
+function c42SucursalActual(){return c42EmpleadoPruebaActivo?c42EmpleadoPruebaActivo.sucursal:(localStorage.getItem('sucursal')||'');}
+async function c42Get(accion,params={}){
+ if(c42ModoPrivado)return c42EjecutarPrivado(accion,params);
+ const q=new URLSearchParams({accion,...params,_:Date.now()});
+ const r=await fetch(URL_API+'?'+q.toString(),{cache:'no-store'});
+ if(!r.ok)throw Error('HTTP '+r.status);
+ const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No se pudo consultar.');return d;
+}
+async function c42Post(accion,params={}){
+ if(c42ModoPrivado)return c42EjecutarPrivado(accion,params);
+ const p=new URLSearchParams({accion,...params});
+ const r=await fetch(URL_API,{method:'POST',body:p});
+ if(!r.ok)throw Error('HTTP '+r.status);
+ const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No se pudo guardar.');return d;
+}
+async function c42CargarMisConteos(){
+ c42CerrarDetalle();const el=document.getElementById('c42MisLista');
+ const empleado=c42NombreActual(),sucursal=c42SucursalActual();
+ c42Aviso('c42EstadoEmpleado','Consultando asignaciones…');el.innerHTML='';
+ try{
+   if(!empleado||!sucursal)throw Error('Debes iniciar sesión para consultar tus conteos.');
+   const data=await c42Get('c42MisConteos',{empleado,sucursal});
+   if(!data.asignaciones.length){c42Aviso('c42EstadoEmpleado','Todavía no tienes productos asignados.');return;}
+   c42Aviso('c42EstadoEmpleado',data.asignaciones.length+' asignación(es) encontradas.');
+   el.innerHTML=data.asignaciones.map((a,i)=>`<div class="c42-item"><div class="c42-row"><b>${c42Esc(a.estado)}</b><span class="c42-meta">${a.contados}/${a.total}</span></div><div class="c42-meta">${c42Esc(a.fecha)}</div><button type="button" onclick="c42AbrirDetalle(${i})">${a.estado==='FINALIZADA'?'👁 Ver conteo':'🧮 Contar productos'}</button></div>`).join('');
+   c42CargarMisConteos.lista=data.asignaciones;
+ }catch(e){c42Aviso('c42EstadoEmpleado',e.message,true);}
+}
+async function c42AbrirDetalle(index){
+ const a=(c42CargarMisConteos.lista||[])[index];if(!a)return;
+ c42Aviso('c42EstadoEmpleado','Abriendo asignación…');
+ try{
+   const d=await c42Get('c42DetalleConteo',{id:a.id,empleado:c42NombreActual(),sucursal:c42SucursalActual()});
+   c42AsignacionActiva=d.asignacion;c42Contando=d.productos;
+   document.getElementById('c42MisLista').style.display='none';
+   document.getElementById('c42Detalle').style.display='block';
+   document.getElementById('c42DetalleTitulo').textContent='Productos para contar · '+a.sucursal;
+   c42RenderDetalle();c42Aviso('c42EstadoEmpleado','Registra cero cuando no encuentres unidades.');
+ }catch(e){c42Aviso('c42EstadoEmpleado',e.message,true);}
+}
+function c42RenderDetalle(){
+ const bloqueado=c42AsignacionActiva&&c42AsignacionActiva.estado==='FINALIZADA';
+ document.getElementById('c42Productos').innerHTML=c42Contando.map((p,i)=>`<div class="c42-item"><div class="c42-row"><div style="flex:1"><b>${c42Esc(p.producto)}</b><div class="c42-meta">${p.conteo===null?'Pendiente':'Contado: '+p.conteo}</div></div>${typeof imagenProductoGlobal==='function'?imagenProductoGlobal(p.producto,null,50):''}</div><div class="c42-stepper"><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${i},-1)" style="background:#7a858e;">−</button><input id="c42Cantidad${i}" type="number" inputmode="decimal" min="0" step="any" placeholder="Sin contar" value="${p.conteo===null?'':p.conteo}" ${bloqueado?'readonly':''}><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${i},1)">+</button></div><input id="c42Obs${i}" type="text" maxlength="250" placeholder="Observación opcional" value="${c42Esc(p.observacion||'')}" ${bloqueado?'readonly':''}></div>`).join('');
+ document.getElementById('c42GuardarBtn').style.display=bloqueado?'none':'block';
+ document.getElementById('c42FinalizarBtn').style.display=bloqueado?'none':'block';
+}
+function c42Ajustar(i,delta){const el=document.getElementById('c42Cantidad'+i);if(!el)return;el.value=String(Math.max(0,Number(el.value||0)+delta));}
+function c42CerrarDetalle(){document.getElementById('c42Detalle').style.display='none';document.getElementById('c42MisLista').style.display='block';c42AsignacionActiva=null;c42Contando=[];}
+async function c42Guardar(finalizar){
+ if(!c42AsignacionActiva||c42Bloqueando)return;
+ const items=[];
+ for(let i=0;i<c42Contando.length;i++){
+   const inp=document.getElementById('c42Cantidad'+i),raw=inp.value.trim();
+   if(raw==='')continue;
+   const cantidad=Number(raw);
+   if(!Number.isFinite(cantidad)||cantidad<0){alert('Revisa la cantidad de '+c42Contando[i].producto);return;}
+   items.push({orden:c42Contando[i].orden,cantidad,observacion:document.getElementById('c42Obs'+i).value.trim()});
+ }
+ if(!items.length){alert('Introduce al menos una cantidad.');return;}
+ if(finalizar&&items.length!==c42Contando.length){alert('Completa todos los productos, incluso con cantidad cero.');return;}
+ if(finalizar&&!confirm('¿Finalizar el conteo? Después no podrás modificarlo.'))return;
+ c42Bloqueando=true;c42Aviso('c42EstadoEmpleado','Guardando conteo…');
+ try{
+   const d=await c42Post('c42GuardarConteo',{id:c42AsignacionActiva.id,sucursal:c42SucursalActual(),empleado:c42NombreActual(),items:JSON.stringify(items),finalizar:finalizar?'SI':'NO'});
+   alert(finalizar?'✅ Conteo finalizado.':'✅ Avance guardado: '+d.contados+'/'+d.total);
+   await c42CargarMisConteos();
+ }catch(e){c42Aviso('c42EstadoEmpleado',e.message,true);}
+ finally{c42Bloqueando=false;}
+}
+async function c42AbrirAdmin(){
+ c42LlenarEmpleados();c42RenderSeleccionados();
+ c42Aviso('c42EstadoAdmin','Cargando catálogo de productos…');
+ try{if(!listaGlobalNombres.length)await c42CargarEmpleadosAdmin();const d=await c42Get('c42Catalogo');c42Catalogo=d.productos||[];c42LlenarEmpleados();c42FiltrarCatalogo();c42Aviso('c42EstadoAdmin','Puedes asignar hasta cinco productos.');}
+ catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}
+}
+async function c42CargarEmpleadosAdmin(){
+ if(c42ModoPrivado){const d=await c42Get('c42Empleados');listaGlobalNombres=d.empleados||[];return;}
+ const resp=await fetch(URL_API+'?accion=verEmpleados&_='+Date.now());if(!resp.ok)throw Error('No se pudo cargar la lista de colaboradores.');
+ const data=await resp.json();if(!Array.isArray(data))throw Error('Respuesta de empleados incorrecta.');
+ listaGlobalNombres=data.slice(1).filter(r=>Array.isArray(r)&&r[0]&&r[1]);
+}
+function c42LlenarEmpleados(){
+ const suc=c42Norm(document.getElementById('c42SucursalAdmin').value),s=document.getElementById('c42EmpleadoAdmin'),anterior=s.value;
+ const arr=listaGlobalNombres.filter(r=>c42Norm(r[0])===suc);
+ s.innerHTML='<option value="">Selecciona un colaborador</option>'+arr.map(r=>`<option value="${c42Esc(r[1])}">${c42Esc(r[1])}</option>`).join('');
+ if(arr.some(r=>r[1]===anterior))s.value=anterior;
+}
+function c42FiltrarCatalogo(){
+ const q=c42Norm(document.getElementById('c42BuscarAdmin').value),box=document.getElementById('c42ResultadosAdmin');
+ if(!q){box.innerHTML='<p class="c42-meta">Escribe para buscar productos.</p>';return;}
+ const arr=c42Catalogo.map((n,i)=>({n,i})).filter(x=>c42Norm(x.n).includes(q)).slice(0,30);
+ box.innerHTML=arr.map(x=>`<button type="button" onclick="c42Agregar(${x.i})" ${c42Seleccionados.includes(x.n)||c42Seleccionados.length>=5?'disabled':''}>＋ ${c42Esc(x.n)}</button>`).join('')||'<p class="c42-meta">No se encontraron productos.</p>';
+}
+function c42Agregar(i){const n=c42Catalogo[i];if(n&&!c42Seleccionados.includes(n)&&c42Seleccionados.length<5)c42Seleccionados.push(n);c42RenderSeleccionados();c42FiltrarCatalogo();}
+function c42Quitar(i){c42Seleccionados.splice(i,1);c42RenderSeleccionados();c42FiltrarCatalogo();}
+function c42RenderSeleccionados(){
+ document.getElementById('c42SeleccionadosTotal').textContent=c42Seleccionados.length;
+ document.getElementById('c42SeleccionadosAdmin').innerHTML=c42Seleccionados.map((n,i)=>`<div class="c42-item c42-row"><b style="font-size:12px">${i+1}. ${c42Esc(n)}</b><button type="button" onclick="c42Quitar(${i})" style="width:65px;min-height:35px;background:#7a858e;margin:0;">Quitar</button></div>`).join('')||'<p class="c42-meta">Ningún producto seleccionado.</p>';
+}
+async function c42CrearAsignacion(){
+ const clave=document.getElementById('c42ClaveAdmin').value;
+ const sucursal=document.getElementById('c42SucursalAdmin').value;
+ const empleado=document.getElementById('c42EmpleadoAdmin').value;
+ if(!clave||!empleado||!c42Seleccionados.length){alert('Completa la clave, el colaborador y los productos.');return;}
+ const b=document.getElementById('c42CrearBtn');b.disabled=true;c42Aviso('c42EstadoAdmin','Creando asignación…');
+ try{
+   const d=await c42Post('c42CrearAsignacion',{claveAdmin:clave,sucursal,empleado,creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
+   c42Aviso('c42EstadoAdmin','✅ Asignados '+d.productos+' productos a '+d.empleado+'.');
+   c42Seleccionados=[];c42RenderSeleccionados();c42FiltrarCatalogo();await c42RevisarAsignaciones();
+ }catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}finally{b.disabled=false;}
+}
+async function c42RevisarAsignaciones(){
+ const clave=document.getElementById('c42ClaveAdmin').value,box=document.getElementById('c42RevisionAdmin');
+ if(!clave){c42Aviso('c42EstadoAdmin','Ingresa la clave de administrador. ',true);return;}
+ box.innerHTML='<p class="c42-meta">Consultando asignaciones…</p>';
+ try{
+  const d=await c42Post('c42RevisarAdmin',{claveAdmin:clave});
+  box.innerHTML=d.asignaciones.map(a=>`<div class="c42-item"><b>${c42Esc(a.empleado)}</b><div class="c42-meta">${c42Esc(a.sucursal)} · ${c42Esc(a.estado)} · ${a.contados}/${a.total} productos · ${c42Esc(a.fecha)}</div>${a.productos.map(p=>`<div class="c42-row" style="border-top:1px solid #e8eef6;padding:8px 0;font-size:12px"><span>${c42Esc(p.producto)}</span><b>${p.conteo===null?'Pendiente':c42Esc(p.conteo)}</b></div>${p.observacion?`<div class="c42-meta">Nota: ${c42Esc(p.observacion)}</div>`:''}`).join('')}</div>`).join('')||'<p class="c42-meta">Todavía no hay conteos.</p>';
+ }catch(e){box.innerHTML='';c42Aviso('c42EstadoAdmin',e.message,true);}
+}
+
+
+
+// Entorno de prueba privado que utiliza los dos archivos existentes.
+let c42EmpleadosPrueba=[];
+async function c42ArrancarPrueba(){
+ if(document.body.getAttribute('data-c42-beta')!=='1')return;
+ document.getElementById('c42PortalPrueba').style.display='block';
+ document.getElementById('pantallaLogin').style.display='none';
+ document.getElementById('pantallaPrincipal').style.display='none';
+ document.getElementById('supervisorSection').style.display='none';
+ ['encabezadoLogo','tituloControlOperativo','versionSistema'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+ try{
+  const d=await c42Get('c42Empleados');c42EmpleadosPrueba=d.empleados||[];listaGlobalNombres=c42EmpleadosPrueba;c42ActualizarEmpleadosPrueba();
+  document.getElementById('c42MensajePrueba').textContent='Conexión privada con la hoja de pruebas lista.';
+ }catch(e){document.getElementById('c42MensajePrueba').textContent='Error: '+e.message;}
+}
+function c42ActualizarEmpleadosPrueba(){
+ const suc=c42Norm(document.getElementById('c42SucursalPrueba').value);
+ const sel=document.getElementById('c42EmpleadoPrueba');
+ sel.innerHTML='<option value="">Selecciona un empleado</option>'+c42EmpleadosPrueba.filter(r=>c42Norm(r[0])===suc).map(r=>`<option value="${c42Esc(r[1])}">${c42Esc(r[1])}</option>`).join('');
+}
+function c42VistaPrueba(modo){
+ document.getElementById('pantallaPrincipal').style.display='none';
+ document.getElementById('supervisorSection').style.display='none';
+ if(modo==='inicio'){window.scrollTo(0,0);return;}
+ if(modo==='admin'){
+  document.getElementById('supervisorSection').style.display='block';
+  document.getElementById('menuAdmin').style.display='none';
+  document.querySelectorAll('.admin-modulo').forEach(el=>el.style.display='none');
+  document.getElementById('adminConteosAsignados').style.display='block';c42AbrirAdmin();
+ }else{
+  const empleado=document.getElementById('c42EmpleadoPrueba').value;
+  const sucursal=document.getElementById('c42SucursalPrueba').value;
+  if(!empleado){alert('Selecciona un colaborador.');return;}
+  c42EmpleadoPruebaActivo={sucursal,empleado};
+  document.getElementById('pantallaPrincipal').style.display='block';
+  document.getElementById('menuPrincipalModulos').style.display='none';
+  document.querySelectorAll('.modulo-pantalla').forEach(el=>el.style.display='none');
+  document.getElementById('moduloConteosAsignados').style.display='block';
+  c42CargarMisConteos();
+ }
+ window.scrollTo(0,0);
+}
+window.addEventListener('load',()=>setTimeout(c42ArrancarPrueba,0));
+
+</script>
 </body>
 </html>
