@@ -898,7 +898,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.45 BETA · Conteos Multisucursal · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.46 BETA · Panel Admin Optimizado · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3621,6 +3621,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "imagenes") iniciarAdminImagenes();
             if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
             if (modulo === "conteosAsignados") c42AbrirAdmin();
+            // v1.6.46: no dibujar miles de filas ocultas al ingresar al administrador.
+            if (["asistencia", "inventario", "tareas", "pedidos"].includes(modulo)) c46MostrarReporte(modulo);
             window.scrollTo(0,0);
         }
 
@@ -3676,37 +3678,94 @@ function verificarPassword() {
             }
         }
 
-        function cargarDatosSupervisor() {
-            fetch(URL_API + "?accion=obtenerReportesSupervisor")
-                .then(r => r.json())
-                .then(data => {
-                    llenarTablaGenerica("tablaAsistencia", data.asistencias);
-                    llenarTablaGenerica("tablaInventario", data.inventario);
-                    llenarTablaGenerica("tablaTareas", data.tareas);
-                    llenarTablaGenerica("tablaPedidos", data.pedidos);
-                    calcularResumenPagos(data.asistencias);
-                    document.getElementById("kpiAsistencias").innerText = (data.asistencias || []).length;
-                    document.getElementById("kpiInventario").innerText = (data.inventario || []).length;
-                    document.getElementById("kpiTareas").innerText = (data.tareas || []).length;
-                    document.getElementById("kpiPedidos").innerText = (data.pedidos || []).length;
-                });
+        // ===== v1.6.46 BETA · ADMINISTRADOR RÁPIDO =====
+        // Conserva los reportes completos, las tablas y los KPI originales.
+        // Solo procesa la tabla que se abra y la dibuja por lotes, dejando
+        // que Chrome responda a los clics mientras muestra registros antiguos.
+        let c46DatosReportes = null;
+        let c46VersionReportes = 0;
+        const c46ReportesMostrados = {};
+        const c46Dibujos = {};
+        const c46ReporteTablas = {
+            asistencia: ["tablaAsistencia", "asistencias"],
+            inventario: ["tablaInventario", "inventario"],
+            tareas: ["tablaTareas", "tareas"],
+            pedidos: ["tablaPedidos", "pedidos"]
+        };
+        function c46EscaparCelda(valor) {
+            // Texto plano: no interpretar valores de Sheets como código HTML.
+            return String(valor === undefined ? '' : valor)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
-
-        function llenarTablaGenerica(idTabla, filas) {
-            const tbody = document.querySelector(`#${idTabla} tbody`);
-            tbody.innerHTML = "";
-            if (!filas || filas.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" style="color:#888;">Sin datos registrados.</td></tr>`;
+        function c46MostrarReporte(modulo) {
+            const tipo = c46ReporteTablas[modulo];
+            if (!tipo) return;
+            const tbody = document.querySelector('#' + tipo[0] + ' tbody');
+            if (!tbody) return;
+            if (!c46DatosReportes) {
+                tbody.innerHTML = '<tr><td colspan="10" style="color:#888;">Cargando registros…</td></tr>';
                 return;
             }
-            filas.forEach(row => {
-                let tr = "<tr>";
-                row.forEach(cell => {
-                    tr += `<td>${cell !== undefined ? cell : ""}</td>`;
+            if (c46ReportesMostrados[modulo]) return;
+            c46ReportesMostrados[modulo] = true;
+            llenarTablaGenerica(tipo[0], c46DatosReportes[tipo[1]]);
+        }
+        function cargarDatosSupervisor() {
+            const version = ++c46VersionReportes;
+            c46DatosReportes = null;
+            Object.keys(c46ReportesMostrados).forEach(k => delete c46ReportesMostrados[k]);
+            Object.keys(c46Dibujos).forEach(k => { c46Dibujos[k]++; });
+            fetch(URL_API + '?accion=obtenerReportesSupervisor')
+                .then(r => { if (!r.ok) throw Error('Error al consultar reportes.'); return r.json(); })
+                .then(data => {
+                    if (version !== c46VersionReportes) return;
+                    c46DatosReportes = data;
+                    calcularResumenPagos(data.asistencias || []);
+                    document.getElementById('kpiAsistencias').innerText = (data.asistencias || []).length;
+                    document.getElementById('kpiInventario').innerText = (data.inventario || []).length;
+                    document.getElementById('kpiTareas').innerText = (data.tareas || []).length;
+                    document.getElementById('kpiPedidos').innerText = (data.pedidos || []).length;
+                    // Si el usuario ya eligió una pestaña mientras cargaba, mostrarla ahora.
+                    for (const modulo of Object.keys(c46ReporteTablas)) {
+                        const destino = document.getElementById({asistencia:'adminAsistencia',inventario:'adminInventario',tareas:'adminTareas',pedidos:'adminPedidos'}[modulo]);
+                        if (destino && destino.style.display === 'block') c46MostrarReporte(modulo);
+                    }
+                })
+                .catch(error => {
+                    if (version !== c46VersionReportes) return;
+                    console.error('No se pudieron cargar los reportes de administración:', error);
+                    for (const modulo of Object.keys(c46ReporteTablas)) {
+                        const tbody = document.querySelector('#' + c46ReporteTablas[modulo][0] + ' tbody');
+                        if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="color:#b42318;">No se pudieron cargar los reportes. Intenta entrar nuevamente.</td></tr>';
+                    }
                 });
-                tr += "</tr>";
-                tbody.innerHTML += tr;
-            });
+        }
+        function llenarTablaGenerica(idTabla, filas) {
+            const tbody = document.querySelector('#' + idTabla + ' tbody');
+            if (!tbody) return;
+            const version = c46Dibujos[idTabla] = (c46Dibujos[idTabla] || 0) + 1;
+            tbody.innerHTML = '';
+            if (!Array.isArray(filas) || filas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="color:#888;">Sin datos registrados.</td></tr>';
+                return;
+            }
+            let indice = 0;
+            const tamanoLote = 100;
+            function dibujarLote() {
+                if (version !== c46Dibujos[idTabla]) return;
+                const limite = Math.min(indice + tamanoLote, filas.length);
+                let html = '';
+                for (; indice < limite; indice++) {
+                    const fila = Array.isArray(filas[indice]) ? filas[indice] : [filas[indice]];
+                    html += '<tr>' + fila.map(celda => '<td>' + c46EscaparCelda(celda) + '</td>').join('') + '</tr>';
+                }
+                // Una sola escritura DOM por lote, no una reescritura de toda
+                // la tabla por cada registro: elimina el bloqueo cuadrático.
+                tbody.insertAdjacentHTML('beforeend', html);
+                if (indice < filas.length) window.setTimeout(dibujarLote, 0);
+            }
+            dibujarLote();
         }
 
         function calcularResumenPagos(asistencias) {
@@ -4357,6 +4416,8 @@ window.addEventListener('load',()=>setTimeout(cargarMensajesDinamicos,1200));
 // Las funciones antiguas se conservan sin alteraciones.
 // =====================================================================
 let c42Catalogo = [];
+// v1.6.46: claves de búsqueda cacheadas; no normalizar 25 mil productos por pulsación.
+let c46CatalogoBuscable = [];
 let c42Seleccionados = [];
 let c42AsignacionActiva = null;
 let c42Contando = [];
@@ -4446,7 +4507,7 @@ async function c42Guardar(finalizar){
 async function c42AbrirAdmin(){
  c42LlenarEmpleados();c42RenderSeleccionados();
  c42Aviso('c42EstadoAdmin','Cargando catálogo de productos…');
- try{if(!listaGlobalNombres.length)await c42CargarEmpleadosAdmin();const d=await c42Get('c42Catalogo');c42Catalogo=d.productos||[];c42LlenarEmpleados();c42FiltrarCatalogo();c42Aviso('c42EstadoAdmin','Selecciona las sucursales, un responsable por sucursal y hasta cinco productos.');}
+ try{if(!listaGlobalNombres.length)await c42CargarEmpleadosAdmin();const d=await c42Get('c42Catalogo');c42Catalogo=d.productos||[];c46CatalogoBuscable=c42Catalogo.map((n,i)=>({n,i,clave:c42Norm(n)}));c42LlenarEmpleados();c42FiltrarCatalogo();c42Aviso('c42EstadoAdmin','Selecciona las sucursales, un responsable por sucursal y hasta cinco productos.');}
  catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}
 }
 async function c42CargarEmpleadosAdmin(){
@@ -4484,7 +4545,7 @@ function c45LlenarEmpleados(){
 function c42FiltrarCatalogo(){
  const q=c42Norm(document.getElementById('c42BuscarAdmin').value),box=document.getElementById('c42ResultadosAdmin');
  if(!q){box.innerHTML='<p class="c42-meta">Escribe para buscar productos.</p>';return;}
- const arr=c42Catalogo.map((n,i)=>({n,i})).filter(x=>c42Norm(x.n).includes(q)).slice(0,30);
+ const arr=[];for(let i=0;i<c46CatalogoBuscable.length&&arr.length<30;i++){const x=c46CatalogoBuscable[i];if(x.clave.includes(q))arr.push(x);}
  box.innerHTML=arr.map(x=>`<button type="button" onclick="c42Agregar(${x.i})" ${c42Seleccionados.includes(x.n)||c42Seleccionados.length>=5?'disabled':''}>＋ ${c42Esc(x.n)}</button>`).join('')||'<p class="c42-meta">No se encontraron productos.</p>';
 }
 function c42Agregar(i){const n=c42Catalogo[i];if(n&&!c42Seleccionados.includes(n)&&c42Seleccionados.length<5)c42Seleccionados.push(n);c42RenderSeleccionados();c42FiltrarCatalogo();}
