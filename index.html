@@ -867,6 +867,16 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #adminConteosAsignados .c42-prods{max-height:285px;overflow:auto;padding:4px}
 #adminConteosAsignados .c42-prods button{background:#fff;color:#173e6b;border:1px solid #d8e6f7;min-height:41px;text-align:left;font-size:12px;margin:3px 0}
 #adminConteosAsignados .c42-prods button:disabled{background:#ecf0f3!important;color:#999!important}
+/* v1.6.45: opciones múltiples exclusivas de Conteos Asignados */
+#adminConteosAsignados .c45-sucursales{border:1px solid #e1e8f2;border-radius:15px;padding:10px;background:#f8fbff;display:grid;gap:5px}
+#adminConteosAsignados .c45-opcion{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:11px;font-size:13px;cursor:pointer;text-align:left;color:#273b54}
+#adminConteosAsignados .c45-opcion:has(input:checked){background:#eaf4ff}
+#adminConteosAsignados .c45-opcion input[type=checkbox]{width:20px!important;height:20px!important;min-height:20px!important;flex:0 0 20px;margin:0!important;accent-color:#087cff}
+#adminConteosAsignados .c45-todas{border-bottom:1px solid #e1e8f2;border-radius:0;padding-bottom:14px;margin-bottom:3px}
+#adminConteosAsignados .c45-empleados{display:grid;gap:7px;margin:12px 0 4px}
+#adminConteosAsignados .c45-empleado-fila{background:#fff;border:1px solid #e1e8f2;border-radius:13px;padding:10px;text-align:left}
+#adminConteosAsignados .c45-empleado-fila label{display:block;font-size:12px;color:#425977;font-weight:750;margin:0 0 5px}
+#adminConteosAsignados .c45-empleado-fila select{margin:0}
 </style>
 </head>
 <body>
@@ -875,7 +885,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
   <p style="font-size:12px;color:#65758a">Prueba privada: asignar productos, elegir empleado, registrar cantidades y revisar resultados.</p>
   <button type="button" onclick="c42VistaPrueba('admin')">🔐 Administrar asignaciones</button>
   <label style="font-size:12px;font-weight:800">Sucursal</label>
-  <select id="c42SucursalPrueba" onchange="c42ActualizarEmpleadosPrueba()"><option value="Tienda Online Shop">Tienda Online Shop</option><option value="Mini super">Mini super</option></select>
+  <select id="c42SucursalPrueba" onchange="c42ActualizarEmpleadosPrueba()"><option value="Tienda Online Shop">Tienda Online Shop</option><option value="Mini super">Mini super</option><option value="Bodega">Bodega</option></select>
   <label style="font-size:12px;font-weight:800">Colaborador</label>
   <select id="c42EmpleadoPrueba"><option value="">Cargando empleados…</option></select>
   <button type="button" onclick="c42VistaPrueba('empleado')">🧮 Abrir mis conteos</button>
@@ -888,7 +898,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.42 BETA · Conteos Asignados · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.45 BETA · Conteos Multisucursal · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -934,7 +944,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModulo('inventario')"><span>📦</span>Inventario</button>
                 <button id="btnMenuPedidos" class="menu-modulo" onclick="abrirModulo('pedidos')"><span>🛍️</span><b id="textoMenuPedidos">Hacer Pedido</b></button>
                 <button id="btnMenuGondolas" class="menu-modulo" onclick="abrirModulo('gondolas')"><span>🗄️</span><b>Góndolas</b></button>
-                <button id="btnMenuEntradaMercaderia" class="menu-modulo" onclick="abrirModulo('entradaMercaderia')"><span>🚚</span><b>Entrada de Mercadería</b></button>
                 <button id="btnMenuRecepcion" class="menu-modulo" onclick="abrirModulo('recepcion')"><span>📥</span><b>Recibir Pedido</b></button>
                 <button id="btnMenuCompras" class="menu-modulo" onclick="abrirModulo('compras')" style="display:none;"><span>📝</span><b>Solicitar Compra</b></button>
                 <button id="btnMenuFaltantesDia" class="menu-modulo" onclick="abrirModulo('faltantesDia')" style="display:none;"><span>🟠</span><b>Faltantes del día</b></button>
@@ -1140,43 +1149,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         </div>
 
 
-
-    <!-- ENTRADA DE MERCADERÍA / BORRADORES. NO MODIFICA AKASIA. -->
-    <div id="moduloEntradaMercaderia" class="card modulo-pantalla" style="text-align:left;">
-        <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
-        <h3 style="font-size:21px;border:0;margin:0 0 8px;">🚚 Entrada de Mercadería</h3>
-        <div class="em-alerta"><strong>Modo preparación · No enviado a Akasia</strong><span>Los registros se guardan como borradores en Google Sheets. NO modifican existencias, precios ni movimientos de Akasia.</span></div>
-        <label class="em-label" for="emSucursal">Sucursal de destino</label>
-        <select id="emSucursal" onchange="entradaSucursalCambio()"><option value="">Selecciona la sucursal...</option><option value="SUCURSAL MATRIZ">SUCURSAL MATRIZ</option><option value="MINI SUPER 1">MINI SUPER 1</option><option value="BODEGA PRINCIPAL">BODEGA PRINCIPAL</option></select>
-        <label class="em-label" for="emProveedor">Proveedor de esta entrada</label>
-        <input id="emProveedor" type="text" maxlength="90" placeholder="Ej.: OTRO PROVEEDOR" autocomplete="off" oninput="entradaGuardarLocal()">
-        <label class="em-label" for="emBuscador">Buscar producto</label>
-        <input id="emBuscador" type="search" placeholder="Escribe un nombre del catálogo..." autocomplete="off" oninput="entradaBuscar()">
-        <p class="em-hint">El catálogo proviene de la hoja CatalogoProductos. Todavía no incluye identificadores ni existencias en vivo de Akasia.</p>
-        <div id="emResultados" class="em-resultados" aria-live="polite"></div>
-        <div id="emProductoSeleccionado" class="em-seleccion" style="display:none">
-            <strong id="emNombreElegido"></strong>
-            <div class="em-controls">
-                <button type="button" class="em-menos" onclick="entradaCambiarCantidad(-1)" aria-label="Restar una unidad">−</button>
-                <input id="emCantidad" type="number" min="0.001" step="any" inputmode="decimal" value="1" aria-label="Cantidad recibida">
-                <button type="button" onclick="entradaCambiarCantidad(1)" aria-label="Sumar una unidad">+</button>
-            </div>
-            <label class="em-label" for="emCosto">Costo unitario para este borrador ($)</label>
-            <input id="emCosto" type="number" min="0" step="0.0001" inputmode="decimal" value="0">
-            <button onclick="entradaAgregar()">＋ Agregar producto</button>
-        </div>
-        <div class="em-resumen">
-            <div class="em-resumen-head"><b>Productos preparados</b><b id="emConteo">0</b></div>
-            <div id="emLista"><p class="em-hint">Busca y agrega productos para comenzar.</p></div>
-            <div class="em-total"><span>Total estimado</span><strong id="emTotal">$0.00</strong></div>
-            <button id="emGuardar" onclick="entradaGuardarBorrador()" disabled>💾 Guardar borrador en Google Sheets</button>
-            <button class="em-limpiar" onclick="entradaLimpiar()">Vaciar preparación</button>
-            <div id="emEstado" role="status" aria-live="polite" class="em-hint"></div>
-        </div>
-        <h4 style="margin-top:18px;">Borradores recientes de esta sucursal</h4>
-        <button class="em-secundario" onclick="entradaCargarRecientes()">↻ Consultar borradores</button>
-        <div id="emRecientes" class="em-hint">Selecciona una sucursal para ver borradores.</div>
-    </div>
 
     <!-- MÓDULO GÓNDOLAS v1.2.2 -->
     <div id="moduloGondolas" class="card modulo-pantalla" style="text-align:left;">
@@ -1386,16 +1358,22 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <p class="c42-meta">Prueba inicial de hasta cinco productos. Los conteos se guardan en Sheets y no actualizan Akasia.</p>
             <label class="c42-meta">Clave administrativa de conteos</label>
             <input type="password" id="c42ClaveAdmin" placeholder="Clave configurada en Apps Script" autocomplete="off">
-            <label class="c42-meta">Sucursal</label>
-            <select id="c42SucursalAdmin" onchange="c42LlenarEmpleados()"><option value="Tienda Online Shop">Tienda Online Shop</option><option value="Mini super">Mini super</option></select>
-            <label class="c42-meta">Colaborador</label>
-            <select id="c42EmpleadoAdmin"><option value="">Selecciona un colaborador</option></select>
+            <!-- v1.6.45: una, dos o todas las sucursales; misma lista, conteos separados -->
+            <label class="c42-meta" style="font-weight:800;display:block;margin:12px 0 8px;">Sucursales donde contarás estos productos</label>
+            <div class="c45-sucursales">
+              <label class="c45-opcion c45-todas"><input id="c45TodasSucursales" type="checkbox" onchange="c45CambiarTodas()"><strong>✅ Todas las sucursales</strong></label>
+              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Tienda Online Shop" checked onchange="c45CambiarSucursal()"> Tienda Online Shop</label>
+              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Mini super" onchange="c45CambiarSucursal()"> Mini Súper</label>
+              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Bodega" onchange="c45CambiarSucursal()"> Bodega</label>
+            </div>
+            <div id="c45EmpleadosPorSucursal" class="c45-empleados"></div>
+            <p class="c42-meta">Cada sucursal tendrá su propio colaborador y conteo independiente.</p>
             <label class="c42-meta">Buscar productos</label>
             <input type="search" id="c42BuscarAdmin" placeholder="Escribe el nombre de un producto" oninput="c42FiltrarCatalogo()">
             <div id="c42ResultadosAdmin" class="c42-prods"></div>
             <h4>Seleccionados (<span id="c42SeleccionadosTotal">0</span>/5)</h4>
             <div id="c42SeleccionadosAdmin"></div>
-            <button id="c42CrearBtn" onclick="c42CrearAsignacion()">＋ Asignar productos al colaborador</button>
+            <button id="c42CrearBtn" onclick="c42CrearAsignacion()">＋ Asignar productos a sucursales seleccionadas</button>
             <div id="c42EstadoAdmin" class="c42-estado">Selecciona hasta cinco productos.</div>
             <hr style="border:0;border-top:1px solid #e4eaf4;margin:17px 0;">
             <button onclick="c42RevisarAsignaciones()" style="background:#087cff;">↻ Revisar conteos recibidos</button>
@@ -1552,7 +1530,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModulo(nombre) {
             if(nombre !== "catalogoRuta") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloEntradaMercaderia","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "conteosAsignados") {
                 document.getElementById("moduloConteosAsignados").style.display = "block";
                 c42CargarMisConteos();
@@ -1580,11 +1558,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if (normalizarEmpleado(localStorage.getItem("sucursal")) === "bodega") return volverMenuPrincipal();
                 document.getElementById("moduloGondolas").style.display = "block";
                 cargarGondolas();
-            } else if (nombre === "entradaMercaderia") {
-                const origen = normalizarEmpleado(localStorage.getItem("sucursal"));
-                if (!["tienda online shop","mini super","bodega"].includes(origen)) return volverMenuPrincipal();
-                document.getElementById("moduloEntradaMercaderia").style.display = "block";
-                entradaIniciar();
             } else if (nombre === "recepcion") {
                 document.getElementById("moduloRecepcion").style.display = "block";
                 cargarPedidosParaRecepcion();
@@ -1613,7 +1586,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloEntradaMercaderia","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -4473,7 +4446,7 @@ async function c42Guardar(finalizar){
 async function c42AbrirAdmin(){
  c42LlenarEmpleados();c42RenderSeleccionados();
  c42Aviso('c42EstadoAdmin','Cargando catálogo de productos…');
- try{if(!listaGlobalNombres.length)await c42CargarEmpleadosAdmin();const d=await c42Get('c42Catalogo');c42Catalogo=d.productos||[];c42LlenarEmpleados();c42FiltrarCatalogo();c42Aviso('c42EstadoAdmin','Puedes asignar hasta cinco productos.');}
+ try{if(!listaGlobalNombres.length)await c42CargarEmpleadosAdmin();const d=await c42Get('c42Catalogo');c42Catalogo=d.productos||[];c42LlenarEmpleados();c42FiltrarCatalogo();c42Aviso('c42EstadoAdmin','Selecciona las sucursales, un responsable por sucursal y hasta cinco productos.');}
  catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}
 }
 async function c42CargarEmpleadosAdmin(){
@@ -4482,11 +4455,31 @@ async function c42CargarEmpleadosAdmin(){
  const data=await resp.json();if(!Array.isArray(data))throw Error('Respuesta de empleados incorrecta.');
  listaGlobalNombres=data.slice(1).filter(r=>Array.isArray(r)&&r[0]&&r[1]);
 }
-function c42LlenarEmpleados(){
- const suc=c42Norm(document.getElementById('c42SucursalAdmin').value),s=document.getElementById('c42EmpleadoAdmin'),anterior=s.value;
- const arr=listaGlobalNombres.filter(r=>c42Norm(r[0])===suc);
- s.innerHTML='<option value="">Selecciona un colaborador</option>'+arr.map(r=>`<option value="${c42Esc(r[1])}">${c42Esc(r[1])}</option>`).join('');
- if(arr.some(r=>r[1]===anterior))s.value=anterior;
+// v1.6.45 · La opción "Todas" marca o desmarca las tres sucursales.
+function c45CambiarTodas(){
+ const todas=document.getElementById('c45TodasSucursales').checked;
+ document.querySelectorAll('#adminConteosAsignados .c45-sucursal').forEach(c=>{c.checked=todas;});
+ c45LlenarEmpleados();
+}
+function c45CambiarSucursal(){c45LlenarEmpleados();}
+function c45SucursalesSeleccionadas(){
+ return Array.from(document.querySelectorAll('#adminConteosAsignados .c45-sucursal:checked')).map(c=>c.value);
+}
+function c42LlenarEmpleados(){c45LlenarEmpleados();}
+function c45LlenarEmpleados(){
+ const sucursales=c45SucursalesSeleccionadas();
+ const checks=Array.from(document.querySelectorAll('#adminConteosAsignados .c45-sucursal'));
+ const master=document.getElementById('c45TodasSucursales');
+ master.checked=checks.length>0&&checks.every(c=>c.checked);
+ master.indeterminate=checks.some(c=>c.checked)&&!master.checked;
+ const destino=document.getElementById('c45EmpleadosPorSucursal');
+ // Guardar selecciones anteriores al volver a dibujar.
+ const anteriores={};destino.querySelectorAll('select[data-sucursal]').forEach(s=>{anteriores[s.dataset.sucursal]=s.value;});
+ destino.innerHTML=sucursales.map(sucursal=>{
+  const colaboradores=listaGlobalNombres.filter(r=>Array.isArray(r)&&c42Norm(r[1])===c42Norm(sucursal));
+  return `<div class="c45-empleado-fila"><label>👤 Responsable · ${c42Esc(sucursal)}</label><select data-sucursal="${c42Esc(sucursal)}"><option value="">Selecciona un colaborador</option>${colaboradores.map(r=>`<option value="${c42Esc(r[0])}">${c42Esc(r[0])}</option>`).join('')}</select>${colaboradores.length?'':'<small class="c42-meta">No hay colaboradores registrados para esta sucursal.</small>'}</div>`;
+ }).join('') || '<div class="c42-estado">Selecciona al menos una sucursal.</div>';
+ destino.querySelectorAll('select[data-sucursal]').forEach(s=>{if(Array.from(s.options).some(o=>o.value===anteriores[s.dataset.sucursal]))s.value=anteriores[s.dataset.sucursal];});
 }
 function c42FiltrarCatalogo(){
  const q=c42Norm(document.getElementById('c42BuscarAdmin').value),box=document.getElementById('c42ResultadosAdmin');
@@ -4502,13 +4495,20 @@ function c42RenderSeleccionados(){
 }
 async function c42CrearAsignacion(){
  const clave=document.getElementById('c42ClaveAdmin').value;
- const sucursal=document.getElementById('c42SucursalAdmin').value;
- const empleado=document.getElementById('c42EmpleadoAdmin').value;
- if(!clave||!empleado||!c42Seleccionados.length){alert('Completa la clave, el colaborador y los productos.');return;}
- const b=document.getElementById('c42CrearBtn');b.disabled=true;c42Aviso('c42EstadoAdmin','Creando asignación…');
+ const seleccionadas=c45SucursalesSeleccionadas();
+ const asignaciones=seleccionadas.map(sucursal=>{
+  const selector=Array.from(document.querySelectorAll('#c45EmpleadosPorSucursal select[data-sucursal]')).find(s=>s.dataset.sucursal===sucursal);
+  return {sucursal,empleado:selector?selector.value:''};
+ });
+ if(!clave){alert('Ingresa la clave administrativa de conteos.');return;}
+ if(!seleccionadas.length){alert('Selecciona al menos una sucursal.');return;}
+ if(asignaciones.some(a=>!a.empleado)){alert('Selecciona un colaborador para cada sucursal marcada.');return;}
+ if(!c42Seleccionados.length){alert('Selecciona de uno a cinco productos.');return;}
+ const b=document.getElementById('c42CrearBtn');b.disabled=true;
+ c42Aviso('c42EstadoAdmin','Asignando la misma lista a '+asignaciones.length+' sucursal(es)…');
  try{
-   const d=await c42Post('c42CrearAsignacion',{claveAdmin:clave,sucursal,empleado,creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
-   c42Aviso('c42EstadoAdmin','✅ Asignados '+d.productos+' productos a '+d.empleado+'.');
+   const d=await c42Post('c45CrearAsignacionesLote',{claveAdmin:clave,asignaciones:JSON.stringify(asignaciones),creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
+   c42Aviso('c42EstadoAdmin','✅ '+d.productos+' productos asignados en '+d.sucursales+' sucursal(es): '+d.asignaciones.map(a=>a.sucursal+' → '+a.empleado).join(' · '));
    c42Seleccionados=[];c42RenderSeleccionados();c42FiltrarCatalogo();await c42RevisarAsignaciones();
  }catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}finally{b.disabled=false;}
 }
@@ -4541,7 +4541,7 @@ async function c42ArrancarPrueba(){
 function c42ActualizarEmpleadosPrueba(){
  const suc=c42Norm(document.getElementById('c42SucursalPrueba').value);
  const sel=document.getElementById('c42EmpleadoPrueba');
- sel.innerHTML='<option value="">Selecciona un empleado</option>'+c42EmpleadosPrueba.filter(r=>c42Norm(r[0])===suc).map(r=>`<option value="${c42Esc(r[1])}">${c42Esc(r[1])}</option>`).join('');
+ sel.innerHTML='<option value="">Selecciona un empleado</option>'+c42EmpleadosPrueba.filter(r=>c42Norm(r[1])===suc).map(r=>`<option value="${c42Esc(r[0])}">${c42Esc(r[0])}</option>`).join('');
 }
 function c42VistaPrueba(modo){
  document.getElementById('pantallaPrincipal').style.display='none';
