@@ -13,6 +13,8 @@
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="./apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+    <!-- v1.6.48: lectura de .xlsx en el navegador; no modifica el catálogo externo de imágenes. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding: 20px 10px; background-color: #f4f6f9; color: #333; }
@@ -898,7 +900,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.46 BETA · Panel Admin Optimizado · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.49 BETA · Conteos por Categoría · Admin Optimizado · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -967,6 +969,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <div id="c42Detalle" style="display:none;">
             <h4 id="c42DetalleTitulo">Conteo</h4>
             <div id="c42Productos"></div>
+            <div id="c47Paginacion" style="margin:12px 0;"></div>
             <button id="c42GuardarBtn" onclick="c42Guardar(false)">💾 Guardar avance</button>
             <button id="c42FinalizarBtn" onclick="c42Guardar(true)" style="background:#188a4e;">✓ Finalizar conteo</button>
             <button onclick="c42CerrarDetalle()" style="background:#7a858e;">← Mis asignaciones</button>
@@ -1281,6 +1284,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoRuta')"><span>📖</span>Catálogo de Ruta</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoAkasia')"><span>🔄</span><b>Actualizar catálogo Akasia</b></button>
             </div>
         </div>
 
@@ -1351,13 +1355,26 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
 
 
+        <!-- v1.6.49 BETA · Importación de catálogo Akasia sin segunda clave. -->
+        <div id="adminAkasiaCatalogo" class="admin-modulo" style="display:none;margin-top:18px;">
+          <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+          <h4>🔄 Actualizar catálogo desde Akasia</h4>
+          <p style="font-size:12px;color:#667085;line-height:1.5;">Carga los Excel originales de Akasia. Primero revisaremos productos nuevos y posibles conflictos. Nada se guarda hasta que confirmes.</p>
+          <label style="font-weight:800;display:block;margin:12px 0 4px;">Sucursal Matriz (.xlsx)</label>
+          <input type="file" accept=".xlsx,.xls" id="c48ArchivoMatriz" onchange="c48LeerArchivos()" style="background:#fff;">
+          <label style="font-weight:800;display:block;margin:12px 0 4px;">Mini Súper (.xlsx)</label>
+          <input type="file" accept=".xlsx,.xls" id="c48ArchivoMini" onchange="c48LeerArchivos()" style="background:#fff;">
+          <div id="c48VistaPrevia" style="background:#f8fbff;border:1px solid #dfe7f0;border-radius:16px;padding:12px;margin-top:12px;font-size:12px;line-height:1.6;">Selecciona uno o ambos archivos para comprobarlos.</div>
+          <p style="font-size:12px;color:#667085;line-height:1.5;">Los productos nuevos se incorporan a <b>CatalogoProductos</b>. Los nombres y costos existentes se conservan. Los 57 campos y las existencias se almacenan por sucursal.</p>
+          <button id="c48ConfirmarBtn" type="button" onclick="c48ConfirmarActualizacion()" disabled>✓ Revisar y confirmar actualización</button>
+          <div id="c48Estado" role="status" style="font-size:12px;color:#28608b;margin:12px 0;line-height:1.6;"></div>
+        </div>
+
         <!-- v1.6.42 BETA: pantalla exclusiva para administrar conteos -->
         <div id="adminConteosAsignados" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="c42ModoPrivado&&document.body.getAttribute('data-c42-beta')==='1'?c42VistaPrueba('inicio'):volverMenuAdmin()">← Volver al panel</button>
             <h4>🧮 Asignar conteos</h4>
-            <p class="c42-meta">Prueba inicial de hasta cinco productos. Los conteos se guardan en Sheets y no actualizan Akasia.</p>
-            <label class="c42-meta">Clave administrativa de conteos</label>
-            <input type="password" id="c42ClaveAdmin" placeholder="Clave configurada en Apps Script" autocomplete="off">
+            <p class="c42-meta">Asigna productos por categoría o individualmente. Los conteos se guardan en Sheets y no modifican Akasia.</p>
             <!-- v1.6.45: una, dos o todas las sucursales; misma lista, conteos separados -->
             <label class="c42-meta" style="font-weight:800;display:block;margin:12px 0 8px;">Sucursales donde contarás estos productos</label>
             <div class="c45-sucursales">
@@ -1368,11 +1385,17 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             </div>
             <div id="c45EmpleadosPorSucursal" class="c45-empleados"></div>
             <p class="c42-meta">Cada sucursal tendrá su propio colaborador y conteo independiente.</p>
-            <label class="c42-meta">Buscar productos</label>
+            <label class="c42-meta" style="font-weight:800;display:block;margin:12px 0 5px;">Seleccionar productos por categoría</label>
+            <select id="c47Categoria" onchange="c47CambiarCategoria()"><option value="">Selecciona una categoría</option></select>
+            <p id="c47InfoCategoria" class="c42-meta">Los departamentos se leen de Akasia tras la sincronización.</p>
+            <button type="button" id="c47AgregarCategoria" onclick="c47SeleccionarCategoria()" style="background:#087cff;">✓ Agregar productos de esta categoría</button>
+            <button type="button" onclick="c47QuitarCategoria()" style="background:#7a858e;min-height:38px;">Quitar productos de esta categoría</button>
+            <label class="c42-meta">O buscar productos por nombre</label>
             <input type="search" id="c42BuscarAdmin" placeholder="Escribe el nombre de un producto" oninput="c42FiltrarCatalogo()">
             <div id="c42ResultadosAdmin" class="c42-prods"></div>
-            <h4>Seleccionados (<span id="c42SeleccionadosTotal">0</span>/5)</h4>
+            <h4>Seleccionados (<span id="c42SeleccionadosTotal">0</span>/300)</h4>
             <div id="c42SeleccionadosAdmin"></div>
+            <p id="c47SeleccionResumen" class="c42-meta"></p>
             <button id="c42CrearBtn" onclick="c42CrearAsignacion()">＋ Asignar productos a sucursales seleccionadas</button>
             <div id="c42EstadoAdmin" class="c42-estado">Selecciona hasta cinco productos.</div>
             <hr style="border:0;border-top:1px solid #e4eaf4;margin:17px 0;">
@@ -3613,7 +3636,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -3621,6 +3644,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "imagenes") iniciarAdminImagenes();
             if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
             if (modulo === "conteosAsignados") c42AbrirAdmin();
+            if (modulo === "catalogoAkasia") c48Abrir();
             // v1.6.46: no dibujar miles de filas ocultas al ingresar al administrador.
             if (["asistencia", "inventario", "tareas", "pedidos"].includes(modulo)) c46MostrarReporte(modulo);
             window.scrollTo(0,0);
@@ -3643,6 +3667,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function mostrarLogin() { document.getElementById("loginModal").style.display = "block"; }
         function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; document.getElementById("adminPassword").value = ""; }
         function cerrarSupervisor() {
+            c49SesionAdministrador = '';
             document.getElementById("supervisorSection").style.display = "none";
             volverMenuAdmin();
             modoSupervisorActivo(false);
@@ -3664,9 +3689,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (version) version.style.display = activo ? "none" : "block";
         }
 
+// v1.6.49: Reutiliza solo el acceso ya realizado al Administrador.
+        // Guardado en memoria; se borra al salir. No hay una segunda clave.
+        let c49SesionAdministrador = '';
 function verificarPassword() {
             const pass = document.getElementById("adminPassword").value;
             if (pass === "admin123") {
+                c49SesionAdministrador = pass;
                 ocultarLogin();
                 const principal=document.querySelector(".container");
                 if(principal) principal.style.display="none";
@@ -4418,6 +4447,12 @@ window.addEventListener('load',()=>setTimeout(cargarMensajesDinamicos,1200));
 let c42Catalogo = [];
 // v1.6.46: claves de búsqueda cacheadas; no normalizar 25 mil productos por pulsación.
 let c46CatalogoBuscable = [];
+let c47CatalogoDetallado=[];
+let c47EnviadosSesion=new Set();
+let c47CategoriaActiva='';
+let c47CategoriasCuenta={};
+let c47PaginaConteo=0;
+let c47MaxPagina=25;
 let c42Seleccionados = [];
 let c42AsignacionActiva = null;
 let c42Contando = [];
@@ -4468,7 +4503,7 @@ async function c42AbrirDetalle(index){
  c42Aviso('c42EstadoEmpleado','Abriendo asignación…');
  try{
    const d=await c42Get('c42DetalleConteo',{id:a.id,empleado:c42NombreActual(),sucursal:c42SucursalActual()});
-   c42AsignacionActiva=d.asignacion;c42Contando=d.productos;
+   c42AsignacionActiva=d.asignacion;c42Contando=d.productos;c47PaginaConteo=0;
    document.getElementById('c42MisLista').style.display='none';
    document.getElementById('c42Detalle').style.display='block';
    document.getElementById('c42DetalleTitulo').textContent='Productos para contar · '+a.sucursal;
@@ -4477,22 +4512,37 @@ async function c42AbrirDetalle(index){
 }
 function c42RenderDetalle(){
  const bloqueado=c42AsignacionActiva&&c42AsignacionActiva.estado==='FINALIZADA';
- document.getElementById('c42Productos').innerHTML=c42Contando.map((p,i)=>`<div class="c42-item"><div class="c42-row"><div style="flex:1"><b>${c42Esc(p.producto)}</b><div class="c42-meta">${p.conteo===null?'Pendiente':'Contado: '+p.conteo}</div></div>${typeof imagenProductoGlobal==='function'?imagenProductoGlobal(p.producto,null,50):''}</div><div class="c42-stepper"><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${i},-1)" style="background:#7a858e;">−</button><input id="c42Cantidad${i}" type="number" inputmode="decimal" min="0" step="any" placeholder="Sin contar" value="${p.conteo===null?'':p.conteo}" ${bloqueado?'readonly':''}><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${i},1)">+</button></div><input id="c42Obs${i}" type="text" maxlength="250" placeholder="Observación opcional" value="${c42Esc(p.observacion||'')}" ${bloqueado?'readonly':''}></div>`).join('');
+ const inicio=c47PaginaConteo*c47MaxPagina,actuales=c42Contando.slice(inicio,inicio+c47MaxPagina);
+ document.getElementById('c42Productos').innerHTML=actuales.map((p,i)=>{const index=inicio+i;return `<div class="c42-item"><div class="c42-row"><div style="flex:1"><b>${c42Esc(p.producto)}</b><div class="c42-meta">Producto ${index+1} de ${c42Contando.length} · ${p.conteo===null?'Pendiente':'Contado: '+p.conteo}</div></div>${typeof imagenProductoGlobal==='function'?imagenProductoGlobal(p.producto,null,50):''}</div><div class="c42-stepper"><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${index},-1)" style="background:#7a858e;">−</button><input id="c42Cantidad${index}" type="number" inputmode="decimal" min="0" step="any" placeholder="Sin contar" value="${p.conteo===null?'':p.conteo}" ${bloqueado?'readonly':''}><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${index},1)">+</button></div><input id="c42Obs${index}" type="text" maxlength="250" placeholder="Observación opcional" value="${c42Esc(p.observacion||'')}" ${bloqueado?'readonly':''}></div>`;}).join('');
+ const paginas=Math.max(1,Math.ceil(c42Contando.length/c47MaxPagina)),p=document.getElementById('c47Paginacion');
+ p.innerHTML=paginas>1?`<div class="c42-row" style="gap:6px"><button type="button" onclick="c47CambiarPagina(-1)" ${c47PaginaConteo===0?'disabled':''} style="width:32%;">← Anterior</button><span class="c42-meta">Página ${c47PaginaConteo+1}/${paginas}</span><button type="button" onclick="c47CambiarPagina(1)" ${c47PaginaConteo>=paginas-1?'disabled':''} style="width:32%;">Siguiente →</button></div>`:'';
  document.getElementById('c42GuardarBtn').style.display=bloqueado?'none':'block';
  document.getElementById('c42FinalizarBtn').style.display=bloqueado?'none':'block';
 }
 function c42Ajustar(i,delta){const el=document.getElementById('c42Cantidad'+i);if(!el)return;el.value=String(Math.max(0,Number(el.value||0)+delta));}
-function c42CerrarDetalle(){document.getElementById('c42Detalle').style.display='none';document.getElementById('c42MisLista').style.display='block';c42AsignacionActiva=null;c42Contando=[];}
+function c47CapturarPagina(){
+ const inicio=c47PaginaConteo*c47MaxPagina;
+ for(let i=inicio;i<Math.min(inicio+c47MaxPagina,c42Contando.length);i++){
+   const inp=document.getElementById('c42Cantidad'+i),obs=document.getElementById('c42Obs'+i);if(!inp)continue;
+   const raw=inp.value.trim();
+   if(raw!==''){
+     const cantidad=Number(raw);
+     if(!Number.isFinite(cantidad)||cantidad<0)throw Error('Revisa la cantidad de '+c42Contando[i].producto);
+     c42Contando[i].conteo=cantidad;
+   }else if(c42Contando[i].conteo===null){c42Contando[i].conteo=null;}
+   c42Contando[i].observacion=obs?obs.value.trim():'';
+ }
+}
+function c47CambiarPagina(delta){
+ try{c47CapturarPagina();}catch(e){alert(e.message);return;}
+ const max=Math.max(0,Math.ceil(c42Contando.length/c47MaxPagina)-1);
+ c47PaginaConteo=Math.max(0,Math.min(max,c47PaginaConteo+delta));c42RenderDetalle();
+}
+function c42CerrarDetalle(){document.getElementById('c42Detalle').style.display='none';document.getElementById('c42MisLista').style.display='block';c42AsignacionActiva=null;c42Contando=[];c47PaginaConteo=0;}
 async function c42Guardar(finalizar){
  if(!c42AsignacionActiva||c42Bloqueando)return;
- const items=[];
- for(let i=0;i<c42Contando.length;i++){
-   const inp=document.getElementById('c42Cantidad'+i),raw=inp.value.trim();
-   if(raw==='')continue;
-   const cantidad=Number(raw);
-   if(!Number.isFinite(cantidad)||cantidad<0){alert('Revisa la cantidad de '+c42Contando[i].producto);return;}
-   items.push({orden:c42Contando[i].orden,cantidad,observacion:document.getElementById('c42Obs'+i).value.trim()});
- }
+ try{c47CapturarPagina();}catch(e){alert(e.message);return;}
+ const items=c42Contando.filter(p=>p.conteo!==null).map(p=>({orden:p.orden,cantidad:p.conteo,observacion:p.observacion||''}));
  if(!items.length){alert('Introduce al menos una cantidad.');return;}
  if(finalizar&&items.length!==c42Contando.length){alert('Completa todos los productos, incluso con cantidad cero.');return;}
  if(finalizar&&!confirm('¿Finalizar el conteo? Después no podrás modificarlo.'))return;
@@ -4506,9 +4556,19 @@ async function c42Guardar(finalizar){
 }
 async function c42AbrirAdmin(){
  c42LlenarEmpleados();c42RenderSeleccionados();
- c42Aviso('c42EstadoAdmin','Cargando catálogo de productos…');
- try{if(!listaGlobalNombres.length)await c42CargarEmpleadosAdmin();const d=await c42Get('c42Catalogo');c42Catalogo=d.productos||[];c46CatalogoBuscable=c42Catalogo.map((n,i)=>({n,i,clave:c42Norm(n)}));c42LlenarEmpleados();c42FiltrarCatalogo();c42Aviso('c42EstadoAdmin','Selecciona las sucursales, un responsable por sucursal y hasta cinco productos.');}
- catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}
+ c42Aviso('c42EstadoAdmin','Cargando productos y categorías…');
+ try{
+   if(!listaGlobalNombres.length)await c42CargarEmpleadosAdmin();
+   const d=await c42Get('c47CatalogoCategorias');
+   c47CatalogoDetallado=d.productos||[];c47CategoriasCuenta=d.categorias||{};
+   c42Catalogo=c47CatalogoDetallado.map(x=>x.nombre);
+   c46CatalogoBuscable=c42Catalogo.map((n,i)=>({n,i,clave:c42Norm(n),categoria:c47CatalogoDetallado[i].categoria}));
+   const sele=document.getElementById('c47Categoria');
+   sele.innerHTML='<option value="">Selecciona una categoría</option>'+Object.keys(c47CategoriasCuenta).sort((a,b)=>a.localeCompare(b,'es')).map(c=>`<option value="${c42Esc(c)}">${c42Esc(c)} (${c47CategoriasCuenta[c]})</option>`).join('');
+   if(Object.hasOwn(c47CategoriasCuenta,c47CategoriaActiva))sele.value=c47CategoriaActiva;else{c47CategoriaActiva='';sele.value='';}
+   c42LlenarEmpleados();c47CambiarCategoria();
+   c42Aviso('c42EstadoAdmin','Selecciona una categoría o busca productos. Hasta 300 por envío.');
+ }catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}
 }
 async function c42CargarEmpleadosAdmin(){
  if(c42ModoPrivado){const d=await c42Get('c42Empleados');listaGlobalNombres=d.empleados||[];return;}
@@ -4542,48 +4602,83 @@ function c45LlenarEmpleados(){
  }).join('') || '<div class="c42-estado">Selecciona al menos una sucursal.</div>';
  destino.querySelectorAll('select[data-sucursal]').forEach(s=>{if(Array.from(s.options).some(o=>o.value===anteriores[s.dataset.sucursal]))s.value=anteriores[s.dataset.sucursal];});
 }
+// v1.6.47: categoría + selección masiva, sin tocar el resto de Online Shop.
+function c47CambiarCategoria(){
+ c47CategoriaActiva=document.getElementById('c47Categoria').value;
+ const n=c47CategoriasCuenta[c47CategoriaActiva]||0;
+ const pendientes=c47CatalogoDetallado.filter(p=>p.categoria===c47CategoriaActiva&&!c47EnviadosSesion.has(p.nombre)).length;
+ document.getElementById('c47InfoCategoria').textContent=c47CategoriaActiva?`${n} producto(s) en ${c47CategoriaActiva}, ${pendientes} aún no enviados en esta sesión. Máximo 300 por envío.`:'Selecciona una categoría para ver y agregar sus productos.';
+ c42FiltrarCatalogo();
+}
+function c47SeleccionarCategoria(){
+ if(!c47CategoriaActiva){alert('Selecciona una categoría.');return;}
+ const arr=c47CatalogoDetallado.filter(p=>p.categoria===c47CategoriaActiva).map(p=>p.nombre),disponible=300-c42Seleccionados.length;
+ const pendientes=arr.filter(n=>!c42Seleccionados.includes(n)&&!c47EnviadosSesion.has(n));
+ if(!disponible){alert('Ya tienes 300 productos seleccionados. Primero envía esta tanda.');return;}
+ const agregar=pendientes.slice(0,disponible);
+ if(!agregar.length){alert('No quedan productos nuevos en esta categoría en esta sesión. Puedes volver a cargar la página si deseas iniciar una nueva asignación.');return;}
+ c42Seleccionados.push(...agregar);c42RenderSeleccionados();c42FiltrarCatalogo();
+ const faltan=pendientes.length-agregar.length;
+ c42Aviso('c42EstadoAdmin','✅ Se agregaron '+agregar.length+' productos de '+c47CategoriaActiva+(faltan?'. Quedan '+faltan+' para otra tanda.':'.'));
+}
+function c47QuitarCategoria(){
+ if(!c47CategoriaActiva)return;
+ const nombres=new Set(c47CatalogoDetallado.filter(p=>p.categoria===c47CategoriaActiva).map(p=>p.nombre));
+ c42Seleccionados=c42Seleccionados.filter(n=>!nombres.has(n));
+ c42RenderSeleccionados();c42FiltrarCatalogo();
+}
 function c42FiltrarCatalogo(){
  const q=c42Norm(document.getElementById('c42BuscarAdmin').value),box=document.getElementById('c42ResultadosAdmin');
- if(!q){box.innerHTML='<p class="c42-meta">Escribe para buscar productos.</p>';return;}
- const arr=[];for(let i=0;i<c46CatalogoBuscable.length&&arr.length<30;i++){const x=c46CatalogoBuscable[i];if(x.clave.includes(q))arr.push(x);}
- box.innerHTML=arr.map(x=>`<button type="button" onclick="c42Agregar(${x.i})" ${c42Seleccionados.includes(x.n)||c42Seleccionados.length>=5?'disabled':''}>＋ ${c42Esc(x.n)}</button>`).join('')||'<p class="c42-meta">No se encontraron productos.</p>';
+ if(!q&&!c47CategoriaActiva){box.innerHTML='<p class="c42-meta">Selecciona una categoría o escribe para buscar.</p>';return;}
+ const arr=[];for(let i=0;i<c46CatalogoBuscable.length&&arr.length<35;i++){
+   const x=c46CatalogoBuscable[i];
+   if((!c47CategoriaActiva||x.categoria===c47CategoriaActiva)&&(!q||x.clave.includes(q)))arr.push(x);
+ }
+ box.innerHTML=arr.map(x=>`<button type="button" onclick="c42Agregar(${x.i})" ${c42Seleccionados.includes(x.n)||c42Seleccionados.length>=300?'disabled':''}>＋ ${c42Esc(x.n)}</button>`).join('')||'<p class="c42-meta">No se encontraron productos.</p>';
 }
-function c42Agregar(i){const n=c42Catalogo[i];if(n&&!c42Seleccionados.includes(n)&&c42Seleccionados.length<5)c42Seleccionados.push(n);c42RenderSeleccionados();c42FiltrarCatalogo();}
+function c42Agregar(i){const n=c42Catalogo[i];if(n&&!c42Seleccionados.includes(n)&&c42Seleccionados.length<300)c42Seleccionados.push(n);c42RenderSeleccionados();c42FiltrarCatalogo();}
 function c42Quitar(i){c42Seleccionados.splice(i,1);c42RenderSeleccionados();c42FiltrarCatalogo();}
 function c42RenderSeleccionados(){
  document.getElementById('c42SeleccionadosTotal').textContent=c42Seleccionados.length;
- document.getElementById('c42SeleccionadosAdmin').innerHTML=c42Seleccionados.map((n,i)=>`<div class="c42-item c42-row"><b style="font-size:12px">${i+1}. ${c42Esc(n)}</b><button type="button" onclick="c42Quitar(${i})" style="width:65px;min-height:35px;background:#7a858e;margin:0;">Quitar</button></div>`).join('')||'<p class="c42-meta">Ningún producto seleccionado.</p>';
+ const visibles=c42Seleccionados.slice(0,40);
+ document.getElementById('c42SeleccionadosAdmin').innerHTML=visibles.map((n,i)=>`<div class="c42-item c42-row"><b style="font-size:12px">${i+1}. ${c42Esc(n)}</b><button type="button" onclick="c42Quitar(${i})" style="width:65px;min-height:35px;background:#7a858e;margin:0;">Quitar</button></div>`).join('')||'<p class="c42-meta">Ningún producto seleccionado.</p>';
+ document.getElementById('c47SeleccionResumen').textContent=c42Seleccionados.length>40?`Se muestran 40 productos de ${c42Seleccionados.length}. Puedes quitar toda una categoría usando el botón superior.`:'';
 }
 async function c42CrearAsignacion(){
- const clave=document.getElementById('c42ClaveAdmin').value;
  const seleccionadas=c45SucursalesSeleccionadas();
  const asignaciones=seleccionadas.map(sucursal=>{
   const selector=Array.from(document.querySelectorAll('#c45EmpleadosPorSucursal select[data-sucursal]')).find(s=>s.dataset.sucursal===sucursal);
   return {sucursal,empleado:selector?selector.value:''};
  });
- if(!clave){alert('Ingresa la clave administrativa de conteos.');return;}
  if(!seleccionadas.length){alert('Selecciona al menos una sucursal.');return;}
  if(asignaciones.some(a=>!a.empleado)){alert('Selecciona un colaborador para cada sucursal marcada.');return;}
- if(!c42Seleccionados.length){alert('Selecciona de uno a cinco productos.');return;}
+ if(!c42Seleccionados.length||c42Seleccionados.length>300){alert('Selecciona entre 1 y 300 productos.');return;}
  const b=document.getElementById('c42CrearBtn');b.disabled=true;
- c42Aviso('c42EstadoAdmin','Asignando la misma lista a '+asignaciones.length+' sucursal(es)…');
+ c42Aviso('c42EstadoAdmin','Asignando '+c42Seleccionados.length+' productos a '+asignaciones.length+' sucursal(es)…');
  try{
-   const d=await c42Post('c45CrearAsignacionesLote',{claveAdmin:clave,asignaciones:JSON.stringify(asignaciones),creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
-   c42Aviso('c42EstadoAdmin','✅ '+d.productos+' productos asignados en '+d.sucursales+' sucursal(es): '+d.asignaciones.map(a=>a.sucursal+' → '+a.empleado).join(' · '));
-   c42Seleccionados=[];c42RenderSeleccionados();c42FiltrarCatalogo();await c42RevisarAsignaciones();
+   const d=await c42Post('c45CrearAsignacionesLote',{asignaciones:JSON.stringify(asignaciones),creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
+   c42Aviso('c42EstadoAdmin','✅ '+d.productos+' productos por sucursal, '+d.sucursales+' sucursal(es), '+d.lotes+' tareas creadas.');
+   c42Seleccionados.forEach(n=>c47EnviadosSesion.add(n));
+   c42Seleccionados=[];c42RenderSeleccionados();c47CambiarCategoria();await c42RevisarAsignaciones();
  }catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}finally{b.disabled=false;}
 }
+let c47RevisionAsignaciones=[];
 async function c42RevisarAsignaciones(){
- const clave=document.getElementById('c42ClaveAdmin').value,box=document.getElementById('c42RevisionAdmin');
- if(!clave){c42Aviso('c42EstadoAdmin','Ingresa la clave de administrador. ',true);return;}
+ const box=document.getElementById('c42RevisionAdmin');
  box.innerHTML='<p class="c42-meta">Consultando asignaciones…</p>';
  try{
-  const d=await c42Post('c42RevisarAdmin',{claveAdmin:clave});
-  box.innerHTML=d.asignaciones.map(a=>`<div class="c42-item"><b>${c42Esc(a.empleado)}</b><div class="c42-meta">${c42Esc(a.sucursal)} · ${c42Esc(a.estado)} · ${a.contados}/${a.total} productos · ${c42Esc(a.fecha)}</div>${a.productos.map(p=>`<div class="c42-row" style="border-top:1px solid #e8eef6;padding:8px 0;font-size:12px"><span>${c42Esc(p.producto)}</span><b>${p.conteo===null?'Pendiente':c42Esc(p.conteo)}</b></div>${p.observacion?`<div class="c42-meta">Nota: ${c42Esc(p.observacion)}</div>`:''}`).join('')}</div>`).join('')||'<p class="c42-meta">Todavía no hay conteos.</p>';
+  const d=await c42Post('c42RevisarAdmin',{});c47RevisionAsignaciones=d.asignaciones||[];
+  box.innerHTML=c47RevisionAsignaciones.map((a,i)=>`<div class="c42-item"><b>${c42Esc(a.empleado)}</b><div class="c42-meta">${c42Esc(a.sucursal)} · ${c42Esc(a.estado)} · ${a.contados}/${a.total} productos · ${c42Esc(a.fecha)}</div><button type="button" onclick="c47VerRevisionDetalle(${i})">👁 Ver los productos contados</button><div id="c47RevisionDetalle${i}"></div></div>`).join('')||'<p class="c42-meta">Todavía no hay conteos.</p>';
  }catch(e){box.innerHTML='';c42Aviso('c42EstadoAdmin',e.message,true);}
 }
-
-
+async function c47VerRevisionDetalle(i){
+ const a=c47RevisionAsignaciones[i];if(!a)return;
+ const box=document.getElementById('c47RevisionDetalle'+i);box.innerHTML='<p class="c42-meta">Cargando productos…</p>';
+ try{
+   const d=await c42Get('c42DetalleConteo',{id:a.id,sucursal:a.sucursal,empleado:a.empleado});
+   box.innerHTML=d.productos.map(p=>`<div class="c42-row" style="border-top:1px solid #e8eef6;padding:8px 0;font-size:12px"><span>${c42Esc(p.producto)}</span><b>${p.conteo===null?'Pendiente':c42Esc(p.conteo)}</b></div>${p.observacion?`<div class="c42-meta">Nota: ${c42Esc(p.observacion)}</div>`:''}`).join('')||'<p class="c42-meta">No hay productos.</p>';
+ }catch(e){box.innerHTML='<p class="c42-meta" style="color:#a22">'+c42Esc(e.message)+'</p>';}
+}
 
 // Entorno de prueba privado que utiliza los dos archivos existentes.
 let c42EmpleadosPrueba=[];
@@ -4627,6 +4722,115 @@ function c42VistaPrueba(modo){
  window.scrollTo(0,0);
 }
 window.addEventListener('load',()=>setTimeout(c42ArrancarPrueba,0));
+
+
+// ========================================================================
+// v1.6.48 BETA · ACTUALIZAR CATALOGO AKASIA (ADMINISTRADOR)
+// Reutiliza la misma URL_API y el login ya existente.
+// Los Excel se leen localmente; NO se envían a servidores externos.
+// SheetJS se carga como biblioteca de análisis .xlsx desde cdnjs.
+// ========================================================================
+const c48Cabeceras='cbarras|nombre_producto|descripcion_producto|existencia|caducidad|lote|dInvMin|dInvMax|puntos_lealtad|precio_compra|impuesto_incluido|precio_venta|dCantMinPP2|precio_venta2|dCantMinPP3|precio_venta3|dCantMinPP4|precio_venta4|dCantMinPP5|precio_venta5|dCantMinPP6|precio_venta6|dCantMinPP7|precio_venta7|dCantMinPP8|precio_venta8|dCantMinPP9|precio_venta9|dCantMinPP10|precio_venta10|tipo_factor_iva|tasa_cuota_iva|tipo_factor_ieps|tasa_cuota_ieps|codigo_sat|clave_unidad|nombre_unidad|nombre_dep|nombre_categoria|vNombreSubCategoria|marca|modelo|color|tamano|proveedor|is_active|is_kit|iPeriodicidad|is_inventory|isCaducidadLote|is_granel|pedir_cedula|pedir_info_adicional|bIsPromocion|bIsInsumo|uuid_producto_sucursal|uuid_producto'.split('|');
+let c48Cargas={},c48EstadoActual={nombres:[],sucursales:{}},c48Ocupado=false;
+function c48Mensaje(m,err){const e=document.getElementById('c48Estado');if(e){e.textContent=m;e.style.color=err?'#be273f':'#28608b';}}
+async function c48GetEstado(){
+ const r=await fetch(URL_API+'?accion=c48EstadoCatalogos&_='+Date.now(),{cache:'no-store'});
+ if(!r.ok)throw Error('Error de conexión al consultar los catálogos.');
+ const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No se pudo consultar el catálogo.');return d;
+}
+async function c48Post(accion,datos){
+ const body=new URLSearchParams();body.set('accion',accion);
+ Object.entries(datos).forEach(([k,v])=>body.set(k,String(v)));
+ const r=await fetch(URL_API,{method:'POST',body});
+ if(!r.ok)throw Error('No se pudo comunicar con Apps Script (HTTP '+r.status+').');
+ const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error desconocido de sincronización.');return d;
+}
+async function c48Abrir(){
+ if(c48Ocupado)return;
+ c48Mensaje('Consultando el catálogo actual…');
+ try{c48EstadoActual=await c48GetEstado();c48Mensaje('Puedes cargar el Excel de una o de ambas sucursales.');}
+ catch(e){c48Mensaje(e.message,true);}
+ c48MostrarPrevia();
+}
+async function c48LeerArchivos(){
+ if(c48Ocupado)return;
+ if(typeof XLSX==='undefined'){
+   c48Mensaje('No cargó el lector Excel. Verifica tu conexión a Internet y recarga la página.',true);return;
+ }
+ c48Cargas={};c48Mensaje('Leyendo archivos Excel…');
+ try{
+   for(const [clave,id] of [['MATRIZ','c48ArchivoMatriz'],['MINI','c48ArchivoMini']]){
+     const file=document.getElementById(id)?.files?.[0];if(!file)continue;
+     if(file.size>25*1024*1024)throw Error(file.name+': el archivo excede 25 MB.');
+     const buf=await file.arrayBuffer(),wb=XLSX.read(buf,{type:'array',cellDates:false}),sheet=wb.Sheets[wb.SheetNames[0]];
+     if(!sheet)throw Error('No se encontró una hoja de productos en '+file.name);
+     const all=XLSX.utils.sheet_to_json(sheet,{header:1,raw:true,defval:'',blankrows:false});
+     const cab=(all[0]||[]).map(x=>String(x??'').trim());
+     if(cab.length!==57||!c48Cabeceras.every((x,i)=>cab[i]===x))throw Error(file.name+': las 57 columnas no coinciden con la exportación original de Akasia.');
+     const filas=[];let sinNombre=0;
+     for(let i=1;i<all.length;i++){
+       const r=all[i];if(!r||!r.some(x=>String(x??'').trim()))continue;
+       let linea=Array.from({length:57},(_,j)=>r[j]??'');
+       if(!String(linea[1]||'').trim()){sinNombre++;continue;}
+       const celdaCodigo=sheet[XLSX.utils.encode_cell({r:i,c:0})];
+       if(celdaCodigo&&celdaCodigo.w)linea[0]=String(celdaCodigo.w).trim();
+       linea[55]=String(linea[55]||'');linea[56]=String(linea[56]||'');
+       filas.push(linea);
+     }
+     if(sinNombre)throw Error(file.name+': existen '+sinNombre+' productos sin nombre. Corrige el archivo antes de subirlo.');
+     if(!filas.length||filas.length>10000)throw Error(file.name+': cantidad de productos fuera del límite (1–10,000).');
+     const uuidSet=new Set(),dobles=new Set(),noUuid=[];
+     filas.forEach((r,i)=>{const u=String(r[56]||'').trim().toUpperCase();if(!u)noUuid.push(i+2);else if(uuidSet.has(u))dobles.add(u);else uuidSet.add(u);});
+     c48Cargas[clave]={archivo:file.name,cabeceras:cab,filas,uuidDuplicados:dobles.size,sinUuid:noUuid.length};
+   }
+   c48Mensaje('Archivos leídos. Revisa los resultados antes de confirmar.');
+ }catch(e){c48Cargas={};c48Mensaje(e.message,true);}
+ c48MostrarPrevia();
+}
+function c48MostrarPrevia(){
+ const box=document.getElementById('c48VistaPrevia'),btn=document.getElementById('c48ConfirmarBtn');if(!box||!btn)return;
+ const existentes=new Set((c48EstadoActual.nombres||[]).map(c42Norm)),claves=Object.keys(c48Cargas);
+ btn.disabled=!(claves.length&&!c48Ocupado);
+ if(!claves.length){box.textContent='Selecciona uno o ambos Excel para analizar productos nuevos.';return;}
+ let html='';const nuevosGlobales=new Set();
+ for(const suc of claves){
+  const d=c48Cargas[suc],nuevos=d.filas.filter(r=>{const n=c42Norm(r[1]);if(!existentes.has(n)){nuevosGlobales.add(n);return true;}return false;});
+  html+=`<div style="border-bottom:1px solid #e7edf6;padding:8px 0;"><b>${suc==='MATRIZ'?'Sucursal Matriz':'Mini Súper'}</b><div>${c46EscaparCelda(d.archivo)}</div><div>📦 ${d.filas.length} productos · 🆕 ${nuevos.length} nombres aún no registrados</div><div>⚠️ ${d.uuidDuplicados} UUID repetidos · ${d.sinUuid} sin UUID (se revisarán)</div></div>`;
+ }
+ html+=`<p style="margin:10px 0 2px;">Total aproximado de nombres nuevos entre archivos: <b>${nuevosGlobales.size}</b>.</p><p style="font-size:11px;color:#667085;margin:4px 0;">La sincronización compara además los UUID. Los nombres ambiguos quedarán pendientes de revisión. No se eliminan productos ni se cambian costos existentes.</p>`;
+ box.innerHTML=html;
+}
+async function c48ConfirmarActualizacion(){
+ if(c48Ocupado||!Object.keys(c48Cargas).length)return;
+ // No se solicita una segunda clave: se valida el acceso actual al Administrador.
+ if(!c49SesionAdministrador){c48Mensaje('Entra al panel Administrador para actualizar el catálogo.',true);return;}
+ const sucursales=Object.keys(c48Cargas);
+ if(!confirm('¿Confirmar la actualización de '+sucursales.length+' sucursal(es)? Se guardarán los 57 campos de Akasia, se incorporarán productos nuevos y no se eliminarán productos existentes.'))return;
+ c48Ocupado=true;c48MostrarPrevia();
+ const terminadas=[];
+ try{
+   for(const suc of sucursales){
+     const d=c48Cargas[suc];c48Mensaje('Iniciando '+suc+' · '+d.filas.length+' productos…');
+     const ini=await c48Post('c48Iniciar',{autorizacionAdmin:c49SesionAdministrador,sucursal:suc,total:d.filas.length,cabeceras:JSON.stringify(d.cabeceras)});
+     for(let i=0;i<d.filas.length;i+=250){
+       await c48Post('c48CargarBloque',{autorizacionAdmin:c49SesionAdministrador,sucursal:suc,id:ini.id,desde:i,filas:JSON.stringify(d.filas.slice(i,i+250))});
+       c48Mensaje(suc+': '+Math.min(d.filas.length,i+250)+' de '+d.filas.length+' productos recibidos…');
+       await new Promise(resolve=>setTimeout(resolve,0));
+     }
+     const fin=await c48Post('c48Finalizar',{autorizacionAdmin:c49SesionAdministrador,sucursal:suc,id:ini.id});
+     terminadas.push({sucursal:suc,filas:fin.filas,nuevos:fin.maestro?.nuevos||0,revision:fin.maestro?.enRevision||0});
+   }
+   const texto=terminadas.map(x=>`${x.sucursal}: ${x.filas} importados · ${x.nuevos} agregados · ${x.revision} por revisar`).join(' | ');
+   c48Mensaje('✅ Catálogo actualizado. '+texto);
+   try{c48EstadoActual=await c48GetEstado();}catch(_e){}
+   c48Cargas={};document.getElementById('c48ArchivoMatriz').value='';document.getElementById('c48ArchivoMini').value='';
+   // Forzar la próxima carga de categorías desde Akasia en Conteos Asignados.
+   c47CatalogoDetallado=[];c47CategoriasCuenta={};
+ }catch(e){
+   const completadas=terminadas.map(x=>x.sucursal).join(', ');
+   c48Mensaje('⚠️ No se completó toda la carga. '+(completadas?'Ya se actualizó: '+completadas+'. ':'')+e.message+'. Puedes volver a cargar el archivo pendiente.',true);
+ }finally{c48Ocupado=false;c48MostrarPrevia();}
+}
 
 </script>
 </body>
