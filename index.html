@@ -879,6 +879,22 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #adminConteosAsignados .c45-empleado-fila{background:#fff;border:1px solid #e1e8f2;border-radius:13px;padding:10px;text-align:left}
 #adminConteosAsignados .c45-empleado-fila label{display:block;font-size:12px;color:#425977;font-weight:750;margin:0 0 5px}
 #adminConteosAsignados .c45-empleado-fila select{margin:0}
+
+/* v1.6.50: nueva consulta de conteos, confinada al administrador */
+#adminConteosAsignados .c50-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0}
+#adminConteosAsignados .c50-tabs button{margin:0!important;padding:10px 5px!important;min-height:39px!important;font-size:12px!important;background:#edf3fa!important;color:#29425f!important;border:1px solid #d7e4f3!important;border-radius:11px!important}
+#adminConteosAsignados .c50-tabs button.c50-activa{background:#087cff!important;color:#fff!important;border-color:#087cff!important}
+#adminConteosAsignados .c50-filtros{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:9px 0}
+#adminConteosAsignados .c50-filtros label{display:block;font-size:11px;font-weight:700;color:#607188;margin-bottom:4px}
+#adminConteosAsignados .c50-filtros input,#adminConteosAsignados .c50-filtros select{width:100%;min-width:0}
+#adminConteosAsignados .c50-pill{display:inline-block;padding:3px 7px;margin:2px 3px 2px 0;border-radius:15px;font-size:10px;font-weight:800;background:#fff2dc;color:#845600;white-space:normal}
+#adminConteosAsignados .c50-pill.contado{background:#e1f7e9;color:#156338}
+#adminConteosAsignados .c50-pill.proceso{background:#e8f1ff;color:#235b9f}
+#adminConteosAsignados .c50-pill.advertencia{background:#fef1e8;color:#ad4f12}
+#adminConteosAsignados .c50-consulta-row{border:1px solid #e3eaf3;background:#f9fbff;border-radius:12px;padding:10px;margin:7px 0}
+#adminConteosAsignados .c50-mini-info{font-size:11px;color:#617389;line-height:1.5}
+#adminConteosAsignados .c50-inline-check{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:12px;font-weight:700}
+#adminConteosAsignados .c50-inline-check input{width:19px;min-height:19px;height:19px;margin:0;accent-color:#087cff}
 </style>
 </head>
 <body>
@@ -1375,6 +1391,19 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <button class="btn-volver" onclick="c42ModoPrivado&&document.body.getAttribute('data-c42-beta')==='1'?c42VistaPrueba('inicio'):volverMenuAdmin()">← Volver al panel</button>
             <h4>🧮 Asignar conteos</h4>
             <p class="c42-meta">Asigna productos por categoría o individualmente. Los conteos se guardan en Sheets y no modifican Akasia.</p>
+            <div class="c50-tabs">
+              <button type="button" id="c50TabAsignar" class="c50-activa" onclick="c50CambiarVista('asignar')">➕ Asignar productos</button>
+              <button type="button" id="c50TabProceso" onclick="c50CambiarVista('proceso')">⏳ En proceso</button>
+              <button type="button" id="c50TabContados" onclick="c50CambiarVista('contados')">✅ Productos contados</button>
+              <button type="button" id="c50TabResultados" onclick="c50CambiarVista('resultados')">📊 Resultados</button>
+            </div>
+            <div class="c50-filtros">
+              <div><label for="c50Desde">Conteos desde</label><input id="c50Desde" type="date" onchange="c50CargarEstados()"></div>
+              <div><label for="c50Hasta">Hasta (opcional)</label><input id="c50Hasta" type="date" onchange="c50CargarEstados()"></div>
+            </div>
+            <div id="c50EstadoCarga" class="c50-mini-info">Los indicadores corresponden al período seleccionado.</div>
+            <button type="button" onclick="c50CargarEstados()" style="background:#e8f2ff;color:#165aa5;border:1px solid #ccdef6;min-height:35px;font-size:12px;margin:6px 0 12px;">↻ Actualizar estados de conteo</button>
+            <div id="c50VistaAsignar">
             <!-- v1.6.45: una, dos o todas las sucursales; misma lista, conteos separados -->
             <label class="c42-meta" style="font-weight:800;display:block;margin:12px 0 8px;">Sucursales donde contarás estos productos</label>
             <div class="c45-sucursales">
@@ -1390,6 +1419,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <p id="c47InfoCategoria" class="c42-meta">Los departamentos se leen de Akasia tras la sincronización.</p>
             <button type="button" id="c47AgregarCategoria" onclick="c47SeleccionarCategoria()" style="background:#087cff;">✓ Agregar productos de esta categoría</button>
             <button type="button" onclick="c47QuitarCategoria()" style="background:#7a858e;min-height:38px;">Quitar productos de esta categoría</button>
+            <label class="c50-inline-check"><input type="checkbox" id="c50SoloPendientes" onchange="c42FiltrarCatalogo()"> Mostrar solo productos pendientes en las sucursales seleccionadas</label>
             <label class="c42-meta">O buscar productos por nombre</label>
             <input type="search" id="c42BuscarAdmin" placeholder="Escribe el nombre de un producto" oninput="c42FiltrarCatalogo()">
             <div id="c42ResultadosAdmin" class="c42-prods"></div>
@@ -1398,9 +1428,29 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <p id="c47SeleccionResumen" class="c42-meta"></p>
             <button id="c42CrearBtn" onclick="c42CrearAsignacion()">＋ Asignar productos a sucursales seleccionadas</button>
             <div id="c42EstadoAdmin" class="c42-estado">Selecciona hasta cinco productos.</div>
-            <hr style="border:0;border-top:1px solid #e4eaf4;margin:17px 0;">
-            <button onclick="c42RevisarAsignaciones()" style="background:#087cff;">↻ Revisar conteos recibidos</button>
-            <div id="c42RevisionAdmin"></div>
+            </div><!-- /c50VistaAsignar -->
+            <div id="c50VistaProceso" style="display:none;">
+              <p class="c42-meta">Asignaciones y productos que aún no tienen un conteo físico registrado dentro del período seleccionado.</p>
+              <div id="c50ListaProceso"></div>
+              <button type="button" onclick="c42RevisarAsignaciones()" style="background:#087cff;">↻ Revisar asignaciones y sus detalles</button>
+              <div id="c42RevisionAdmin"></div>
+            </div>
+            <div id="c50VistaContados" style="display:none;">
+              <p class="c42-meta">Busca qué productos ya fueron contados, quién los contó y cuándo. La recepción de mercadería continúa en Akasia.</p>
+              <label class="c42-meta" for="c50Buscar">Buscar producto o colaborador</label>
+              <input id="c50Buscar" type="search" placeholder="Producto, código o colaborador" oninput="c50Pagina=0;c50RenderConsulta()">
+              <div class="c50-filtros">
+                <div><label for="c50SucursalConsulta">Sucursal</label><select id="c50SucursalConsulta" onchange="c50Pagina=0;c50ActualizarDepartamentos();c50RenderConsulta()"><option value="">Todas</option><option value="TIENDA ONLINE SHOP">Tienda Online Shop</option><option value="MINI SUPER">Mini Súper</option><option value="BODEGA">Bodega</option></select></div>
+                <div><label for="c50DepartamentoConsulta">Departamento</label><select id="c50DepartamentoConsulta" onchange="c50Pagina=0;c50RenderConsulta()"><option value="">Todos</option></select></div>
+              </div>
+              <div id="c50ListaContados"></div>
+              <div id="c50Paginacion"></div>
+            </div>
+            <div id="c50VistaResultados" style="display:none;">
+              <p class="c42-meta">Resumen de las cantidades físicas registradas en Online Shop durante el período seleccionado.</p>
+              <div id="c50ResumenResultados"></div>
+              <div class="c42-estado">La comparación con existencias actuales y la exportación a Akasia se agregarán después de conectar el puente. Esta versión no modifica Akasia ni genera archivos de ajuste.</div>
+            </div>
         </div>
 
         <div id="adminCatalogoRuta" class="admin-modulo" style="display:none;margin-top:18px;">
@@ -4557,6 +4607,7 @@ async function c42Guardar(finalizar){
 async function c42AbrirAdmin(){
  c42LlenarEmpleados();c42RenderSeleccionados();
  c42Aviso('c42EstadoAdmin','Cargando productos y categorías…');
+ c50Abrir();
  try{
    if(!listaGlobalNombres.length)await c42CargarEmpleadosAdmin();
    const d=await c42Get('c47CatalogoCategorias');
@@ -4580,9 +4631,9 @@ async function c42CargarEmpleadosAdmin(){
 function c45CambiarTodas(){
  const todas=document.getElementById('c45TodasSucursales').checked;
  document.querySelectorAll('#adminConteosAsignados .c45-sucursal').forEach(c=>{c.checked=todas;});
- c45LlenarEmpleados();
+ c45LlenarEmpleados();c42FiltrarCatalogo();
 }
-function c45CambiarSucursal(){c45LlenarEmpleados();}
+function c45CambiarSucursal(){c45LlenarEmpleados();c42FiltrarCatalogo();}
 function c45SucursalesSeleccionadas(){
  return Array.from(document.querySelectorAll('#adminConteosAsignados .c45-sucursal:checked')).map(c=>c.value);
 }
@@ -4613,7 +4664,7 @@ function c47CambiarCategoria(){
 function c47SeleccionarCategoria(){
  if(!c47CategoriaActiva){alert('Selecciona una categoría.');return;}
  const arr=c47CatalogoDetallado.filter(p=>p.categoria===c47CategoriaActiva).map(p=>p.nombre),disponible=300-c42Seleccionados.length;
- const pendientes=arr.filter(n=>!c42Seleccionados.includes(n)&&!c47EnviadosSesion.has(n));
+ const pendientes=arr.filter(n=>!c42Seleccionados.includes(n)&&!c47EnviadosSesion.has(n)&&(!document.getElementById('c50SoloPendientes').checked||!c50ContadoEnTodas(n)));
  if(!disponible){alert('Ya tienes 300 productos seleccionados. Primero envía esta tanda.');return;}
  const agregar=pendientes.slice(0,disponible);
  if(!agregar.length){alert('No quedan productos nuevos en esta categoría en esta sesión. Puedes volver a cargar la página si deseas iniciar una nueva asignación.');return;}
@@ -4632,9 +4683,9 @@ function c42FiltrarCatalogo(){
  if(!q&&!c47CategoriaActiva){box.innerHTML='<p class="c42-meta">Selecciona una categoría o escribe para buscar.</p>';return;}
  const arr=[];for(let i=0;i<c46CatalogoBuscable.length&&arr.length<35;i++){
    const x=c46CatalogoBuscable[i];
-   if((!c47CategoriaActiva||x.categoria===c47CategoriaActiva)&&(!q||x.clave.includes(q)))arr.push(x);
+   if((!c47CategoriaActiva||x.categoria===c47CategoriaActiva)&&(!q||x.clave.includes(q))&&(!document.getElementById('c50SoloPendientes').checked||!c50ContadoEnTodas(x.n)))arr.push(x);
  }
- box.innerHTML=arr.map(x=>`<button type="button" onclick="c42Agregar(${x.i})" ${c42Seleccionados.includes(x.n)||c42Seleccionados.length>=300?'disabled':''}>＋ ${c42Esc(x.n)}</button>`).join('')||'<p class="c42-meta">No se encontraron productos.</p>';
+ box.innerHTML=arr.map(x=>`<button type="button" onclick="c42Agregar(${x.i})" ${c42Seleccionados.includes(x.n)||c42Seleccionados.length>=300?'disabled':''}>＋ ${c42Esc(x.n)}<div style="margin-top:4px">${c50PillsParaProducto(x.n)}</div></button>`).join('')||'<p class="c42-meta">No se encontraron productos.</p>';
 }
 function c42Agregar(i){const n=c42Catalogo[i];if(n&&!c42Seleccionados.includes(n)&&c42Seleccionados.length<300)c42Seleccionados.push(n);c42RenderSeleccionados();c42FiltrarCatalogo();}
 function c42Quitar(i){c42Seleccionados.splice(i,1);c42RenderSeleccionados();c42FiltrarCatalogo();}
@@ -4659,7 +4710,7 @@ async function c42CrearAsignacion(){
    const d=await c42Post('c45CrearAsignacionesLote',{asignaciones:JSON.stringify(asignaciones),creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
    c42Aviso('c42EstadoAdmin','✅ '+d.productos+' productos por sucursal, '+d.sucursales+' sucursal(es), '+d.lotes+' tareas creadas.');
    c42Seleccionados.forEach(n=>c47EnviadosSesion.add(n));
-   c42Seleccionados=[];c42RenderSeleccionados();c47CambiarCategoria();await c42RevisarAsignaciones();
+   c42Seleccionados=[];c42RenderSeleccionados();c47CambiarCategoria();await c42RevisarAsignaciones();c50CargarEstados().catch(()=>{});
  }catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}finally{b.disabled=false;}
 }
 let c47RevisionAsignaciones=[];
@@ -4678,6 +4729,83 @@ async function c47VerRevisionDetalle(i){
    const d=await c42Get('c42DetalleConteo',{id:a.id,sucursal:a.sucursal,empleado:a.empleado});
    box.innerHTML=d.productos.map(p=>`<div class="c42-row" style="border-top:1px solid #e8eef6;padding:8px 0;font-size:12px"><span>${c42Esc(p.producto)}</span><b>${p.conteo===null?'Pendiente':c42Esc(p.conteo)}</b></div>${p.observacion?`<div class="c42-meta">Nota: ${c42Esc(p.observacion)}</div>`:''}`).join('')||'<p class="c42-meta">No hay productos.</p>';
  }catch(e){box.innerHTML='<p class="c42-meta" style="color:#a22">'+c42Esc(e.message)+'</p>';}
+}
+
+
+// =====================================================================
+// v1.6.50: consulta de conteos guardados, sin modificar datos ni Akasia.
+// =====================================================================
+let c50Productos=[],c50Indice={},c50Vista='asignar',c50Pagina=0,c50Solicitud=0;
+function c50ClaveProducto(sucursal,producto){return c42Norm(sucursal).replace(/\s+/g,' ')+'|'+c42Norm(producto).replace(/\s+/g,' ');}
+function c50FechaMes(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01';}
+function c50Abrir(){
+ const desde=document.getElementById('c50Desde');if(!desde.value)desde.value=c50FechaMes();
+ c50CambiarVista('asignar');c50CargarEstados().catch(()=>{});
+}
+function c50CambiarVista(vista){
+ c50Vista=vista;
+ for(const v of ['asignar','proceso','contados','resultados']){
+  const el=document.getElementById('c50Vista'+v[0].toUpperCase()+v.slice(1));
+  const btn=document.getElementById('c50Tab'+v[0].toUpperCase()+v.slice(1));
+  if(el)el.style.display=v===vista?'block':'none';
+  if(btn)btn.classList.toggle('c50-activa',v===vista);
+ }
+ if(vista==='proceso'){c50RenderProceso();}
+ if(vista==='contados'){c50ActualizarDepartamentos();c50RenderConsulta();}
+ if(vista==='resultados')c50RenderResultados();
+}
+async function c50CargarEstados(){
+ const numero=++c50Solicitud,el=document.getElementById('c50EstadoCarga');if(!el)return;
+ el.textContent='Consultando los conteos guardados…';
+ try{
+  if(!c49SesionAdministrador){c50Productos=[];c50Indice={};el.textContent='Inicia sesión como Administrador para consultar los conteos.';return;}
+  const d=await c42Post('c50ConsultarEstados',{autorizacionAdmin:c49SesionAdministrador,desde:document.getElementById('c50Desde').value,hasta:document.getElementById('c50Hasta').value});
+  if(numero!==c50Solicitud)return;
+  c50Productos=d.productos||[];c50Indice={};
+  c50Productos.forEach(p=>{c50Indice[c50ClaveProducto(p.sucursal,p.nombre)]=p;});
+  el.textContent=c50Productos.filter(p=>p.contado).length+' producto(s) contados en el período. Indicadores por sucursal; pulsa actualizar cuando llegue otro conteo.';
+  c42FiltrarCatalogo();c50RenderProceso();c50ActualizarDepartamentos();c50RenderConsulta();c50RenderResultados();
+ }catch(e){if(numero!==c50Solicitud)return;c50Productos=[];c50Indice={};c42FiltrarCatalogo();c50RenderProceso();c50ActualizarDepartamentos();c50RenderConsulta();c50RenderResultados();el.textContent='No se pudieron consultar los estados: '+e.message+' (se han ocultado los indicadores anteriores).';}
+}
+function c50InfoProducto(nombre,sucursal){return c50Indice[c50ClaveProducto(sucursal,nombre)]||null;}
+function c50ContadoEnTodas(nombre){const suc=c45SucursalesSeleccionadas();return suc.length>0&&suc.every(s=>{const p=c50InfoProducto(nombre,s);return p&&p.contado&&!p.ambiguo;});}
+function c50PillsParaProducto(nombre){
+ const suc=c45SucursalesSeleccionadas();
+ if(!suc.length)return '<span class="c50-pill">Selecciona sucursal</span>';
+ return suc.map(s=>{
+  const p=c50InfoProducto(nombre,s),contado=p&&p.contado;
+  const etiqueta=c42Norm(s)==='TIENDA ONLINE SHOP'?'Matriz':c42Norm(s)==='MINI SUPER'?'Mini Súper':'Bodega';
+  const estado=contado?'Contado':p&&p.estado==='EN PROCESO'?'En proceso':p?'Asignado':'Pendiente';
+  return '<span class="c50-pill '+(p&&p.ambiguo?'advertencia':contado?'contado':estado==='En proceso'?'proceso':'')+'">'+c42Esc(etiqueta)+' · '+c42Esc(p&&p.ambiguo?'Revisar identidad':estado)+'</span>';
+ }).join('');
+}
+function c50RenderProceso(){
+ const el=document.getElementById('c50ListaProceso');if(!el)return;
+ const arr=c50Productos.filter(p=>!p.contado);
+ el.innerHTML='<p class="c42-meta">'+arr.length+' producto(s) asignados y sin conteo registrado en este período.</p>'+arr.slice(0,60).map(p=>'<div class="c50-consulta-row"><b>'+c42Esc(p.nombre)+'</b><div class="c50-mini-info">'+c42Esc(p.sucursal)+' · '+c42Esc(p.empleado)+' · '+c42Esc(p.estado)+' · '+c42Esc(p.fecha)+'</div></div>').join('')+(arr.length>60?'<p class="c42-meta">Mostrando los 60 más recientes. Utiliza la consulta para buscar productos ya contados.</p>':'');
+}
+function c50ActualizarDepartamentos(){
+ const sel=document.getElementById('c50DepartamentoConsulta'),suc=document.getElementById('c50SucursalConsulta').value,old=sel.value;
+ const opciones=[...new Set(c50Productos.filter(p=>p.contado&&(!suc||c42Norm(p.sucursal)===suc)).map(p=>p.departamento||'SIN DEPARTAMENTO'))].sort((a,b)=>a.localeCompare(b,'es'));
+ sel.innerHTML='<option value="">Todos los departamentos</option>'+opciones.map(n=>'<option value="'+c42Esc(n)+'">'+c42Esc(n)+'</option>').join('');
+ if(opciones.includes(old))sel.value=old;
+}
+function c50Filtrados(){
+ const suc=document.getElementById('c50SucursalConsulta').value,dep=document.getElementById('c50DepartamentoConsulta').value,q=c42Norm(document.getElementById('c50Buscar').value);
+ return c50Productos.filter(p=>p.contado&&(!suc||c42Norm(p.sucursal)===suc)&&(!dep||p.departamento===dep)&&(!q||c42Norm(p.nombre).includes(q)||c42Norm(p.empleado).includes(q)||c42Norm(p.codigo).includes(q)));
+}
+function c50RenderConsulta(){
+ const el=document.getElementById('c50ListaContados'),pag=document.getElementById('c50Paginacion');if(!el||!pag)return;
+ const arr=c50Filtrados(),paginas=Math.max(1,Math.ceil(arr.length/25));c50Pagina=Math.min(c50Pagina,paginas-1);
+ const actuales=arr.slice(c50Pagina*25,(c50Pagina+1)*25);
+ el.innerHTML='<p class="c42-meta">'+arr.length+' producto(s) encontrados.</p>'+actuales.map(p=>'<div class="c50-consulta-row"><div class="c42-row"><b style="flex:1">'+c42Esc(p.nombre)+'</b><span class="c50-pill contado">Contado</span></div><div class="c50-mini-info">'+c42Esc(p.sucursal)+' · '+c42Esc(p.departamento)+(p.codigo?' · Código: '+c42Esc(p.codigo):'')+'</div>'+(p.ambiguo?'<div class="c50-pill advertencia">Hay más de un UUID con este nombre: revisar antes de exportar</div>':'')+'<div class="c42-row" style="margin-top:6px"><span class="c50-mini-info">'+c42Esc(p.empleado)+' · '+c42Esc(p.fecha)+'</span><b>'+c42Esc(p.cantidad)+' unidades</b></div>'+(p.observacion?'<div class="c50-mini-info">Observación: '+c42Esc(p.observacion)+'</div>':'')+'</div>').join('')+(arr.length?'':'<div class="c42-estado">No se encontraron productos contados con estos filtros.</div>');
+ pag.innerHTML=paginas>1?'<div class="c42-row"><button type="button" style="width:34%" onclick="c50PaginaCambiar(-1)" '+(c50Pagina===0?'disabled':'')+'>← Anterior</button><span class="c42-meta">'+(c50Pagina+1)+' / '+paginas+'</span><button type="button" style="width:34%" onclick="c50PaginaCambiar(1)" '+(c50Pagina+1>=paginas?'disabled':'')+'>Siguiente →</button></div>':'';
+}
+function c50PaginaCambiar(delta){c50Pagina=Math.max(0,c50Pagina+delta);c50RenderConsulta();}
+function c50RenderResultados(){
+ const el=document.getElementById('c50ResumenResultados');if(!el)return;
+ const arr=c50Productos.filter(p=>p.contado),tienda=arr.filter(p=>c42Norm(p.sucursal)==='TIENDA ONLINE SHOP').length,mini=arr.filter(p=>c42Norm(p.sucursal)==='MINI SUPER').length,bodega=arr.filter(p=>c42Norm(p.sucursal)==='BODEGA').length;
+ el.innerHTML='<div class="c50-consulta-row"><b>'+arr.length+' productos contados</b><div class="c50-mini-info">Matriz: '+tienda+' · Mini Súper: '+mini+' · Bodega: '+bodega+'</div><div class="c50-mini-info">'+c50Productos.filter(p=>!p.contado).length+' asignados sin conteo físico confirmado en el período.</div></div>';
 }
 
 // Entorno de prueba privado que utiliza los dos archivos existentes.
