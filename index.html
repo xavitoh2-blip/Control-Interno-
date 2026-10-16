@@ -1,4 +1,4 @@
-<!-- Online Shop v1.6.52 BETA · Preparación Kardex en Despacho separada de revisión y faltantes -->
+<!-- Online Shop v1.6.53 BETA · Preparación rápida Completo/Incompleto iOS Liquid Glass -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -923,6 +923,32 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c51-chip{display:inline-flex;padding:6px 10px;border-radius:999px;background:#ecfdf3;color:#087347;font-size:12px;font-weight:850;margin:6px 0}
 .c51-chip.falta{background:#fff0e8;color:#ac460d}
 .c51-chip.espera{background:#edf2fa;color:#697c92}
+
+/* v1.6.53 BETA · Preparacion rapida · Liquid Glass (solo Kardex) */
+#moduloFaltantesKardex .c53-card,#moduloPrepararDespacho .c53-card{
+  border:1.5px solid rgba(194,211,233,.74)!important;border-radius:26px!important;
+  background:rgba(255,255,255,.92)!important;
+  box-shadow:0 12px 30px rgba(37,74,121,.075)!important;padding:18px!important;
+  transition:border-color .15s,background .15s,transform .15s;
+}
+#moduloFaltantesKardex .c53-card.c53-ok,#moduloPrepararDespacho .c53-card.c53-ok{border-color:#79c99b!important;background:#edfff4!important}
+#moduloFaltantesKardex .c53-card.c53-falta,#moduloPrepararDespacho .c53-card.c53-falta{border-color:#ffc18e!important;background:#fff8f0!important}
+.c53-acciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}
+#moduloFaltantesKardex .c53-acciones button,#moduloPrepararDespacho .c53-acciones button{
+ width:100%!important;min-height:57px!important;margin:0!important;padding:9px 6px!important;
+ border-radius:18px!important;font-size:14px!important;font-weight:850!important;
+ box-shadow:none!important;touch-action:manipulation;white-space:normal;line-height:1.3;
+}
+#moduloFaltantesKardex .c53-acciones .c53-completo,#moduloPrepararDespacho .c53-acciones .c53-completo{background:#e8f8ee!important;color:#156b3b!important;border:1.5px solid #80d6a1!important}
+#moduloFaltantesKardex .c53-acciones .c53-incompleto,#moduloPrepararDespacho .c53-acciones .c53-incompleto{background:#fff0e5!important;color:#b25108!important;border:1.5px solid #ffb37b!important}
+#moduloFaltantesKardex .c53-acciones .c53-seleccionado.c53-completo,#moduloPrepararDespacho .c53-acciones .c53-seleccionado.c53-completo{background:#167c49!important;color:white!important;border-color:#167c49!important}
+#moduloFaltantesKardex .c53-acciones .c53-seleccionado.c53-incompleto,#moduloPrepararDespacho .c53-acciones .c53-seleccionado.c53-incompleto{background:#c76717!important;color:white!important;border-color:#c76717!important}
+.c53-detalle{margin-top:12px;padding:13px;background:rgba(255,255,255,.84);border:1px solid #f2cda9;border-radius:18px}
+.c53-detalle label{display:block;font-size:13px;font-weight:800;color:#814618;margin-bottom:9px}
+#moduloFaltantesKardex .c53-detalle input,#moduloPrepararDespacho .c53-detalle input{display:block;max-width:175px;width:100%;height:54px;min-height:54px;background:#f1f5fa!important;border:1px solid #d5e0ec!important;border-radius:16px!important;text-align:center;font-size:23px;font-weight:850;margin:0!important;padding:5px}
+.c53-ayuda{font-size:12px;color:#6e7b8e;line-height:1.5;margin-top:9px}
+.c53-marcados{background:#edf5ff;border:1px solid #d3e7ff;border-radius:16px;color:#1d5eaa;font-weight:750;font-size:12px;padding:11px;margin-top:12px}
+@media(max-width:360px){#moduloFaltantesKardex .c53-acciones button,#moduloPrepararDespacho .c53-acciones button{font-size:12px!important}}
 </style>
 </head>
 <body>
@@ -944,7 +970,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.52 BETA · Conteos por Categoría · Admin Optimizado · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.53 BETA · Conteos por Categoría · Admin Optimizado · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -4201,6 +4227,50 @@ function verificarPassword() {
             try{const body=new URLSearchParams({accion:'GuardarAsignacionesKardexLote',idRuta:rutaActiva.idRuta,productos:JSON.stringify(productos),empleado:localStorage.getItem('usuario')||''});const r=await fetch(URL_API,{method:'POST',body}),data=await r.json();if(!r.ok||data.status!=='OK')throw new Error(data.mensaje||'No se pudo guardar.');localStorage.removeItem(claveBorradorFaltantes());alert('✅ Asignaciones guardadas. Ya aparecen en Faltantes Kardex de cada sucursal.');await cargarRutaActiva();}catch(e){alert('No se pudo guardar: '+e.message);}finally{const b=document.getElementById('btnGuardarFaltantes');if(b){b.disabled=false;b.innerText='💾 Guardar asignación de faltantes';}}}
 
 
+        // v1.6.53 · Estado temporal, se guarda al confirmar, NUNCA al marcar.
+        let c53SeleccionSucursal = {}, c53SeleccionDespacho = {};
+        function c53Lista(ambito){return ambito==='despacho'?c52PreparacionDespacho:faltantesKardexActuales;}
+        function c53Estado(ambito){return ambito==='despacho'?c53SeleccionDespacho:c53SeleccionSucursal;}
+        function c53Pendiente(x){return Math.max(0,(Number(x.cantidadAsignada)||0)-(Number(x.cantidadPreparada)||0));}
+        function c53Marcar(ambito,i,tipo){
+          const lista=c53Lista(ambito), item=lista[i];if(!item)return;
+          const sel=c53Estado(ambito), anterior=sel[i];
+          if(anterior&&anterior.tipo===tipo)delete sel[i];
+          else sel[i]={tipo:tipo,cantidad:tipo==='COMPLETO'?String(c53Pendiente(item)):''};
+          if(ambito==='despacho')c52RenderPreparacionDespacho();else renderFaltantesKardex();
+        }
+        function c53Escribir(ambito,i,valor){const sel=c53Estado(ambito);if(sel[i]&&sel[i].tipo==='INCOMPLETO')sel[i].cantidad=String(valor);}
+        function c53Tarjeta(ambito,x,i){
+          const restante=c53Pendiente(x),sel=c53Estado(ambito)[i];
+          const clase=sel?(sel.tipo==='COMPLETO'?'c53-ok':'c53-falta'):'';
+          const prep=Math.max(0,Number(x.cantidadPreparada)||0);
+          return `<div class="fk-card c53-card ${clase}"><div style="display:flex;align-items:center;gap:11px;margin-bottom:8px">${imagenProductoGlobal(x.producto,x,58)}<div class="fk-name" style="flex:1;margin:0">${escaparHtmlPedido(x.producto)}</div></div>
+            <div class="fk-meta">Asignado: <b>${Number(x.cantidadAsignada)||0}</b>${prep?` · Ya preparado: <b>${prep}</b>`:''}</div>
+            <div class="fk-pill">Por preparar: ${restante}</div>
+            <div class="c53-acciones"><button type="button" class="c53-completo ${sel?.tipo==='COMPLETO'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='COMPLETO'}" onclick="c53Marcar('${ambito}',${i},'COMPLETO')">✓ ${sel?.tipo==='COMPLETO'?'Completo ✓':'Completo'}</button>
+            <button type="button" class="c53-incompleto ${sel?.tipo==='INCOMPLETO'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='INCOMPLETO'}" onclick="c53Marcar('${ambito}',${i},'INCOMPLETO')">⚠️ Incompleto</button></div>
+            ${sel?.tipo==='COMPLETO'?`<div class="c53-ayuda">✓ Se prepararán las ${restante} unidades pendientes al confirmar.</div>`:''}
+            ${sel?.tipo==='INCOMPLETO'?`<div class="c53-detalle"><label for="c53_${ambito}_${i}">¿Cuántas unidades encontraste? (de ${restante})</label><input id="c53_${ambito}_${i}" type="number" inputmode="numeric" min="0" max="${restante}" step="1" value="${escaparHtmlPedido(sel.cantidad)}" oninput="c53Escribir('${ambito}',${i},this.value)" placeholder="0 a ${restante}"><div class="c53-ayuda">Si no encontraste ninguna, escribe 0. Lo restante quedará como faltante real.</div></div>`:''}
+            </div>`;
+        }
+        function c53ObtenerConfirmacion(ambito){
+          const sel=c53Estado(ambito), lista=c53Lista(ambito), items=[];
+          for(const [clave,marca] of Object.entries(sel)){
+            const i=Number(clave),x=lista[i];if(!x)throw Error('Actualiza la lista antes de guardar.');
+            const max=c53Pendiente(x);
+            if(max<=0)throw Error('El producto '+x.producto+' no tiene unidades pendientes.');
+            let n=max;
+            if(marca.tipo==='INCOMPLETO'){
+              if(String(marca.cantidad).trim()==='')throw Error('Escribe cuántas unidades encontraste de '+x.producto+'.');
+              n=Number(marca.cantidad);
+              if(!Number.isInteger(n)||n<0||n>=max)throw Error('Para '+x.producto+', escribe una cantidad entre 0 y '+(max-1)+'. Si encontraste todo, usa Completo.');
+            }else if(marca.tipo!=='COMPLETO')throw Error('Selección inválida de '+x.producto+'.');
+            items.push({idRuta:x.idRuta,producto:x.producto,cantidad:n});
+          }
+          if(!items.length)throw Error('Marca primero como Completo o Incompleto los productos que revisaste.');
+          return items;
+        }
+
         // ===== v1.6.52 · Preparar Faltantes Kardex en Despacho (independiente de recibir) =====
         let c52PreparacionDespacho = [];
         async function c52CargarPreparacionDespacho(){
@@ -4213,53 +4283,36 @@ function verificarPassword() {
           try{
             const r=await fetch(URL_API+'?accion=verFaltantesKardex&sucursal='+encodeURIComponent('Despacho')+'&_='+Date.now(),{cache:'no-store'});
             const d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudieron consultar los faltantes.');
+            c53SeleccionDespacho={};
             c52PreparacionDespacho=(Array.isArray(d.faltantes)?d.faltantes:[])
               .filter(x=>normalizarEmpleado(x.sucursal)==='despacho')
               .sort((a,b)=>String(a.producto||'').localeCompare(String(b.producto||''),'es',{sensitivity:'base',numeric:true}));
             c52RenderPreparacionDespacho();
           }catch(e){cont.innerHTML='<div class="fk-empty" style="color:#ad3f29">'+escaparHtmlPedido(e.message)+'</div>';}
         }
-        function c52ValidarCantidad(i){
-          const x=c52PreparacionDespacho[i],el=document.getElementById('c52Cantidad_'+i);
-          if(!x||!el)return;
-          const max=Math.max(0,(Number(x.cantidadAsignada)||0)-(Number(x.cantidadPreparada)||0));
-          const n=Number(el.value); el.value=String(Math.min(max,Math.max(0,Number.isFinite(n)?Math.floor(n):0)));
-        }
-        function c52CambiarCantidad(i,delta){
-          const el=document.getElementById('c52Cantidad_'+i);if(!el)return;
-          el.value=String((Number(el.value)||0)+delta);c52ValidarCantidad(i);
-        }
         function c52RenderPreparacionDespacho(){
           const cont=document.getElementById('c52ListaPreparacionDespacho');if(!cont)return;
           const lista=c52PreparacionDespacho;
           if(!lista.length){cont.innerHTML='<div class="fk-empty">✅ No tienes Faltantes Kardex pendientes asignados a Despacho en la ruta activa.</div>';return;}
+          const n=Object.keys(c53SeleccionDespacho).length;
           let html='<div class="fk-pill" style="margin:10px 0">Productos para preparar: <b>'+lista.length+'</b></div>';
-          html+=lista.map((x,i)=>{
-            const asig=Math.max(0,Number(x.cantidadAsignada)||0),prep=Math.max(0,Number(x.cantidadPreparada)||0),max=Math.max(0,asig-prep);
-            return `<div class="fk-card"><div style="display:flex;align-items:center;gap:11px;margin-bottom:8px">${imagenProductoGlobal(x.producto,x,58)}<div class="fk-name" style="flex:1;margin:0">${escaparHtmlPedido(x.producto)}</div></div><div class="fk-meta">Asignado a Despacho: <b>${asig}</b>${prep?` · Preparado: <b>${prep}</b>`:''}</div><div class="fk-pill">Por revisar: ${max}</div><div class="fk-stepper"><button type="button" aria-label="Restar" onclick="c52CambiarCantidad(${i},-1)" style="background:#7a858e">−</button><input type="number" id="c52Cantidad_${i}" min="0" max="${max}" step="1" value="0" inputmode="numeric" oninput="c52ValidarCantidad(${i})"><button type="button" aria-label="Sumar" onclick="c52CambiarCantidad(${i},1)" style="background:#087cff">＋</button></div><div style="font-size:11px;color:#718096;text-align:center;margin-top:7px">Cantidad que encontraste y preparaste en Despacho</div></div>`;
-          }).join('');
-          html+='<div class="fk-bottom"><div style="font-size:11px;color:#64748b;text-align:center;margin-bottom:8px">Puedes confirmar 0 si no encontraste el producto. La diferencia quedará como faltante real; no contará como preparada.</div><button id="c52GuardarPreparacion" onclick="c52ConfirmarPreparacionDespacho()">✓ Terminar preparación de Despacho</button></div>';
+          html+=lista.map((x,i)=>c53Tarjeta('despacho',x,i)).join('');
+          html+=`<div class="fk-bottom"><div class="c53-marcados">${n} de ${lista.length} producto(s) marcados. Los demás seguirán pendientes.</div><button id="c52GuardarPreparacion" onclick="c52ConfirmarPreparacionDespacho()">✓ Confirmar preparación (${n})</button></div>`;
           cont.innerHTML=html;
         }
         async function c52ConfirmarPreparacionDespacho(){
-          if(!c52PreparacionDespacho.length)return;
-          const items=[];
-          for(let i=0;i<c52PreparacionDespacho.length;i++){
-            const x=c52PreparacionDespacho[i],el=document.getElementById('c52Cantidad_'+i);
-            if(!el)return alert('Actualiza la lista antes de confirmar.');
-            const n=Number(el.value),max=Math.max(0,(Number(x.cantidadAsignada)||0)-(Number(x.cantidadPreparada)||0));
-            if(!Number.isInteger(n)||n<0||n>max)return alert('Cantidad inválida para '+x.producto+'.');
-            items.push({idRuta:x.idRuta,producto:x.producto,cantidad:n});
-          }
-          if(!confirm('¿Terminar la preparación de Despacho? Los productos que no encontraste quedarán como faltantes reales.'))return;
+          let items;try{items=c53ObtenerConfirmacion('despacho');}catch(e){alert(e.message);return;}
+          const incompletos=Object.values(c53SeleccionDespacho).filter(x=>x.tipo==='INCOMPLETO').length;
+          if(!confirm(`¿Confirmar ${items.length} producto(s) preparados?${incompletos?'\n⚠️ '+incompletos+' incompleto(s), incluyendo los que encontraste en cero.':''}\nLos no marcados seguirán pendientes.`))return;
           const btn=document.getElementById('c52GuardarPreparacion');if(btn){btn.disabled=true;btn.textContent='Guardando preparación...';}
           try{
             const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:'Despacho',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
             const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();
             if(!r.ok||d.status!=='OK'||Number(d.actualizados)!==items.length)throw new Error(d.mensaje||'No se confirmaron todos los productos. Actualiza y revisa.');
-            alert('✓ Preparación guardada. Los productos preparados ya están disponibles en Revisar despacho.');
+            alert('✓ Preparación guardada. Solo las cantidades encontradas pasan a Revisar despacho.');
             await c52CargarPreparacionDespacho();
-          }catch(e){alert('No se pudo guardar: '+e.message);}finally{if(btn){btn.disabled=false;btn.textContent='✓ Terminar preparación de Despacho';}}
+          }catch(e){alert('No se pudo guardar: '+e.message+' Si ya se guardaron algunos, actualiza antes de reintentar.');}
+          finally{if(btn){btn.disabled=false;btn.textContent='✓ Confirmar preparación';}}
         }
 
         let faltantesKardexActuales=[];
@@ -4277,14 +4330,16 @@ function verificarPassword() {
                 const r=await fetch(URL_API+'?accion='+accion+(esDespacho?'':'&sucursal='+encodeURIComponent(suc))+'&_='+Date.now(),{cache:'no-store'}),d=await r.json();
                 if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudieron cargar.');
                 faltantesKardexActuales=(d.faltantes||[]).slice();
+                if(!esDespacho)c53SeleccionSucursal={};
                 esDespacho?renderRecepcionKardex():renderFaltantesKardex();
             }catch(e){cont.innerHTML='<div style="color:#dc3545;text-align:center;font-size:12px;">'+escaparHtmlPedido(e.message)+'</div>';}
         }
         function renderFaltantesKardex(){
-            const cont=document.getElementById('listaFaltantesKardex');
-            faltantesKardexActuales.sort((a,b)=>String(a.producto||'').localeCompare(String(b.producto||''),'es',{sensitivity:'base',numeric:true}));
-            if(!faltantesKardexActuales.length){cont.innerHTML='<div class="fk-empty">✅ Revisión terminada<br><span style="font-size:12px;font-weight:600;">No tienes productos pendientes de revisar.</span></div>';return;}
-            cont.innerHTML=faltantesKardexActuales.map((x,i)=>{const asig=Number(x.cantidadAsignada)||0,prep=Number(x.cantidadPreparada)||0,pend=Math.max(0,asig-prep);return `<div class="fk-card"><div style="display:flex;align-items:center;gap:11px;margin-bottom:8px;">${imagenProductoGlobal(x.producto,x,58)}<div class="fk-name" style="margin:0;flex:1;">${escaparHtmlPedido(x.producto)}</div></div><div class="fk-meta">Asignado · <b>${asig}</b>${prep?` · Ya preparado <b>${prep}</b>`:''}</div><div class="fk-pill">Por revisar ${pend}</div><div class="fk-stepper"><button onclick="cambiarPrepFaltante(${i},-1)" style="background:#7a858e;">−</button><input id="fkCant_${i}" type="number" min="0" max="${pend}" value="0" inputmode="numeric" oninput="validarPrepFaltante(${i})"><button onclick="cambiarPrepFaltante(${i},1)" style="background:#087cff;">＋</button></div><div style="font-size:10px;color:#8a95a3;text-align:center;margin-top:7px;">Cantidad que encontraste y preparaste</div></div>`;}).join('')+`<div class="fk-bottom"><div style="font-size:10px;color:#788493;text-align:center;margin-bottom:7px;">Confirma aunque hayas encontrado menos. Lo no encontrado quedará como faltante real.</div><button id="btnConfirmarFaltantesKardex" onclick="confirmarFaltantesKardex()">✓ Terminar revisión</button></div>`;
+          const cont=document.getElementById('listaFaltantesKardex');
+          faltantesKardexActuales.sort((a,b)=>String(a.producto||'').localeCompare(String(b.producto||''),'es',{sensitivity:'base',numeric:true}));
+          if(!faltantesKardexActuales.length){cont.innerHTML='<div class="fk-empty">✅ Revisión terminada<br><span style="font-size:12px;font-weight:600;">No tienes productos pendientes de revisar.</span></div>';return;}
+          const n=Object.keys(c53SeleccionSucursal).length;
+          cont.innerHTML=faltantesKardexActuales.map((x,i)=>c53Tarjeta('sucursal',x,i)).join('')+`<div class="fk-bottom"><div class="c53-marcados">${n} de ${faltantesKardexActuales.length} producto(s) marcados. Los demás seguirán pendientes.</div><button id="btnConfirmarFaltantesKardex" onclick="confirmarFaltantesKardex()">✓ Confirmar preparación (${n})</button></div>`;
         }
         function estadoRx23(x){if(x.estadoRecepcion==='FALTANTE_DESPACHO')return ['wait','⚠️ Faltante reportado'];if(x.estadoRecepcion==='RECIBIDO')return ['done','✓ Recibido'];if(x.estadoRecepcion==='NO_DISPONIBLE')return ['wait','⚠️ No disponible en sucursal'];if(x.estadoRecepcion==='LISTO_RECIBIR')return ['ready','🚚 Listo para recibir'];return ['wait','⏳ Esperando sucursal'];}
         function setFiltroRecepcionK(v){filtroRecepcionK=v;renderRecepcionKardex();}
@@ -4382,14 +4437,20 @@ function verificarPassword() {
             el.innerHTML=html;
           }catch(e){el.innerHTML='<div class="fk-empty" style="color:#ad3f29">'+escaparHtmlPedido(e.message)+'</div>';}
         }
-        function validarPrepFaltante(i){const x=faltantesKardexActuales[i],max=Math.max(0,(Number(x.cantidadAsignada)||0)-(Number(x.cantidadPreparada)||0)),el=document.getElementById('fkCant_'+i);if(el)el.value=Math.min(max,Math.max(0,Number(el.value)||0));}
-        function cambiarPrepFaltante(i,d){const el=document.getElementById('fkCant_'+i);if(!el)return;el.value=(Number(el.value)||0)+d;validarPrepFaltante(i);}
         async function confirmarFaltantesKardex(){
-            const items=faltantesKardexActuales.map((x,i)=>({idRuta:x.idRuta,producto:x.producto,cantidad:Math.max(0,Number(document.getElementById('fkCant_'+i)?.value)||0)}));
-            if(!items.length)return alert('No hay productos para confirmar.');
-            if(!confirm('¿Terminar la revisión? Lo que no encontraste quedará registrado como faltante real.'))return;
-            const btn=document.getElementById('btnConfirmarFaltantesKardex');if(btn){btn.disabled=true;btn.innerText='Finalizando revisión...';}
-            try{const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudo confirmar.');alert('✅ Revisión terminada. Lo preparado ya está disponible para Despacho.');await cargarFaltantesKardex();}catch(e){alert('No se pudo confirmar: '+e.message);}finally{const b=document.getElementById('btnConfirmarFaltantesKardex');if(b){b.disabled=false;b.innerText='✓ Terminar revisión';}}}
+            let items;try{items=c53ObtenerConfirmacion('sucursal');}catch(e){alert(e.message);return;}
+            const incompletos=Object.values(c53SeleccionSucursal).filter(x=>x.tipo==='INCOMPLETO').length;
+            if(!confirm(`¿Confirmar ${items.length} producto(s) preparados?${incompletos?'\n⚠️ '+incompletos+' incompleto(s).':''}\nLos no marcados seguirán pendientes.`))return;
+            const btn=document.getElementById('btnConfirmarFaltantesKardex');if(btn){btn.disabled=true;btn.innerText='Guardando preparación...';}
+            try{
+              const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
+              const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();
+              if(!r.ok||d.status!=='OK'||Number(d.actualizados)!==items.length)throw new Error(d.mensaje||'No se confirmaron todos los productos.');
+              alert('✓ Preparación guardada. Lo encontrado ya está disponible para Despacho.');
+              await cargarFaltantesKardex();
+            }catch(e){alert('No se pudo confirmar: '+e.message+' Si se guardó parcialmente, actualiza antes de reintentar.');}
+            finally{if(btn){btn.disabled=false;btn.innerText='✓ Confirmar preparación';}}
+        }
 
 
         // ===== ENTRADA DE MERCADERÍA · Solo preparación (NO Akasia) =====
