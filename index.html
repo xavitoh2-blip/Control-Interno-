@@ -1,4 +1,4 @@
-<!-- Online Shop v1.6.54 BETA · Preparación Bodega con un toque iOS Liquid Glass -->
+<!-- Online Shop v1.6.55 BETA · Cierre seguro de Kardex y siguiente ruta -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -986,7 +986,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.54 BETA · Conteos por Categoría · Admin Optimizado · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.55 BETA · Conteos por Categoría · Admin Optimizado · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -4000,6 +4000,8 @@ function verificarPassword() {
         // ===== KARDEX + FALTANTES KARDEX v1.3.3 =====
         let rutaActiva = null;
         let etapaRutaActual = 'bodega';
+        let c55RutaRevisionDespacho = false;
+        let c55RutaFetchVersion = 0;
 
         function claveBorradorRuta(){ return rutaActiva ? `ruteo_borrador_${rutaActiva.idRuta}` : ""; }
         function claveBorradorFaltantes(){ return rutaActiva ? `ruteo_faltantes_${rutaActiva.idRuta}` : ""; }
@@ -4018,6 +4020,7 @@ function verificarPassword() {
             localStorage.setItem(claveBorradorRuta(),JSON.stringify(b)); localStorage.setItem(claveBorradorRutaDirty(),"1");
         }
         function mostrarEtapaRuta(etapa){
+            if(c55RutaRevisionDespacho){cargarRutaActiva();return;}
             etapaRutaActual=etapa;
             const b=document.getElementById('btnEtapaBodega'), f=document.getElementById('btnEtapaFaltantes');
             if(b)b.style.background=etapa==='bodega'?'#007bff':'#6c757d'; if(f)f.style.background=etapa==='faltantes'?'#007bff':'#6c757d';
@@ -4025,20 +4028,93 @@ function verificarPassword() {
         }
 
         async function cargarRutaActiva(){
-            const cont=document.getElementById("listaRuta"), resumen=document.getElementById("rutaResumen"), btnCrear=document.getElementById("btnCrearRuta"), etapas=document.getElementById('rutaEtapas');
-            cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando...</p>';
+            const ver=++c55RutaFetchVersion;
+            const cont=document.getElementById('listaRuta'),resumen=document.getElementById('rutaResumen');
+            const btnCrear=document.getElementById('btnCrearRuta'),etapas=document.getElementById('rutaEtapas');
+            cont.innerHTML='<p style="text-align:center;color:#64748b;">Consultando estado real de la ruta…</p>';
             try{
-                const r=await fetch(URL_API+"?accion=verRutaActiva&_="+Date.now()), data=await r.json();
-                if(!r.ok||data.status!=="OK") throw new Error(data.mensaje||"No se pudo cargar la ruta.");
-                rutaActiva=data.ruta||null;
-                if(!rutaActiva){resumen.innerHTML='No hay una ruta activa. Puedes crearla usando <b>Pagina 1, columnas A:B</b>.';cont.innerHTML='';btnCrear.style.display='block';if(etapas)etapas.style.display='none';return;}
-                btnCrear.style.display='none'; if(etapas)etapas.style.display='flex'; actualizarResumenRuta();
-                if(etapaRutaActual==='faltantes')renderRutaFaltantes();else renderRutaBodega();
-            }catch(e){resumen.innerHTML='<span style="color:#dc3545;">'+escaparHtmlPedido(e.message)+'</span>';cont.innerHTML='';}
+                const r=await fetch(URL_API+'?accion=verRutaActiva&_='+Date.now(),{cache:'no-store'}),data=await r.json();
+                if(ver!==c55RutaFetchVersion)return;
+                if(!r.ok||data.status!=='OK')throw Error(data.mensaje||'No se pudo cargar la ruta.');
+                rutaActiva=data.ruta||null;c55RutaRevisionDespacho=false;
+                if(!rutaActiva){
+                    resumen.innerHTML='No hay Kardex activo. Ya puedes crear una nueva ruta desde <b>Pagina 1 (A:B)</b>.';
+                    cont.innerHTML='<div class="kx-complete">✅ No hay una ruta pendiente de cierre.</div>';
+                    btnCrear.style.display='block';if(etapas)etapas.style.display='none';
+                    c54SeleccionBodega={};c54RutaSeleccionada='';return;
+                }
+                btnCrear.style.display='none';if(etapas)etapas.style.display='none';
+                const cr=await fetch(URL_API+'?accion=verResumenCierreKardex&_='+Date.now(),{cache:'no-store'}),cd=await cr.json();
+                if(ver!==c55RutaFetchVersion)return;
+                if(!cr.ok||cd.status!=='OK'||cd.version!=='1.6.55'||!cd.ruta||String(cd.ruta.idRuta)!==String(rutaActiva.idRuta))
+                    throw Error('Necesitas publicar el Código.gs v1.6.55 en Apps Script. Por seguridad no se muestran los controles antiguos.');
+                if(cd.ruta.revisionDespachoIniciada){
+                    c55RutaRevisionDespacho=true;
+                    c55RenderResumenCierre(cd.ruta);
+                }else{
+                    if(etapas)etapas.style.display='flex';
+                    actualizarResumenRuta();
+                    if(etapaRutaActual==='faltantes')renderRutaFaltantes();else renderRutaBodega();
+                }
+            }catch(e){
+                resumen.innerHTML='<span style="color:#b42318;font-weight:700;">'+escaparHtmlPedido(e.message)+'</span>';
+                cont.innerHTML='<div style="padding:18px;text-align:center;">No se modificó ninguna cantidad. Actualiza la ruta después de resolver el problema.</div>';
+                if(etapas)etapas.style.display='none';
+            }
         }
         function actualizarResumenRuta(){
-            const p=rutaActiva?.productos||[], completos=p.filter(x=>Number(x.diferencia)>=0).length, pendientes=p.length-completos;
-            document.getElementById("rutaResumen").innerHTML=`<b>Ruta #${escaparHtmlPedido(rutaActiva.numeroRuta)}</b> · ${fechaRutaBonita(rutaActiva.fecha)}<br>✅ ${completos} completos · ⏳ ${pendientes} pendientes · Total ${p.length}`;
+            const p=rutaActiva?.productos||[],completos=p.filter(x=>Number(x.diferencia)>=0).length;
+            document.getElementById('rutaResumen').innerHTML=`<b>Ruta #${escaparHtmlPedido(rutaActiva.numeroRuta)}</b> · ${fechaRutaBonita(rutaActiva.fecha)}<br>✅ ${completos} preparados · ⏳ ${p.length-completos} pendientes · Total ${p.length}`;
+        }
+        function c55RenderResumenCierre(x){
+            const cont=document.getElementById('listaRuta'),sum=document.getElementById('rutaResumen');
+            if(!cont||!sum||!rutaActiva||String(rutaActiva.idRuta)!==String(x.idRuta))return;
+            const falt=(x.faltantes||[]).slice().sort((a,b)=>String(a.producto).localeCompare(String(b.producto),'es'));
+            const pendientes=(x.pendientesDeConfirmar||[]),recibir=(x.pendientesDeRecibir||[]);
+            sum.innerHTML=`<b>Ruta #${escaparHtmlPedido(x.numeroRuta)}</b> · ${fechaRutaBonita(x.fecha)}<br>📦 Recepción revisada por Despacho · Total ${x.totalProductos} productos`;
+            let s=`<div class="kx-final-shell" style="margin-top:12px;">
+              <div class="kx-final-icon">✓</div><div class="kx-final-title">Resultado de la revisión de Despacho</div>
+              <div class="kx-final-sub">La preparación anterior queda registrada. Aquí solo se consulta el resultado físico; no hay que llenar otra vez los productos.</div>
+              <div class="kx-final-stats"><div class="kx-final-stat"><strong>${x.productosCompletos}</strong><span>Completos</span></div>
+              <div class="kx-final-stat warn"><strong>${x.productosConFaltante}</strong><span>Con faltante</span></div>
+              <div class="kx-final-stat warn"><strong>${x.unidadesFaltantes}</strong><span>Unidades faltantes</span></div></div>
+              <div class="kx-final-sub" style="margin-top:10px;">Existencia física confirmada: <b>${x.unidadesRecibidas}</b> / ${x.unidadesRequeridas} unidades de esta ruta.</div>`;
+            if(falt.length)s+=`<div class="kx-final-label">PRODUCTOS INCOMPLETOS (${falt.length})</div>`+
+              falt.map(y=>`<div class="kx-final-missing"><div class="ico">⚠️</div><div style="min-width:0;"><div class="name">${escaparHtmlPedido(y.producto)}</div><div class="meta">Requerido: ${y.requerido} · Confirmado: ${y.recibido}</div></div><div class="qty">−${y.faltante}</div></div>`).join('');
+            else s+='<div class="kx-final-missing"><div class="ico">✅</div><div><div class="name">Sin faltantes</div><div class="meta">Todos los productos fueron recibidos en la cantidad requerida.</div></div></div>';
+            if(pendientes.length){
+              s+='<div class="kx-final-label">CONFIRMACIONES PENDIENTES</div><div class="kx-final-sub">Estos productos aún necesitan confirmar si fueron encontrados. No los marcaré como recibidos automáticamente.</div>';
+              pendientes.forEach((p,i)=>{
+                const esCero=Number(p.preparado)===0;
+                s+=`<div class="kx-final-missing" style="display:block;"><div class="name">${escaparHtmlPedido(p.producto)}</div><div class="meta">${escaparHtmlPedido(p.sucursal)} · Asignadas: ${p.asignado} · Preparadas: ${p.preparado}</div>
+                  <button type="button" class="kx-final-btn" style="padding:11px;margin-top:9px;font-size:12px;" onclick="c55ConfirmarPendiente(${i})">${esCero?'Confirmar que no se encontró (0)':'Confirmar '+p.preparado+' preparadas'}</button></div>`;
+              });
+            }
+            if(recibir.length){s+='<div class="kx-final-label">PENDIENTE DE REVISAR EN DESPACHO</div>'+recibir.map(p=>`<div class="kx-final-missing"><div class="ico">📦</div><div><div class="name">${escaparHtmlPedido(p.producto)}</div><div class="meta">${escaparHtmlPedido(p.sucursal)} · Por recibir: ${p.preparado-p.recibido-p.faltanteReportado}</div></div></div>`).join('');}
+            if(x.puedeFinalizar){
+                s+='<button type="button" class="kx-final-btn" onclick="finalizarKardex23()">✓ Finalizar Kardex y habilitar nueva ruta</button>';
+                s+='<div class="kx-final-note">No se eliminará el historial ni se cambiarán cantidades recibidas.</div>';
+            }else if(!pendientes.length&&!recibir.length&&(x.bloqueos||[]).length&&x.bloqueos.every(t=>t.startsWith('Pendiente de preparar o asignar en Kardex:'))){
+                s+='<button type="button" class="kx-final-btn" onclick="terminarPreparacionBodega33()">Terminar revisión de Bodega y habilitar el cierre</button>';
+                s+='<div class="kx-final-note">Solo úsalo si Bodega ya terminó de buscar la mercadería que faltaba.</div>';
+            }else s+='<div class="kx-final-note">Para finalizar la ruta, confirma los pendientes que se muestran arriba. No hay que repetir los productos ya revisados.</div>';
+            cont.innerHTML=s+'</div>';
+            c55UltimosPendientes=pendientes;
+        }
+        let c55UltimosPendientes=[];
+        async function c55ConfirmarPendiente(indice){
+            const p=c55UltimosPendientes[indice];if(!p||!rutaActiva)return;
+            const id=String(rutaActiva.idRuta),cantidad=Number(p.preparado)||0;
+            const mensaje=cantidad===0
+              ?`¿Confirmas que ${p.sucursal} NO ENCONTRÓ ninguna unidad de ${p.producto}? Se registrará 0 preparado, NO como recibido.`
+              :`¿Confirmas que ${p.sucursal} terminó con ${cantidad} unidades ya preparadas de ${p.producto}? No se volverá a sumar.`;
+            if(!confirm(mensaje))return;
+            try{
+                const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:p.sucursal,empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify([{idRuta:id,producto:p.producto,cantidad:0}])});
+                const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();
+                if(!r.ok||d.status!=='OK'||Number(d.actualizados)!==1)throw Error(d.mensaje||'No se confirmó en el servidor.');
+                await cargarRutaActiva();
+            }catch(e){alert('No se pudo confirmar. No se cerró el Kardex: '+e.message);}
         }
         async function crearRutaDesdeKardex(){
             if(!confirm("¿Crear una nueva ruta agrupando los productos de Pagina 1, columnas A:B?")) return;
@@ -4095,6 +4171,7 @@ function verificarPassword() {
             c54GuardarBorrador();
         }
         function renderRutaBodega(){
+            if(c55RutaRevisionDespacho){cargarRutaActiva();return;}
             const r=rutaActiva;if(!r||!Array.isArray(r.productos))return;
             c54IniciarBodega();actualizarResumenRuta();
             const filas=r.productos.map((p,i)=>({p,i,...c54DatosBodega(p),completo:Number(p.diferencia)>=0}));
@@ -4166,7 +4243,7 @@ function verificarPassword() {
                 await cargarRutaActiva();
             }catch(e){alert('No se pudo terminar la preparación: '+e.message);}
         }
-        async function finalizarKardex23(){if(!rutaActiva)return;if(!confirm('¿Finalizar este Kardex? Después podrás crear el siguiente.'))return;try{const body=new URLSearchParams({accion:'FinalizarKardex',idRuta:rutaActiva.idRuta,empleado:localStorage.getItem('usuario')||''}),r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error((d.mensaje||'No se pudo finalizar.')+(d.bloqueos?.length?'\n'+d.bloqueos.join('\n'):''));alert(d.estado==='COMPLETA'?'✅ Kardex finalizado completo. Ya puedes crear el siguiente.':'⚠️ Kardex finalizado con faltantes. Ya puedes crear el siguiente.');await cargarRutaActiva();}catch(e){alert('No se pudo finalizar: '+e.message);}}
+        async function finalizarKardex23(){if(!rutaActiva)return;if(!confirm('¿Finalizar este Kardex? Después podrás crear el siguiente.'))return;try{const body=new URLSearchParams({accion:'FinalizarKardex',idRuta:rutaActiva.idRuta,empleado:localStorage.getItem('usuario')||''}),r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error((d.mensaje||'No se pudo finalizar.')+(d.bloqueos?.length?'\n'+d.bloqueos.join('\n'):''));alert(d.estado==='COMPLETA'?'✅ Kardex finalizado completo. Ya puedes crear el siguiente.':'⚠️ Kardex finalizado con '+d.unidadesFaltantes+' unidad(es) faltante(s). Ya puedes crear el siguiente.');c54SeleccionBodega={};c54RutaSeleccionada='';c55UltimosPendientes=[];await cargarRutaActiva();}catch(e){alert('No se pudo finalizar: '+e.message);}}
         function validarPrepRuta(i){if(!rutaActiva||!rutaActiva.productos[i])return;const p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,base=Math.max(0,Number(p.prepBodega)||0),faltanteReal=Math.max(0,-Number(p.diferencia||0)),max=Math.min(req,base+faltanteReal),el=document.getElementById('rutaPrep_'+i);let v=Number(el.value);if(!Number.isFinite(v))v=base;v=Math.min(max,Math.max(0,v));el.value=v;const agregado=Math.max(0,v-base),falta=Math.max(0,faltanteReal-agregado),card=document.getElementById('rutaCard_'+i),est=document.getElementById('rutaEstado_'+i);if(est){est.innerText=falta<=0?'✓ Completo':'Faltan '+falta;est.className='kx-status '+(falta<=0?'done':'pending');}guardarBorradorRuta();}
         function cambiarPrepRuta(i,d){const el=document.getElementById('rutaPrep_'+i),p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,base=Math.max(0,Number(p.prepBodega)||0),faltanteReal=Math.max(0,-Number(p.diferencia||0)),max=Math.min(req,base+faltanteReal);el.value=Math.min(max,Math.max(0,(Number(el.value)||0)+d));validarPrepRuta(i);}
         async function guardarTodoRuteo(){
