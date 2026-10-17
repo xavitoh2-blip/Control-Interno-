@@ -1073,7 +1073,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button id="btnMenuRuta" class="menu-modulo" onclick="abrirModulo('ruta')" style="display:none;"><span>📋</span><b>Kardex</b></button>
                 <button id="btnMenuFaltantesKardex" class="menu-modulo" onclick="abrirModulo('faltantesKardex')"><span>📦</span><b>Faltantes Kardex</b></button>
                 <button id="btnMenuPrepararDespacho" class="menu-modulo" onclick="abrirModulo('prepararDespacho')" style="display:none;"><span>📦</span><b>Faltantes Kardex</b></button>
-                <button id="btnMenuFaltantesDespacho" class="menu-modulo" onclick="abrirModulo('faltantesDespacho')" style="display:none;"><span>⚠️</span><b>Faltantes de despacho</b></button>
                 <button id="btnMenuCatalogoRuta" class="menu-modulo" onclick="abrirModulo('catalogoRuta')" style="display:none;"><span>📖</span><b>Catálogo</b></button>
                 <!-- ÚNICO botón adicional en el menú principal, v1.6.42 BETA -->
                 <button id="btnMenuConteosAsignados" class="menu-modulo" onclick="abrirModulo('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
@@ -1355,15 +1354,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
       <div id="c52ListaPreparacionDespacho" style="margin-top:12px;"></div>
     </div>
 
-    <!-- v1.6.51 · Consulta separada, NO recibe ni modifica productos -->
-    <div id="moduloFaltantesDespacho" class="card modulo-pantalla" style="text-align:left;">
-      <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
-      <h3>⚠️ Faltantes de despacho</h3>
-      <p style="font-size:12px;color:#64748b;">Productos recibidos incompletos. Aquí solo se consultan; no se vuelven a recibir.</p>
-      <button onclick="c51CargarFaltantes('despacho')" style="background:#087cff;">↻ Actualizar faltantes</button>
-      <div id="c51ListaDespacho" class="c51-faltantes-lista">Cargando...</div>
-    </div>
-
     <!-- FALTANTES KARDEX v1.3.3 -->
     <div id="moduloFaltantesKardex" class="card modulo-pantalla" style="text-align:left;">
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
@@ -1419,11 +1409,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         <div id="menuAdmin" style="margin-top:18px;">
             <p style="font-size:12px;color:#666;text-align:center;">Selecciona el módulo que deseas administrar.</p>
-            <div id="c58AccesoRapido" class="c58-panel">
-              <div class="c58-top"><div><h4>🚚 Control Logístico</h4><div class="c58-help">Avance de Bodega, Tienda Online Shop, Mini Súper y Despacho, desde un solo lugar.</div></div><button type="button" class="c58-mini-btn" onclick="abrirModuloAdmin('logistica')">Ver y gestionar →</button></div>
-              <div id="c58ResumenMenu" class="c58-message">Abre Control Logístico para consultar el Kardex activo.</div>
-            </div>
-
             <div class="menu-grid">
                 <button class="menu-modulo" onclick="abrirModuloAdmin('resumen')"><span>📊</span>Resumen</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('asistencia')"><span>👥</span>Asistencia</button>
@@ -1436,7 +1421,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoRuta')"><span>📖</span>Catálogo de Ruta</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoAkasia')"><span>🔄</span><b>Actualizar catálogo Akasia</b></button>
-                <button class="menu-modulo" onclick="abrirModuloAdmin('faltantesDespacho')"><span>⚠️</span><b>Faltantes de despacho</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('logistica')"><span>🚚</span><b>Control Logístico</b></button>
             </div>
         </div>
@@ -1458,15 +1442,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div id="c58Lista" class="c58-message">Actualiza para ver los productos.</div>
           </div>
           <div class="c58-alert">Los productos ya preparados o recibidos no se cambian desde aquí. Las reasignaciones se confirman en Google Sheets mediante los controles existentes del Kardex. Esta pantalla no modifica Akasia.</div>
-        </div>
-        <div id="adminFaltantesDespacho" class="admin-modulo" style="display:none;margin-top:18px;">
-          <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
-          <h4>⚠️ Faltantes de despacho</h4>
-          <p style="font-size:12px;color:#64748b;">Consulta lo que Despacho reportó como incompleto. No altera cantidades ni Akasia.</p>
-          <label style="font-size:12px;font-weight:800;">Período</label>
-          <select id="c51FiltroAdmin" onchange="c51CargarFaltantes('admin')"><option value="SI">Solo Kardex activo</option><option value="NO">Incluir rutas anteriores</option></select>
-          <button onclick="c51CargarFaltantes('admin')" style="background:#087cff;">↻ Actualizar reporte</button>
-          <div id="c51ListaAdmin" class="c51-faltantes-lista">Selecciona actualizar para consultar los faltantes.</div>
         </div>
         <div id="adminResumen" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
@@ -1701,8 +1676,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const btnRuta = document.getElementById("btnMenuRuta");
 
             const esDespacho = normalizarEmpleado(sucursalActual) === "despacho";
-            const faltDespachoMenu=document.getElementById('btnMenuFaltantesDespacho');
-            if(faltDespachoMenu&&!esDespacho)faltDespachoMenu.style.display='none';
             const prepDespachoMenu=document.getElementById('btnMenuPrepararDespacho');
             if(prepDespachoMenu&&!esDespacho)prepDespachoMenu.style.display='none';
             const fkMenu=document.getElementById('btnMenuFaltantesKardex');
@@ -1715,9 +1688,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             } else if (esDespacho) {
                 secHacer.style.display = "none"; secBodega.style.display = "none";
                 ["btnMenuPedidos","btnMenuRecepcion","btnMenuGondolas","btnMenuRuta","btnMenuCompras","btnMenuFaltantesDia"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display="none";});
-                document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex"&&x.id!=="btnMenuFaltantesDespacho"&&x.id!=="btnMenuPrepararDespacho")x.style.display="none";});
+                document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex"&&x.id!=="btnMenuPrepararDespacho")x.style.display="none";});
                 const fk=document.getElementById("btnMenuFaltantesKardex"); if(fk){fk.style.display="flex";fk.querySelector('b').textContent='Revisar despacho';fk.querySelector('span').textContent='✅';}
-                const fd=document.getElementById("btnMenuFaltantesDespacho");if(fd)fd.style.display="flex";
                 const pd=document.getElementById("btnMenuPrepararDespacho");if(pd)pd.style.display="flex";
             } else if (esBodega) {
                 secHacer.style.display = "none";
@@ -1775,7 +1747,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModulo(nombre) {
             if(nombre !== "catalogoRuta") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloFaltantesDespacho","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "conteosAsignados") {
                 document.getElementById("moduloConteosAsignados").style.display = "block";
                 c42CargarMisConteos();
@@ -1817,10 +1789,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if(normalizarEmpleado(localStorage.getItem('sucursal'))!=='despacho')return volverMenuPrincipal();
                 document.getElementById("moduloPrepararDespacho").style.display="block";
                 c52CargarPreparacionDespacho();
-            } else if (nombre === "faltantesDespacho") {
-                if(normalizarEmpleado(localStorage.getItem('sucursal'))!=='despacho')return volverMenuPrincipal();
-                document.getElementById("moduloFaltantesDespacho").style.display="block";
-                c51CargarFaltantes('despacho');
             } else if (nombre === "catalogoRuta") {
                 if (normalizarEmpleado(localStorage.getItem("sucursal")) !== "vendedor de ruta") return volverMenuPrincipal();
                 document.getElementById("moduloCatalogoRuta").style.display = "block";
@@ -1839,7 +1807,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloFaltantesDespacho","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -3867,7 +3835,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",faltantesDespacho:"adminFaltantesDespacho",logistica:"adminControlLogistico"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -3876,7 +3844,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
             if (modulo === "conteosAsignados") c42AbrirAdmin();
             if (modulo === "catalogoAkasia") c48Abrir();
-            if (modulo === "faltantesDespacho") c51CargarFaltantes('admin');
             if (modulo === "logistica") c58Cargar();
             // v1.6.46: no dibujar miles de filas ocultas al ingresar al administrador.
             if (["asistencia", "inventario", "tareas", "pedidos"].includes(modulo)) c46MostrarReporte(modulo);
@@ -3894,7 +3861,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             ubicacionesAdminGondola=[];
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
             document.getElementById("menuAdmin").style.display = "block";
-            if(c58Datos)c58RenderResumenMenu();
             window.scrollTo(0,0);
         }
 
@@ -5533,10 +5499,9 @@ async function c58Cargar(mostrarError=true){
     c58Ruta=dr.ruta||null;c58Datos=ds.seguimiento||null;
     const hora=new Date().toLocaleTimeString('es-SV',{hour:'2-digit',minute:'2-digit'});
     const stamp=document.getElementById('c58Actualizacion');if(stamp)stamp.textContent='Última consulta: '+hora+' · No se trata de una conexión instantánea; actualiza para ver los últimos cambios guardados.';
-    c58RenderResumenMenu();c58Render();
+    c58Render();
   }catch(e){
     if(mostrarError){const x=document.getElementById('c58RutaInfo');if(x)x.textContent='⚠️ '+e.message;}
-    const box=document.getElementById('c58ResumenMenu');if(box&&!c58Datos)box.textContent='No se pudo consultar el progreso. Abre Control Logístico y presiona Actualizar.';
   }finally{c58Ocupado=false;if(btn){btn.disabled=false;btn.textContent='↻ Actualizar';}}
 }
 function c58Resumen(){
@@ -5545,12 +5510,6 @@ function c58Resumen(){
  pendientes:productos.filter(p=>c58Num(p.pendienteAsignar)>0).length,
  asignados:productos.filter(p=>p.asignado>0&&p.estado!=='COMPLETO').length,
  recibidos:productos.filter(p=>p.recepcionIniciada).length};
-}
-function c58RenderResumenMenu(){
- const box=document.getElementById('c58ResumenMenu');if(!box)return;
- if(!c58Datos){box.textContent='No hay un Kardex activo o aún no se ha consultado. Abre Control Logístico para actualizar.';return;}
- const r=c58Resumen();
- box.innerHTML='<b>Ruta #'+c58Safe(c58Ruta?.numeroRuta||'')+'</b> · '+r.total+' productos<br>✅ '+r.completos+' completos · 🟠 '+r.pendientes+' pendientes por asignar · 📦 '+r.asignados+' en preparación';
 }
 function c58SucursalOrigen(p,nombre){return (p.origenes||[]).filter(o=>c58Norm(o.sucursal)===c58Norm(nombre));}
 function c58ResumenAreas(){
