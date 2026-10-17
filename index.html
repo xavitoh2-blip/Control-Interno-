@@ -73,6 +73,11 @@
             accent-color: #28a745;
         }
 
+
+/* Online Shop 1.6.60 BETA · edición de pedidos, estilo Liquid Glass */
+.c60-glass{background:linear-gradient(135deg,rgba(239,247,255,.94),rgba(255,255,255,.88));border:1px solid rgba(90,144,205,.22);box-shadow:0 8px 28px rgba(22,67,120,.08);border-radius:20px;padding:14px;margin:12px 0;backdrop-filter:blur(12px)}
+.c60-glass button{border-radius:13px}.c60-chip{display:inline-block;background:#e8f0fc;border:1px solid #d4e2f4;color:#285c9b;border-radius:25px;font-size:11px;font-weight:800;padding:4px 9px;margin:3px 4px 3px 0}.c60-chip-warning{background:#fff0d6;color:#995c0c;border-color:#f8d698}.c60-busqueda{width:100%;box-sizing:border-box;margin:8px 0;border-radius:13px!important}.c60-opcion{display:block;text-align:left!important;background:white!important;color:#243447!important;border:1px solid #dbe6f4!important;border-radius:13px!important;margin:6px 0!important;padding:10px!important}.c60-opcion:focus{outline:2px solid #087cff}.c60-aprobar{display:flex;gap:9px}.c60-aprobar button{flex:1;margin:0}.c60-secondary{background:#687889!important}.c60-resultados{max-height:275px;overflow-y:auto}.c60-note{font-size:11px;color:#65758b;line-height:1.45}
+
         /* BUSCADOR Y LISTA DEL MÓDULO DE PEDIDOS */
         .pedido-buscador-wrap { position: relative; }
         .pedido-resultados { display:none; position:absolute; left:0; right:0; top:100%; z-index:50; max-height:220px; overflow-y:auto; background:#fff; border:1px solid #ced4da; border-radius:6px; box-shadow:0 5px 14px rgba(0,0,0,.12); }
@@ -1270,6 +1275,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <h3 style="text-align:center;">📥 Recibir Pedido</h3>
             <p style="font-size:12px;color:#666;text-align:center;">Revisa lo que pediste y ajusta únicamente lo que llegó diferente.</p>
             <button id="btnCargarRecepcion" onclick="cargarPedidosParaRecepcion()" style="background-color:#007bff;">🔄 Actualizar pedidos</button>
+            <div id="c60SolicitudesSucursal" class="c60-glass" style="display:none;"></div>
             <div id="listaRecepcionPedidos" style="margin-top:12px;"><p style="font-size:12px;color:#888;text-align:center;">Cargando pedidos...</p></div>
         </div>
 
@@ -2439,6 +2445,132 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 .catch(err => { console.error(err); alert("Error de conexión."); });
         }
 
+
+        // v1.6.60 · Buscador tolerante a abreviaturas y palabras omitidas; no inventa productos.
+        function c60Norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/(\d+)\s*(ml|lt|kg|gr|g|l)\b/g,'$1$2').replace(/[^a-z0-9]+/g,' ').trim();}
+        function c60EtiquetaPresentacion(p){
+            const n=c60Norm(typeof p==='string'?p:p.producto),t=String(p.presentacion||'');
+            if(t)return t;
+            const m=n.match(/^(cja|fdo|tira|blsa|paq|doc|disp)\b/);
+            return m?({cja:'Caja',fdo:'Fardo',tira:'Tira',blsa:'Bolsa',paq:'Paquete',doc:'Docena',disp:'Display'}[m[1]]):'Individual / otra';
+        }
+        function c60BuscarCatalogo(items,query,limite){
+            const words=c60Norm(query).split(' ').filter(Boolean);if(!words.length)return [];
+            return items.map((p,i)=>{
+                const n=c60Norm(p.producto),code=c60Norm(p.codigo),txt=(n+' '+code),pre=c60Norm(c60EtiquetaPresentacion(p));
+                const esKit=/^(cja|fdo|tira|blsa|paq|doc|disp)\b/.test(n);
+                const match=words.filter(w=>txt.includes(w)||pre.includes(w)||w==='kit'&&esKit).length;
+                // Coincidencia aproximada: 'aceite capullo 750' → 'CJA CAPULLO 750MLX20'
+                // Solo omite denominaciones genéricas si hay al menos dos términos precisos.
+                const genericas=['aceite','arroz','galleta','detergente','jabon','refresco','leche','producto','shampoo'];
+                const sinGenericas=words.filter(w=>!genericas.includes(w)),afinidad=sinGenericas.length>=2&&sinGenericas.every(w=>txt.includes(w)||pre.includes(w));
+                if(match!==words.length&&!afinidad&&!code.includes(c60Norm(query)))return null;
+                let score=match*3+(txt.startsWith(c60Norm(query))?8:0)+(esKit?3:0)+(p.enSucursal!==false?2:0);
+                if(afinidad&&match<words.length)score-=3;
+                return {p,i,score};
+            }).filter(Boolean).sort((a,b)=>b.score-a.score||a.i-b.i).slice(0,limite||25).map(x=>x.p);
+        }
+        let c60Edicion=null,c60CatalogoBodega=[],c60ProductoElegido=null;
+        function c60HerramientasPedidoHtml(p){
+            const a=(p.ajustes||[]).slice(-8).reverse();
+            return `<div class="c60-glass"><div style="font-weight:900;font-size:15px;">📦 Productos adicionales y correcciones</div>
+                <p class="c60-note">Agrega productos sin pedir autorización. Para corregir una línea solicitada, la sucursal debe aprobar el cambio.</p>
+                <button type="button" onclick="c60AbrirFormulario('ADICIONAL',-1)" style="background:#087cff;margin:8px 0;">➕ Agregar producto adicional</button>
+                <div id="c60EditorBodega"></div>
+                ${a.length?`<details style="margin-top:9px;"><summary style="font-size:12px;color:#316bb2;cursor:pointer;">📋 Historial de cambios (${(p.ajustes||[]).length})</summary>${a.map(x=>`<div class="c60-note" style="border-top:1px solid #e0e8f2;padding:7px 0;"><strong>${escaparHtmlPedido(x.tipo)}</strong> · ${escaparHtmlPedido(x.estado)}<br>${escaparHtmlPedido(x.anterior||'Nuevo')} ${x.cantidadAnterior||''} → ${escaparHtmlPedido(x.nuevo)} × ${x.cantidad}<br>${escaparHtmlPedido(x.usuarioBodega)} · ${escaparHtmlPedido(x.fecha)}</div>`).join('')}</details>`:''}
+                </div>`;
+        }
+        async function c60CargarCatalogoBodega(){
+            const suc=obtenerPedidoBodegaAbierto()?.sucursal||'';
+            const r=await fetch(URL_API+'?accion=c60CatalogoPedidos&sucursal='+encodeURIComponent(suc)+'&_='+Date.now());
+            const d=await r.json();if(d.status!=='OK'||!Array.isArray(d.productos))throw Error(d.mensaje||'No se pudo cargar el catálogo Akasia');
+            c60CatalogoBodega=d.productos;return d.productos;
+        }
+        async function c60AbrirFormulario(tipo,indice){
+            const p=obtenerPedidoBodegaAbierto();if(!p)return;
+            if(tipo==='CORRECCION'&&( !p.productos[indice]||p.productos[indice].ajustePendiente))return;
+            c60Edicion={tipo,indice};c60ProductoElegido=null;
+            const cont=document.getElementById('c60EditorBodega');if(!cont)return;
+            cont.innerHTML='<p class="c60-note">Buscando catálogo de Akasia…</p>';
+            try{
+                await c60CargarCatalogoBodega();
+                const anterior=tipo==='CORRECCION'?p.productos[indice]:null;
+                cont.innerHTML=`<div class="c60-glass" style="margin-top:10px;background:#fff;">
+                    <div style="font-weight:850;">${tipo==='ADICIONAL'?'➕ Producto adicional':'✏️ Corregir producto solicitado'}</div>
+                    ${anterior?`<div class="c60-note">Original: <b>${escaparHtmlPedido(anterior.producto)}</b> × ${anterior.cantidadSolicitada}. Se conserva en el historial.</div>`:''}
+                    <input id="c60InputBuscar" class="c60-busqueda" placeholder="Buscar por nombre, código o presentación…" oninput="c60FiltrarProductos()" autocomplete="off">
+                    <div id="c60ListaProductos" class="c60-resultados"></div>
+                    <div id="c60SeleccionTexto" class="c60-note">Selecciona un producto real de Akasia.</div>
+                    <label style="font-size:12px;">Cantidad correcta</label><input id="c60Cantidad" type="number" min="1" step="1" value="${tipo==='CORRECCION'?anterior.cantidadSolicitada:1}" style="text-align:center;font-size:18px;">
+                    <label style="font-size:12px;">Motivo (opcional)</label><input id="c60Motivo" placeholder="Ej. Surtir góndola o presentación incorrecta" maxlength="300">
+                    <div class="c60-aprobar"><button onclick="c60GuardarAjuste()" style="background:#087cff;">${tipo==='ADICIONAL'?'Agregar directamente':'Solicitar aprobación'}</button><button onclick="c60CerrarEditor()" class="c60-secondary">Cancelar</button></div>
+                    </div>`;
+                document.getElementById('c60InputBuscar').focus();
+            }catch(e){cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';}
+        }
+        function c60FiltrarProductos(){
+            const inp=document.getElementById('c60InputBuscar'),out=document.getElementById('c60ListaProductos');if(!inp||!out)return;
+            c60ProductoElegido=null;
+            const info=document.getElementById('c60SeleccionTexto');if(info)info.textContent='Selecciona la presentación exacta.';
+            const q=inp.value;
+            const arr=c60BuscarCatalogo(c60CatalogoBodega,q,18);
+            if(!c60Norm(q)){out.innerHTML='';return;}
+            out.innerHTML=arr.length?arr.map(x=>`<button class="c60-opcion" type="button" onclick="c60ElegirProducto(${c60CatalogoBodega.indexOf(x)})"><strong>${escaparHtmlPedido(x.producto)}</strong><br><span class="c60-note">${escaparHtmlPedido(x.codigo)} · ${escaparHtmlPedido(c60EtiquetaPresentacion(x))} ${x.enSucursal?'':'· ⚠️ No figura en catálogo de esta sucursal'}</span></button>`).join(''):'<div class="c60-note">No se encontró una coincidencia exacta. Intenta con otra palabra.</div>';
+        }
+        function c60ElegirProducto(i){
+            const x=c60CatalogoBodega[i];if(!x)return;c60ProductoElegido=x;
+            const info=document.getElementById('c60SeleccionTexto');
+            if(info)info.innerHTML=`✅ <b>${escaparHtmlPedido(x.producto)}</b> · ${escaparHtmlPedido(c60EtiquetaPresentacion(x))} · ${escaparHtmlPedido(x.codigo)} ${x.enSucursal?'':'<br>⚠️ No existe en el catálogo de esta sucursal: revisar alta en Akasia.'}`;
+            const lista=document.getElementById('c60ListaProductos');if(lista)lista.innerHTML='';
+            const inp=document.getElementById('c60InputBuscar');if(inp)inp.value=x.producto;
+        }
+        function c60CerrarEditor(){c60Edicion=null;c60ProductoElegido=null;const el=document.getElementById('c60EditorBodega');if(el)el.innerHTML='';}
+        async function c60GuardarAjuste(){
+            const pedido=obtenerPedidoBodegaAbierto(),edit=c60Edicion,item=c60ProductoElegido;
+            if(!pedido||!edit||!item)return alert('Selecciona un producto exacto de Akasia.');
+            const cantidad=Number(document.getElementById('c60Cantidad')?.value);
+            if(!Number.isSafeInteger(cantidad)||cantidad<1||cantidad>99999)return alert('Indica una cantidad entera válida.');
+            const orig=edit.tipo==='CORRECCION'?pedido.productos[edit.indice]:null;
+            const aviso=edit.tipo==='ADICIONAL'?'Se agregará DIRECTAMENTE al pedido de '+pedido.sucursal+'.': 'La sucursal deberá APROBAR esta corrección antes de preparar.';
+            if(!confirm(`Producto: ${item.producto}\nCantidad: ${cantidad}\n${aviso}\n\n¿Continuar?`))return;
+            const body=new URLSearchParams({accion:'c60NuevoAjustePedido',idPedido:pedido.idPedido,tipo:edit.tipo,
+              producto:item.producto,codigo:item.codigo,uuid:item.uuid,cantidad:String(cantidad),empleado:localStorage.getItem('usuario')||'',
+              motivo:document.getElementById('c60Motivo')?.value||'',lineaId:orig?.lineaId||'',filaPedido:String(orig?.filaPedido||''),productoAnterior:orig?.producto||''});
+            try{
+                const r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error al guardar');
+                alert(d.mensaje);c60CerrarEditor();await c60RecargarBodega();
+            }catch(e){alert('No se pudo guardar el ajuste: '+e.message);}
+        }
+        async function c60RecargarBodega(){
+            const id=pedidoBodegaAbierto;
+            const r=await fetch(URL_API+'?accion=verPedidosBodega&_='+Date.now()),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No disponible');
+            pedidosBodegaActuales=d.pedidos||[];pedidoBodegaAbierto=pedidosBodegaActuales.some(x=>x.idPedido===id)?id:null;
+            renderizarPedidosBodega();
+        }
+        function c60CambiarRechazoAdicional(i){
+            const marcado=!!document.getElementById('c60Rechazo_'+i)?.checked;
+            const input=document.getElementById('recibido_'+i);if(input){input.disabled=marcado;if(marcado)input.value='0';else input.value=String(pedidosRecepcionActuales[i]?.cantidadPreparada||0);}
+            actualizarEstadoRecepcion(i);
+        }
+        async function c60CargarSolicitudesSucursal(){
+            const cont=document.getElementById('c60SolicitudesSucursal');if(!cont)return;
+            try{
+                const suc=localStorage.getItem('sucursal')||'';
+                const r=await fetch(URL_API+'?accion=c60SolicitudesSucursal&sucursal='+encodeURIComponent(suc)+'&_='+Date.now()),d=await r.json();
+                if(d.status!=='OK')throw Error(d.mensaje||'No disponible');
+                const arr=d.solicitudes||[];cont.style.display=arr.length?'block':'none';
+                cont.innerHTML=arr.length?`<strong>🔔 ${arr.length} corrección(es) de Bodega pendientes</strong><p class="c60-note">Aprueba o rechaza antes de que Bodega prepare los productos corregidos.</p>${arr.map(x=>`<div style="border-top:1px solid #d9e5f5;padding:10px 0;"><div class="c60-note">📦 Pedido ${escaparHtmlPedido(x.idPedido)} · ${escaparHtmlPedido(x.usuarioBodega)}</div><p style="font-size:13px;"><s>${escaparHtmlPedido(x.anterior)} × ${x.cantidadAnterior}</s><br><b>→ ${escaparHtmlPedido(x.nuevo)} × ${x.cantidad}</b></p><div class="c60-note">Código: ${escaparHtmlPedido(x.codigo)}${x.motivo?' · '+escaparHtmlPedido(x.motivo):''}</div><div class="c60-aprobar"><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','ACEPTAR')" style="background:#198754;">✓ Aprobar</button><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','RECHAZAR')" style="background:#697786;">✕ Rechazar</button></div></div>`).join('')}`:'';
+            }catch(e){cont.style.display='block';cont.innerHTML='<span class="c60-note">No se pudieron consultar las correcciones. <button type="button" onclick="c60CargarSolicitudesSucursal()">Reintentar</button></span>';}
+        }
+        async function c60ResolverCorreccion(id,decision){
+            if(!confirm(decision==='ACEPTAR'?'¿Aprobar el cambio solicitado por Bodega?':'¿Rechazar el cambio y conservar lo solicitado originalmente?'))return;
+            try{
+                const body=new URLSearchParams({accion:'c60ResolverCorreccion',idAjuste:id,decision:decision,sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''});
+                const r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error');
+                alert(d.mensaje);cargarPedidosParaRecepcion();
+            }catch(e){alert('No fue posible guardar tu decisión: '+e.message);}
+        }
+
         let promesaCatalogoPedido = null;
 
         async function cargarCatalogoProductosPedido() {
@@ -2450,26 +2582,21 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const valorAnterior = input ? input.placeholder : "";
             if (input) input.placeholder = "Cargando productos...";
 
-            promesaCatalogoPedido = fetch(URL_API + "?accion=verCatalogoProductos")
-                .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-                .then(data => {
-                    catalogoProductosPedido = Array.isArray(data) ? data.map(item => {
-                        if (Array.isArray(item)) return { codigo: String(item[0] ?? "").trim(), producto: String(item[1] ?? item[0] ?? "").trim() };
-                        if (typeof item === "object" && item !== null) return { codigo: String(item.codigo ?? item.Codigo ?? "").trim(), producto: String(item.producto ?? item.Producto ?? "").trim() };
-                        return { codigo: "", producto: String(item ?? "").trim() };
-                    }).filter(item => item.producto) : [];
+            const suc=localStorage.getItem('sucursal')||'';
+            promesaCatalogoPedido=fetch(URL_API+'?accion=c60CatalogoPedidos&sucursal='+encodeURIComponent(suc))
+                .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
+                .then(d=>{if(d.status!=='OK'||!Array.isArray(d.productos))throw Error('Catálogo Akasia no disponible');return d.productos;})
+                .catch(()=>fetch(URL_API+'?accion=verCatalogoProductos').then(r=>r.json()))
+                .then(data=>{
+                    catalogoProductosPedido=(Array.isArray(data)?data:[]).map(item=>{
+                        if(Array.isArray(item))return {codigo:String(item[0]??''),producto:String(item[1]??item[0]??''),uuid:''};
+                        if(item&&typeof item==='object')return {codigo:String(item.codigo??item.Codigo??'').trim(),producto:String(item.producto??item.Producto??'').trim(),uuid:String(item.uuid??'').trim(),uuidSucursal:String(item.uuidSucursal??'').trim(),presentacion:String(item.presentacion??''),enSucursal:item.enSucursal!==false};
+                        return {codigo:'',producto:String(item??'').trim(),uuid:''};
+                    }).filter(x=>x.producto);
                     return catalogoProductosPedido;
                 })
-                .catch(err => {
-                    console.error("Error cargando catálogo de pedidos:", err);
-                    catalogoProductosPedido = [];
-                    alert("No se pudo cargar el catálogo de productos. Revisa la conexión e inténtalo nuevamente.");
-                    throw err;
-                })
-                .finally(() => {
-                    promesaCatalogoPedido = null;
-                    if (input) input.placeholder = valorAnterior || "Buscar producto";
-                });
+                .catch(err=>{console.error('Catálogo pedido:',err);catalogoProductosPedido=[];alert('No se pudo cargar catálogo para pedidos.');throw err;})
+                .finally(()=>{promesaCatalogoPedido=null;if(input)input.placeholder=valorAnterior||'Buscar producto';});
             return promesaCatalogoPedido;
         }
 
@@ -2493,26 +2620,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 cargarCatalogoProductosPedido().then(() => buscarProductoPedido()).catch(() => {});
                 return;
             }
-            // v1.6.34 · En Pedidos, mostrar primero las presentaciones/compuestos
-            // existentes en el catálogo. Las unidades quedan después.
-            const esPresentacionCompuestaPedido = (nombre) => {
-                const n = normalizarBusquedaPedido(nombre);
-                return /^(disp|fdo|blsa|cja|paq|tira|@\.|qq)(\s|$)/.test(n);
-            };
-
-            const resultados = catalogoProductosPedido
-                .filter(item =>
-                    normalizarBusquedaPedido(item.codigo).includes(q) ||
-                    normalizarBusquedaPedido(item.producto).includes(q)
-                )
-                .map((item, ordenOriginal) => ({ item, ordenOriginal }))
-                .sort((a, b) => {
-                    const grupoA = esPresentacionCompuestaPedido(a.item.producto) ? 0 : 1;
-                    const grupoB = esPresentacionCompuestaPedido(b.item.producto) ? 0 : 1;
-                    return (grupoA - grupoB) || (a.ordenOriginal - b.ordenOriginal);
-                })
-                .map(x => x.item)
-                .slice(0, 20);
+            const resultados=c60BuscarCatalogo(catalogoProductosPedido,q,25);
 
             if (!resultados.length) {
                 cont.innerHTML = '<div class="pedido-resultado" style="color:#888; cursor:default;">No se encontraron productos.</div>';
@@ -2520,7 +2628,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 return;
             }
             cont.innerHTML = resultados.map((item, i) =>
-                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(item.producto,item,42)}<div><span class="pedido-codigo">${escaparHtmlPedido(item.codigo)}</span>${item.codigo ? ' - ' : ''}${escaparHtmlPedido(item.producto)}</div></div>`
+                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(item.producto,item,42)}<div><span class="pedido-codigo">${escaparHtmlPedido(item.codigo)}</span>${item.codigo ? ' - ' : ''}${escaparHtmlPedido(item.producto)}<div class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</div></div></div>`
             ).join("");
             cont.style.display = "block";
         }
@@ -2614,7 +2722,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             document.getElementById("buscadorProductoPedido").value = item.codigo ? `${item.codigo} - ${item.producto}` : item.producto;
             document.getElementById("resultadosProductoPedido").style.display = "none";
             const texto = document.getElementById("productoPedidoSeleccionadoTexto");
-            texto.innerHTML = `✅ Seleccionado: <strong>${escaparHtmlPedido(item.codigo ? item.codigo + ' - ' : '')}${escaparHtmlPedido(item.producto)}</strong>`;
+            texto.innerHTML = `✅ Seleccionado: <strong>${escaparHtmlPedido(item.codigo ? item.codigo + ' - ' : '')}${escaparHtmlPedido(item.producto)}</strong><br><span class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</span>`;
             texto.style.display = "block";
             document.getElementById("cantidadPedido").focus();
         }
@@ -2632,9 +2740,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (!productoPedidoSeleccionado) return alert("Primero busca y selecciona un producto del catálogo.");
             if (!cantidad || cantidad <= 0) return alert("Ingresa una cantidad válida.");
 
-            const existente = listaPedidoPendiente.find(item => item.codigo === productoPedidoSeleccionado.codigo && item.producto === productoPedidoSeleccionado.producto);
+            const existente = listaPedidoPendiente.find(item => item.codigo === productoPedidoSeleccionado.codigo && item.producto === productoPedidoSeleccionado.producto && (item.uuid||'')===(productoPedidoSeleccionado.uuid||''));
             if (existente) existente.cantidad += cantidad;
-            else listaPedidoPendiente.push({ codigo: productoPedidoSeleccionado.codigo, producto: productoPedidoSeleccionado.producto, cantidad: cantidad });
+            else listaPedidoPendiente.push({ codigo: productoPedidoSeleccionado.codigo, producto: productoPedidoSeleccionado.producto,uuid:productoPedidoSeleccionado.uuid||'',uuidSucursal:productoPedidoSeleccionado.uuidSucursal||'',presentacion:productoPedidoSeleccionado.presentacion||'',cantidad: cantidad });
 
             document.getElementById("buscadorProductoPedido").value = "";
             document.getElementById("codigoProductoPedido").value = "";
@@ -2654,7 +2762,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             cont.style.display = "block";
             lista.innerHTML = listaPedidoPendiente.map((item, index) => `
                 <div class="pedido-item">
-                    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">${imagenProductoGlobal(item.producto,item,50)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong><br><span style="color:#666;">Código: ${escaparHtmlPedido(item.codigo || '-')}</span></div></div>
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">${imagenProductoGlobal(item.producto,item,50)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong><br><span style="color:#666;">Código: ${escaparHtmlPedido(item.codigo || '-')}</span><br><span class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</span></div></div>
                     <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
                         <button type="button" onclick="cambiarCantidadProductoPedido(${index},-1)" style="width:38px;min-width:38px;height:38px;margin:0;padding:0;background:#6c757d;font-size:21px;border-radius:11px;">−</button>
                         <span style="min-width:28px;text-align:center;font-size:16px;font-weight:800;">${item.cantidad}</span>
@@ -2680,6 +2788,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         async function enviarPedidoCompleto() {
             if (!listaPedidoPendiente.length) return alert("Agrega al menos un producto al pedido.");
+            const resumen60=listaPedidoPendiente.map(x=>`${x.cantidad} × ${x.producto} [${c60EtiquetaPresentacion(x)}]`).join('\n');
+            if(!confirm('Revisa las presentaciones antes de enviar a Bodega:\n\n'+resumen60+'\n\n¿Enviar pedido?'))return;
 
             const sucursal = localStorage.getItem("sucursal");
             const empleado = localStorage.getItem("usuario");
@@ -2687,7 +2797,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const copiaPedido = listaPedidoPendiente.map(item => ({
                 codigo: item.codigo || "",
                 producto: item.producto,
-                cantidad: item.cantidad
+                cantidad: item.cantidad,uuid:item.uuid||'',uuidSucursal:item.uuidSucursal||''
             }));
 
             btn.disabled = true;
@@ -2763,6 +2873,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function cargarPedidosParaRecepcion() {
+            c60CargarSolicitudesSucursal();
             const cont = document.getElementById("listaRecepcionPedidos");
             const sucursal = localStorage.getItem("sucursal") || "";
             cont.innerHTML = '<p style="font-size:12px;color:#666;text-align:center;">Cargando pedidos...</p>';
@@ -2787,18 +2898,21 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                         }
                         html += `<div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:8px;padding:10px;margin:8px 0;">
                             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">${imagenProductoGlobal(item.producto,item,52)}<div style="font-weight:700;font-size:13px;">${escaparHtmlPedido(item.producto)}</div></div>
-                            <div style="font-size:12px;color:#555;margin-bottom:6px;">Pedí: <strong>${item.cantidadPedida}</strong></div>
+                            <div style="font-size:12px;color:#555;margin-bottom:6px;">${item.origen==='ADICIONAL_BODEGA'?'Agregado por Bodega':'Pedido'}: <strong>${item.cantidadPedida}</strong> <span class="c60-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span> ${item.origen==='ADICIONAL_BODEGA'?'<span class="c60-chip c60-chip-warning">Adicional</span>':''}</div>
+                            ${['Despachado','Despachado parcial'].includes(item.estadoPreparacion)?`<div class="c60-note">Preparado por Bodega: <strong>${item.cantidadPreparada}</strong></div>`:''}
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <button type="button" onclick="cambiarCantidadRecibida(${index},-1)" style="width:48px;height:44px;margin:0;background:#7a858e;font-size:20px;padding:0;">−</button>
-                                <input id="recibido_${index}" type="number" min="0" step="1" value="${item.cantidadPedida}" oninput="actualizarEstadoRecepcion(${index})" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
+                                <input id="recibido_${index}" type="number" min="0" step="1" value="${['Despachado','Despachado parcial'].includes(item.estadoPreparacion)?item.cantidadPreparada:item.cantidadPedida}" oninput="actualizarEstadoRecepcion(${index})" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
                                 <button type="button" onclick="cambiarCantidadRecibida(${index},1)" style="width:48px;height:44px;margin:0;background:#087cff;font-size:20px;padding:0;">+</button>
                             </div>
-                            <div id="estadoRec_${index}" style="font-size:12px;text-align:center;margin-top:6px;"><span style="color:#28a745;font-weight:700;">✅ Completo</span></div>
+                            <div id="estadoRec_${index}" style="font-size:12px;text-align:center;margin-top:6px;"></div>
+                            ${item.origen==='ADICIONAL_BODEGA'?`<label class="c60-note" style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input id="c60Rechazo_${index}" type="checkbox" onchange="c60CambiarRechazoAdicional(${index})" style="width:18px;height:18px;"> Rechazar este adicional (no recibido)</label>`:''}
                         </div>`;
                     });
                     if (pedidoAnterior) html += '</div>';
                     html += '<button id="btnConfirmarRecepcion" onclick="confirmarRecepcionPedido()" style="background:#087cff;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">✅ Confirmar recepción</button>';
                     cont.innerHTML = html;
+                    pedidosRecepcionActuales.forEach((_,i)=>actualizarEstadoRecepcion(i));
                 })
                 .catch(err => {
                     console.error("Error cargando recepción:", err);
@@ -2814,7 +2928,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 idPedido: item.idPedido,
                 producto: item.producto,
                 cantidadPedida: Number(item.cantidadPedida) || 0,
-                cantidadRecibida: Math.max(0, Number(document.getElementById(`recibido_${index}`).value) || 0)
+                cantidadRecibida: Math.max(0, Number(document.getElementById(`recibido_${index}`).value) || 0),
+                lineaId:item.lineaId||'',filaPedido:item.filaPedido||0,
+                rechazado:!!document.getElementById(`c60Rechazo_${index}`)?.checked
             }));
             const params = new URLSearchParams({
                 accion: "ConfirmarRecepcionPedido",
@@ -3010,6 +3126,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     <div style="font-size:12px;color:#555;margin-top:4px;">📅 ${formatearFechaPedidoBodega(pedido.fecha,pedido.hora)}${pedido.solicito ? ` · 👤 ${escaparHtmlPedido(pedido.solicito)}` : ''}</div>
                     <div style="font-size:12px;color:#555;margin-top:4px;">Revisados: <strong>${revisados} de ${total}</strong></div>
                 </div>`;
+            html += c60HerramientasPedidoHtml(pedido);
 
             pedido.productos.forEach((item, index) => {
                 const revisado = !!item.revisado;
@@ -3019,8 +3136,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 html += `
                     <div style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:12px;margin:9px 0;">
                         <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">${imagenProductoGlobal(item.producto,item,54)}<div style="font-size:14px;font-weight:800;color:#2c3e50;">${escaparHtmlPedido(item.producto)}</div></div>
-                        <div style="font-size:13px;color:#555;margin-bottom:9px;">Necesitan: <strong style="font-size:16px;color:#111;">${item.cantidadSolicitada}</strong></div>
-                        ${!revisado ? `
+                        <div style="font-size:13px;color:#555;margin-bottom:9px;">${item.origen==='ADICIONAL_BODEGA'?'Agregado por Bodega':'Necesitan'}: <strong style="font-size:16px;color:#111;">${item.cantidadSolicitada}</strong> <span class="c60-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span> ${item.origen==='ADICIONAL_BODEGA'?'<span class="c60-chip c60-chip-warning">Adicional</span>':''}</div>
+                        ${item.ajustePendiente?'<div class="c60-chip c60-chip-warning">⏳ Corrección pendiente de sucursal · sin preparar</div>':''}
+                        ${!item.ajustePendiente?`<button onclick="c60AbrirFormulario('CORRECCION',${index})" style="background:#566f91;padding:7px;font-size:12px;margin:5px 0;">✏️ Corregir producto o cantidad</button>`:''}
+                        ${item.ajustePendiente?'<p class="c60-note">Esta línea se desbloquea cuando la sucursal apruebe o rechace la corrección.</p>':!revisado ? `
                             <div style="display:flex;gap:8px;">
                                 <button onclick="marcarDisponibleBodega(${index})" style="background:#087cff;margin:0;flex:1;">✓ Disponible</button>
                                 <button onclick="marcarIncompletoBodega(${index})" style="background:#f0ad4e;margin:0;flex:1;">⚠ No completo</button>
@@ -3036,7 +3155,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     </div>`;
             });
 
-            html += `<button id="btnConfirmarDespachoBodega" onclick="confirmarDespachoBodega()" ${revisados !== total ? 'disabled' : ''} style="background:#087cff;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">🚚 ${revisados === total ? 'Confirmar pedido preparado' : 'Revisa todos los productos (' + revisados + '/' + total + ')'}</button>`;
+            html += `<button id="btnConfirmarDespachoBodega" onclick="confirmarDespachoBodega()" ${revisados !== total || pedido.productos.some(x=>x.ajustePendiente) ? 'disabled' : ''} style="background:#087cff;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">🚚 ${revisados === total ? 'Confirmar pedido preparado' : 'Revisa todos los productos (' + revisados + '/' + total + ')'}</button>`;
             cont.innerHTML = html;
         }
 
@@ -3091,6 +3210,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         async function confirmarDespachoBodega() {
             const pedido = obtenerPedidoBodegaAbierto();
             if (!pedido) return;
+            if (pedido.productos.some(p => p.ajustePendiente)) return alert('La sucursal debe resolver la corrección antes de preparar el pedido.');
             if (pedido.productos.some(p => !p.revisado)) return alert("Revisa todos los productos antes de confirmar.");
 
             const btn = document.getElementById("btnConfirmarDespachoBodega");
@@ -3099,7 +3219,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const productos = pedido.productos.map(p => ({
                 producto: p.producto,
                 cantidadSolicitada: Number(p.cantidadSolicitada) || 0,
-                cantidadSurtida: Math.max(0, Number(p.cantidadSurtida) || 0)
+                cantidadSurtida: Math.max(0, Number(p.cantidadSurtida) || 0),lineaId:p.lineaId||'',filaPedido:p.filaPedido||0
             }));
             const params = new URLSearchParams({
                 accion: "ProcesarDespachoBodegaLote",
