@@ -1,4 +1,4 @@
-<!-- Online Shop v1.6.56 BETA · Cierre seguro de Kardex y siguiente ruta -->
+<!-- Online Shop v1.6.57 BETA · Saldo no encontrado disponible para reasignación -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -981,6 +981,25 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c56-intro{font-size:12px;line-height:1.6;color:#5c7087;padding:11px 13px;border-radius:16px;background:rgba(237,244,253,.8);margin:8px 0 14px}
 @media(max-width:560px){.c56-tabs button{font-size:12px!important;padding:12px!important}.c56-title{font-size:14px}}
 
+
+/* v1.6.58 BETA · Control logístico central · Liquid Glass */
+.c58-panel{background:linear-gradient(145deg,rgba(238,246,255,.96),rgba(255,255,255,.84));border:1px solid #d6e5f8;border-radius:25px;padding:16px;box-shadow:0 12px 32px rgba(41,91,158,.07);margin:12px 0 17px}
+.c58-panel h4{margin:0 0 5px;font-size:18px;color:#173b66}.c58-help{color:#60758e;font-size:12px;line-height:1.55;margin:6px 0 10px}
+.c58-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.c58-mini-btn{width:auto!important;min-width:0!important;max-width:100%;border-radius:14px!important;padding:10px 14px!important;margin:2px 0!important;background:#1878e7!important;font-size:12px!important;box-shadow:none!important}
+.c58-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px}
+.c58-metric{padding:13px 10px;background:rgba(255,255,255,.84);border-radius:18px;border:1px solid #e0eaf6;text-align:center}.c58-metric b{font-size:24px;color:#183f72;display:block}.c58-metric span{font-size:11px;color:#60758e;font-weight:800}
+.c58-branches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:13px 0}.c58-branch{border:1px solid #dce8f5;border-radius:20px;background:rgba(255,255,255,.86);padding:13px}.c58-branch b{font-size:13px;color:#21344d}.c58-bar{height:8px;border-radius:10px;background:#e7eef8;overflow:hidden;margin:8px 0}.c58-bar i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#2985f0,#45b4a2)}
+.c58-statline{display:flex;justify-content:space-between;color:#566f8b;font-size:11px;line-height:1.6;gap:9px}
+.c58-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.c58-controls input,.c58-controls select,.c58-action input,.c58-action select{margin:0!important;min-width:0;max-width:100%;width:100%;border-radius:14px!important;min-height:46px!important;background:#fff!important;border:1px solid #d8e4f3!important;padding:8px!important}
+.c58-tabs{display:flex;gap:6px;overflow-x:auto;margin:14px 0 7px;padding-bottom:4px}.c58-tabs button{width:auto!important;flex:0 0 auto;margin:0!important;white-space:nowrap;padding:10px 12px!important;border-radius:15px!important;background:#fff!important;color:#426285!important;border:1px solid #dae7f5!important;font-size:12px!important;box-shadow:none!important}.c58-tabs button.c58-active{background:#1677ec!important;color:white!important}
+.c58-card{border:1px solid #dce7f4;background:rgba(255,255,255,.9);border-radius:20px;padding:13px;margin:10px 0;box-shadow:0 7px 18px rgba(50,95,150,.05)}.c58-title{font-weight:850;font-size:14px;color:#172a43;overflow-wrap:anywhere}
+.c58-pill{font-size:11px;background:#e7f2ff;color:#1c67b4;border-radius:16px;padding:6px 9px;font-weight:800;white-space:nowrap}.c58-pill.ok{background:#e7f9ee;color:#0f7942}.c58-pill.warn{background:#fff1e3;color:#ae5d12}
+.c58-origin{background:#f3f7fc;border-radius:13px;padding:8px 10px;margin-top:7px;font-size:12px;line-height:1.5;color:#435976}.c58-origin .c58-statline{font-size:12px}
+.c58-action{background:#edf6ff;border:1px solid #c9e2fd;padding:11px;border-radius:16px;margin-top:12px}.c58-action label{font-size:11px;color:#466383;font-weight:800;display:block;margin-bottom:5px}.c58-action-row{display:grid;grid-template-columns:1fr 82px;gap:9px}
+.c58-alert{border-radius:15px;background:#fff7e9;border:1px solid #f4d3a5;color:#80521c;padding:11px;margin:12px 0;font-size:12px;line-height:1.5}.c58-message{font-size:12px;line-height:1.5;color:#536b87;margin:11px 0}.c58-history{margin-top:5px;font-size:11px;color:#647c98}
+@media(max-width:380px){.c58-branches{grid-template-columns:1fr}.c58-controls{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -1002,7 +1021,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.56 BETA · Conteos por Categoría · Admin Optimizado · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.58 BETA · Conteos por Categoría · Admin Optimizado · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1400,6 +1419,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         <div id="menuAdmin" style="margin-top:18px;">
             <p style="font-size:12px;color:#666;text-align:center;">Selecciona el módulo que deseas administrar.</p>
+            <div id="c58AccesoRapido" class="c58-panel">
+              <div class="c58-top"><div><h4>🚚 Control Logístico</h4><div class="c58-help">Avance de Bodega, Tienda Online Shop, Mini Súper y Despacho, desde un solo lugar.</div></div><button type="button" class="c58-mini-btn" onclick="abrirModuloAdmin('logistica')">Ver y gestionar →</button></div>
+              <div id="c58ResumenMenu" class="c58-message">Abre Control Logístico para consultar el Kardex activo.</div>
+            </div>
+
             <div class="menu-grid">
                 <button class="menu-modulo" onclick="abrirModuloAdmin('resumen')"><span>📊</span>Resumen</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('asistencia')"><span>👥</span>Asistencia</button>
@@ -1413,9 +1437,28 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoAkasia')"><span>🔄</span><b>Actualizar catálogo Akasia</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('faltantesDespacho')"><span>⚠️</span><b>Faltantes de despacho</b></button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('logistica')"><span>🚚</span><b>Control Logístico</b></button>
             </div>
         </div>
 
+
+        <div id="adminControlLogistico" class="admin-modulo" style="display:none;margin-top:18px;">
+          <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+          <div class="c58-panel">
+            <div class="c58-top"><div><h4>🚚 Control Logístico</h4><div class="c58-help">Supervisa el Kardex activo por sucursal y reasigna únicamente unidades pendientes.</div></div><button class="c58-mini-btn" id="c58BtnActualizar" onclick="c58Cargar()">↻ Actualizar</button></div>
+            <div id="c58RutaInfo" class="c58-message">Consultando ruta...</div>
+            <div class="c58-metrics" id="c58Metricas"></div>
+            <h4 style="font-size:14px;margin:16px 0 7px">Avance por área</h4><div class="c58-branches" id="c58Sucursales"></div>
+            <div class="c58-help" id="c58Actualizacion"></div>
+          </div>
+          <div class="c58-panel">
+            <div class="c58-top"><h4>Productos y movimientos</h4><span class="c58-help" id="c58Resultados">Sin datos</span></div>
+            <div class="c58-controls"><div><label for="c58Sucursal" style="font-size:11px;font-weight:800">Sucursal</label><select id="c58Sucursal" onchange="c58Render()"><option value="TODAS">Todas</option><option value="BODEGA">Bodega</option><option value="TIENDA ONLINE SHOP">Tienda Online Shop</option><option value="MINI SUPER">Mini Súper</option><option value="DESPACHO">Despacho</option></select></div><div><label for="c58Buscar" style="font-size:11px;font-weight:800">Buscar producto</label><input id="c58Buscar" type="search" placeholder="Nombre del producto" oninput="c58Render()"></div></div>
+            <div class="c58-tabs" id="c58Pestanas"><button type="button" class="c58-active" data-c58-tab="todos" onclick="c58Ver('todos')">Todos</button><button type="button" data-c58-tab="pendientes" onclick="c58Ver('pendientes')">Pendientes</button><button type="button" data-c58-tab="asignados" onclick="c58Ver('asignados')">Asignados</button><button type="button" data-c58-tab="completos" onclick="c58Ver('completos')">Completos</button><button type="button" data-c58-tab="recibidos" onclick="c58Ver('recibidos')">Recibidos</button><button type="button" data-c58-tab="actividad" onclick="c58Ver('actividad')">Actividad</button></div>
+            <div id="c58Lista" class="c58-message">Actualiza para ver los productos.</div>
+          </div>
+          <div class="c58-alert">Los productos ya preparados o recibidos no se cambian desde aquí. Las reasignaciones se confirman en Google Sheets mediante los controles existentes del Kardex. Esta pantalla no modifica Akasia.</div>
+        </div>
         <div id="adminFaltantesDespacho" class="admin-modulo" style="display:none;margin-top:18px;">
           <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
           <h4>⚠️ Faltantes de despacho</h4>
@@ -3824,7 +3867,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",faltantesDespacho:"adminFaltantesDespacho"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",faltantesDespacho:"adminFaltantesDespacho",logistica:"adminControlLogistico"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -3834,6 +3877,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "conteosAsignados") c42AbrirAdmin();
             if (modulo === "catalogoAkasia") c48Abrir();
             if (modulo === "faltantesDespacho") c51CargarFaltantes('admin');
+            if (modulo === "logistica") c58Cargar();
             // v1.6.46: no dibujar miles de filas ocultas al ingresar al administrador.
             if (["asistencia", "inventario", "tareas", "pedidos"].includes(modulo)) c46MostrarReporte(modulo);
             window.scrollTo(0,0);
@@ -3850,6 +3894,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             ubicacionesAdminGondola=[];
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
             document.getElementById("menuAdmin").style.display = "block";
+            if(c58Datos)c58RenderResumenMenu();
             window.scrollTo(0,0);
         }
 
@@ -3857,6 +3902,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; document.getElementById("adminPassword").value = ""; }
         function cerrarSupervisor() {
             c49SesionAdministrador = '';
+            c58Datos=null;c58Ruta=null;
             document.getElementById("supervisorSection").style.display = "none";
             volverMenuAdmin();
             modoSupervisorActivo(false);
@@ -3891,6 +3937,7 @@ function verificarPassword() {
                 modoSupervisorActivo(true);
                 document.getElementById("supervisorSection").style.display = "block";
                 cargarDatosSupervisor();
+                c58Cargar(false);
             } else {
                 alert("Contraseña incorrecta.");
             }
@@ -4085,12 +4132,12 @@ function verificarPassword() {
                 if(ver!==c55RutaFetchVersion)return;
                 if(!cr.ok||cd.status!=='OK'||cd.version!=='1.6.55'||!cd.ruta||String(cd.ruta.idRuta)!==String(rutaActiva.idRuta))
                     throw Error('Publica Código.gs v1.6.56 en Apps Script. El cierre anterior debe permanecer seguro.');
-                if(!sr.ok||sd.status!=='OK'||sd.version!=='1.6.56'||!sd.seguimiento||String(sd.seguimiento.idRuta)!==String(rutaActiva.idRuta))
-                    throw Error('Publica Código.gs v1.6.56 en Apps Script para ver el seguimiento por sucursal.');
+                if(!sr.ok||sd.status!=='OK'||sd.version!=='1.6.57'||!sd.seguimiento||String(sd.seguimiento.idRuta)!==String(rutaActiva.idRuta))
+                    throw Error('Publica Código.gs v1.6.57 en Apps Script para ver el seguimiento y la reasignación.');
                 c56Seguimiento=sd.seguimiento;
                 c55RutaRevisionDespacho=!!cd.ruta.revisionDespachoIniciada;
                 if(etapas)etapas.style.display='flex';
-                c56PintarTab(soloCierre?'cierre':(c55RutaRevisionDespacho?'cierre':etapaRutaActual));
+                c56PintarTab(soloCierre?'cierre':(c55RutaRevisionDespacho&&etapaRutaActual==='resumen'?'cierre':etapaRutaActual));
                 actualizarResumenRuta();
                 if(etapaRutaActual==='resumen')c56RenderResumen();
                 else if(etapaRutaActual==='cierre')c55RenderResumenCierre(cd.ruta);
@@ -4124,7 +4171,7 @@ function verificarPassword() {
             const titulo=vista==='completos'?'Productos preparados completos':vista==='recibidos'?'Productos revisados por Despacho':'Productos asignados por sucursal';
             const intro=vista==='completos'?'Aquí se conservan las cantidades y su origen. Preparado completo no significa recibido completo.':
                 vista==='recibidos'?'Muestra únicamente las recepciones o diferencias confirmadas por Despacho.':
-                'Aquí verás quién debe preparar cada parte. Los productos sin asignar se consultan en Pendientes.';
+                'Aquí verás quién debe preparar cada parte. Si ya confirmaron una cantidad menor en la versión anterior, utiliza Liberar saldo. Los productos sin asignar se consultan en Pendientes.';
             let html=`<div class="c56-intro"><b>${titulo}</b><br>${intro}</div><div class="c56-board"><div class="c56-stat"><b>${filtrar.length}</b><span>PRODUCTOS</span></div><div class="c56-stat"><b>${data.length}</b><span>EN EL KARDEX</span></div></div>`;
             if(!filtrar.length)html+='<div class="kx-complete">No hay productos en esta sección por ahora.</div>';
             html+=filtrar.map(p=>{
@@ -4132,13 +4179,30 @@ function verificarPassword() {
                 const orig=(p.origenes||[]).filter(o=>(Number(o.asignada)||0)>0||(Number(o.preparada)||0)>0);
                 let fuentes=orig.map(o=>`<div class="c56-source"><span>📍 <b>${escaparHtmlPedido(o.sucursal)}</b>${o.confirmada?' · ✓ Preparado':' · En preparación'}</span><span>${Number(o.preparada)||0}${o.asignada?` / ${Number(o.asignada)||0}`:''} unidades${o.recibida?' · Rec. '+Number(o.recibida):''}</span></div>`).join('');
                 if(!fuentes)fuentes='<div class="c56-meta">Todavía no existe una preparación confirmada.</div>';
+                const idx=c56Seguimiento.productos.indexOf(p);
+                const liberaciones=(p.historialLiberaciones||[]).map(h=>`<div class="c56-meta">🔄 ${escaparHtmlPedido(h.origen)}: asignadas ${h.asignadaAntes}, encontradas ${h.preparada}, liberadas <b>${h.liberadas}</b> · ${escaparHtmlPedido(h.usuario)} · ${escaparHtmlPedido(h.fecha)}</div>`).join('');
+                const legacy=(p.origenes||[]).map((o,j)=>({o,j})).filter(x=>x.o.puedeLiberar).map(({o,j})=>
+                  `<button type="button" class="c56-cta" onclick="c57LiberarConfirmado(${idx},${j})">🔁 Liberar ${Number(o.asignada)-Number(o.preparada)} no encontrada(s) en ${escaparHtmlPedido(o.sucursal)}</button>`).join('');
                 const badge=estado?'✓ Completo':p.pendienteAsignar>0?'Por asignar':'En preparación';
                 return `<div class="c56-card ${estado?'c56-good':p.pendienteAsignar>0?'c56-warn':''}"><div class="c56-head"><div class="c56-title">${escaparHtmlPedido(p.producto)}</div><span class="c56-tag ${estado?'ok':p.pendienteAsignar>0?'':'wait'}">${badge}</span></div>
-                  <div class="c56-meta">Preparado: <b>${preparado} / ${requerido}</b> · Pendiente: <b>${Number(p.pendientePreparar)||0}</b>${p.recibidoDespacho?` · Revisado por Despacho: ${Number(p.recibidoDespacho)}`:''}</div>${fuentes}</div>`;
+                  <div class="c56-meta">Preparado: <b>${preparado} / ${requerido}</b> · Pendiente: <b>${Number(p.pendientePreparar)||0}</b>${p.recibidoDespacho?` · Revisado por Despacho: ${Number(p.recibidoDespacho)}`:''}</div>${fuentes}${liberaciones}${legacy}</div>`;
             }).join('');
             cont.innerHTML=html;
         }
 
+        async function c57LiberarConfirmado(i,j){
+            const p=c56Seguimiento?.productos?.[i],o=p?.origenes?.[j];if(!p||!o||!o.puedeLiberar)return;
+            const cantidad=(Number(o.asignada)||0)-(Number(o.preparada)||0);
+            if(cantidad<=0)return;
+            if(!confirm('¿Liberar '+cantidad+' unidad(es) no encontradas de '+p.producto+' en '+o.sucursal+'?\nSe conservará el registro anterior y podrás asignar el saldo a otra sucursal.'))return;
+            try{
+                const body=new URLSearchParams({accion:'LiberarSaldoKardexConfirmado',idRuta:rutaActiva.idRuta,producto:p.producto,sucursal:o.sucursal,empleado:localStorage.getItem('usuario')||''});
+                const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();
+                if(!r.ok||d.status!=='OK')throw Error(d.mensaje||'No se liberó el saldo.');
+                alert('✅ '+d.liberado+' unidad(es) liberadas. Aparecerán en Pendientes para asignarlas.');
+                etapaRutaActual='faltantes';await cargarRutaActiva();
+            }catch(e){alert('No se pudo liberar el saldo: '+e.message);}
+        }
         function actualizarResumenRuta(){
             const p=c56Seguimiento?.productos||rutaActiva?.productos||[],completos=p.filter(x=>x.estado==='COMPLETO'||(x.estado===undefined&&Number(x.diferencia)>=0)).length;
             document.getElementById('rutaResumen').innerHTML=`<b>Ruta #${escaparHtmlPedido(rutaActiva.numeroRuta)}</b> · ${fechaRutaBonita(rutaActiva.fecha)}<br>✅ ${completos} preparados · ⏳ ${p.length-completos} sin completar · Total ${p.length}`;
@@ -4380,28 +4444,34 @@ function verificarPassword() {
             await cargarAsignacionesKardexRuta();
             const borrador=leerLocal(claveBorradorFaltantes());
             const pendientes=(rutaActiva.productos||[]).map((p,i)=>({p,i,t:c56Producto(p.producto)}))
-                .filter(x=>x.t&&x.t.bodegaRevisada&&!x.t.recepcionIniciada&&x.t.pendienteAsignar>0)
+                .filter(x=>x.t&&x.t.bodegaRevisada&&x.t.pendienteAsignar>0)
                 .sort((a,b)=>String(a.p.producto).localeCompare(String(b.p.producto),'es',{numeric:true,sensitivity:'base'}));
-            let html='<div class="c56-intro"><b>Unidades pendientes de asignación</b><br>Cuando Bodega confirma una preparación parcial, la diferencia aparece aquí automáticamente. Solo asigna el saldo disponible a Tienda Online Shop, Mini Súper o Despacho. La parte ya preparada queda registrada en Bodega.</div>';
+            let html='<div class="c56-intro"><b>Unidades pendientes de asignación</b><br>Cuando Bodega o cualquier sucursal termina de preparar solo una parte, la cantidad que no encontró queda libre para reasignarla aquí a otra sucursal. El sistema conserva cuánto se buscó y preparó en cada origen.</div>';
             if(!pendientes.length){document.getElementById('listaRuta').innerHTML=html+'<div class="kx-complete">✅ No hay saldos sin asignar. Revisa Asignados o Completos.</div>';return;}
             html+=pendientes.map(({p,i,t})=>{
                 const max=Math.max(0,Number(t.requerido)-Number(t.preparadoBodega));
                 const b=borrador[i]||{};
-                const vb=('b' in b)?Number(b.b):asignadoProductoSucursal(p.producto,'Bodega');
-                const vt=('t' in b)?Number(b.t):asignadoProductoSucursal(p.producto,'Tienda Online Shop');
-                const vm=('m' in b)?Number(b.m):asignadoProductoSucursal(p.producto,'Mini super');
-                const vd=('d' in b)?Number(b.d):asignadoProductoSucursal(p.producto,'Despacho');
+                const norm57=x=>String(x||'').trim().replace(/\s+/g,' ').toUpperCase();
+                const revisada57=sucursal=>(t.origenes||[]).some(o=>norm57(o.sucursal)===norm57(sucursal)&&o.confirmada)||
+                    (t.historialLiberaciones||[]).some(h=>norm57(h.origen)===norm57(sucursal));
+                // Las sucursales revisadas son inmutables: el borrador local
+                // no debe sobrescribir lo que el servidor ya confirmó.
+                const original57=(k,sucursal)=>revisada57(sucursal)||!(k in b)?
+                    asignadoProductoSucursal(p.producto,sucursal):Number(b[k]);
+                const vb=original57('b','Bodega'),vt=original57('t','Tienda Online Shop');
+                const vm=original57('m','Mini super'),vd=original57('d','Despacho');
                 const actual=vb+vt+vm+vd,sinAsignar=Math.max(0,max-actual);
+                const historia57=(t.historialLiberaciones||[]).map(h=>`<div class="c56-meta">🔄 ${escaparHtmlPedido(h.origen)}: ${h.asignadaAntes} asignadas, ${h.preparada} encontradas, ${h.liberadas} liberadas.</div>`).join('');
                 return `<div id="faltCard_${i}" class="c56-card c56-warn"><div class="c56-title">${escaparHtmlPedido(p.producto)}</div>
-                  <div class="c56-meta">Requerido: <b>${t.requerido}</b> · Preparó Bodega: <b>${t.preparadoBodega}</b> · Disponible para asignar: <b>${sinAsignar}</b></div>
+                  <div class="c56-meta">Requerido: <b>${t.requerido}</b> · Preparó Bodega: <b>${t.preparadoBodega}</b> · Disponible para asignar: <b>${sinAsignar}</b></div>${historia57}
                   <div id="faltEstado_${i}" class="c56-meta"><b>${sinAsignar?`Sin asignar ${sinAsignar}`:'✓ Todo asignado'}</b></div>
-                  ${campoFuenteRuta(i,'Tienda Online Shop','t',vt,max)}${campoFuenteRuta(i,'Mini super','m',vm,max)}${campoFuenteRuta(i,'Despacho','d',vd,max)}
-                  ${vb?campoFuenteRuta(i,'Bodega','b',vb,max):''}</div>`;
+                  ${campoFuenteRuta(i,'Tienda Online Shop','t',vt,max,revisada57('Tienda Online Shop'))}${campoFuenteRuta(i,'Mini super','m',vm,max,revisada57('Mini super'))}${campoFuenteRuta(i,'Despacho','d',vd,max,revisada57('Despacho'))}
+                  ${vb?campoFuenteRuta(i,'Bodega','b',vb,max,revisada57('Bodega')):''}</div>`;
             }).join('');
             html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:16px;padding:11px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.14);"><div class="c56-meta" style="text-align:center">Asignar no significa preparar. La sucursal debe confirmar su cantidad.</div><button id="btnGuardarFaltantes" class="c56-cta" onclick="guardarFaltantesRuta()">💾 Guardar asignaciones</button></div>`;
             document.getElementById('listaRuta').innerHTML=html;
         }
-        function campoFuenteRuta(i,nombre,k,v,max){return `<div style="display:flex;align-items:center;gap:7px;margin:6px 0;"><div style="width:118px;font-size:11px;font-weight:700;">${nombre}</div><button onclick="cambiarFuenteRuta(${i},'${k}',-1)" style="width:42px;margin:0;background:#6c757d;padding:8px;">−</button><input id="falt_${k}_${i}" type="number" min="0" max="${max}" value="${v}" inputmode="numeric" oninput="validarFuentesRuta(${i},'${k}')" style="flex:1;margin:0;text-align:center;font-weight:800;"><button onclick="cambiarFuenteRuta(${i},'${k}',1)" style="width:42px;margin:0;background:#087cff;padding:8px;">＋</button></div>`;}
+        function campoFuenteRuta(i,nombre,k,v,max,revisada){return `<div style="display:flex;align-items:center;gap:7px;margin:6px 0;"><div style="width:118px;font-size:11px;font-weight:700;">${nombre}${revisada?'<br><span style="color:#65816e;font-size:10px;">✓ Ya revisada</span>':''}</div><button ${revisada?'disabled':''} onclick="cambiarFuenteRuta(${i},'${k}',-1)" style="width:42px;margin:0;background:#6c757d;padding:8px;">−</button><input id="falt_${k}_${i}" type="number" min="0" max="${max}" value="${v}" ${revisada?'readonly':''} inputmode="numeric" oninput="validarFuentesRuta(${i},'${k}')" style="flex:1;margin:0;text-align:center;font-weight:800;${revisada?'opacity:.7;':''}"><button ${revisada?'disabled':''} onclick="cambiarFuenteRuta(${i},'${k}',1)" style="width:42px;margin:0;background:#087cff;padding:8px;">＋</button></div>`;}
         function valoresFuentesRuta(i){return ['b','t','m','d'].reduce((o,k)=>(o[k]=Math.max(0,Number(document.getElementById(`falt_${k}_${i}`)?.value)||0),o),{});}
         function validarFuentesRuta(i,cambiado){
             const p=rutaActiva.productos[i],track=c56Producto(p.producto),max=Math.max(0,(Number(track?.requerido)||0)-(Number(track?.preparadoBodega)||0)),v=valoresFuentesRuta(i);let total=v.b+v.t+v.m+v.d;
@@ -4412,7 +4482,7 @@ function verificarPassword() {
         function cambiarFuenteRuta(i,k,d){const el=document.getElementById(`falt_${k}_${i}`);if(!el)return;el.value=Math.max(0,(Number(el.value)||0)+d);validarFuentesRuta(i,k);}
         async function guardarFaltantesRuta(){
             const pendientes=(rutaActiva?.productos||[]).map((p,i)=>({p,i,t:c56Producto(p.producto)}))
-                .filter(x=>x.t&&x.t.bodegaRevisada&&!x.t.recepcionIniciada&&x.t.pendienteAsignar>0);
+                .filter(x=>x.t&&x.t.bodegaRevisada&&x.t.pendienteAsignar>0);
             if(!pendientes.length)return;
             const productos=pendientes.map(({p,i})=>{const v=valoresFuentesRuta(i);return {producto:p.producto,bodega:v.b,tienda:v.t,mini:v.m,despacho:v.d};});
             if(!confirm('¿Guardar las asignaciones de '+productos.length+' producto(s)? La preparación física anterior quedará sin cambios.'))return;
@@ -4449,7 +4519,7 @@ function verificarPassword() {
             <div class="c53-acciones"><button type="button" class="c53-completo ${sel?.tipo==='COMPLETO'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='COMPLETO'}" onclick="c53Marcar('${ambito}',${i},'COMPLETO')">✓ ${sel?.tipo==='COMPLETO'?'Completo ✓':'Completo'}</button>
             <button type="button" class="c53-incompleto ${sel?.tipo==='INCOMPLETO'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='INCOMPLETO'}" onclick="c53Marcar('${ambito}',${i},'INCOMPLETO')">⚠️ Incompleto</button></div>
             ${sel?.tipo==='COMPLETO'?`<div class="c53-ayuda">✓ Se prepararán las ${restante} unidades pendientes al confirmar.</div>`:''}
-            ${sel?.tipo==='INCOMPLETO'?`<div class="c53-detalle"><label for="c53_${ambito}_${i}">¿Cuántas unidades encontraste? (de ${restante})</label><input id="c53_${ambito}_${i}" type="number" inputmode="numeric" min="0" max="${restante}" step="1" value="${escaparHtmlPedido(sel.cantidad)}" oninput="c53Escribir('${ambito}',${i},this.value)" placeholder="0 a ${restante}"><div class="c53-ayuda">Si no encontraste ninguna, escribe 0. Lo restante quedará como faltante real.</div></div>`:''}
+            ${sel?.tipo==='INCOMPLETO'?`<div class="c53-detalle"><label for="c53_${ambito}_${i}">¿Cuántas unidades encontraste? (de ${restante})</label><input id="c53_${ambito}_${i}" type="number" inputmode="numeric" min="0" max="${restante}" step="1" value="${escaparHtmlPedido(sel.cantidad)}" oninput="c53Escribir('${ambito}',${i},this.value)" placeholder="0 a ${restante}"><div class="c53-ayuda">Si no encontraste ninguna, escribe 0. El saldo no hallado quedará disponible para reasignar y se conservará el historial.</div></div>`:''}
             </div>`;
         }
         function c53ObtenerConfirmacion(ambito){
@@ -4508,7 +4578,8 @@ function verificarPassword() {
             const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:'Despacho',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
             const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();
             if(!r.ok||d.status!=='OK'||Number(d.actualizados)!==items.length)throw new Error(d.mensaje||'No se confirmaron todos los productos. Actualiza y revisa.');
-            alert('✓ Preparación guardada. Solo las cantidades encontradas pasan a Revisar despacho.');
+            const liberadas=Number(d.unidadesLiberadas)||0;
+            alert('✓ Preparación guardada. Solo las cantidades encontradas pasan a Revisar despacho.'+(liberadas?'\n🔄 '+liberadas+' unidad(es) no encontradas quedaron libres para reasignar en el Kardex.':''));
             await c52CargarPreparacionDespacho();
           }catch(e){alert('No se pudo guardar: '+e.message+' Si ya se guardaron algunos, actualiza antes de reintentar.');}
           finally{if(btn){btn.disabled=false;btn.textContent='✓ Confirmar preparación';}}
@@ -4645,7 +4716,8 @@ function verificarPassword() {
               const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
               const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();
               if(!r.ok||d.status!=='OK'||Number(d.actualizados)!==items.length)throw new Error(d.mensaje||'No se confirmaron todos los productos.');
-              alert('✓ Preparación guardada. Lo encontrado ya está disponible para Despacho.');
+              const liberadas=Number(d.unidadesLiberadas)||0;
+              alert('✓ Preparación guardada. Lo encontrado ya está disponible para Despacho.'+(liberadas?'\n🔄 '+liberadas+' unidad(es) no encontradas quedaron libres para reasignar.':''));
               await cargarFaltantesKardex();
             }catch(e){alert('No se pudo confirmar: '+e.message+' Si se guardó parcialmente, actualiza antes de reintentar.');}
             finally{if(btn){btn.disabled=false;btn.innerText='✓ Confirmar preparación';}}
@@ -5434,6 +5506,165 @@ async function c48ConfirmarActualizacion(){
    c48Mensaje('⚠️ No se completó toda la carga. '+(completadas?'Ya se actualizó: '+completadas+'. ':'')+e.message+'. Puedes volver a cargar el archivo pendiente.',true);
  }finally{c48Ocupado=false;c48MostrarPrevia();}
 }
+
+
+// ===== v1.6.58 · Panel central de logística · no altera recepción ni inventarios =====
+let c58Datos=null, c58Ruta=null, c58Vista='todos', c58Peticion=0, c58Ocupado=false, c58Paginacion=0;
+const c58Areas=['Bodega','Tienda Online Shop','Mini super','Despacho'];
+function c58Num(v){const n=Number(v);return Number.isFinite(n)?Math.max(0,n):0;}
+function c58Norm(v){return String(v||'').trim().replace(/\s+/g,' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();}
+function c58Safe(v){return escaparHtmlPedido(String(v??''));}
+function c58Money(v){return String(Math.round(c58Num(v)*100)/100);}
+function c58Pasos(){return document.getElementById('adminControlLogistico')?.style.display==='block';}
+async function c58Cargar(mostrarError=true){
+  if(!c49SesionAdministrador)return;
+  if(c58Ocupado)return;
+  const ver=++c58Peticion,btn=document.getElementById('c58BtnActualizar');c58Ocupado=true;if(btn){btn.disabled=true;btn.textContent='Consultando…';}
+  try{
+    const [r,s]=await Promise.all([
+      fetch(URL_API+'?accion=verRutaActiva&_='+Date.now(),{cache:'no-store'}),
+      fetch(URL_API+'?accion=verSeguimientoKardex&_='+Date.now(),{cache:'no-store'})
+    ]);
+    if(!r.ok||!s.ok)throw Error('No se pudo conectar con el servidor.');
+    const [dr,ds]=await Promise.all([r.json(),s.json()]);
+    if(ver!==c58Peticion)return;
+    if(dr.status!=='OK'||ds.status!=='OK'||ds.version!=='1.6.57')throw Error('Actualiza Código.gs de la versión BETA en Apps Script.');
+    if(dr.ruta&&(!ds.seguimiento||String(dr.ruta.idRuta)!==String(ds.seguimiento.idRuta)))throw Error('La ruta cambió durante la consulta. Presiona Actualizar.');
+    c58Ruta=dr.ruta||null;c58Datos=ds.seguimiento||null;
+    const hora=new Date().toLocaleTimeString('es-SV',{hour:'2-digit',minute:'2-digit'});
+    const stamp=document.getElementById('c58Actualizacion');if(stamp)stamp.textContent='Última consulta: '+hora+' · No se trata de una conexión instantánea; actualiza para ver los últimos cambios guardados.';
+    c58RenderResumenMenu();c58Render();
+  }catch(e){
+    if(mostrarError){const x=document.getElementById('c58RutaInfo');if(x)x.textContent='⚠️ '+e.message;}
+    const box=document.getElementById('c58ResumenMenu');if(box&&!c58Datos)box.textContent='No se pudo consultar el progreso. Abre Control Logístico y presiona Actualizar.';
+  }finally{c58Ocupado=false;if(btn){btn.disabled=false;btn.textContent='↻ Actualizar';}}
+}
+function c58Resumen(){
+ const productos=c58Datos?.productos||[];
+ return {total:productos.length,completos:productos.filter(p=>p.estado==='COMPLETO').length,
+ pendientes:productos.filter(p=>c58Num(p.pendienteAsignar)>0).length,
+ asignados:productos.filter(p=>p.asignado>0&&p.estado!=='COMPLETO').length,
+ recibidos:productos.filter(p=>p.recepcionIniciada).length};
+}
+function c58RenderResumenMenu(){
+ const box=document.getElementById('c58ResumenMenu');if(!box)return;
+ if(!c58Datos){box.textContent='No hay un Kardex activo o aún no se ha consultado. Abre Control Logístico para actualizar.';return;}
+ const r=c58Resumen();
+ box.innerHTML='<b>Ruta #'+c58Safe(c58Ruta?.numeroRuta||'')+'</b> · '+r.total+' productos<br>✅ '+r.completos+' completos · 🟠 '+r.pendientes+' pendientes por asignar · 📦 '+r.asignados+' en preparación';
+}
+function c58SucursalOrigen(p,nombre){return (p.origenes||[]).filter(o=>c58Norm(o.sucursal)===c58Norm(nombre));}
+function c58ResumenAreas(){
+ return c58Areas.map(nombre=>{
+  let asignadas=0,preparadas=0,recibidas=0,pendientes=0,confirmadas=0;
+  for(const p of c58Datos?.productos||[]){for(const o of c58SucursalOrigen(p,nombre)){
+    const asign=c58Num(o.asignada),prep=c58Num(o.preparada),rec=c58Num(o.recibida);
+    asignadas+=(o.origenDirecto?prep:asign);preparadas+=prep;recibidas+=rec;
+    if(asign>0){if(o.confirmada)confirmadas++;else pendientes++;}
+  }}
+  return {nombre,asignadas,preparadas,recibidas,pendientes,confirmadas,porcentaje:asignadas?Math.min(100,Math.round(preparadas/asignadas*100)):0};
+ });
+}
+function c58RenderTablero(){
+ const info=document.getElementById('c58RutaInfo'),metrics=document.getElementById('c58Metricas'),sucs=document.getElementById('c58Sucursales');if(!info||!metrics||!sucs)return;
+ if(!c58Datos){info.textContent='No hay un Kardex activo. Al crear uno se mostrará su seguimiento aquí.';metrics.innerHTML='';sucs.innerHTML='';return;}
+ const r=c58Resumen(); info.innerHTML='<b>Ruta #'+c58Safe(c58Ruta?.numeroRuta||'')+'</b> · '+c58Safe(c58Ruta?.fecha||'')+' · <b>'+r.total+' productos</b>';
+ metrics.innerHTML=[['Productos',''+r.total],['Completos',''+r.completos],['Por asignar',''+r.pendientes],['En preparación',''+r.asignados]].map(x=>'<div class="c58-metric"><b>'+x[1]+'</b><span>'+x[0].toUpperCase()+'</span></div>').join('');
+ sucs.innerHTML=c58ResumenAreas().map(a=>'<div class="c58-branch"><b>'+c58Safe(a.nombre)+'</b><div class="c58-bar"><i style="width:'+a.porcentaje+'%"></i></div><div class="c58-statline"><span>Asignadas: '+c58Money(a.asignadas)+'</span><span>Preparadas: '+c58Money(a.preparadas)+'</span></div><div class="c58-statline"><span>Revisiones pendientes: '+a.pendientes+'</span><span>Recibidas: '+c58Money(a.recibidas)+'</span></div></div>').join('');
+}
+function c58Ver(v){c58Vista=v;c58Paginacion=0;c58Render();}
+function c58Filtrados(){
+ const suc=document.getElementById('c58Sucursal')?.value||'TODAS',q=c58Norm(document.getElementById('c58Buscar')?.value||'');
+ return (c58Datos?.productos||[]).map((p,i)=>({p,i})).filter(({p})=>{
+   if(q&&!c58Norm(p.producto).includes(q))return false;
+   if(suc!=='TODAS'&&!c58SucursalOrigen(p,suc).length)return false;
+   if(c58Vista==='pendientes'&&!(c58Num(p.pendienteAsignar)>0))return false;
+   if(c58Vista==='asignados'&&!(p.asignado>0&&p.estado!=='COMPLETO'))return false;
+   if(c58Vista==='completos'&&p.estado!=='COMPLETO')return false;
+   if(c58Vista==='recibidos'&&!p.recepcionIniciada)return false;
+   return true;
+ });
+}
+function c58Render(){
+ c58RenderTablero();const list=document.getElementById('c58Lista');if(!list)return;
+ document.querySelectorAll('[data-c58-tab]').forEach(b=>b.classList.toggle('c58-active',b.getAttribute('data-c58-tab')===c58Vista));
+ const res=document.getElementById('c58Resultados');if(!c58Datos){list.innerHTML='<div class="c58-message">No hay productos en una ruta activa.</div>';if(res)res.textContent='Sin ruta activa';return;}
+ const encontrados=c58Filtrados();if(res)res.textContent=encontrados.length+' productos';
+ if(c58Vista==='actividad'){c58RenderActividad(encontrados);return;}
+ if(!encontrados.length){list.innerHTML='<div class="c58-message">No hay productos con esos filtros.</div>';return;}
+ const mostrar=encontrados.slice(0,(c58Paginacion+1)*35);
+ list.innerHTML=mostrar.map(({p,i})=>{
+   const n=c58Num(p.requerido),prep=c58Num(p.preparado),rec=c58Num(p.recibidoDespacho),libres=c58Num(p.pendienteAsignar),complete=p.estado==='COMPLETO';
+   const etiqueta=complete?'✓ Preparado':libres>0?'Por asignar':'En preparación';
+   const origenes=(p.origenes||[]).map((o,j)=>'<div class="c58-origin"><div class="c58-statline"><b>'+c58Safe(o.sucursal)+'</b><span>'+c58Money(o.preparada)+' / '+c58Money(o.asignada||o.preparada)+'</span></div><div>'+c58Safe(o.confirmada?'✓ Preparación confirmada':'⏳ Preparación pendiente')+(o.recibida?' · 📦 Recibió Despacho '+c58Money(o.recibida):'')+(o.faltanteDespacho?' · ⚠️ Faltó '+c58Money(o.faltanteDespacho):'')+'</div>'+
+   ((o.preparadoPor||o.fechaPreparacion)?'<div class="c58-history">'+c58Safe(o.preparadoPor)+' · '+c58Safe(o.fechaPreparacion)+'</div>':'')+
+   ((o.revisadoPor||o.fechaRevision)?'<div class="c58-history">Recibió: '+c58Safe(o.revisadoPor)+' · '+c58Safe(o.fechaRevision)+'</div>':'')+'</div>').join('');
+   const libera=(p.origenes||[]).map((o,j)=>({o,j})).filter(x=>x.o.puedeLiberar).map(x=>'<button type="button" class="c58-mini-btn" onclick="c58Liberar('+i+','+x.j+')">🔁 Liberar '+c58Money(c58Num(x.o.asignada)-c58Num(x.o.preparada))+' no encontrada(s) de '+c58Safe(x.o.sucursal)+'</button>').join('');
+   const historia=(p.historialLiberaciones||[]).map(h=>'<div class="c58-history">🔄 '+c58Safe(h.origen)+' · '+c58Money(h.liberadas)+' liberadas · '+c58Safe(h.usuario)+' · '+c58Safe(h.fecha)+'</div>').join('');
+   const opciones=c58Areas.filter(s=>!c58SucursalOrigen(p,s).some(o=>o.confirmada)&&!(p.historialLiberaciones||[]).some(e=>c58Norm(e.origen)===c58Norm(s)))
+   .map(s=>'<option value="'+c58Safe(c58Norm(s))+'">'+c58Safe(s)+'</option>').join('');
+   const asignar=(libres>0&&p.bodegaRevisada)?'<div class="c58-action"><label>Reasignar '+c58Money(libres)+' unidades pendientes</label><div class="c58-action-row"><select id="c58Destino_'+i+'">'+opciones+'</select><input id="c58Cantidad_'+i+'" inputmode="numeric" type="number" min="1" max="'+libres+'" step="1" value="'+libres+'"></div><button type="button" class="c58-mini-btn" onclick="c58Asignar('+i+')" '+(!opciones?'disabled':'')+'>Guardar asignación</button><div class="c58-help">La sucursal deberá confirmar después lo que encontró. Aquí no se marca como preparado.</div></div>':'';
+   return '<div class="c58-card"><div class="c58-top"><div class="c58-title">'+c58Safe(p.producto)+'</div><span class="c58-pill '+(complete?'ok':libres?'warn':'')+'">'+etiqueta+'</span></div><div class="c58-help">Requeridas: <b>'+c58Money(n)+'</b> · Preparadas: <b>'+c58Money(prep)+'</b> · Despacho recibió: <b>'+c58Money(rec)+'</b> · Por asignar: <b>'+c58Money(libres)+'</b></div>'+origenes+historia+libera+asignar+'</div>';
+ }).join('');
+ if(encontrados.length>mostrar.length)list.innerHTML+='<button type="button" class="c58-mini-btn" onclick="c58Paginacion++;c58Render()">Ver otros '+Math.min(35,encontrados.length-mostrar.length)+' productos</button>';
+}
+function c58RenderActividad(encontrados){
+ const list=document.getElementById('c58Lista');if(!list)return;let movimientos=[];
+ for(const {p} of encontrados){for(const o of p.origenes||[]){
+   if(o.fechaPreparacion)movimientos.push({fecha:String(o.fechaPreparacion),producto:p.producto,sucursal:o.sucursal,actor:o.preparadoPor,titulo:o.confirmada&&c58Num(o.preparada)===0?'No encontrado':'Preparación',detalle:c58Money(o.preparada)+' unidad(es) preparadas'});
+   if(o.fechaRevision)movimientos.push({fecha:String(o.fechaRevision),producto:p.producto,sucursal:o.sucursal,actor:o.revisadoPor,titulo:'Revisión de Despacho',detalle:c58Money(o.recibida)+' recibidas'+(o.faltanteDespacho?' · '+c58Money(o.faltanteDespacho)+' faltantes':'')});
+ }for(const z of p.historialLiberaciones||[]){movimientos.push({fecha:String(z.fecha),producto:p.producto,sucursal:z.origen,actor:z.usuario,titulo:'Saldo liberado',detalle:c58Money(z.liberadas)+' unidad(es) no encontradas'});}}
+ movimientos.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+ const mostrar=movimientos.slice(0,(c58Paginacion+1)*40);
+ list.innerHTML=mostrar.map(x=>'<div class="c58-card"><div class="c58-top"><b class="c58-title">'+c58Safe(x.titulo)+'</b><span class="c58-pill">'+c58Safe(x.sucursal)+'</span></div><div class="c58-help">'+c58Safe(x.producto)+' · '+c58Safe(x.detalle)+'</div><div class="c58-history">'+c58Safe(x.actor)+' · '+c58Safe(x.fecha)+'</div></div>').join('')||'<div class="c58-message">No hay movimientos registrados para esos filtros.</div>';
+ if(movimientos.length>mostrar.length)list.innerHTML+='<button type="button" class="c58-mini-btn" onclick="c58Paginacion++;c58Render()">Ver más movimientos</button>';
+}
+async function c58Asignar(i){
+ if(!c49SesionAdministrador||!c58Ruta||!c58Datos)return alert('Inicia sesión como administrador.');
+ const p=c58Datos.productos[i],select=document.getElementById('c58Destino_'+i),field=document.getElementById('c58Cantidad_'+i);
+ if(!p||!select||!field)return;
+ const suc=select.value,cantidad=Number(field.value),libres=c58Num(p.pendienteAsignar);
+ if(!Number.isInteger(cantidad)||cantidad<1||cantidad>libres)return alert('Indica una cantidad entre 1 y '+libres+'.');
+ if((p.origenes||[]).some(o=>c58Norm(o.sucursal)===suc&&o.confirmada)||(p.historialLiberaciones||[]).some(x=>c58Norm(x.origen)===suc))return alert('Esta sucursal ya confirmó la revisión. Elige otra.');
+ if(!confirm('¿Asignar '+cantidad+' unidad(es) de '+p.producto+' a '+select.selectedOptions[0].text+'? No se registrará como preparado hasta que la sucursal confirme.'))return;
+ const btn=document.getElementById('c58BtnActualizar');if(btn)btn.disabled=true;
+ try{
+   // Lectura fresca de las asignaciones, para no sobrescribir preparaciones ajenas.
+   const ar=await fetch(URL_API+'?accion=verAsignacionesKardex&idRuta='+encodeURIComponent(c58Ruta.idRuta)+'&_='+Date.now(),{cache:'no-store'}),ad=await ar.json();
+   if(!ar.ok||ad.status!=='OK')throw Error('No se pudieron verificar las asignaciones actuales.');
+   const mapa={bodega:0,tienda:0,mini:0,despacho:0},normProd=c58Norm(p.producto),mapSuc={'BODEGA':'bodega','TIENDA ONLINE SHOP':'tienda','MINI SUPER':'mini','DESPACHO':'despacho'},vistos={};
+   for(const a of ad.asignaciones||[]){if(c58Norm(a.producto)!==normProd||String(a.idRuta)!==String(c58Ruta.idRuta))continue;
+     const sc=mapSuc[c58Norm(a.sucursal)];if(!sc||vistos[sc])throw Error('Hay asignaciones duplicadas. Revisa el Kardex antes de continuar.');
+     vistos[sc]=true;mapa[sc]=c58Num(a.cantidadAsignada);
+   }
+   if(!mapSuc[suc])throw Error('Sucursal no válida.');
+   mapa[mapSuc[suc]]+=cantidad;
+   const post=new URLSearchParams({accion:'GuardarAsignacionesKardexLote',idRuta:c58Ruta.idRuta,productos:JSON.stringify([{producto:p.producto,...mapa}]),empleado:'Administrador: '+(localStorage.getItem('usuario')||'')});
+   const sr=await fetch(URL_API,{method:'POST',body:post,cache:'no-store'}),sd=await sr.json();
+   if(!sr.ok||sd.status!=='OK')throw Error(sd.mensaje||'No se guardó la reasignación.');
+   alert('✅ Asignación guardada. La sucursal verá las unidades pendientes de preparar.');
+   await c58Cargar();
+ }catch(e){alert('No se modificaron las cantidades: '+e.message+' Actualiza para revisar la ruta.');await c58Cargar(false);}finally{if(btn)btn.disabled=false;}
+}
+async function c58Liberar(i,j){
+ if(!c49SesionAdministrador||!c58Ruta||!c58Datos)return alert('Inicia sesión como Administrador.');
+ const p=c58Datos.productos[i],o=p?.origenes?.[j];if(!o||!o.puedeLiberar)return;
+ const libres=c58Num(o.asignada)-c58Num(o.preparada);if(libres<=0)return;
+ if(!confirm('¿Liberar '+libres+' unidad(es) NO encontradas por '+o.sucursal+' de '+p.producto+'? No se modificarán las unidades preparadas ni recibidas.'))return;
+ try{
+   const post=new URLSearchParams({accion:'LiberarSaldoKardexConfirmado',idRuta:c58Ruta.idRuta,producto:p.producto,sucursal:o.sucursal,empleado:'Administrador: '+(localStorage.getItem('usuario')||'')});
+   const r=await fetch(URL_API,{method:'POST',body:post,cache:'no-store'}),d=await r.json();
+   if(!r.ok||d.status!=='OK')throw Error(d.mensaje||'No se pudo liberar el saldo.');
+   alert('✅ '+d.liberado+' unidades liberadas. Ahora puedes reasignarlas.');c58Vista='pendientes';await c58Cargar();
+ }catch(e){alert('No se liberó el saldo: '+e.message);await c58Cargar(false);}
+}
+// Sincroniza al consultar el Administrador; no toca hojas ni estados sin una acción confirmada.
+setInterval(()=>{
+ if(!c49SesionAdministrador||document.getElementById('supervisorSection')?.style.display!=='block'||c58Ocupado)return;
+ const activo=c58Pasos()||document.getElementById('menuAdmin')?.style.display==='block';
+ if(!activo)return;
+ const f=document.activeElement;if(c58Pasos()&&f&&['INPUT','SELECT'].includes(f.tagName)&&document.getElementById('adminControlLogistico')?.contains(f))return;
+ c58Cargar(false);
+},90000);
 
 </script>
 </body>
