@@ -1,4 +1,4 @@
-<!-- Online Shop v1.6.57 BETA · Saldo no encontrado disponible para reasignación -->
+<!-- Online Shop v1.6.57 BETA · -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1026,7 +1026,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.58 BETA · Conteos por Categoría · Admin Optimizado · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.61 BETA · Pedidos a Bodega · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1218,9 +1218,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <div id="menuPedidos" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
                     <h3 style="font-size: 15px;">Solicitud de Productos a Bodega</h3>
                     
-                    <label style="font-size: 12px; color: #555;">Buscar producto por código o nombre:</label>
+                    <label style="font-size: 12px; color: #555;">Buscar producto por nombre o presentación:</label>
                     <div class="pedido-buscador-wrap">
-                        <input type="text" id="buscadorProductoPedido" placeholder="Ej. 1001 o Coca Cola" autocomplete="off" oninput="buscarProductoPedido()" onfocus="buscarProductoPedido()">
+                        <input type="text" id="buscadorProductoPedido" placeholder="Ej. Pepsi, caja Pepsi o fardo" autocomplete="off" oninput="buscarProductoPedido()" onfocus="buscarProductoPedido()">
                         <div id="resultadosProductoPedido" class="pedido-resultados"></div>
                     </div>
                     <input type="hidden" id="codigoProductoPedido">
@@ -2498,7 +2498,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 cont.innerHTML=`<div class="c60-glass" style="margin-top:10px;background:#fff;">
                     <div style="font-weight:850;">${tipo==='ADICIONAL'?'➕ Producto adicional':'✏️ Corregir producto solicitado'}</div>
                     ${anterior?`<div class="c60-note">Original: <b>${escaparHtmlPedido(anterior.producto)}</b> × ${anterior.cantidadSolicitada}. Se conserva en el historial.</div>`:''}
-                    <input id="c60InputBuscar" class="c60-busqueda" placeholder="Buscar por nombre, código o presentación…" oninput="c60FiltrarProductos()" autocomplete="off">
+                    <input id="c60InputBuscar" class="c60-busqueda" placeholder="Buscar producto o presentación…" oninput="c60FiltrarProductos()" autocomplete="off">
                     <div id="c60ListaProductos" class="c60-resultados"></div>
                     <div id="c60SeleccionTexto" class="c60-note">Selecciona un producto real de Akasia.</div>
                     <label style="font-size:12px;">Cantidad correcta</label><input id="c60Cantidad" type="number" min="1" step="1" value="${tipo==='CORRECCION'?anterior.cantidadSolicitada:1}" style="text-align:center;font-size:18px;">
@@ -2515,12 +2515,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const q=inp.value;
             const arr=c60BuscarCatalogo(c60CatalogoBodega,q,18);
             if(!c60Norm(q)){out.innerHTML='';return;}
-            out.innerHTML=arr.length?arr.map(x=>`<button class="c60-opcion" type="button" onclick="c60ElegirProducto(${c60CatalogoBodega.indexOf(x)})"><strong>${escaparHtmlPedido(x.producto)}</strong><br><span class="c60-note">${escaparHtmlPedido(x.codigo)} · ${escaparHtmlPedido(c60EtiquetaPresentacion(x))} ${x.enSucursal?'':'· ⚠️ No figura en catálogo de esta sucursal'}</span></button>`).join(''):'<div class="c60-note">No se encontró una coincidencia exacta. Intenta con otra palabra.</div>';
+            out.innerHTML=arr.length?arr.map(x=>`<button class="c60-opcion" type="button" onclick="c60ElegirProducto(${c60CatalogoBodega.indexOf(x)})"><strong>${escaparHtmlPedido(x.producto)}</strong><br><span class="c60-note">${escaparHtmlPedido(c60EtiquetaPresentacion(x))} ${x.enSucursal?'':'· ⚠️ No figura en catálogo de esta sucursal'}</span></button>`).join(''):'<div class="c60-note">No se encontró una coincidencia exacta. Intenta con otra palabra.</div>';
         }
         function c60ElegirProducto(i){
             const x=c60CatalogoBodega[i];if(!x)return;c60ProductoElegido=x;
             const info=document.getElementById('c60SeleccionTexto');
-            if(info)info.innerHTML=`✅ <b>${escaparHtmlPedido(x.producto)}</b> · ${escaparHtmlPedido(c60EtiquetaPresentacion(x))} · ${escaparHtmlPedido(x.codigo)} ${x.enSucursal?'':'<br>⚠️ No existe en el catálogo de esta sucursal: revisar alta en Akasia.'}`;
+            if(info)info.innerHTML=`✅ <b>${escaparHtmlPedido(x.producto)}</b> · ${escaparHtmlPedido(c60EtiquetaPresentacion(x))} ${x.enSucursal?'':'<br>⚠️ No existe en el catálogo de esta sucursal: revisar alta en Akasia.'}`;
             const lista=document.getElementById('c60ListaProductos');if(lista)lista.innerHTML='';
             const inp=document.getElementById('c60InputBuscar');if(inp)inp.value=x.producto;
         }
@@ -2559,7 +2559,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const r=await fetch(URL_API+'?accion=c60SolicitudesSucursal&sucursal='+encodeURIComponent(suc)+'&_='+Date.now()),d=await r.json();
                 if(d.status!=='OK')throw Error(d.mensaje||'No disponible');
                 const arr=d.solicitudes||[];cont.style.display=arr.length?'block':'none';
-                cont.innerHTML=arr.length?`<strong>🔔 ${arr.length} corrección(es) de Bodega pendientes</strong><p class="c60-note">Aprueba o rechaza antes de que Bodega prepare los productos corregidos.</p>${arr.map(x=>`<div style="border-top:1px solid #d9e5f5;padding:10px 0;"><div class="c60-note">📦 Pedido ${escaparHtmlPedido(x.idPedido)} · ${escaparHtmlPedido(x.usuarioBodega)}</div><p style="font-size:13px;"><s>${escaparHtmlPedido(x.anterior)} × ${x.cantidadAnterior}</s><br><b>→ ${escaparHtmlPedido(x.nuevo)} × ${x.cantidad}</b></p><div class="c60-note">Código: ${escaparHtmlPedido(x.codigo)}${x.motivo?' · '+escaparHtmlPedido(x.motivo):''}</div><div class="c60-aprobar"><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','ACEPTAR')" style="background:#198754;">✓ Aprobar</button><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','RECHAZAR')" style="background:#697786;">✕ Rechazar</button></div></div>`).join('')}`:'';
+                cont.innerHTML=arr.length?`<strong>🔔 ${arr.length} corrección(es) de Bodega pendientes</strong><p class="c60-note">Aprueba o rechaza antes de que Bodega prepare los productos corregidos.</p>${arr.map(x=>`<div style="border-top:1px solid #d9e5f5;padding:10px 0;"><div class="c60-note">📦 Pedido ${escaparHtmlPedido(x.idPedido)} · ${escaparHtmlPedido(x.usuarioBodega)}</div><p style="font-size:13px;"><s>${escaparHtmlPedido(x.anterior)} × ${x.cantidadAnterior}</s><br><b>→ ${escaparHtmlPedido(x.nuevo)} × ${x.cantidad}</b></p>${x.motivo?`<div class="c60-note">Motivo: ${escaparHtmlPedido(x.motivo)}</div>`:''}<div class="c60-aprobar"><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','ACEPTAR')" style="background:#198754;">✓ Aprobar</button><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','RECHAZAR')" style="background:#697786;">✕ Rechazar</button></div></div>`).join('')}`:'';
             }catch(e){cont.style.display='block';cont.innerHTML='<span class="c60-note">No se pudieron consultar las correcciones. <button type="button" onclick="c60CargarSolicitudesSucursal()">Reintentar</button></span>';}
         }
         async function c60ResolverCorreccion(id,decision){
@@ -2628,7 +2628,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 return;
             }
             cont.innerHTML = resultados.map((item, i) =>
-                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(item.producto,item,42)}<div><span class="pedido-codigo">${escaparHtmlPedido(item.codigo)}</span>${item.codigo ? ' - ' : ''}${escaparHtmlPedido(item.producto)}<div class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</div></div></div>`
+                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(item.producto,item,42)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong><div class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</div></div></div>`
             ).join("");
             cont.style.display = "block";
         }
@@ -2719,10 +2719,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             productoPedidoSeleccionado = item;
             document.getElementById("codigoProductoPedido").value = item.codigo;
             document.getElementById("nombreProductoPedido").value = item.producto;
-            document.getElementById("buscadorProductoPedido").value = item.codigo ? `${item.codigo} - ${item.producto}` : item.producto;
+            document.getElementById("buscadorProductoPedido").value = item.producto;
             document.getElementById("resultadosProductoPedido").style.display = "none";
             const texto = document.getElementById("productoPedidoSeleccionadoTexto");
-            texto.innerHTML = `✅ Seleccionado: <strong>${escaparHtmlPedido(item.codigo ? item.codigo + ' - ' : '')}${escaparHtmlPedido(item.producto)}</strong><br><span class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</span>`;
+            texto.innerHTML = `✅ Seleccionado: <strong>${escaparHtmlPedido(item.producto)}</strong><br><span class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</span>`;
             texto.style.display = "block";
             document.getElementById("cantidadPedido").focus();
         }
@@ -2762,7 +2762,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             cont.style.display = "block";
             lista.innerHTML = listaPedidoPendiente.map((item, index) => `
                 <div class="pedido-item">
-                    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">${imagenProductoGlobal(item.producto,item,50)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong><br><span style="color:#666;">Código: ${escaparHtmlPedido(item.codigo || '-')}</span><br><span class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</span></div></div>
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">${imagenProductoGlobal(item.producto,item,50)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong><br><span class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</span></div></div>
                     <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
                         <button type="button" onclick="cambiarCantidadProductoPedido(${index},-1)" style="width:38px;min-width:38px;height:38px;margin:0;padding:0;background:#6c757d;font-size:21px;border-radius:11px;">−</button>
                         <span style="min-width:28px;text-align:center;font-size:16px;font-weight:800;">${item.cantidad}</span>
