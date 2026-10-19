@@ -1010,6 +1010,33 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 @media(max-width:560px){.c56-tabs button{font-size:12px!important;padding:12px!important}.c56-title{font-size:14px}}
 
 
+
+/* v1.6.76 BETA · Asignaciones agrupadas por sucursal, solo presentación. */
+#listaRuta .c76-tabs{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:5px 1px 13px;scrollbar-width:thin}
+#listaRuta .c76-tabs button{flex:0 0 auto;width:auto!important;margin:0!important;min-height:48px;padding:10px 15px!important;border:1px solid #d4e2f2!important;border-radius:17px!important;background:rgba(255,255,255,.85)!important;box-shadow:0 6px 15px rgba(62,97,147,.06)!important;color:#425977!important;font-size:12px!important;font-weight:800!important;white-space:nowrap}
+#listaRuta .c76-tabs button.c76-selected{background:linear-gradient(120deg,#087cff,#3c9dff)!important;color:#fff!important;border-color:#087cff!important;box-shadow:0 9px 20px rgba(8,124,255,.19)!important}
+#listaRuta .c76-tabs .c76-pill{display:inline-flex;min-width:23px;height:23px;padding:0 5px;margin-left:6px;justify-content:center;align-items:center;border-radius:999px;background:rgba(65,107,157,.1);font-size:11px}
+#listaRuta .c76-tabs .c76-selected .c76-pill{background:rgba(255,255,255,.23)}
+#listaRuta .c76-group{padding:14px;margin:13px 0 20px;border:1px solid rgba(194,213,235,.85);border-radius:26px;background:linear-gradient(145deg,rgba(241,248,255,.95),rgba(255,255,255,.78));box-shadow:0 11px 30px rgba(58,94,145,.08)}
+#listaRuta .c76-group-head{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin:0 0 11px}
+#listaRuta .c76-group-emoji{font-size:24px;display:grid;place-items:center;width:49px;height:49px;border-radius:17px;background:rgba(255,255,255,.9);border:1px solid #dbe8f6}
+#listaRuta .c76-group-title{font-size:17px;font-weight:900;color:#183454;line-height:1.25}
+#listaRuta .c76-group-sub{font-size:12px;color:#667b94;margin-top:3px}
+#listaRuta .c76-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}
+#listaRuta .c76-stats div{border-radius:15px;padding:10px 6px;background:rgba(255,255,255,.8);border:1px solid #e1eaf6;text-align:center;min-width:0}
+#listaRuta .c76-stats strong{display:block;font-size:20px;color:#24466c;font-variant-numeric:tabular-nums}
+#listaRuta .c76-stats span{font-size:10px;font-weight:800;color:#687f9b;line-height:1.25;display:block;margin-top:3px}
+#listaRuta .c76-product{margin:9px 0;padding:14px;border:1px solid #dce8f4;background:rgba(255,255,255,.95);border-radius:19px;box-shadow:0 5px 13px rgba(43,82,132,.035)}
+#listaRuta .c76-product .c56-head{align-items:flex-start}
+#listaRuta .c76-product .c56-title{font-size:14px}
+#listaRuta .c76-qty-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+#listaRuta .c76-qty-chip{background:#f0f6fe;border:1px solid #e0eafa;border-radius:11px;padding:7px 10px;font-size:12px;color:#4e6481}
+#listaRuta .c76-qty-chip b{color:#1e466f;font-size:15px}
+#listaRuta .c76-hint{margin-top:8px;font-size:11px;color:#73849a}
+#listaRuta .c76-product .c76-liberar{margin:9px 0 0!important;padding:10px!important;width:100%!important;background:#fff5e6!important;color:#885914!important;border:1px solid #edc892!important;border-radius:12px!important;font-size:12px!important;box-shadow:none!important}
+#listaRuta .c76-empty{text-align:center;padding:26px 12px;background:rgba(255,255,255,.85);border:1px dashed #cbdced;border-radius:18px;color:#687e95;font-size:13px}
+@media(max-width:550px){#listaRuta .c76-group{padding:10px;border-radius:21px}#listaRuta .c76-group-title{font-size:15px}#listaRuta .c76-product{padding:11px}#listaRuta .c76-qty-chip{font-size:11px}#listaRuta .c76-stats strong{font-size:18px}}
+
 /* v1.6.58 BETA · Control logístico central · Liquid Glass */
 .c58-panel{background:linear-gradient(145deg,rgba(238,246,255,.96),rgba(255,255,255,.84));border:1px solid #d6e5f8;border-radius:25px;padding:16px;box-shadow:0 12px 32px rgba(41,91,158,.07);margin:12px 0 17px}
 .c58-panel h4{margin:0 0 5px;font-size:18px;color:#173b66}.c58-help{color:#60758e;font-size:12px;line-height:1.55;margin:6px 0 10px}
@@ -1305,7 +1332,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.75 BETA · Kardex inteligente · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.76 BETA · Kardex por sucursales · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -5140,16 +5167,109 @@ function verificarPassword() {
             html+='<div class="c56-intro">Cuando una sucursal confirme lo que encontró, verás el resultado en Asignados o Completos. La recepción final se verifica únicamente en Despacho.</div>';
             cont.innerHTML=html;
         }
+        // v1.6.76: las asignaciones se presentan por destino, no mezcladas por producto.
+        // Bodega original no es una nueva asignación. Solo se muestran orígenes
+        // de KardexFaltantes, conservando los índices del servidor para liberar saldo.
+        let c76FiltroAsignados='TODAS';
+        const c76Destinos=[
+            {key:'BODEGA',nombre:'Bodega',emoji:'📦'},
+            {key:'TIENDA ONLINE SHOP',nombre:'Tienda Online Shop',emoji:'🏪'},
+            {key:'MINI SUPER',nombre:'Mini súper',emoji:'🛒'},
+            {key:'DESPACHO',nombre:'Despacho',emoji:'🚚'}
+        ];
+        function c76ClaveSucursal(s){
+            return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase();
+        }
+        function c76AsignacionesPorSucursal(){
+            const lista=c56Seguimiento?.productos||[],map=new Map();
+            lista.forEach((p,i)=>{
+                (p.origenes||[]).forEach((o,j)=>{
+                    const asignada=Math.max(0,Number(o.asignada)||0);
+                    if(o.origenDirecto||asignada<=0)return;
+                    const clave=c76ClaveSucursal(o.sucursal);
+                    if(!clave)return;
+                    if(!map.has(clave))map.set(clave,[]);
+                    // Agrupar registros del mismo producto y sucursal sin perder acciones individuales.
+                    let item=map.get(clave).find(x=>x.indice===i);
+                    if(!item){item={p,indice:i,asignada:0,preparada:0,recibida:0,origenes:[]};map.get(clave).push(item);}
+                    item.asignada+=asignada;
+                    item.preparada+=Math.max(0,Number(o.preparada)||0);
+                    item.recibida+=Math.max(0,Number(o.recibida)||0);
+                    item.origenes.push({o,j});
+                });
+            });
+            return map;
+        }
+        function c76CambiarSucursal(key){
+            c76FiltroAsignados=key;
+            if(etapaRutaActual==='asignados')c76RenderAsignados();
+        }
+        function c76AplicarBusqueda(){
+            if(etapaRutaActual!=='asignados')return;
+            const cont=document.getElementById('listaRuta');if(!cont)return;
+            const q=String(document.getElementById('kxBuscar')?.value||'').trim().toLocaleLowerCase('es');
+            let visibles=0;
+            cont.querySelectorAll('.c76-group').forEach(grupo=>{
+                let n=0;
+                grupo.querySelectorAll('.c76-product').forEach(el=>{
+                    const ok=!q||String(el.dataset.buscar||'').toLocaleLowerCase('es').includes(q);
+                    el.hidden=!ok; if(ok)n++;
+                });
+                grupo.hidden=n===0;visibles+=n;
+            });
+            const aviso=cont.querySelector('#c76SinCoincidencias');
+            if(aviso)aviso.hidden=visibles>0;
+        }
+        function c76RenderAsignados(){
+            const cont=document.getElementById('listaRuta');if(!cont)return;
+            const map=c76AsignacionesPorSucursal();
+            const destinos=c76Destinos.concat([...map.keys()].filter(k=>!c76Destinos.some(s=>s.key===k)).sort().map(k=>({key:k,nombre:k,emoji:'🏬'})));
+            const cantidadTotal=[...map.values()].reduce((n,a)=>n+a.length,0);
+            const gruposDisponibles=destinos.filter(d=>c76FiltroAsignados==='TODAS'||c76FiltroAsignados===d.key);
+            let html='<div class="c56-intro"><b>Asignaciones organizadas por sucursal</b><br>Selecciona un lugar para ver qué productos debe preparar, cuántos le asignaron y cuántos confirmó. <b>Preparar Bodega</b> contiene la revisión original; aquí se muestran las asignaciones adicionales por sucursal.</div>';
+            html+=`<div class="c56-board"><div class="c56-stat"><b>${cantidadTotal}</b><span>PRODUCTOS POR DESTINO</span></div><div class="c56-stat"><b>${(c56Seguimiento?.productos||[]).length}</b><span>EN EL KARDEX</span></div></div>`;
+            html+='<div class="c76-tabs" role="group" aria-label="Filtrar asignaciones por sucursal">';
+            html+=`<button type="button" class="${c76FiltroAsignados==='TODAS'?'c76-selected':''}" onclick="c76CambiarSucursal('TODAS')" aria-pressed="${c76FiltroAsignados==='TODAS'}">Todas <span class="c76-pill">${cantidadTotal}</span></button>`;
+            html+=destinos.map(d=>`<button type="button" class="${c76FiltroAsignados===d.key?'c76-selected':''}" onclick="c76CambiarSucursal(${escaparHtmlPedido(JSON.stringify(d.key))})" aria-pressed="${c76FiltroAsignados===d.key}">${d.emoji} ${escaparHtmlPedido(d.nombre)} <span class="c76-pill">${(map.get(d.key)||[]).length}</span></button>`).join('');
+            html+='</div>';
+            let gruposConProductos=0;
+            for(const d of gruposDisponibles){
+                const items=(map.get(d.key)||[]).slice().sort((a,b)=>{
+                    const pa=a.origenes.every(x=>x.o.confirmada)?1:0,pb=b.origenes.every(x=>x.o.confirmada)?1:0;
+                    return pa-pb||String(a.p.producto).localeCompare(String(b.p.producto),'es',{numeric:true,sensitivity:'base'});
+                });
+                if(!items.length)continue;
+                gruposConProductos++;
+                const asignadas=items.reduce((t,x)=>t+x.asignada,0),preparadas=items.reduce((t,x)=>t+x.preparada,0);
+                const tareasPendientes=items.filter(x=>!x.origenes.every(y=>y.o.confirmada)).length;
+                html+=`<section class="c76-group" data-sucursal="${escaparHtmlPedido(d.key)}"><div class="c76-group-head"><div class="c76-group-emoji">${d.emoji}</div><div><div class="c76-group-title">${escaparHtmlPedido(d.nombre)}</div><div class="c76-group-sub">${items.length} producto(s) · ${tareasPendientes} pendiente(s) de revisión</div></div></div>`;
+                html+=`<div class="c76-stats"><div><strong>${items.length}</strong><span>PRODUCTOS</span></div><div><strong>${asignadas}</strong><span>ASIGNADAS</span></div><div><strong>${preparadas}</strong><span>ENCONTRADAS</span></div></div>`;
+                html+=items.map(x=>{
+                    const finalizada=x.origenes.every(y=>y.o.confirmada),completa=finalizada&&x.preparada>=x.asignada;
+                    const label=finalizada?(completa?'✓ Preparado':'⚠ Revisado con faltante'):'⏳ Por preparar';
+                    const tag=finalizada?(completa?'ok':''):'wait';
+                    const liberar=x.origenes.filter(y=>y.o.puedeLiberar).map(y=>{
+                        const saldo=Math.max(0,(Number(y.o.asignada)||0)-(Number(y.o.preparada)||0));
+                        return `<button type="button" class="c76-liberar" onclick="c57LiberarConfirmado(${x.indice},${y.j})">↪ Liberar ${saldo} unidad(es) no encontrada(s)</button>`;
+                    }).join('');
+                    return `<article class="c76-product" data-buscar="${escaparHtmlPedido(x.p.producto)}"><div class="c56-head"><div class="c56-title">${escaparHtmlPedido(x.p.producto)}</div><span class="c56-tag ${tag}">${label}</span></div>
+                      <div class="c76-qty-row"><div class="c76-qty-chip">Asignado: <b>${x.asignada}</b></div><div class="c76-qty-chip">Encontrado: <b>${x.preparada}</b></div>${x.recibida?`<div class="c76-qty-chip">Recibido por Despacho: <b>${x.recibida}</b></div>`:''}</div>
+                      <div class="c76-hint">Kardex: ${Number(x.p.preparado)||0} de ${Number(x.p.requerido)||0} preparados en total.${!finalizada?' Esta sucursal todavía debe confirmar su revisión.':''}</div>${liberar}</article>`;
+                }).join('');
+                html+='</section>';
+            }
+            if(!gruposConProductos)html+='<div class="c76-empty">No hay productos asignados a esta sucursal en la ruta actual.</div>';
+            html+='<div class="c76-empty" id="c76SinCoincidencias" hidden>No hay productos que coincidan con la búsqueda.</div>';
+            cont.innerHTML=html;c76AplicarBusqueda();
+        }
         function c56RenderSeguimiento(vista){
+            if(vista==='asignados'){c76RenderAsignados();return;}
             const data=c56Seguimiento?.productos||[],cont=document.getElementById('listaRuta');if(!cont)return;
-            const filtrar= vista==='completos'?data.filter(p=>p.estado==='COMPLETO'):
-                vista==='recibidos'?data.filter(p=>p.recepcionIniciada):
-                data.filter(p=>p.asignado>0 && p.estado!=='COMPLETO');
+            const filtrar=vista==='completos'?data.filter(p=>p.estado==='COMPLETO'):
+                vista==='recibidos'?data.filter(p=>p.recepcionIniciada):[];
             filtrar.sort((a,b)=>String(a.producto).localeCompare(String(b.producto),'es',{numeric:true,sensitivity:'base'}));
-            const titulo=vista==='completos'?'Productos preparados completos':vista==='recibidos'?'Productos revisados por Despacho':'Productos asignados por sucursal';
-            const intro=vista==='completos'?'Aquí se conservan las cantidades y su origen. Preparado completo no significa recibido completo.':
-                vista==='recibidos'?'Muestra únicamente las recepciones o diferencias confirmadas por Despacho.':
-                'Aquí verás quién debe preparar cada parte. Si ya confirmaron una cantidad menor en la versión anterior, utiliza Liberar saldo. Los productos sin asignar se consultan en Pendientes.';
+            const titulo=vista==='completos'?'Productos preparados completos':'Productos revisados por Despacho';
+            const intro=vista==='completos'?'Aquí se conservan las cantidades y su origen. Preparado completo no significa recibido completo.':'Muestra únicamente las recepciones o diferencias confirmadas por Despacho.';
             let html=`<div class="c56-intro"><b>${titulo}</b><br>${intro}</div><div class="c56-board"><div class="c56-stat"><b>${filtrar.length}</b><span>PRODUCTOS</span></div><div class="c56-stat"><b>${data.length}</b><span>EN EL KARDEX</span></div></div>`;
             if(!filtrar.length)html+='<div class="kx-complete">No hay productos en esta sección por ahora.</div>';
             html+=filtrar.map(p=>{
@@ -6150,6 +6270,9 @@ if ("serviceWorker" in navigator) {
      const buscar=tools.querySelector('#kxBuscar');
      const aplicar=()=>{
        const q=(buscar.value||'').toLowerCase().trim();
+       if(typeof c76AplicarBusqueda==='function' && etapaRutaActual==='asignados'){
+         c76AplicarBusqueda();return;
+       }
        lista.querySelectorAll('.kx-product').forEach(card=>{
          const text=(card.textContent||'').toLowerCase();
          card.style.display=(!q||text.includes(q))?'':'none';
