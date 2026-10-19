@@ -1113,6 +1113,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c66-bodega .c68-parcial-unidad[hidden]{display:none!important;}
 .c66-bodega .c68-ref{font-size:10px;line-height:1.4;color:#6c7e97;overflow-wrap:anywhere;margin:0 0 2px;}
 
+
 /* ===== Online Shop v1.6.69 BETA · Recepción Inteligente / Liquid Glass ===== */
 #moduloRecepcion.c69-recepcion{padding:15px!important;background:rgba(249,252,255,.78)!important;border:1px solid rgba(190,213,242,.7)!important;box-shadow:0 16px 42px rgba(33,83,146,.09)!important;}
 #moduloRecepcion .c69-head{text-align:center;margin:8px 0 18px;}
@@ -1176,6 +1177,43 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloRecepcion .c69-empty{padding:19px;text-align:center;color:#567394;border:1px dashed #cad9eb;border-radius:19px;background:rgba(255,255,255,.8);font-size:13px;}
 @media(max-width:380px){#moduloRecepcion .c69-date{min-width:77px;padding:8px 6px;}#moduloRecepcion .c69-order-id{font-size:12px;}#moduloRecepcion .c69-quick button{font-size:11px!important;}#moduloRecepcion .c69-qty{grid-template-columns:44px minmax(0,1fr) 44px;}#moduloRecepcion .c69-qty button{width:44px!important;height:46px!important;}}
 
+/* ===== Online Shop v1.6.70 · Tres decisiones para Recibir pedidos ===== */
+#moduloRecepcion .c69-quick{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:13px 0 10px;}
+#moduloRecepcion .c69-quick button{min-width:0;min-height:70px!important;border-radius:20px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,.77)!important;border:1px solid #d0dced!important;color:#334d67!important;box-shadow:inset 0 1px rgba(255,255,255,.9),0 3px 12px rgba(39,75,124,.055)!important;font-size:12px!important;transition:transform .12s,background .15s,border .15s;}
+#moduloRecepcion .c69-quick button:active{transform:scale(.98);}
+#moduloRecepcion .c69-quick button .c70-ico{font-size:22px;line-height:1.12;font-weight:900;}
+#moduloRecepcion .c69-quick button.c70-selected[data-c70-mode="RECIBIDO"]{background:linear-gradient(135deg,#daf9e7,#bff3db)!important;border-color:#83d4a9!important;color:#126b46!important;box-shadow:0 5px 15px rgba(28,144,92,.13)!important;}
+#moduloRecepcion .c69-quick button.c70-selected[data-c70-mode="NADA"]{background:linear-gradient(135deg,#ffe5eb,#f9b9c8)!important;border-color:#e7a1b3!important;color:#ad3650!important;box-shadow:0 5px 15px rgba(175,69,93,.12)!important;}
+#moduloRecepcion .c69-quick button.c70-selected[data-c70-mode="PARCIAL"]{background:linear-gradient(135deg,#ffebc3,#ffd37d)!important;border-color:#efbc5a!important;color:#90601c!important;box-shadow:0 5px 15px rgba(182,124,41,.14)!important;}
+#moduloRecepcion .c70-qty-wrap{padding:12px;border-radius:20px;background:rgba(255,250,236,.75);border:1px solid #ebdfbf;margin:9px 0;}
+#moduloRecepcion .c70-qty-wrap[hidden],#moduloRecepcion .c70-unidad[hidden]{display:none!important;}
+#moduloRecepcion .c70-qty-wrap .c69-qty-label{text-align:center;margin:0 0 9px;font-size:12px;color:#755c30;}
+#moduloRecepcion .c70-qty-help{text-align:center;font-size:11px;color:#786948;margin-top:6px;}
+#moduloRecepcion .c70-unidad{border-radius:13px;background:#fff4dc;border:1px solid #f4dbac;color:#865d19;font-size:12px;line-height:1.55;font-weight:750;padding:10px;margin:7px 0;}
+#moduloRecepcion .c69-card.c70-pending{background:linear-gradient(140deg,#fff,#f3f7fd);border-color:#d6e0ef;}
+#moduloRecepcion .c69-status.c70-wait{background:#edf3fa;color:#516e91;}
+#moduloRecepcion .c69-stats{grid-template-columns:repeat(4,minmax(0,1fr));}
+#moduloRecepcion .c69-filters{grid-template-columns:repeat(4,minmax(0,1fr));}
+#moduloRecepcion .c69-filters button{font-size:11px!important;}
+#moduloRecepcion .c70-diff-help{font-size:11px;font-weight:720;color:#657d95;line-height:1.5;margin-top:8px;}
+@media(max-width:520px){#moduloRecepcion .c69-stats{grid-template-columns:repeat(2,minmax(0,1fr));}#moduloRecepcion .c69-filters{grid-template-columns:repeat(2,minmax(0,1fr));}#moduloRecepcion .c69-quick{gap:6px;}#moduloRecepcion .c69-quick button{min-height:73px!important;padding:7px 3px!important;font-size:11px!important;} }
+
+
+</style>
+<style id="c71-recepcion-style">
+#moduloRecepcion .c71-note,#moduloFaltantesDia .c71-note{padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,rgba(234,245,255,.94),rgba(251,254,255,.97));border:1px solid #cee0f3;color:#365979;font-size:12px;font-weight:640;line-height:1.6;margin:10px 0 15px}
+#moduloFaltantesDia .c71-faltante{padding:15px;margin:12px 0;background:linear-gradient(145deg,#fff,#f4f8ff);border:1px solid #d6e2f2;border-radius:22px;box-shadow:0 8px 22px rgba(48,88,143,.07)}
+#moduloFaltantesDia .c71-incident-card{border-radius:17px;border:1px solid #f8daac;background:#fff9ee;padding:13px;margin:9px 0;color:#7e5d32;font-size:13px;line-height:1.5}
+#moduloFaltantesDia .c71-faltante-head{display:flex;gap:12px;align-items:center;font-size:15px}
+#moduloFaltantesDia .c71-muted{color:#6c8095;font-size:12px;line-height:1.5;margin-top:5px}
+#moduloFaltantesDia .c71-faltante-stats{display:flex;gap:7px;margin:14px 0 5px;flex-wrap:wrap}
+#moduloFaltantesDia .c71-faltante-stats span{flex:1 1 85px;background:rgba(230,240,253,.7);padding:10px 6px;text-align:center;border-radius:13px;font-size:11px;color:#60748f}
+#moduloFaltantesDia .c71-faltante-stats strong{display:block;font-size:20px;color:#2a4b70;margin-top:4px}
+#moduloFaltantesDia .c71-warning{padding:10px;margin-top:8px;border:1px solid #ffe2a5;border-radius:12px;background:#fff6e7;color:#9c671d;font-size:12px;line-height:1.5}
+#moduloFaltantesDia .c71-quantity{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:8px;margin-top:12px}
+#moduloFaltantesDia .c71-quantity button,#moduloFaltantesDia .c71-quantity input{min-width:0!important;width:100%!important;height:48px!important;margin:0!important;text-align:center;font-weight:800;font-size:18px;border-radius:14px!important}
+#moduloFaltantesDia .c71-quantity button:first-child{background:#6e7b8e!important}#moduloFaltantesDia .c71-quantity button:last-child{background:#087cff!important}
+#moduloFaltantesDia button.c71-blue,#moduloFaltantesDia button.c71-grey{margin-top:9px!important;border-radius:14px!important;font-size:13px!important;padding:13px!important}#moduloFaltantesDia button.c71-blue{background:#087cff!important}#moduloFaltantesDia button.c71-grey{background:#6c7b8b!important}
 </style>
 </head>
 <body>
@@ -1197,7 +1235,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.69 BETA · Recepción inteligente · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.71 BETA · Recibir con 3 botones · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1441,7 +1479,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     </div>
 
     <!-- RECEPCIÓN DE PEDIDOS -->
-        <div id="moduloRecepcion" class="card modulo-pantalla c69-recepcion" data-recepcion-v169="1" style="text-align:left;">
+        <div id="moduloRecepcion" class="card modulo-pantalla c69-recepcion" data-recepcion-v171="1" style="text-align:left;">
             <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
             <div class="c69-head">
               <span class="c69-overline">ONLINE SHOP · CONTROL DE SUCURSAL</span>
@@ -1474,9 +1512,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     <div id="moduloFaltantesDia" class="card modulo-pantalla" style="text-align:left;">
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
         <h3 style="text-align:center;">🟠 Faltantes del día</h3>
-        <p style="font-size:12px;color:#666;text-align:center;">Faltantes confirmados por la sucursal. Si el producto entra después, prepara el complemento; si no llega, pásalo a Compras.</p>
+        <p style="font-size:12px;color:#666;text-align:center;">Controla lo que Bodega no pudo surtir. Los complementos preparados regresan a Recepción; lo preparado que no llegó va a revisión de Despacho.</p>
         <button onclick="cargarFaltantesDelDia()" style="background:#007bff;">🔄 Actualizar faltantes</button>
-        <div id="listaFaltantesDia" style="margin-top:10px;"></div>
+        <div id="listaFaltantesDia" style="margin-top:10px;"></div><h4 style="margin:24px 0 8px">🚚 Diferencias de entrega pendientes de Despacho</h4><div id="listaIncidenciasDespacho" class="c71-incidencias"></div>
     </div>
 
     <!-- MÓDULO DE COMPRAS - SOLO BODEGA -->
@@ -3062,11 +3100,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             renderizarPedidosBodega();
             if(pedidoBodegaAbierto)window.scrollTo(0,scrollAnterior);
         }
-        function c60CambiarRechazoAdicional(i){
-            const marcado=!!document.getElementById('c60Rechazo_'+i)?.checked;
-            const input=document.getElementById('recibido_'+i);if(input){input.disabled=marcado;if(marcado)input.value='0';else input.value=String(pedidosRecepcionActuales[i]?.cantidadPreparada||0);}
-            actualizarEstadoRecepcion(i);
-        }
         async function c60CargarSolicitudesSucursal(){
             const cont=document.getElementById('c60SolicitudesSucursal');if(!cont)return;
             try{
@@ -3362,8 +3395,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         let pedidosRecepcionActuales = [];
 
-        // ===== v1.6.69 · Recepción clara, rápida y por fecha =====
+        // ===== v1.6.70 · Recepción revisada explícitamente por un colaborador =====
+        // «cantidad» no implica «revisado»: evita aprobar silenciosamente productos precargados.
         let c69FiltroActual='todos',c69BusquedaActual='';
+        let c70EstadoPorIndice=Object.create(null);
+        let c70AntesRechazo=Object.create(null);
         function c69NumeroValido(value){
             if(value===null||value===undefined||String(value).trim()==='')return null;
             const num=Number(value);
@@ -3377,76 +3413,137 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const meses=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
             return {dia:m[3],mes:meses[n-1]||'MES',anio:m[1],texto:m[3]+'/'+m[2]+'/'+m[1],orden:m[1]+'-'+m[2]+'-'+m[3]};
         }
+        function c71CantidadEsperada(item){
+            const pedida=c69NumeroValido(item?.cantidadPedida)??0;
+            const preparado=c69NumeroValido(item?.cantidadPreparada)??0;
+            return ['Despachado','Despachado parcial'].includes(item?.estadoPreparacion)?preparado:pedida;
+        }
+        function c71EsComplemento(item){return item?.tipoRegistro==='COMPLEMENTO_FALTANTE';}
+        function c70ClaveRecepcion(item,index){
+            return [String(item.idPedido||''),String(item.lineaId||item.filaPedido||index),String(item.producto||'')].join('|');
+        }
+        function c70CapturarAvance(){
+            const snapshot=new Map();
+            pedidosRecepcionActuales.forEach((item,i)=>{
+                const estado=c70EstadoPorIndice[i];
+                if(!estado)return;
+                const inp=document.getElementById('recibido_'+i);
+                snapshot.set(c70ClaveRecepcion(item,i),{modo:estado,valor:inp?inp.value:'0',rechazado:!!document.getElementById('c60Rechazo_'+i)?.checked});
+            });
+            return snapshot;
+        }
+        function c70SeleccionarRecepcion(index,modo){
+            const item=pedidosRecepcionActuales[index],input=document.getElementById('recibido_'+index);
+            if(!item||!input||input.disabled)return;
+            const pedido=c71CantidadEsperada(item);
+            const aviso=document.getElementById('c70Unidad_'+index);
+            if(aviso)aviso.hidden=true;
+            if(modo==='PARCIAL'&&pedido<=1){
+                if(aviso){aviso.textContent='Para '+pedido+' unidad(es) preparadas por Bodega, elige Recibido o No recibido. Parcial necesita al menos 2.';aviso.hidden=false;}
+                return;
+            }
+            if(modo==='RECIBIDO'&&pedido===0){if(aviso){aviso.textContent='Bodega preparó 0 unidades. Selecciona No recibido para confirmarlo.';aviso.hidden=false;}return;}
+            if(modo==='RECIBIDO')input.value=String(pedido);
+            else if(modo==='NADA')input.value='0';
+            else if(modo==='PARCIAL'){
+                const anterior=c69NumeroValido(input.value);
+                input.value=String(c70EstadoPorIndice[index]==='PARCIAL'&&anterior!==null&&anterior>0?anterior:1);
+            }
+            c70EstadoPorIndice[index]=modo;
+            actualizarEstadoRecepcion(index);
+        }
+        function c69MarcarCantidad(index,modo){c70SeleccionarRecepcion(index,modo==='TODO'?'RECIBIDO':modo==='NADA'?'NADA':modo);}
         function cambiarCantidadRecibida(index,cambio){
             const input=document.getElementById('recibido_'+index);
             if(!input||input.disabled)return;
-            const base=c69NumeroValido(input.value)??0;
-            input.value=String(Math.min(99999,Math.max(0,base+cambio)));
+            const base=c69NumeroValido(input.value)??1;
+            const max=c71CantidadEsperada(pedidosRecepcionActuales[index]);
+            input.value=String(Math.min(Math.max(1,max-1),Math.max(1,base+cambio)));
+            c70EstadoPorIndice[index]='PARCIAL';
             actualizarEstadoRecepcion(index);
         }
-        function c69MarcarCantidad(index,modo){
-            const item=pedidosRecepcionActuales[index],input=document.getElementById('recibido_'+index);
-            if(!item||!input||input.disabled)return;
-            input.value=String(modo==='TODO'?(c69NumeroValido(item.cantidadPedida)??0):0);
+        function c70CantidadManual(index){
+            const inp=document.getElementById('recibido_'+index);
+            if(!inp||inp.disabled)return;
+            const valor=c69NumeroValido(inp.value),pedido=c71CantidadEsperada(pedidosRecepcionActuales[index]);
+            c70EstadoPorIndice[index]=valor===null||valor>pedido?'PARCIAL':valor===0?'NADA':valor===pedido?'RECIBIDO':'PARCIAL';
             actualizarEstadoRecepcion(index);
+        }
+        function c60CambiarRechazoAdicional(i){
+            const marcado=!!document.getElementById('c60Rechazo_'+i)?.checked;
+            const input=document.getElementById('recibido_'+i);
+            if(!input)return;
+            if(marcado){
+                c70AntesRechazo[i]={modo:c70EstadoPorIndice[i],valor:input.value};
+                input.value='0';c70EstadoPorIndice[i]='NADA';input.disabled=true;
+            }else{
+                const previo=c70AntesRechazo[i];
+                input.disabled=false;
+                if(previo){input.value=previo.valor; if(previo.modo)c70EstadoPorIndice[i]=previo.modo;else delete c70EstadoPorIndice[i];}
+                else{input.value='0';delete c70EstadoPorIndice[i];}
+                delete c70AntesRechazo[i];
+            }
+            actualizarEstadoRecepcion(i);
         }
         function actualizarEstadoRecepcion(index){
             const item=pedidosRecepcionActuales[index],input=document.getElementById('recibido_'+index);
             const estado=document.getElementById('estadoRec_'+index),tarjeta=document.getElementById('c69Item_'+index);
             if(!item||!input||!estado)return;
             const recibido=c69NumeroValido(input.value);
-            const pedido=c69NumeroValido(item.cantidadPedida)??0;
+            const pedido=c71CantidadEsperada(item);
+            const solicitado=c69NumeroValido(item.cantidadOriginal??item.cantidadPedida)??pedido;
             const rechazado=!!document.getElementById('c60Rechazo_'+index)?.checked;
-            const todo=document.getElementById('c69Todo_'+index),nada=document.getElementById('c69Nada_'+index);
-            if(todo)todo.classList.toggle('c69-picked',!rechazado&&recibido!==null&&recibido===pedido);
-            if(nada)nada.classList.toggle('c69-picked',recibido===0);
-            if(nada)nada.classList.toggle('c69-none',recibido===0);
+            const modo=c70EstadoPorIndice[index]||'';
+            const espera=!modo||recibido===null||recibido>pedido||(modo==='PARCIAL'&&(recibido<=0||recibido>=pedido));
+            ['RECIBIDO','NADA','PARCIAL'].forEach((k,j)=>{
+                const btn=document.getElementById(['c69Todo_','c69Nada_','c70Parcial_'][j]+index);
+                if(btn){btn.classList.toggle('c70-selected',modo===k&&!espera);btn.setAttribute('aria-pressed',String(modo===k&&!espera));btn.disabled=rechazado;}
+            });
+            const control=document.getElementById('c70Cantidad_'+index);
+            if(control)control.hidden=modo!=='PARCIAL'||rechazado;
             estado.className='c69-status';
-            if(recibido===null){
-                estado.textContent='⚠️ Ingresa una cantidad entera entre 0 y 99,999';
-                estado.classList.add('diff');
-                if(tarjeta)tarjeta.classList.add('c69-card-diff');
-            } else if(rechazado){
-                estado.textContent='✕ Producto adicional rechazado · 0 recibido';
-                estado.classList.add('diff');
-            } else if(recibido===pedido){
-                estado.textContent='✓ Coincide con el pedido';
-                estado.classList.add('ok');
-            } else if(recibido<pedido){
-                estado.textContent='⚠️ Faltan '+(pedido-recibido)+' · Recibido '+recibido+' de '+pedido;
-                estado.classList.add('diff');
-            } else {
-                estado.textContent='＋ Llegaron '+(recibido-pedido)+' de más';
-                estado.classList.add('more');
-            }
+            if(!modo){estado.textContent='⏳ Pendiente de revisar · elige una opción';estado.classList.add('c70-wait');}
+            else if(recibido===null||recibido>pedido){estado.textContent='⚠️ Ingresa una cantidad entre 0 y '+pedido+' (lo preparado por Bodega)';estado.classList.add('diff');}
+            else if(modo==='PARCIAL'&&(recibido<=0||recibido>=pedido)){estado.textContent='⚠️ Para parcial, ingresa una cantidad de 1 a '+Math.max(1,pedido-1);estado.classList.add('diff');}
+            else if(rechazado){estado.textContent='✕ Adicional rechazado · se recibirá 0';estado.classList.add('diff');}
+            else if(modo==='NADA'){estado.textContent='✕ No recibido · 0 de '+pedido+' preparados';estado.classList.add('diff');}
+            else if(recibido===pedido){estado.textContent='✓ Recibido '+recibido+' de '+pedido+' preparados'+(!c71EsComplemento(item)&&solicitado>pedido?' · '+(solicitado-pedido)+' sin surtir en Bodega':'');estado.classList.add('ok');}
+            else if(recibido<pedido){estado.textContent='◐ Recibido '+recibido+' de '+pedido+' · Faltan '+(pedido-recibido);estado.classList.add('diff');}
+            else{estado.textContent='＋ Recibido '+recibido+' de '+pedido+' · '+(recibido-pedido)+' extra';estado.classList.add('more');}
             if(tarjeta){
-                tarjeta.classList.toggle('c69-card-ok',recibido===pedido&&!rechazado);
-                tarjeta.classList.toggle('c69-card-diff',recibido!==pedido||rechazado);
+                tarjeta.classList.toggle('c70-pending',espera);
+                tarjeta.classList.toggle('c69-card-ok',!espera&&recibido===pedido&&!rechazado);
+                tarjeta.classList.toggle('c69-card-diff',!espera&&(recibido!==pedido||rechazado));
             }
             c69ActualizarResumen();
         }
         function c69ActualizarResumen(){
-            let coinciden=0,diferencias=0,invalidos=0;
+            let revisados=0,coinciden=0,diferencias=0,invalidos=0;
             pedidosRecepcionActuales.forEach((p,i)=>{
                 const inp=document.getElementById('recibido_'+i);
-                if(!inp)return;
-                const v=c69NumeroValido(inp.value),pedido=c69NumeroValido(p.cantidadPedida)??0;
+                const modo=c70EstadoPorIndice[i];
+                if(!inp||!modo)return;
+                const v=c69NumeroValido(inp.value),pedido=c71CantidadEsperada(p);
+                if(v===null||v>pedido||(modo==='PARCIAL'&&(v<=0||v>=pedido))){invalidos++;return;}
+                revisados++;
                 const rechazo=!!document.getElementById('c60Rechazo_'+i)?.checked;
-                if(v===null){invalidos++;diferencias++;}
-                else if(v===pedido&&!rechazo)coinciden++;
-                else diferencias++;
+                if(v===pedido&&!rechazo)coinciden++;else diferencias++;
             });
-            const total=pedidosRecepcionActuales.length;
-            const pct=total?Math.round(coinciden/total*100):0;
-            const vals=[['c69Total',total],['c69Coinciden',coinciden],['c69Diferencias',diferencias],['c69Porcentaje',pct+'%']];
-            vals.forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=v;});
+            const total=pedidosRecepcionActuales.length,pendientes=total-revisados;
+            const pct=total?Math.round(revisados/total*100):0;
+            [['c69Total',total],['c70Revisados',revisados],['c70Pendientes',pendientes],['c69Diferencias',diferencias],['c69Coinciden',coinciden],['c69Porcentaje',pct+'%']].forEach(([id,v])=>{
+                const e=document.getElementById(id);if(e)e.textContent=v;
+            });
             const barra=document.getElementById('c69Barra');if(barra)barra.style.width=pct+'%';
             const btn=document.getElementById('btnConfirmarRecepcion');
-            if(btn&&!btn.dataset.guardando){btn.disabled=!!invalidos;btn.textContent=invalidos?'⚠️ Corrige las cantidades inválidas':'✓ Confirmar recepción';}
+            if(btn&&!btn.dataset.guardando){
+                btn.disabled=pendientes>0||invalidos>0;
+                btn.textContent=invalidos?'⚠️ Corrige las cantidades inválidas':pendientes?'⏳ Revisa todos los productos ('+revisados+'/'+total+')':'✓ Confirmar recepción';
+            }
             c69AplicarFiltros();
         }
         function c69FiltroRecepcion(filtro){
-            c69FiltroActual=['todos','iguales','diferencias'].includes(filtro)?filtro:'todos';
+            c69FiltroActual=['todos','pendientes','iguales','diferencias'].includes(filtro)?filtro:'todos';
             document.querySelectorAll('#moduloRecepcion .c69-filters button').forEach(b=>b.classList.toggle('c69-active',b.dataset.filtro===c69FiltroActual));
             c69AplicarFiltros();
         }
@@ -3458,8 +3555,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     const i=Number(card.dataset.index),item=pedidosRecepcionActuales[i];
                     if(!item)return;
                     const val=c69NumeroValido(document.getElementById('recibido_'+i)?.value);
-                    const igual=val!==null&&val===(c69NumeroValido(item.cantidadPedida)??0)&&!document.getElementById('c60Rechazo_'+i)?.checked;
-                    const filtro=c69FiltroActual==='todos'||(c69FiltroActual==='iguales'&&igual)||(c69FiltroActual==='diferencias'&&!igual);
+                    const revisado=!!c70EstadoPorIndice[i]&&val!==null&&val<=c71CantidadEsperada(item)&&!(c70EstadoPorIndice[i]==='PARCIAL'&&(val<=0||val>=c71CantidadEsperada(item)));
+                    const igual=revisado&&val===c71CantidadEsperada(item)&&!document.getElementById('c60Rechazo_'+i)?.checked;
+                    const filtro=c69FiltroActual==='todos'||(c69FiltroActual==='pendientes'&&!revisado)||(c69FiltroActual==='iguales'&&igual)||(c69FiltroActual==='diferencias'&&revisado&&!igual);
                     const texto=[item.producto,item.idPedido,item.solicito,item.fecha].join(' ').toLowerCase();
                     const visible=filtro&&(!c69BusquedaActual||texto.includes(c69BusquedaActual));
                     card.hidden=!visible;
@@ -3472,6 +3570,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
         function cargarPedidosParaRecepcion(){
             c60CargarSolicitudesSucursal();
+            const c70Snapshot=c70CapturarAvance();
             const cont=document.getElementById('listaRecepcionPedidos');
             const sucursal=localStorage.getItem('sucursal')||'';
             if(!cont)return;
@@ -3480,7 +3579,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
                 .then(data=>{
                     if(!data||data.status!=='OK')throw Error(data?.mensaje||'Respuesta inválida');
+                    if(data.recepcionVersion!=='1.6.71')throw Error('Publica Código.gs v1.6.71 antes de usar la recepción nueva. No se modificó ningún pedido.');
                     pedidosRecepcionActuales=Array.isArray(data.productos)?data.productos:[];
+                    c70EstadoPorIndice=Object.create(null);c70AntesRechazo=Object.create(null);
                     if(!pedidosRecepcionActuales.length){
                         cont.innerHTML='<div class="c69-empty">✓ No tienes productos pendientes por recibir.</div>';
                         return;
@@ -3495,16 +3596,18 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                         const fa=c69FechaVisible(a[1].item.fecha).orden,fb=c69FechaVisible(b[1].item.fecha).orden;
                         return fb.localeCompare(fa)||b[1].indices[0]-a[1].indices[0];
                     });
-                    let html=`<section class="c69-dashboard" aria-label="Resumen de cantidades a recibir">
+                    let html=`<div class="c71-note">📦 <strong>Recibir</strong> confirma lo preparado por Bodega, no lo solicitado originalmente. Lo que Bodega no tuvo va a Faltantes del día; si algo preparado no llegó, se registra para revisión de Despacho.</div><section class="c69-dashboard" aria-label="Resumen de cantidades a recibir">
                         <div class="c69-stats"><div class="c69-stat"><strong id="c69Total">0</strong><span>PRODUCTOS</span></div>
-                          <div class="c69-stat"><strong id="c69Coinciden">0</strong><span>COINCIDEN</span></div>
+                          <div class="c69-stat"><strong id="c70Revisados">0</strong><span>REVISADOS</span></div>
+                          <div class="c69-stat"><strong id="c70Pendientes">0</strong><span>PENDIENTES</span></div>
                           <div class="c69-stat"><strong id="c69Diferencias">0</strong><span>DIFERENCIAS</span></div></div>
-                        <div class="c69-progress-label"><span>Cantidades iguales al pedido</span><span id="c69Porcentaje">0%</span></div>
+                        <div class="c69-progress-label"><span>Productos comprobados físicamente</span><span id="c69Porcentaje">0%</span></div>
                         <div class="c69-progress"><div id="c69Barra" style="width:0%"></div></div>
-                        <div class="c69-help">Estas cifras comparan las cantidades de pantalla con lo solicitado. Aún debes confirmar la recepción para guardarlas.</div>
+                        <div class="c69-help">Revisado significa que alguien eligió una opción. Diferencias son cantidades revisadas que no coinciden con lo solicitado. Guarda al finalizar.</div>
                     </section><div class="c69-tools"><input class="c69-search" type="search" placeholder="⌕ Buscar producto o número de pedido…" value="${escaparHtmlPedido(c69BusquedaActual)}" oninput="c69BuscarRecepcion(this.value)" aria-label="Buscar en pedidos de recepción" />
                     <div class="c69-filters" role="group" aria-label="Filtrar productos de recepción">
                       <button type="button" data-filtro="todos" class="${c69FiltroActual==='todos'?'c69-active':''}" onclick="c69FiltroRecepcion('todos')">Todos</button>
+                      <button type="button" data-filtro="pendientes" class="${c69FiltroActual==='pendientes'?'c69-active':''}" onclick="c69FiltroRecepcion('pendientes')">Pendientes</button>
                       <button type="button" data-filtro="iguales" class="${c69FiltroActual==='iguales'?'c69-active':''}" onclick="c69FiltroRecepcion('iguales')">Coinciden</button>
                       <button type="button" data-filtro="diferencias" class="${c69FiltroActual==='diferencias'?'c69-active':''}" onclick="c69FiltroRecepcion('diferencias')">Diferencias</button>
                     </div></div><div id="c69Grupos">`;
@@ -3521,43 +3624,66 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                             const item=pedidosRecepcionActuales[i];
                             const pedido=c69NumeroValido(item.cantidadPedida)??0;
                             const preparado=c69NumeroValido(item.cantidadPreparada)??0;
+                            const esperado=c71CantidadEsperada(item);
+                            const esComplemento=c71EsComplemento(item);
                             const conocido=['Despachado','Despachado parcial'].includes(item.estadoPreparacion);
-                            const inicial=conocido?preparado:pedido;
+                            const inicial=0; // Sin marcar: ningún producto se da por revisado automáticamente.
                             const adicional=item.origen==='ADICIONAL_BODEGA';
                             html+=`<article class="c69-card" id="c69Item_${i}" data-index="${i}">
                               <div class="c69-product-top"><div class="c69-photo">${imagenProductoGlobal(item.producto,item,58)}</div><div class="c69-product-name">${escaparHtmlPedido(item.producto)}</div></div>
-                              <div class="c69-product-meta"><span>Solicitado: <strong>${pedido}</strong></span><span class="c69-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span>${adicional?'<span class="c69-chip">Adicional de Bodega</span>':''}</div>
-                              ${conocido?`<div class="c69-prepared">📦 Preparado por Bodega: <strong>${preparado}</strong></div>`:''}
-                              <div class="c69-quick"><button id="c69Todo_${i}" type="button" onclick="c69MarcarCantidad(${i},'TODO')">✓ Todo recibido</button><button id="c69Nada_${i}" type="button" onclick="c69MarcarCantidad(${i},'NADA')">✕ No llegó</button></div>
-                              <div class="c69-qty-label">¿Cuántas unidades recibiste realmente?</div>
-                              <div class="c69-qty"><button type="button" class="c69-minus" onclick="cambiarCantidadRecibida(${i},-1)" aria-label="Restar una unidad">−</button>
-                              <input id="recibido_${i}" type="number" min="0" max="99999" step="1" inputmode="numeric" value="${inicial}" aria-label="Cantidad recibida de ${escaparHtmlPedido(item.producto)}" oninput="actualizarEstadoRecepcion(${i})" onblur="actualizarEstadoRecepcion(${i})" />
-                              <button type="button" class="c69-plus" onclick="cambiarCantidadRecibida(${i},1)" aria-label="Sumar una unidad">+</button></div>
+                              <div class="c69-product-meta"><span>${esComplemento?'Complemento preparado':'Solicitado'}: <strong>${pedido}</strong></span><span class="c69-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span>${adicional?'<span class="c69-chip">Adicional de Bodega</span>':''}${esComplemento?'<span class="c69-chip">🚚 Complemento pendiente de confirmar</span>':''}</div>
+                              ${conocido?`<div class="c69-prepared">📦 Cantidad que debes recibir de Bodega: <strong>${esperado}</strong>${!esComplemento&&pedido>esperado?` · 🟠 Sin surtir: <strong>${pedido-esperado}</strong> (Faltantes del día)`:''}</div>`:''}
+                              <div class="c69-quick" role="group" aria-label="Estado de recepción de ${escaparHtmlPedido(item.producto)}">
+                                <button id="c69Todo_${i}" type="button" data-c70-mode="RECIBIDO" aria-pressed="false" onclick="c70SeleccionarRecepcion(${i},'RECIBIDO')"><span class="c70-ico">✓</span>Recibido</button>
+                                <button id="c69Nada_${i}" type="button" data-c70-mode="NADA" aria-pressed="false" onclick="c70SeleccionarRecepcion(${i},'NADA')"><span class="c70-ico">✕</span>No recibido</button>
+                                <button id="c70Parcial_${i}" type="button" data-c70-mode="PARCIAL" aria-pressed="false" onclick="c70SeleccionarRecepcion(${i},'PARCIAL')"><span class="c70-ico">◐</span>Parcial</button>
+                              </div>
+                              <div id="c70Unidad_${i}" class="c70-unidad" hidden></div>
+                              <div id="c70Cantidad_${i}" class="c70-qty-wrap" hidden>
+                                <div class="c69-qty-label">UNIDADES QUE SÍ RECIBISTE</div>
+                                <div class="c69-qty"><button type="button" class="c69-minus" onclick="cambiarCantidadRecibida(${i},-1)" aria-label="Restar una unidad">−</button>
+                                <input id="recibido_${i}" type="number" min="0" max="${Math.max(0,esperado-1)}" step="1" inputmode="numeric" value="${inicial}" aria-label="Cantidad recibida de ${escaparHtmlPedido(item.producto)}" oninput="c70CantidadManual(${i})" onblur="c70CantidadManual(${i})" />
+                                <button type="button" class="c69-plus" onclick="cambiarCantidadRecibida(${i},1)" aria-label="Sumar una unidad">+</button></div>
+                                <div class="c70-qty-help">Preparado por Bodega: ${esperado} · Elige cuántas unidades recibiste realmente.</div>
+                              </div>
                               <div class="c69-status" id="estadoRec_${i}" aria-live="polite"></div>
                               ${adicional?`<label class="c69-reject"><input id="c60Rechazo_${i}" type="checkbox" onchange="c60CambiarRechazoAdicional(${i})"/> Rechazar este producto adicional de Bodega</label>`:''}
                             </article>`;
                         });
                         html+='</section>';
                     });
-                    html+='</div><div id="c69SinFiltro" class="c69-empty" hidden>No hay productos con ese filtro.</div><div class="c69-save"><div class="c69-save-note">Se guardarán todos los productos pendientes, incluso los ocultos por filtros.</div><button id="btnConfirmarRecepcion" type="button" onclick="confirmarRecepcionPedido()">✓ Confirmar recepción</button></div>';
+                    html+='</div><div id="c69SinFiltro" class="c69-empty" hidden>No hay productos con ese filtro.</div><div class="c69-save"><div class="c69-save-note">Solo podrás guardar tras revisar todos los productos. Los filtros no excluyen productos del guardado.</div><button id="btnConfirmarRecepcion" type="button" onclick="confirmarRecepcionPedido()">✓ Confirmar recepción</button></div>';
                     cont.innerHTML=html;
-                    // Fill statuses before a single summary update; no re-rendering or extra requests.
+                    pedidosRecepcionActuales.forEach((item,i)=>{
+                        const antes=c70Snapshot.get(c70ClaveRecepcion(item,i));
+                        if(!antes)return;
+                        const inp=document.getElementById('recibido_'+i);
+                        if(inp)inp.value=antes.valor;
+                        if(antes.modo)c70EstadoPorIndice[i]=antes.modo;
+                        const chk=document.getElementById('c60Rechazo_'+i);
+                        if(chk&&antes.rechazado){chk.checked=true;inp.disabled=true;c70EstadoPorIndice[i]='NADA';inp.value='0';}
+                    });
+                    // Ningún producto se marca «recibido» automáticamente.
                     pedidosRecepcionActuales.forEach((_,i)=>actualizarEstadoRecepcion(i));
                     c69AplicarFiltros();
                 })
                 .catch(err=>{
                     console.error('Error cargando recepción:',err);
-                    cont.innerHTML='<div class="c69-empty">No se pudieron cargar los pedidos. Pulsa «Actualizar pedidos» e inténtalo de nuevo.</div>';
+                    cont.innerHTML='<div class="c69-empty">⚠️ '+escaparHtmlPedido(err.message||'No se pudieron cargar los pedidos.')+' Pulsa «Actualizar pedidos» después de resolverlo.</div>';
                 });
         }
 
         async function confirmarRecepcionPedido() {
             if (!pedidosRecepcionActuales.length) return;
-            if((c69FiltroActual!=='todos'||c69BusquedaActual)&&!confirm('Hay filtros activos. Se guardarán las cantidades de TODOS los productos pendientes, incluidos los que no ves en pantalla. ¿Confirmar recepción completa?'))return;
             for (let i=0;i<pedidosRecepcionActuales.length;i++) {
+                if(!c70EstadoPorIndice[i])return alert('Hay productos sin revisar. Revisa «'+pedidosRecepcionActuales[i].producto+'» antes de confirmar.');
                 const valor=c69NumeroValido(document.getElementById('recibido_'+i)?.value);
+                const esperado=c71CantidadEsperada(pedidosRecepcionActuales[i]);
+                if(valor!==null&&valor>esperado)return alert('No puedes recibir más de '+esperado+' unidades de '+pedidosRecepcionActuales[i].producto+'.');
+                if(c70EstadoPorIndice[i]==='PARCIAL'&&(valor===null||valor<=0||valor>=esperado))return alert('Parcial requiere una cantidad de 1 a '+(esperado-1)+' para '+pedidosRecepcionActuales[i].producto+'.');
                 if(valor===null) return alert('Corrige la cantidad recibida de '+pedidosRecepcionActuales[i].producto+' antes de confirmar.');
             }
+            if((c69FiltroActual!=='todos'||c69BusquedaActual)&&!confirm('Hay filtros activos. Se guardarán TODOS los productos ya revisados, incluso los ocultos. ¿Confirmar recepción completa?'))return;
             const btn = document.getElementById("btnConfirmarRecepcion");
             if (btn) { btn.disabled = true;btn.dataset.guardando='1'; btn.innerText = "Guardando recepción…"; }
             const productos = pedidosRecepcionActuales.map((item, index) => ({
@@ -3566,6 +3692,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 cantidadPedida: Number(item.cantidadPedida) || 0,
                 cantidadRecibida: Math.max(0, Number(document.getElementById(`recibido_${index}`).value) || 0),
                 lineaId:item.lineaId||'',filaPedido:item.filaPedido||0,
+                tipoRegistro:item.tipoRegistro||'',filaFaltante:item.filaFaltante||0,
                 rechazado:!!document.getElementById(`c60Rechazo_${index}`)?.checked
             }));
             const params = new URLSearchParams({
@@ -3578,12 +3705,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const r = await fetch(URL_API, { method:"POST", body:params });
                 const data = await r.json();
                 if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "No confirmado");
-                alert(`Recepción guardada. Completos: ${data.completos} | Con diferencia: ${data.conDiferencia}`);
+                if(data.recepcionVersion!=='1.6.71')throw new Error('La versión del servidor es antigua. Publica Código.gs v1.6.71.');
+                alert(`Recepción guardada. Completos: ${data.completos} | Con diferencia: ${data.conDiferencia}\nUnidades faltantes en Bodega: ${data.unidadesFaltanteBodega||0} | Unidades para revisar en Despacho: ${data.unidadesIncidenciaDespacho||0}`);
                 pedidosRecepcionActuales = [];
+                c70EstadoPorIndice=Object.create(null);c70AntesRechazo=Object.create(null);
                 cargarPedidosParaRecepcion();
             } catch (err) {
                 console.error("Error confirmando recepción:", err);
-                alert("No se pudo guardar la recepción. Inténtalo nuevamente.");
+                alert("No se pudo guardar la recepción: "+err.message);
                 if (btn) { btn.disabled = false;delete btn.dataset.guardando;btn.innerText = "✓ Confirmar recepción"; }
             }
         }
@@ -3910,10 +4039,33 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         let faltantesDiaActuales=[];
-        function cargarFaltantesDelDia(){const cont=document.getElementById("listaFaltantesDia");if(!cont)return;cont.innerHTML='<p style="font-size:12px;color:#666;text-align:center;">Cargando faltantes...</p>';fetch(URL_API+"?accion=verFaltantesDelDia&_="+Date.now()).then(r=>r.json()).then(d=>{if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Respuesta inválida");faltantesDiaActuales=d.faltantes||[];renderizarFaltantesDelDia();}).catch(e=>{console.error(e);cont.innerHTML='<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar los faltantes.</p>';});}
-        function renderizarFaltantesDelDia(){const cont=document.getElementById("listaFaltantesDia");if(!cont)return;if(!faltantesDiaActuales.length){cont.innerHTML='<div style="padding:20px;text-align:center;background:#f0fff4;border:1px solid #c7ead3;border-radius:18px;color:#267243;font-weight:800;">✅ No hay faltantes pendientes del día.</div>';return;}cont.innerHTML=faltantesDiaActuales.map((x,i)=>`<div style="background:#fff;border:1px solid #e5ecf4;border-radius:20px;padding:13px;margin:10px 0;box-shadow:0 7px 20px rgba(36,67,104,.07);"><div style="display:flex;gap:10px;align-items:center;">${imagenProductoGlobal(x.producto,x,52)}<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:850;">${escaparHtmlPedido(x.producto)}</div><div style="font-size:11px;color:#667085;margin-top:4px;">${escaparHtmlPedido(x.sucursal)} · Pedido ${escaparHtmlPedido(x.idPedido)}</div></div><div style="text-align:right;"><div style="font-size:10px;color:#667085;">Pendiente</div><b style="font-size:22px;color:#e67e22;">${Number(x.pendiente)||0}</b></div></div><div style="font-size:11px;color:#667085;margin-top:9px;">Pedido: <b>${Number(x.cantidadPedida)||0}</b> · Recibido: <b>${Number(x.cantidadRecibida)||0}</b> · Complementado: <b>${Number(x.complementado)||0}</b></div><div style="display:grid;grid-template-columns:50px 1fr 50px;gap:7px;margin-top:10px;"><button type="button" onclick="cambiarComplementoFaltante(${i},-1)" style="margin:0;background:#7a858e;font-size:20px;padding:0;">−</button><input id="faltDiaCant_${i}" type="number" min="1" max="${Number(x.pendiente)||0}" value="${Number(x.pendiente)||1}" style="margin:0;text-align:center;font-size:18px;font-weight:800;"><button type="button" onclick="cambiarComplementoFaltante(${i},1)" style="margin:0;background:#087cff;font-size:20px;padding:0;">+</button></div><button type="button" onclick="completarFaltanteDia(${i})" style="margin-top:9px;background:#087cff;">📦 Preparar complemento</button><button type="button" onclick="enviarFaltanteDiaCompras(${i})" style="margin-top:7px;background:#6c757d;">🛒 No llegó · Pasar a Compras</button></div>`).join('');}
+        function cargarFaltantesDelDia(){c71CargarIncidencias();const cont=document.getElementById("listaFaltantesDia");if(!cont)return;cont.innerHTML='<p style="font-size:12px;color:#666;text-align:center;">Cargando faltantes...</p>';fetch(URL_API+"?accion=verFaltantesDelDia&_="+Date.now()).then(r=>r.json()).then(d=>{if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Respuesta inválida");faltantesDiaActuales=d.faltantes||[];renderizarFaltantesDelDia();}).catch(e=>{console.error(e);cont.innerHTML='<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar los faltantes.</p>';});}
+        function renderizarFaltantesDelDia(){
+            const cont=document.getElementById('listaFaltantesDia');if(!cont)return;
+            if(!faltantesDiaActuales.length){cont.innerHTML='<div class="c71-note">✅ No hay faltantes de Bodega pendientes de preparación ni complementos en tránsito.</div>';return;}
+            cont.innerHTML='<div class="c71-note">🟠 <strong>Sin surtir:</strong> pendiente por encontrar o comprar. 🚚 <strong>En tránsito:</strong> Bodega preparó el complemento; la sucursal lo confirma desde Recibir pedidos. ⚠️ Las diferencias de entrega se revisan con Despacho, no se compran automáticamente.</div>'+faltantesDiaActuales.map((x,i)=>{
+                const pen=Number(x.pendiente)||0,enCamino=Number(x.enTransito)||0,revision=Number(x.enRevisionDespacho)||0;
+                const puedePreparar=x.estado==='Pendiente del día'&&pen>0;
+                return `<div class="c71-faltante"><div class="c71-faltante-head">${imagenProductoGlobal(x.producto,x,52)}<div style="flex:1;min-width:0"><b>${escaparHtmlPedido(x.producto)}</b><div class="c71-muted">${escaparHtmlPedido(x.sucursal)} · Pedido ${escaparHtmlPedido(x.idPedido)}</div></div></div>
+                <div class="c71-faltante-stats"><span>Sin surtir <strong>${pen}</strong></span><span>En camino <strong>${enCamino}</strong></span><span>Confirmado <strong>${Number(x.complementosRecibidos)||0}</strong></span></div>
+                ${revision?`<div class="c71-warning">⚠️ ${revision} unidad(es) del complemento en revisión de Despacho. No pasar automáticamente a Compras.</div>`:''}
+                ${x.estado==='Enviado a Compras'?'<div class="c71-warning">🛒 Saldo remitido a Compras. No se enviará de nuevo.</div>':''}
+                ${puedePreparar?`<div class="c71-quantity"><button onclick="cambiarComplementoFaltante(${i},-1)" type="button">−</button><input id="faltDiaCant_${i}" type="number" min="1" max="${pen}" value="${pen}"/><button onclick="cambiarComplementoFaltante(${i},1)" type="button">+</button></div><button type="button" class="c71-blue" onclick="completarFaltanteDia(${i})">📦 Preparar complemento</button><button type="button" class="c71-grey" onclick="enviarFaltanteDiaCompras(${i})">🛒 Enviar solo ${pen} pendiente(s) a Compras</button>`:''}
+                ${enCamino?'<div class="c71-muted" style="margin-top:10px">🚚 Esperando confirmación de recepción en la sucursal.</div>':''}</div>`;
+            }).join('');
+        }
+        async function c71CargarIncidencias(){
+            const cont=document.getElementById('listaIncidenciasDespacho');if(!cont)return;
+            cont.innerHTML='<div class="c71-muted">Consultando diferencias de entrega…</div>';
+            try{
+                const r=await fetch(URL_API+'?accion=verIncidenciasDespacho&_='+Date.now());
+                const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No disponible');
+                const arr=d.incidencias||[];
+                cont.innerHTML=arr.length?arr.map(x=>`<div class="c71-incident-card">⚠️ <b>${escaparHtmlPedido(x.producto)}</b><div class="c71-muted">${escaparHtmlPedido(x.sucursal)} · Pedido ${escaparHtmlPedido(x.idPedido)} · ${escaparHtmlPedido(x.tipo)}</div><div style="margin-top:8px">Preparado: <b>${Number(x.preparado)||0}</b> · Recibido: <b>${Number(x.recibido)||0}</b> · Por localizar: <b>${Number(x.diferencia)||0}</b></div><div class="c71-muted">Estas unidades no se envían automáticamente a Compras.</div></div>`).join(''):'<div class="c71-muted">✅ No hay diferencias de entrega pendientes de revisión.</div>';
+            }catch(e){cont.innerHTML='<div class="c71-warning">No se pudieron consultar las diferencias de entrega. Actualiza cuando haya conexión.</div>';}
+        }
         function cambiarComplementoFaltante(i,d){const x=faltantesDiaActuales[i],el=document.getElementById(`faltDiaCant_${i}`);if(!x||!el)return;el.value=Math.max(1,Math.min(Number(x.pendiente)||1,(Number(el.value)||1)+d));}
-        async function completarFaltanteDia(i){const x=faltantesDiaActuales[i],el=document.getElementById(`faltDiaCant_${i}`);if(!x||!el)return;const cantidad=Math.max(1,Math.min(Number(x.pendiente)||1,Number(el.value)||1));if(!confirm(`¿Preparar ${cantidad} de ${x.producto} para ${x.sucursal}?`))return;try{const body=new URLSearchParams({accion:"CompletarFaltanteDia",fila:x.fila,cantidad,empleado:localStorage.getItem("usuario")||""}),r=await fetch(URL_API,{method:"POST",body}),d=await r.json();if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");alert(d.pendiente>0?`Complemento registrado. Aún faltan ${d.pendiente}.`:'✅ Faltante completado.');cargarFaltantesDelDia();}catch(e){alert("No se pudo registrar el complemento: "+e.message);}}
+        async function completarFaltanteDia(i){const x=faltantesDiaActuales[i],el=document.getElementById(`faltDiaCant_${i}`);if(!x||!el)return;const cantidad=Math.max(1,Math.min(Number(x.pendiente)||1,Number(el.value)||1));if(!confirm(`¿Preparar ${cantidad} de ${x.producto} para ${x.sucursal}?`))return;try{const body=new URLSearchParams({accion:"CompletarFaltanteDia",fila:x.fila,cantidad,empleado:localStorage.getItem("usuario")||""}),r=await fetch(URL_API,{method:"POST",body}),d=await r.json();if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");alert(d.pendiente>0?`Complemento preparado: ${cantidad}. Sin surtir: ${d.pendiente}. En tránsito: ${d.enTransito}.`:'🚚 Complemento preparado. Pendiente de recepción en la sucursal.');cargarFaltantesDelDia();}catch(e){alert("No se pudo registrar el complemento: "+e.message);}}
         async function enviarFaltanteDiaCompras(i){const x=faltantesDiaActuales[i];if(!x)return;if(!confirm(`¿Enviar a Compras las ${x.pendiente} unidad(es) pendientes de ${x.producto}?`))return;try{const body=new URLSearchParams({accion:"EnviarFaltanteDiaACompras",fila:x.fila,empleado:localStorage.getItem("usuario")||""}),r=await fetch(URL_API,{method:"POST",body}),d=await r.json();if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Error");alert("Producto enviado a Solicitud de Compras.");cargarFaltantesDelDia();}catch(e){alert("No se pudo enviar a Compras: "+e.message);}}
 
         let comprasPendientesActuales = [];
