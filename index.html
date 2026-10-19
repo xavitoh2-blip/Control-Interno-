@@ -1237,6 +1237,53 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloFaltantesDia .c71-quantity button,#moduloFaltantesDia .c71-quantity input{min-width:0!important;width:100%!important;height:48px!important;margin:0!important;text-align:center;font-weight:800;font-size:18px;border-radius:14px!important}
 #moduloFaltantesDia .c71-quantity button:first-child{background:#6e7b8e!important}#moduloFaltantesDia .c71-quantity button:last-child{background:#087cff!important}
 #moduloFaltantesDia button.c71-blue,#moduloFaltantesDia button.c71-grey{margin-top:9px!important;border-radius:14px!important;font-size:13px!important;padding:13px!important}#moduloFaltantesDia button.c71-blue{background:#087cff!important}#moduloFaltantesDia button.c71-grey{background:#6c7b8b!important}
+
+/* v1.6.74 · Asignador rápido de Faltantes Kardex (sin afectar otras pantallas) */
+.c74-assignment {margin-top:13px;background:rgba(247,250,255,.82);border:1px solid #d6e5f5;border-radius:19px;padding:13px;box-shadow:0 8px 25px rgba(70,112,159,.07)}
+.c74-assignment label{display:block;font-size:12px;color:#475b77;font-weight:800;margin:0 0 6px}
+.c74-assignment select,.c74-assignment input{width:100%!important;min-height:49px!important;border:1.5px solid #cbdbed!important;background:#fff!important;border-radius:14px!important;color:#182b45!important;font-size:15px!important;font-weight:750!important;margin:0!important;padding:8px 12px!important;box-sizing:border-box!important}
+.c74-fields{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(90px,.65fr);gap:9px;align-items:end}
+.c74-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.c74-actions button{margin:0!important;border-radius:14px!important;min-height:46px!important;font-size:13px!important;line-height:1.2!important;font-weight:800!important}
+.c74-all{background:#e5eef9!important;color:#245388!important;border:1px solid #bed1e9!important}
+.c74-assign{background:#1479ef!important;color:white!important;border:1px solid #1479ef!important}
+.c74-assignment-info{font-size:12px;color:#60748d;margin-top:9px;line-height:1.4}
+.c74-summary{margin-top:12px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.c74-pill{padding:8px 10px;background:#ebf4ff;border:1px solid #b5d6ff;color:#174b85;border-radius:13px;font-size:12px;font-weight:750;line-height:1.4}
+.c74-pill.c74-confirmed{background:#edf7f0;border-color:#b3dcc2;color:#236447}
+.c74-pill button{display:inline-block;margin:0 0 0 6px!important;vertical-align:middle!important;padding:2px 7px!important;background:#fff!important;border:1px solid #b6cbe6!important;border-radius:8px!important;color:#415b7a!important;width:auto!important;min-width:0!important;line-height:1.6!important;font-size:11px!important}
+.c74-empty{font-size:12px;color:#667a90}
+.c74-notice{margin-top:9px;background:#f5f9ff;padding:9px 11px;border-radius:11px;color:#375c84;font-size:12px}
+@media(max-width:390px){.c74-fields{grid-template-columns:1fr}.c74-actions button{font-size:12px!important}}
+
+/* v1.6.75 · Selector de sucursales en botones plegables tipo Liquid Glass. */
+.c75-destinations{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:9px}
+.c75-destinations button.c75-dest{min-width:0;width:100%;min-height:92px!important;margin:0!important;padding:12px 6px!important;background:linear-gradient(150deg,rgba(255,255,255,.97),rgba(235,244,255,.93))!important;border:1.5px solid #d1dfed!important;color:#304b6e!important;border-radius:19px!important;box-shadow:0 6px 17px rgba(59,91,137,.08)!important;font-size:12px!important;line-height:1.3!important;font-weight:800!important;transition:background .15s ease,box-shadow .15s ease,transform .15s ease}
+.c75-dest .c75-icon{display:block;font-size:22px;margin-bottom:4px}
+.c75-dest .c75-place{display:block;overflow-wrap:anywhere}
+.c75-dest .c75-count{display:block;margin-top:5px;font-size:11px;font-weight:700;opacity:.88}
+.c75-destinations button.c75-dest.c75-selected{background:linear-gradient(145deg,#cce5ff,#e8f3ff)!important;border-color:#7fbbfb!important;color:#165394!important;box-shadow:0 7px 18px rgba(14,115,233,.13)!important}
+.c75-destinations button.c75-dest.c75-open{outline:3px solid rgba(22,119,241,.2);border-color:#087cff!important}
+.c75-destinations button.c75-dest.c75-locked{background:linear-gradient(145deg,#e2f5e9,#f0fff5)!important;border-color:#a1d9b5!important;color:#25754a!important}
+.c75-destinations button.c75-dest:disabled{opacity:.82;cursor:not-allowed}
+.c75-editor{margin-top:12px;padding:15px;border-radius:20px;border:1.5px solid #bcd5f6;background:linear-gradient(145deg,rgba(241,249,255,.98),rgba(255,255,255,.96));box-shadow:0 8px 25px rgba(34,92,159,.09)}
+.c75-editor[hidden]{display:none!important}
+.c75-editor-title{color:#23496f;font-size:15px;font-weight:850;line-height:1.35}
+.c75-editor-note{color:#617a95;font-size:12px;margin-top:4px;line-height:1.5}
+.c75-qty{display:grid;grid-template-columns:51px minmax(0,1fr) 51px;gap:8px;align-items:center;margin-top:12px}
+.c75-qty button,.c75-qty input{min-width:0!important;width:100%!important;height:52px!important;margin:0!important;border-radius:15px!important;box-sizing:border-box!important}
+.c75-qty button{font-size:24px!important;padding:4px!important;background:#087cff!important;color:white!important}
+.c75-qty button:first-child{background:#718198!important}
+.c75-qty input{background:#fff!important;color:#1c3455!important;border:1.5px solid #cbdaec!important;text-align:center!important;font-size:23px!important;font-weight:850!important}
+.c75-editor-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}
+.c75-editor-actions button{margin:0!important;min-width:0;min-height:47px!important;border-radius:14px!important;font-weight:800!important;font-size:12px!important;padding:7px!important}
+.c75-editor-actions .c75-fill{background:#e5effb!important;color:#1f5b9a!important;border:1px solid #c6dbf1!important}
+.c75-editor-actions .c75-ok{background:#087cff!important;color:#fff!important}
+.c75-editor-actions .c75-cancel{grid-column:1/-1;background:#e9eef5!important;color:#475c74!important}
+.c75-footer{margin-top:10px;font-size:12px;color:#516a86;font-weight:680;line-height:1.5}
+.c75-live{font-size:12px;color:#315578;min-height:18px;margin-top:6px;font-weight:700}
+@media(max-width:680px){.c75-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.c75-destinations button.c75-dest{min-height:81px!important}}
+@media(max-width:360px){.c75-destinations{gap:6px}.c75-destinations button.c75-dest{font-size:11px!important;padding:9px 4px!important}}
 </style>
 </head>
 <body>
@@ -1258,7 +1305,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.72 BETA · Kardex inteligente · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.75 BETA · Kardex inteligente · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -5041,7 +5088,14 @@ function verificarPassword() {
             const ver=++c55RutaFetchVersion,cont=document.getElementById('listaRuta'),resumen=document.getElementById('rutaResumen'),btnCrear=document.getElementById('btnCrearRuta'),etapas=document.getElementById('rutaEtapas');
             cont.innerHTML='<p style="text-align:center;color:#64748b;">Actualizando Kardex y origen de los productos…</p>';
             try{
-                const r=await fetch(URL_API+'?accion=verRutaActiva&_='+Date.now(),{cache:'no-store'}),data=await r.json();
+                // v1.6.73: tres consultas independientes en paralelo para reducir la espera.
+                const momento73=Date.now();
+                const [r,cr,sr]=await Promise.all([
+                    fetch(URL_API+'?accion=verRutaActiva&_='+momento73,{cache:'no-store'}),
+                    fetch(URL_API+'?accion=verResumenCierreKardex&_='+momento73,{cache:'no-store'}),
+                    fetch(URL_API+'?accion=verSeguimientoKardex&_='+momento73,{cache:'no-store'})
+                ]);
+                const [data,cd,sd]=await Promise.all([r.json(),cr.json(),sr.json()]);
                 if(ver!==c55RutaFetchVersion)return;
                 if(!r.ok||data.status!=='OK')throw Error(data.mensaje||'No se pudo cargar la ruta.');
                 rutaActiva=data.ruta||null;c55RutaRevisionDespacho=false;
@@ -5052,11 +5106,7 @@ function verificarPassword() {
                     c56Seguimiento=null;c54SeleccionBodega={};c54RutaSeleccionada='';return;
                 }
                 btnCrear.style.display='none';
-                const [cr,sr]=await Promise.all([
-                    fetch(URL_API+'?accion=verResumenCierreKardex&_='+Date.now(),{cache:'no-store'}),
-                    fetch(URL_API+'?accion=verSeguimientoKardex&_='+Date.now(),{cache:'no-store'})
-                ]);
-                const [cd,sd]=await Promise.all([cr.json(),sr.json()]);
+                // Las tres respuestas ya se cargaron juntas arriba.
                 if(ver!==c55RutaFetchVersion)return;
                 if(!cr.ok||cd.status!=='OK'||cd.version!=='1.6.55'||!cd.ruta||String(cd.ruta.idRuta)!==String(rutaActiva.idRuta))
                     throw Error('Publica Código.gs v1.6.56 en Apps Script. El cierre anterior debe permanecer seguro.');
@@ -5408,11 +5458,15 @@ function verificarPassword() {
 
         let asignacionesKardexActuales = [];
         async function cargarAsignacionesKardexRuta(){
-            if(!rutaActiva){asignacionesKardexActuales=[];return;}
-            try{
-                const r=await fetch(URL_API+'?accion=verAsignacionesKardex&idRuta='+encodeURIComponent(rutaActiva.idRuta)+'&_='+Date.now(),{cache:'no-store'}),d=await r.json();
-                asignacionesKardexActuales=(d&&d.status==='OK'&&Array.isArray(d.asignaciones))?d.asignaciones:[];
-            }catch(_){asignacionesKardexActuales=[];}
+            // v1.6.73: las asignaciones ya vienen en verSeguimientoKardex.
+            // Reutilizar la misma fotografía del servidor evita una cuarta consulta
+            // y cantidades inconsistentes entre dos lecturas separadas.
+            if(!rutaActiva||!c56Seguimiento||String(c56Seguimiento.idRuta)!==String(rutaActiva.idRuta)){
+                asignacionesKardexActuales=[];return;
+            }
+            asignacionesKardexActuales=(c56Seguimiento.productos||[]).flatMap(p=>(p.origenes||[])
+                .filter(o=>!o.origenDirecto&&(Number(o.asignada)||0)>0)
+                .map(o=>({producto:p.producto,sucursal:o.sucursal,cantidadAsignada:Number(o.asignada)||0})));
         }
         function asignadoProductoSucursal(producto,sucursal){
             const n=x=>String(x||'').trim().replace(/\s+/g,' ').toUpperCase();
@@ -5425,13 +5479,13 @@ function verificarPassword() {
             const pendientes=(rutaActiva.productos||[]).map((p,i)=>({p,i,t:c56Producto(p.producto)}))
                 .filter(x=>x.t&&x.t.bodegaRevisada&&x.t.pendienteAsignar>0)
                 .sort((a,b)=>String(a.p.producto).localeCompare(String(b.p.producto),'es',{numeric:true,sensitivity:'base'}));
-            let html='<div class="c56-intro"><b>Unidades pendientes de asignación</b><br>Cuando Bodega o cualquier sucursal termina de preparar solo una parte, la cantidad que no encontró queda libre para reasignarla aquí a otra sucursal. El sistema conserva cuánto se buscó y preparó en cada origen.</div>';
+            let html='<div class="c56-intro"><b>Asignar faltantes por sucursal</b><br>Toca el lugar donde buscarán el producto. Se propondrá <b>todo el saldo libre</b>; puedes restar, sumar o escribir una cantidad. Confirma para cerrar el panel y colorear el destino. Después pulsa <b>Guardar asignaciones</b>. Bodega lo recibirá en <b>Faltantes Kardex</b>.</div>';
             if(!pendientes.length){document.getElementById('listaRuta').innerHTML=html+'<div class="kx-complete">✅ No hay saldos sin asignar. Revisa Asignados o Completos.</div>';return;}
             html+=pendientes.map(({p,i,t})=>{
                 const max=Math.max(0,Number(t.requerido)-Number(t.preparadoBodega));
                 const b=borrador[i]||{};
                 const norm57=x=>String(x||'').trim().replace(/\s+/g,' ').toUpperCase();
-                const revisada57=sucursal=>(t.origenes||[]).some(o=>norm57(o.sucursal)===norm57(sucursal)&&o.confirmada)||
+                const revisada57=sucursal=>(t.origenes||[]).some(o=>norm57(o.sucursal)===norm57(sucursal)&&o.confirmada&&!o.origenDirecto)||
                     (t.historialLiberaciones||[]).some(h=>norm57(h.origen)===norm57(sucursal));
                 // Las sucursales revisadas son inmutables: el borrador local
                 // no debe sobrescribir lo que el servidor ya confirmó.
@@ -5444,11 +5498,140 @@ function verificarPassword() {
                 return `<div id="faltCard_${i}" class="c56-card c56-warn"><div class="c56-title">${escaparHtmlPedido(p.producto)}</div>
                   <div class="c56-meta">Requerido: <b>${t.requerido}</b> · Preparó Bodega: <b>${t.preparadoBodega}</b> · Disponible para asignar: <b>${sinAsignar}</b></div>${historia57}
                   <div id="faltEstado_${i}" class="c56-meta"><b>${sinAsignar?`Sin asignar ${sinAsignar}`:'✓ Todo asignado'}</b></div>
-                  ${campoFuenteRuta(i,'Tienda Online Shop','t',vt,max,revisada57('Tienda Online Shop'))}${campoFuenteRuta(i,'Mini super','m',vm,max,revisada57('Mini super'))}${campoFuenteRuta(i,'Despacho','d',vd,max,revisada57('Despacho'))}
-                  ${vb?campoFuenteRuta(i,'Bodega','b',vb,max,revisada57('Bodega')):''}</div>`;
+                  <div style="display:none" aria-hidden="true">
+                    ${c74CampoOculto(i,'b',vb,max,revisada57('Bodega'))}
+                    ${c74CampoOculto(i,'t',vt,max,revisada57('Tienda Online Shop'))}
+                    ${c74CampoOculto(i,'m',vm,max,revisada57('Mini super'))}
+                    ${c74CampoOculto(i,'d',vd,max,revisada57('Despacho'))}
+                  </div>
+                  <div class="c74-assignment c75-assignment">
+                    <div class="c74-assignment-info"><b>¿Dónde prepararán el producto?</b> Toca uno de los destinos:</div>
+                    <div class="c75-destinations" aria-label="Sucursales para asignar el producto">
+                      ${c75BotonDestino(i,'b','Bodega','📦',revisada57('Bodega'))}
+                      ${c75BotonDestino(i,'t','Tienda Online Shop','🏪',revisada57('Tienda Online Shop'))}
+                      ${c75BotonDestino(i,'m','Mini súper','🛒',revisada57('Mini super'))}
+                      ${c75BotonDestino(i,'d','Despacho','🚚',revisada57('Despacho'))}
+                    </div>
+                    <div id="c75_editor_${i}" class="c75-editor" hidden data-sucursal="">
+                      <div id="c75_title_${i}" class="c75-editor-title">Cantidad por asignar</div>
+                      <div id="c75_hint_${i}" class="c75-editor-note"></div>
+                      <div class="c75-qty">
+                        <button type="button" aria-label="Restar una unidad" onclick="c75Ajustar(${i},-1)">−</button>
+                        <input id="c75_cant_${i}" type="number" inputmode="numeric" min="0" step="1" value="0" aria-label="Unidades a asignar" oninput="c75ActualizarAyuda(${i})">
+                        <button type="button" aria-label="Sumar una unidad" onclick="c75Ajustar(${i},1)">＋</button>
+                      </div>
+                      <div id="c75_live_${i}" class="c75-live" aria-live="polite"></div>
+                      <div class="c75-editor-actions">
+                        <button type="button" class="c75-fill" onclick="c75Todo(${i})">✓ Todo el saldo</button>
+                        <button type="button" class="c75-ok" onclick="c75Confirmar(${i})">✓ Confirmar cantidad</button>
+                        <button type="button" class="c75-cancel" onclick="c75Cerrar(${i})">Cancelar</button>
+                      </div>
+                    </div>
+                    <div id="c75_estado_${i}" class="c75-footer" aria-live="polite">Elige una sucursal para asignar unidades.</div>
+                    <div class="c74-notice">Los cambios se guardan solamente al pulsar <b>Guardar asignaciones</b>. Cada sucursal confirmará después lo encontrado en <b>Faltantes Kardex</b>.</div>
+                  </div></div>`;
             }).join('');
             html+=`<div style="position:sticky;bottom:8px;background:#fff;border:1px solid #dfe5eb;border-radius:16px;padding:11px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.14);"><div class="c56-meta" style="text-align:center">Asignar no significa preparar. La sucursal debe confirmar su cantidad.</div><button id="btnGuardarFaltantes" class="c56-cta" onclick="guardarFaltantesRuta()">💾 Guardar asignaciones</button></div>`;
             document.getElementById('listaRuta').innerHTML=html;
+            pendientes.forEach(({i})=>c74PintarResumen(i));
+        }
+        // v1.6.75: conserva exactamente los campos y payload de asignación del
+        // backend. Solo cambia la selección por tarjetas desplegables.
+        function c74CampoOculto(i,k,cant,max,bloqueado){
+            return `<input id="falt_${k}_${i}" type="number" min="0" max="${max}" value="${cant}" data-c74-lock="${bloqueado?'1':'0'}" readonly>`;
+        }
+        const c74Sucursales={b:'Bodega',t:'Tienda Online Shop',m:'Mini súper',d:'Despacho'};
+        function c74Disponible(i,k){
+            const p=rutaActiva.productos[i],t=c56Producto(p.producto);
+            const max=Math.max(0,(Number(t?.requerido)||0)-(Number(t?.preparadoBodega)||0));
+            const v=valoresFuentesRuta(i);
+            return Math.max(0,max-(['b','t','m','d'].filter(x=>x!==k).reduce((acc,x)=>acc+v[x],0)));
+        }
+        function c75BotonDestino(i,k,nombre,emoji,bloqueado){
+            return `<button type="button" id="c75_dest_${k}_${i}" class="c75-dest${bloqueado?' c75-locked':''}" onclick="c75Abrir(${i},'${k}')" aria-expanded="false" aria-controls="c75_editor_${i}" ${bloqueado?'disabled title="La sucursal ya revisó esta asignación"':''}>
+              <span class="c75-icon">${emoji}</span><span class="c75-place">${nombre}</span><span class="c75-count" id="c75_qty_${k}_${i}">Sin asignar</span></button>`;
+        }
+        function c75Cerrar(i){
+            const editor=document.getElementById('c75_editor_'+i);
+            if(!editor)return;
+            editor.hidden=true;editor.dataset.sucursal='';
+            for(const k of ['b','t','m','d']){
+                const btn=document.getElementById(`c75_dest_${k}_${i}`);
+                if(btn){btn.classList.remove('c75-open');btn.setAttribute('aria-expanded','false');}
+            }
+        }
+        function c75Abrir(i,k){
+            const dest=document.getElementById(`falt_${k}_${i}`),editor=document.getElementById('c75_editor_'+i);
+            if(!dest||!editor)return;
+            if(dest.dataset.c74Lock==='1')return; // asignación ya confirmada por esa sucursal
+            if(!editor.hidden&&editor.dataset.sucursal===k){c75Cerrar(i);return;}
+            c75Cerrar(i);editor.hidden=false;editor.dataset.sucursal=k;
+            const disp=c74Disponible(i,k),actual=valoresFuentesRuta(i)[k];
+            const input=document.getElementById('c75_cant_'+i);
+            input.max=String(disp);input.value=String(actual>0?actual:disp);
+            const titulo=document.getElementById('c75_title_'+i);
+            if(titulo)titulo.textContent='📦 '+c74Sucursales[k]+' · ¿Cuántas unidades buscará?';
+            const btn=document.getElementById(`c75_dest_${k}_${i}`);
+            if(btn){btn.classList.add('c75-open');btn.setAttribute('aria-expanded','true');}
+            c75ActualizarAyuda(i);
+            // Sin enfocar automáticamente: evita abrir el teclado al tocar desde el móvil.
+        }
+        function c75Ajustar(i,paso){
+            const editor=document.getElementById('c75_editor_'+i),k=editor?.dataset.sucursal;
+            if(!k)return;
+            const input=document.getElementById('c75_cant_'+i),max=c74Disponible(i,k);
+            const base=Number.isFinite(Number(input.value))?Number(input.value):0;
+            input.value=String(Math.max(0,Math.min(max,Math.trunc(base)+paso)));
+            c75ActualizarAyuda(i);
+        }
+        function c75Todo(i){
+            const editor=document.getElementById('c75_editor_'+i),k=editor?.dataset.sucursal;
+            if(!k)return;
+            document.getElementById('c75_cant_'+i).value=String(c74Disponible(i,k));
+            c75ActualizarAyuda(i);
+        }
+        function c75ActualizarAyuda(i){
+            const editor=document.getElementById('c75_editor_'+i),k=editor?.dataset.sucursal;
+            if(!k)return;
+            const max=c74Disponible(i,k),input=document.getElementById('c75_cant_'+i),n=Number(input?.value);
+            const hint=document.getElementById('c75_hint_'+i),live=document.getElementById('c75_live_'+i);
+            if(hint)hint.textContent='Puedes asignar hasta '+max+' unidades a '+c74Sucursales[k]+'. Modifica la cantidad o confirma el total sugerido.';
+            if(live)live.textContent=input&&String(input.value).trim()!==''&&Number.isSafeInteger(n)&&n>=0&&n<=max?
+              (n===0?'0 unidades · se quitará la asignación en este destino':'Se asignarán '+n+' unidades'):
+              'Escribe un número entero entre 0 y '+max+'.';
+        }
+        function c75Confirmar(i){
+            const editor=document.getElementById('c75_editor_'+i),k=editor?.dataset.sucursal;
+            if(!k)return;
+            const inp=document.getElementById(`falt_${k}_${i}`),num=document.getElementById('c75_cant_'+i);
+            if(!inp||inp.dataset.c74Lock==='1')return;
+            const cantidad=Number(num?.value),max=c74Disponible(i,k);
+            if(!num||String(num.value).trim()===''||!Number.isSafeInteger(cantidad)||cantidad<0||cantidad>max){
+                const live=document.getElementById('c75_live_'+i);
+                if(live)live.textContent='⚠️ La cantidad debe ser un entero entre 0 y '+max+'.';
+                num?.focus();return;
+            }
+            inp.value=String(cantidad);
+            validarFuentesRuta(i,k); // guarda borrador local sin enviar al servidor todavía
+            c75Cerrar(i);
+            c74PintarResumen(i);
+        }
+        function c74PintarResumen(i){
+            const v=valoresFuentesRuta(i),icons={b:'📦',t:'🏪',m:'🛒',d:'🚚'};
+            for(const k of ['b','t','m','d']){
+                const btn=document.getElementById(`c75_dest_${k}_${i}`);
+                const q=document.getElementById(`c75_qty_${k}_${i}`);
+                if(!btn||!q)continue;
+                const confirmado=document.getElementById(`falt_${k}_${i}`)?.dataset.c74Lock==='1';
+                btn.classList.toggle('c75-locked',confirmado);
+                btn.classList.toggle('c75-selected',!confirmado&&v[k]>0);
+                q.textContent=confirmado?(v[k]>0?'✓ Preparó '+v[k]:'✓ Ya revisado'):(v[k]>0?v[k]+' unidades · ✓':'Sin asignar');
+            }
+            const t=Object.values(v).reduce((a,n)=>a+n,0),p=rutaActiva.productos[i],prod=c56Producto(p.producto);
+            const max=Math.max(0,(Number(prod?.requerido)||0)-(Number(prod?.preparadoBodega)||0));
+            const info=document.getElementById('c75_estado_'+i);
+            if(info)info.textContent=t?'✓ '+t+' de '+max+' unidades asignadas. '+Math.max(0,max-t)+' libres · Pulsa Guardar asignaciones.':
+                max+' unidades por asignar. Toca el destino y confirma.';
         }
         function campoFuenteRuta(i,nombre,k,v,max,revisada){return `<div style="display:flex;align-items:center;gap:7px;margin:6px 0;"><div style="width:118px;font-size:11px;font-weight:700;">${nombre}${revisada?'<br><span style="color:#65816e;font-size:10px;">✓ Ya revisada</span>':''}</div><button ${revisada?'disabled':''} onclick="cambiarFuenteRuta(${i},'${k}',-1)" style="width:42px;margin:0;background:#6c757d;padding:8px;">−</button><input id="falt_${k}_${i}" type="number" min="0" max="${max}" value="${v}" ${revisada?'readonly':''} inputmode="numeric" oninput="validarFuentesRuta(${i},'${k}')" style="flex:1;margin:0;text-align:center;font-weight:800;${revisada?'opacity:.7;':''}"><button ${revisada?'disabled':''} onclick="cambiarFuenteRuta(${i},'${k}',1)" style="width:42px;margin:0;background:#087cff;padding:8px;">＋</button></div>`;}
         function valoresFuentesRuta(i){return ['b','t','m','d'].reduce((o,k)=>(o[k]=Math.max(0,Number(document.getElementById(`falt_${k}_${i}`)?.value)||0),o),{});}
