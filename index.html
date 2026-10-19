@@ -1,4 +1,4 @@
-<!-- Online Shop v1.6.57 BETA · -->
+<!-- Online Shop v1.6.57 BETA · Saldo no encontrado disponible para reasignación -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1005,6 +1005,31 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c58-alert{border-radius:15px;background:#fff7e9;border:1px solid #f4d3a5;color:#80521c;padding:11px;margin:12px 0;font-size:12px;line-height:1.5}.c58-message{font-size:12px;line-height:1.5;color:#536b87;margin:11px 0}.c58-history{margin-top:5px;font-size:11px;color:#647c98}
 @media(max-width:380px){.c58-branches{grid-template-columns:1fr}.c58-controls{grid-template-columns:1fr}}
 
+
+/* v1.6.62 · Preparación rápida en Bodega sin alterar módulos anteriores */
+.c62-actions { display:flex;gap:8px;margin-top:8px }
+.c62-actions button { flex:1;margin:0!important;padding:13px 6px!important;border-radius:16px!important;font-size:13px!important;min-width:0 }
+.c62-actions button.c62-activo { outline:3px solid rgba(36,128,255,.28);outline-offset:2px }
+.c62-estado { text-align:center;font-size:13px;color:#536779;font-weight:750;margin:10px 0 4px }
+.c62-corregir { background:#eef3fc!important;color:#37628e!important;border:1px solid #d5e3f6!important;padding:10px!important;font-size:12px!important;margin:5px 0!important;border-radius:14px!important }
+.c62-cantidad-label {display:block;font-size:12px;font-weight:750;color:#4c607a;margin:10px 0 4px}
+.c62-qty {display:flex;gap:8px;align-items:center;margin:5px 0 10px}
+.c62-qty button {width:50px;min-width:50px;height:48px;background:#718198!important;padding:0!important;margin:0!important;font-size:23px!important;border-radius:14px!important}
+.c62-qty button:last-child {background:#087cff!important}
+.c62-qty input {min-width:0;width:100%;flex:1;height:48px!important;text-align:center;font-size:21px!important;font-weight:800!important;margin:0!important;border-radius:14px!important}
+.c62-resumen {background:#f0f6ff;border-radius:14px;padding:10px;color:#355476}
+.c62-opcional {margin:8px 0;font-size:12px;color:#546987}
+.c62-opcional summary {cursor:pointer;font-weight:700}
+.c62-opcional input {margin:7px 0 0}
+/* v1.6.65 · Adicional Bodega a un toque, sin cambiar el flujo de correcciones. */
+#c65BotonAdicional {min-height:58px!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;margin:8px 0!important;background:#087cff!important}
+#c65BotonAdicional.c65-abierto {background:#276ebf!important}
+#c60EditorBodega {scroll-margin-top:16px}
+#c60EditorBodega .c60-busqueda {min-height:54px!important;font-size:16px!important}
+#c60EditorBodega .c60-opcion {min-height:48px!important;touch-action:manipulation}
+#c60EditorBodega .c60-aprobar button {min-height:54px!important;touch-action:manipulation}
+.c65-aviso {border:1px solid #a8daba;background:#ecfff2;color:#176837;font-size:13px;font-weight:750;padding:11px;border-radius:13px;margin:8px 0}
+.c65-aviso-error {border-color:#ffcbba;background:#fff1ec;color:#a02b1a}
 </style>
 </head>
 <body>
@@ -1026,7 +1051,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.61 BETA · Pedidos a Bodega · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.65 BETA · Bodega rápida · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2471,50 +2496,236 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             }).filter(Boolean).sort((a,b)=>b.score-a.score||a.i-b.i).slice(0,limite||25).map(x=>x.p);
         }
         let c60Edicion=null,c60CatalogoBodega=[],c60ProductoElegido=null;
+        // v1.6.64 BETA: conserva la revisión local por línea y NO repinta el pedido
+        // al pulsar Disponible, Parcial, + o −. No modifica datos en Sheets.
+        const c64RevisionEnMemoria = Object.create(null);
+        function c64ClaveRevision(pedido){
+            let usuario='';
+            try{usuario=localStorage.getItem('usuario')||'';}catch(_){}
+            return 'onlineShop:bodega:revision:v64:'+encodeURIComponent(usuario)+':'+encodeURIComponent(String(pedido.idPedido||'')) + ':' + encodeURIComponent(String(pedido.fecha||''));
+        }
+        function c64ClaveLinea(item){
+            return String(item.lineaId||('LEGACY-'+(Number(item.filaPedido)||0)));
+        }
+        function c64FirmaLinea(item){
+            return JSON.stringify([String(item.producto||''),Number(item.cantidadSolicitada)||0,
+                String(item.codigo||''),String(item.uuid||''),String(item.origen||'')]);
+        }
+        function c64EliminarRevision(pedido){
+            if(!pedido||!pedido.idPedido)return;
+            const clave=c64ClaveRevision(pedido);
+            delete c64RevisionEnMemoria[clave];
+            try{localStorage.removeItem(clave);}catch(_){}
+        }
+        function c64GuardarRevision(pedido){
+            if(!pedido||!pedido.idPedido)return;
+            const clave=c64ClaveRevision(pedido),lineas={};
+            (pedido.productos||[]).forEach(item=>{
+                if(!item.revisado||item.ajustePendiente)return;
+                const max=Number(item.cantidadSolicitada),cant=Number(item.cantidadSurtida);
+                if(!Number.isSafeInteger(max)||max<0||!Number.isSafeInteger(cant)||cant<0||cant>max)return;
+                lineas[c64ClaveLinea(item)]={firma:c64FirmaLinea(item),cantidadSurtida:cant};
+            });
+            if(!Object.keys(lineas).length){c64EliminarRevision(pedido);return;}
+            const revision={fecha:Date.now(),lineas};
+            c64RevisionEnMemoria[clave]=revision;
+            try{localStorage.setItem(clave,JSON.stringify(revision));}catch(_){}
+        }
+        function c64RestaurarRevision(pedido){
+            if(!pedido||!pedido.idPedido)return;
+            const clave=c64ClaveRevision(pedido);
+            let revision=c64RevisionEnMemoria[clave];
+            if(!revision){try{revision=JSON.parse(localStorage.getItem(clave)||'null');}catch(_){revision=null;}}
+            if(!revision||!revision.lineas||!Number.isFinite(revision.fecha)||
+               Date.now()-revision.fecha>24*60*60*1000||Date.now()<revision.fecha){
+                c64EliminarRevision(pedido);return;
+            }
+            const validas={};
+            (pedido.productos||[]).forEach(item=>{
+                const max=Number(item.cantidadSolicitada),guardada=revision.lineas[c64ClaveLinea(item)];
+                item.revisado=false;
+                item.cantidadSurtida=max;
+                if(item.ajustePendiente||!guardada||guardada.firma!==c64FirmaLinea(item))return;
+                const cant=Number(guardada.cantidadSurtida);
+                if(!Number.isSafeInteger(cant)||cant<0||cant>max)return;
+                item.revisado=true;
+                item.cantidadSurtida=cant;
+                validas[c64ClaveLinea(item)]=guardada;
+            });
+            if(!Object.keys(validas).length){c64EliminarRevision(pedido);return;}
+            const revisionValida={fecha:revision.fecha,lineas:validas};
+            c64RevisionEnMemoria[clave]=revisionValida;
+            try{localStorage.setItem(clave,JSON.stringify(revisionValida));}catch(_){}
+        }
+        let c62CatalogoSucursal='',c62CatalogoPromesa=null;
+        // Solo actualiza los botones de una línea; no reconstruye las 14 tarjetas,
+        // imágenes ni formulario. Esto evita saltos y retrasos en el iPhone.
+        function c62HtmlControles(item,index){
+            if(item.ajustePendiente)return '<p class="c60-note">La sucursal debe aprobar o rechazar antes de preparar esta línea.</p>';
+            const revisado=!!item.revisado,completa=Number(item.cantidadSurtida)===Number(item.cantidadSolicitada);
+            return `<div class="c62-actions">
+                <button type="button" onclick="marcarDisponibleBodega(${index})" class="${revisado&&completa?'c62-activo':''}" style="background:#087cff;">✓ ${Number(item.cantidadSolicitada)===1?'Enviar 1':'Disponible todo'}</button>
+                <button type="button" onclick="marcarIncompletoBodega(${index})" class="${revisado&&!completa?'c62-activo':''}" style="background:#eda943;color:#493500;">⚠ ${Number(item.cantidadSolicitada)===1?'No hay (0)':'Parcial'}</button>
+            </div>
+            ${revisado?`<div class="c62-estado" id="c62Estado_${index}">${completa?'✅ Se enviará '+item.cantidadSurtida:'⚠ Se enviará '+item.cantidadSurtida+' de '+item.cantidadSolicitada}</div>`:''}
+            ${revisado&&!completa?`<div class="c62-qty c62-qty-inline"><button type="button" onclick="cambiarCantidadBodega(${index},-1)">−</button><input id="bodegaCant_${index}" type="number" min="0" max="${item.cantidadSolicitada}" step="1" value="${item.cantidadSurtida}" oninput="editarCantidadBodega(${index},this.value)"><button type="button" onclick="cambiarCantidadBodega(${index},1)">+</button></div>`:''}`;
+        }
+        function c62ActualizarTotalBodega(p){
+            const rev=p.productos.filter(x=>x.revisado).length,total=p.productos.length,
+                  listo=rev===total&&!p.productos.some(x=>x.ajustePendiente),
+                  count=document.getElementById('c62RevisadosBodega'),btn=document.getElementById('btnConfirmarDespachoBodega');
+            if(count)count.textContent=rev+' de '+total;
+            if(btn){btn.disabled=!listo;btn.textContent='🚚 '+(listo?'Confirmar pedido preparado':'Revisa todos los productos ('+rev+'/'+total+')');}
+        }
+        function c62ActualizarLinea(index){
+            const p=obtenerPedidoBodegaAbierto();if(!p||!p.productos[index])return;
+            const item=p.productos[index],out=document.getElementById('c62Controles_'+index),tarjeta=document.getElementById('c62Tarjeta_'+index);
+            if(out)out.innerHTML=c62HtmlControles(item,index);
+            if(tarjeta){const completo=!!item.revisado&&Number(item.cantidadSurtida)===Number(item.cantidadSolicitada);
+                tarjeta.style.background=!item.revisado?'#f8f9fa':completo?'#edf9f0':'#fff4e5';
+                tarjeta.style.borderColor=!item.revisado?'#e9ecef':completo?'#b7e1c1':'#ffd59a';}
+            c62ActualizarTotalBodega(p);
+        }
+        function c62CambiarCantidadCorregir(delta){
+            const el=document.getElementById('c62ParteCorregir');if(!el)return;
+            const max=Number(el.max)||1;el.value=Math.max(1,Math.min(max,(Number(el.value)||1)+delta));
+            c62MostrarResumen();
+        }
+        function c62CambiarNuevaCantidad(delta){
+            const el=document.getElementById('c60Cantidad');if(!el)return;
+            el.value=Math.max(1,Math.min(99999,(Number(el.value)||1)+delta));c62MostrarResumen();
+        }
+        function c62MostrarResumen(){
+            const out=document.getElementById('c62Resumen'),p=obtenerPedidoBodegaAbierto(),e=c60Edicion;
+            if(!out||!p||!e||e.tipo!=='CORRECCION')return;
+            const orig=p.productos[e.indice];if(!orig)return;
+            const parte=Math.max(1,Math.min(Number(orig.cantidadSolicitada),Number(document.getElementById('c62ParteCorregir')?.value)||1));
+            const nueva=Math.max(1,Number(document.getElementById('c60Cantidad')?.value)||1);
+            const sobra=Number(orig.cantidadSolicitada)-parte;
+            out.innerHTML='<b>Se cambia '+parte+' de '+Number(orig.cantidadSolicitada)+'</b> · '+(sobra>0?sobra+' queda(n) con la presentación original.':'Se cambia toda la línea.')+'<br>Nueva presentación: <b>'+nueva+'</b>';
+        }
         function c60HerramientasPedidoHtml(p){
             const a=(p.ajustes||[]).slice(-8).reverse();
             return `<div class="c60-glass"><div style="font-weight:900;font-size:15px;">📦 Productos adicionales y correcciones</div>
-                <p class="c60-note">Agrega productos sin pedir autorización. Para corregir una línea solicitada, la sucursal debe aprobar el cambio.</p>
-                <button type="button" onclick="c60AbrirFormulario('ADICIONAL',-1)" style="background:#087cff;margin:8px 0;">➕ Agregar producto adicional</button>
-                <div id="c60EditorBodega"></div>
-                ${a.length?`<details style="margin-top:9px;"><summary style="font-size:12px;color:#316bb2;cursor:pointer;">📋 Historial de cambios (${(p.ajustes||[]).length})</summary>${a.map(x=>`<div class="c60-note" style="border-top:1px solid #e0e8f2;padding:7px 0;"><strong>${escaparHtmlPedido(x.tipo)}</strong> · ${escaparHtmlPedido(x.estado)}<br>${escaparHtmlPedido(x.anterior||'Nuevo')} ${x.cantidadAnterior||''} → ${escaparHtmlPedido(x.nuevo)} × ${x.cantidad}<br>${escaparHtmlPedido(x.usuarioBodega)} · ${escaparHtmlPedido(x.fecha)}</div>`).join('')}</details>`:''}
+                <p class="c60-note">Los productos adicionales se agregan directamente. Las correcciones de productos solicitados requieren aprobación de la sucursal.</p>
+                <button type="button" id="c65BotonAdicional" aria-controls="c60EditorBodega" aria-expanded="false" onclick="c60AbrirFormulario('ADICIONAL',-1)">➕ Agregar producto adicional</button>
+                <div id="c65AvisoAdicional" class="c65-aviso" role="status" aria-live="polite" hidden></div>
+                <div id="c60EditorBodega" data-c60-editor></div>
+                ${a.length?`<details style="margin-top:9px;"><summary style="font-size:12px;color:#316bb2;cursor:pointer;">📋 Historial de cambios (${(p.ajustes||[]).length})</summary>${a.map(x=>`<div class="c60-note" style="border-top:1px solid #e0e8f2;padding:7px 0;"><strong>${escaparHtmlPedido(x.tipo)}</strong> · ${escaparHtmlPedido(x.estado)}<br>${escaparHtmlPedido(x.anterior||'Nuevo')} ${x.tipo==='CORRECCION'?(x.cantidadOrigenCorregida||x.cantidadAnterior):''} ${x.tipo==='CORRECCION'?'de '+(x.cantidadAnterior||0):''} → ${escaparHtmlPedido(x.nuevo)} × ${x.cantidad}<br>${escaparHtmlPedido(x.usuarioBodega)} · ${escaparHtmlPedido(x.fecha)}</div>`).join('')}</details>`:''}
                 </div>`;
         }
+        // v1.6.65: inicia carga del catálogo al abrir el pedido; no bloquea la pantalla.
         async function c60CargarCatalogoBodega(){
             const suc=obtenerPedidoBodegaAbierto()?.sucursal||'';
-            const r=await fetch(URL_API+'?accion=c60CatalogoPedidos&sucursal='+encodeURIComponent(suc)+'&_='+Date.now());
-            const d=await r.json();if(d.status!=='OK'||!Array.isArray(d.productos))throw Error(d.mensaje||'No se pudo cargar el catálogo Akasia');
-            c60CatalogoBodega=d.productos;return d.productos;
+            if(c62CatalogoSucursal===suc&&c60CatalogoBodega.length)return c60CatalogoBodega;
+            if(c62CatalogoPromesa&&c62CatalogoSucursal===suc)return c62CatalogoPromesa;
+            c62CatalogoSucursal=suc;
+            c60CatalogoBodega=[]; // no usar accidentalmente el catálogo de otra sucursal
+            const carga=(async()=>{
+                const r=await fetch(URL_API+'?accion=c60CatalogoPedidos&sucursal='+encodeURIComponent(suc));
+                const d=await r.json();if(d.status!=='OK'||!Array.isArray(d.productos))throw Error(d.mensaje||'No se pudo cargar el catálogo Akasia');
+                if(c62CatalogoSucursal===suc)c60CatalogoBodega=d.productos;
+                return d.productos;
+            })();
+            c62CatalogoPromesa=carga;
+            try{return await carga;}
+            finally{if(c62CatalogoPromesa===carga)c62CatalogoPromesa=null;}
         }
-        async function c60AbrirFormulario(tipo,indice){
+        function c65MostrarEditorAlToque(cont,enfocar){
+            if(!cont)return;
+            const buscar=cont.querySelector('#c60InputBuscar');
+            // El foco es sincrónico con el toque, importante para abrir el teclado en iPhone.
+            if(enfocar&&buscar){try{buscar.focus({preventScroll:true});}catch(_){buscar.focus();}}
+            if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{
+                if(!cont.isConnected)return;
+                const r=cont.getBoundingClientRect();
+                if(r.top<0||r.top>window.innerHeight*.55){
+                    try{cont.scrollIntoView({block:'start',behavior:'smooth'});}catch(_){cont.scrollIntoView();}
+                }
+            });
+        }
+        function c65AvisoAdicional(texto,error){
+            const out=document.getElementById('c65AvisoAdicional');
+            if(out){out.hidden=false;out.textContent=texto;out.classList.toggle('c65-aviso-error',!!error);}
+            const local=document.getElementById('c65ErrorAjuste');
+            if(local){local.hidden=!error;local.textContent=texto;local.classList.toggle('c65-aviso-error',!!error);}
+        }
+        let c65GuardadoEnCurso=false;
+        async function c60AbrirFormulario(tipo,indice,opciones){
             const p=obtenerPedidoBodegaAbierto();if(!p)return;
-            if(tipo==='CORRECCION'&&( !p.productos[indice]||p.productos[indice].ajustePendiente))return;
+            if(tipo==='CORRECCION'&&(!p.productos[indice]||p.productos[indice].ajustePendiente))return;
+            const cont=document.getElementById(tipo==='ADICIONAL'?'c60EditorBodega':'c60EditorLinea_'+indice);
+            if(!cont)return;
+            // Repetir el toque lleva al buscador ya abierto; nunca reinicia lo digitado.
+            if(c60Edicion?.tipo===tipo&&c60Edicion.indice===indice&&cont.querySelector('#c60InputBuscar')){
+                c65MostrarEditorAlToque(cont,opciones?.focus!==false);
+                // Si falló la primera carga, otro toque reintenta el catálogo sin borrar lo escrito.
+                if(!c60CatalogoBodega.length&&!c62CatalogoPromesa)c60CargarCatalogoBodega().then(()=>{
+                    if(!cont.isConnected||c60Edicion?.tipo!==tipo||c60Edicion.indice!==indice)return;
+                    const info=document.getElementById('c60SeleccionTexto');
+                    if(info)info.textContent='Catálogo listo. Selecciona el producto.';
+                    if(document.getElementById('c60InputBuscar')?.value)c60FiltrarProductos();
+                }).catch(e=>{
+                    const info=document.getElementById('c60SeleccionTexto');
+                    if(info)info.textContent='No se pudo cargar Akasia: '+e.message;
+                });
+                return;
+            }
+            document.querySelectorAll('[data-c60-editor]').forEach(x=>x.innerHTML='');
             c60Edicion={tipo,indice};c60ProductoElegido=null;
-            const cont=document.getElementById('c60EditorBodega');if(!cont)return;
-            cont.innerHTML='<p class="c60-note">Buscando catálogo de Akasia…</p>';
+            const btn=document.getElementById('c65BotonAdicional');
+            if(btn){btn.setAttribute('aria-expanded',String(tipo==='ADICIONAL'));btn.classList.toggle('c65-abierto',tipo==='ADICIONAL');}
+            const anterior=tipo==='CORRECCION'?p.productos[indice]:null;
+            const total=anterior?Number(anterior.cantidadSolicitada)||1:1;
+            const parte=1;
+            cont.innerHTML=`<div class="c60-glass" style="margin-top:10px;background:#fff;">
+                <div style="font-weight:850;">${tipo==='ADICIONAL'?'➕ Agregar producto al pedido':'✏️ Corregir solo la cantidad necesaria'}</div>
+                ${anterior?`<div class="c60-note">Original: <b>${escaparHtmlPedido(anterior.producto)}</b> · Solicitado: <b>${total}</b></div>
+                <div class="c62-cantidad-label">¿Cuántos del pedido original vas a cambiar?</div>
+                <div class="c62-qty"><button type="button" onclick="c62CambiarCantidadCorregir(-1)">−</button><input id="c62ParteCorregir" type="number" min="1" max="${total}" step="1" value="${parte}" oninput="c62MostrarResumen()"><button type="button" onclick="c62CambiarCantidadCorregir(1)">+</button></div>`:''}
+                <label class="c62-cantidad-label" for="c60InputBuscar">${tipo==='ADICIONAL'?'Buscar producto de Akasia':'Presentación correcta (cambiar si es diferente)'}</label>
+                <input id="c60InputBuscar" class="c60-busqueda" placeholder="Escribe nombre o presentación…" oninput="c60FiltrarProductos()" autocomplete="off" autocorrect="off" spellcheck="false">
+                <div id="c60ListaProductos" class="c60-resultados"></div>
+                <div id="c60SeleccionTexto" class="c60-note">${c62CatalogoSucursal===p.sucursal&&c60CatalogoBodega.length?'Busca y selecciona el producto.':'Cargando catálogo Akasia… puedes comenzar a escribir.'}</div>
+                <label class="c62-cantidad-label" for="c60Cantidad">${tipo==='ADICIONAL'?'Cantidad':'¿Cuántos de la presentación nueva?'}</label>
+                <div class="c62-qty"><button type="button" onclick="c62CambiarNuevaCantidad(-1)">−</button><input id="c60Cantidad" type="number" min="1" max="99999" step="1" value="1" oninput="c62MostrarResumen()"><button type="button" onclick="c62CambiarNuevaCantidad(1)">+</button></div>
+                ${anterior?'<div id="c62Resumen" class="c60-note c62-resumen"></div>':''}
+                ${anterior?'<details class="c62-opcional"><summary>Agregar motivo (opcional)</summary><input id="c60Motivo" placeholder="Ej. Presentación incorrecta" maxlength="300"></details>':''}
+                <div class="c60-aprobar"><button id="c62Guardar" type="button" onclick="c60GuardarAjuste()" disabled style="background:#087cff;">${tipo==='ADICIONAL'?'✓ Agregar al pedido':'Solicitar aprobación'}</button><button type="button" onclick="c60CerrarEditor()" class="c60-secondary">Cancelar</button></div>
+                <div id="c65ErrorAjuste" class="c65-aviso" role="status" aria-live="polite" hidden></div>
+                </div>`;
+            c62MostrarResumen();
+            c65MostrarEditorAlToque(cont,opciones?.focus!==false);
             try{
                 await c60CargarCatalogoBodega();
-                const anterior=tipo==='CORRECCION'?p.productos[indice]:null;
-                cont.innerHTML=`<div class="c60-glass" style="margin-top:10px;background:#fff;">
-                    <div style="font-weight:850;">${tipo==='ADICIONAL'?'➕ Producto adicional':'✏️ Corregir producto solicitado'}</div>
-                    ${anterior?`<div class="c60-note">Original: <b>${escaparHtmlPedido(anterior.producto)}</b> × ${anterior.cantidadSolicitada}. Se conserva en el historial.</div>`:''}
-                    <input id="c60InputBuscar" class="c60-busqueda" placeholder="Buscar producto o presentación…" oninput="c60FiltrarProductos()" autocomplete="off">
-                    <div id="c60ListaProductos" class="c60-resultados"></div>
-                    <div id="c60SeleccionTexto" class="c60-note">Selecciona un producto real de Akasia.</div>
-                    <label style="font-size:12px;">Cantidad correcta</label><input id="c60Cantidad" type="number" min="1" step="1" value="${tipo==='CORRECCION'?anterior.cantidadSolicitada:1}" style="text-align:center;font-size:18px;">
-                    <label style="font-size:12px;">Motivo (opcional)</label><input id="c60Motivo" placeholder="Ej. Surtir góndola o presentación incorrecta" maxlength="300">
-                    <div class="c60-aprobar"><button onclick="c60GuardarAjuste()" style="background:#087cff;">${tipo==='ADICIONAL'?'Agregar directamente':'Solicitar aprobación'}</button><button onclick="c60CerrarEditor()" class="c60-secondary">Cancelar</button></div>
-                    </div>`;
-                document.getElementById('c60InputBuscar').focus();
-            }catch(e){cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';}
+                if(!c60Edicion||c60Edicion.tipo!==tipo||c60Edicion.indice!==indice||!cont.isConnected)return;
+                const info=document.getElementById('c60SeleccionTexto');if(info)info.textContent='Busca o selecciona un producto real de Akasia.';
+                if(anterior){
+                    const opciones=c60CatalogoBodega.filter(x=>{
+                        if(anterior.codigo&&anterior.uuid)return x.codigo===anterior.codigo&&x.uuid===anterior.uuid&&x.producto===anterior.producto;
+                        return x.producto.toUpperCase()===anterior.producto.toUpperCase();
+                    });
+                    if(opciones.length===1){c60ProductoElegido=opciones[0];c60ElegirProducto(c60CatalogoBodega.indexOf(opciones[0]));}
+                    else{const inp=document.getElementById('c60InputBuscar');if(inp&&!inp.value){inp.value=anterior.producto;}}
+                }
+                // Si escribió mientras llegaba el catálogo, presentar resultados sin otro toque.
+                const inp=document.getElementById('c60InputBuscar');
+                if(inp?.value&&!c60ProductoElegido)c60FiltrarProductos();
+            }catch(e){if(cont.isConnected){const info=document.getElementById('c60SeleccionTexto');if(info)info.textContent='Error del catálogo: '+e.message+' · Vuelve a abrir el formulario para reintentar.';}}
         }
         function c60FiltrarProductos(){
             const inp=document.getElementById('c60InputBuscar'),out=document.getElementById('c60ListaProductos');if(!inp||!out)return;
             c60ProductoElegido=null;
+            const save=document.getElementById('c62Guardar');if(save)save.disabled=true;
             const info=document.getElementById('c60SeleccionTexto');if(info)info.textContent='Selecciona la presentación exacta.';
             const q=inp.value;
             const arr=c60BuscarCatalogo(c60CatalogoBodega,q,18);
             if(!c60Norm(q)){out.innerHTML='';return;}
+            if(!c60CatalogoBodega.length){
+                out.innerHTML='<div class="c60-note">⏳ Cargando catálogo Akasia… espera un momento, el texto quedará escrito.</div>';
+                if(info)info.textContent='Preparando búsqueda de productos…';
+                return;
+            }
             out.innerHTML=arr.length?arr.map(x=>`<button class="c60-opcion" type="button" onclick="c60ElegirProducto(${c60CatalogoBodega.indexOf(x)})"><strong>${escaparHtmlPedido(x.producto)}</strong><br><span class="c60-note">${escaparHtmlPedido(c60EtiquetaPresentacion(x))} ${x.enSucursal?'':'· ⚠️ No figura en catálogo de esta sucursal'}</span></button>`).join(''):'<div class="c60-note">No se encontró una coincidencia exacta. Intenta con otra palabra.</div>';
         }
         function c60ElegirProducto(i){
@@ -2523,29 +2734,64 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(info)info.innerHTML=`✅ <b>${escaparHtmlPedido(x.producto)}</b> · ${escaparHtmlPedido(c60EtiquetaPresentacion(x))} ${x.enSucursal?'':'<br>⚠️ No existe en el catálogo de esta sucursal: revisar alta en Akasia.'}`;
             const lista=document.getElementById('c60ListaProductos');if(lista)lista.innerHTML='';
             const inp=document.getElementById('c60InputBuscar');if(inp)inp.value=x.producto;
+            const b=document.getElementById('c62Guardar');if(b)b.disabled=false;
         }
-        function c60CerrarEditor(){c60Edicion=null;c60ProductoElegido=null;const el=document.getElementById('c60EditorBodega');if(el)el.innerHTML='';}
+        function c60CerrarEditor(){
+            c60Edicion=null;c60ProductoElegido=null;
+            document.querySelectorAll('[data-c60-editor]').forEach(el=>el.innerHTML='');
+            const btn=document.getElementById('c65BotonAdicional');
+            if(btn){btn.setAttribute('aria-expanded','false');btn.classList.remove('c65-abierto');}
+        }
         async function c60GuardarAjuste(){
+            if(c65GuardadoEnCurso)return; // Evita dobles envíos, incluso durante recarga.
             const pedido=obtenerPedidoBodegaAbierto(),edit=c60Edicion,item=c60ProductoElegido;
             if(!pedido||!edit||!item)return alert('Selecciona un producto exacto de Akasia.');
             const cantidad=Number(document.getElementById('c60Cantidad')?.value);
             if(!Number.isSafeInteger(cantidad)||cantidad<1||cantidad>99999)return alert('Indica una cantidad entera válida.');
             const orig=edit.tipo==='CORRECCION'?pedido.productos[edit.indice]:null;
-            const aviso=edit.tipo==='ADICIONAL'?'Se agregará DIRECTAMENTE al pedido de '+pedido.sucursal+'.': 'La sucursal deberá APROBAR esta corrección antes de preparar.';
-            if(!confirm(`Producto: ${item.producto}\nCantidad: ${cantidad}\n${aviso}\n\n¿Continuar?`))return;
+            const parte=orig?Number(document.getElementById('c62ParteCorregir')?.value):0;
+            if(orig&&(!Number.isSafeInteger(parte)||parte<1||parte>Number(orig.cantidadSolicitada)))return alert('Indica cuántos del pedido original quieres corregir.');
+            // Adicional: el botón «Agregar» es la acción final, sin otro cuadro de confirmación.
+            // Corrección: conservar el aviso de aprobación de la sucursal.
+            if(edit.tipo==='CORRECCION'){
+                const aviso='Cambiarás '+parte+' de '+orig.cantidadSolicitada+'. Quedarán '+(orig.cantidadSolicitada-parte)+' de la presentación original. La sucursal aprobará el cambio.';
+                if(!confirm(`Producto: ${item.producto}\nNueva cantidad: ${cantidad}\n${aviso}\n\n¿Continuar?`))return;
+            }
             const body=new URLSearchParams({accion:'c60NuevoAjustePedido',idPedido:pedido.idPedido,tipo:edit.tipo,
-              producto:item.producto,codigo:item.codigo,uuid:item.uuid,cantidad:String(cantidad),empleado:localStorage.getItem('usuario')||'',
-              motivo:document.getElementById('c60Motivo')?.value||'',lineaId:orig?.lineaId||'',filaPedido:String(orig?.filaPedido||''),productoAnterior:orig?.producto||''});
+              producto:item.producto,codigo:item.codigo,uuid:item.uuid,cantidad:String(cantidad),cantidadOrigenCorregida:String(parte),empleado:localStorage.getItem('usuario')||'',
+              motivo:edit.tipo==='ADICIONAL'?'':document.getElementById('c60Motivo')?.value||'',lineaId:orig?.lineaId||'',filaPedido:String(orig?.filaPedido||''),productoAnterior:orig?.producto||''});
+            const guardar=document.getElementById('c62Guardar');
+            c65GuardadoEnCurso=true;
+            if(guardar){guardar.dataset.enviando='1';guardar.disabled=true;guardar.textContent='Guardando…';}
+            let guardado=false;
             try{
                 const r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error al guardar');
-                alert(d.mensaje);c60CerrarEditor();await c60RecargarBodega();
-            }catch(e){alert('No se pudo guardar el ajuste: '+e.message);}
+                guardado=true;
+                c60CerrarEditor();
+                await c60RecargarBodega();
+                if(edit.tipo==='ADICIONAL'){
+                    // Dejar preparado el buscador para el siguiente producto, sin tocar otra vez «Agregar».
+                    await c60AbrirFormulario('ADICIONAL',-1,{focus:false});
+                    c65AvisoAdicional('✅ '+item.producto+' × '+cantidad+' agregado. Puedes agregar otro producto.',false);
+                }else alert(d.mensaje);
+            }catch(e){
+                const msg=guardado?'Se agregó el producto, pero no se pudo actualizar la pantalla. Actualiza Bodega y verifica el pedido antes de repetirlo.':'No se pudo confirmar el guardado: '+e.message+'. Comprueba el pedido antes de intentarlo de nuevo para evitar duplicados.';
+                if(edit.tipo==='ADICIONAL')c65AvisoAdicional(msg,true);
+                else alert(msg);
+            }finally{
+                c65GuardadoEnCurso=false;
+                if(guardar?.isConnected){guardar.dataset.enviando='0';guardar.disabled=false;guardar.textContent=edit.tipo==='ADICIONAL'?'✓ Agregar al pedido':'Solicitar aprobación';}
+            }
         }
         async function c60RecargarBodega(){
-            const id=pedidoBodegaAbierto;
+            const id=pedidoBodegaAbierto,scrollAnterior=window.scrollY;
+            pedidosBodegaActuales.forEach(c64GuardarRevision);
             const r=await fetch(URL_API+'?accion=verPedidosBodega&_='+Date.now()),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No disponible');
-            pedidosBodegaActuales=d.pedidos||[];pedidoBodegaAbierto=pedidosBodegaActuales.some(x=>x.idPedido===id)?id:null;
+            pedidosBodegaActuales=d.pedidos||[];
+            pedidosBodegaActuales.forEach(c64RestaurarRevision);
+            pedidoBodegaAbierto=pedidosBodegaActuales.some(x=>x.idPedido===id)?id:null;
             renderizarPedidosBodega();
+            if(pedidoBodegaAbierto)window.scrollTo(0,scrollAnterior);
         }
         function c60CambiarRechazoAdicional(i){
             const marcado=!!document.getElementById('c60Rechazo_'+i)?.checked;
@@ -2559,11 +2805,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const r=await fetch(URL_API+'?accion=c60SolicitudesSucursal&sucursal='+encodeURIComponent(suc)+'&_='+Date.now()),d=await r.json();
                 if(d.status!=='OK')throw Error(d.mensaje||'No disponible');
                 const arr=d.solicitudes||[];cont.style.display=arr.length?'block':'none';
-                cont.innerHTML=arr.length?`<strong>🔔 ${arr.length} corrección(es) de Bodega pendientes</strong><p class="c60-note">Aprueba o rechaza antes de que Bodega prepare los productos corregidos.</p>${arr.map(x=>`<div style="border-top:1px solid #d9e5f5;padding:10px 0;"><div class="c60-note">📦 Pedido ${escaparHtmlPedido(x.idPedido)} · ${escaparHtmlPedido(x.usuarioBodega)}</div><p style="font-size:13px;"><s>${escaparHtmlPedido(x.anterior)} × ${x.cantidadAnterior}</s><br><b>→ ${escaparHtmlPedido(x.nuevo)} × ${x.cantidad}</b></p>${x.motivo?`<div class="c60-note">Motivo: ${escaparHtmlPedido(x.motivo)}</div>`:''}<div class="c60-aprobar"><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','ACEPTAR')" style="background:#198754;">✓ Aprobar</button><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','RECHAZAR')" style="background:#697786;">✕ Rechazar</button></div></div>`).join('')}`:'';
+                cont.innerHTML=arr.length?`<strong>🔔 ${arr.length} corrección(es) de Bodega pendientes</strong><p class="c60-note">Aprueba o rechaza antes de que Bodega prepare los productos corregidos.</p>${arr.map(x=>`<div style="border-top:1px solid #d9e5f5;padding:10px 0;"><div class="c60-note">📦 Pedido ${escaparHtmlPedido(x.idPedido)} · ${escaparHtmlPedido(x.usuarioBodega)}</div><p style="font-size:13px;"><s>${escaparHtmlPedido(x.anterior)} · Cambiar ${x.cantidadOrigenCorregida||x.cantidadAnterior} de ${x.cantidadAnterior}</s><br><b>→ ${escaparHtmlPedido(x.nuevo)} × ${x.cantidad}</b>${(x.cantidadAnterior-(x.cantidadOrigenCorregida||x.cantidadAnterior))>0?'<br><span class="c60-note">Quedan '+(x.cantidadAnterior-(x.cantidadOrigenCorregida||x.cantidadAnterior))+' del producto original.</span>':''}</p>${x.motivo?`<div class="c60-note">Motivo: ${escaparHtmlPedido(x.motivo)}</div>`:''}<div class="c60-aprobar"><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','ACEPTAR')" style="background:#198754;">✓ Aprobar</button><button onclick="c60ResolverCorreccion('${escaparHtmlPedido(x.id)}','RECHAZAR')" style="background:#697786;">✕ Rechazar</button></div></div>`).join('')}`:'';
             }catch(e){cont.style.display='block';cont.innerHTML='<span class="c60-note">No se pudieron consultar las correcciones. <button type="button" onclick="c60CargarSolicitudesSucursal()">Reintentar</button></span>';}
         }
         async function c60ResolverCorreccion(id,decision){
-            if(!confirm(decision==='ACEPTAR'?'¿Aprobar el cambio solicitado por Bodega?':'¿Rechazar el cambio y conservar lo solicitado originalmente?'))return;
+            if(!confirm(decision==='ACEPTAR'?'¿Aprobar el cambio propuesto por Bodega?':'¿Rechazar el cambio y conservar lo solicitado originalmente?'))return;
             try{
                 const body=new URLSearchParams({accion:'c60ResolverCorreccion',idAjuste:id,decision:decision,sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''});
                 const r=await fetch(URL_API,{method:'POST',body}),d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error');
@@ -2965,6 +3211,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 .then(data => {
                     if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "Respuesta inválida");
                     pedidosBodegaActuales = data.pedidos || [];
+                    pedidosBodegaActuales.forEach(c64RestaurarRevision);
                     pedidoBodegaAbierto = null;
                     renderizarPedidosBodega();
                 })
@@ -3084,6 +3331,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     throw new Error(resp.mensaje || "No se pudo eliminar el pedido.");
                 }
 
+                c64EliminarRevision(pedido);
                 alert(`Pedido #${numero} eliminado correctamente.`);
                 pedidoBodegaAbierto = null;
                 await cargarPedidosEnBodega();
@@ -3103,6 +3351,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             });
             renderizarDetallePedidoBodega(pedido);
             window.scrollTo(0,0);
+            // Precarga sin bloquear la revisión de productos. No edita ni las hojas ni imágenes.
+            c60CargarCatalogoBodega().catch(()=>{});
         }
 
         function volverListaPedidosBodega() {
@@ -3124,7 +3374,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     <div style="font-size:17px;font-weight:800;color:#2c3e50;">🏪 ${escaparHtmlPedido(pedido.sucursal)}</div>
                     <div style="font-size:14px;font-weight:800;color:#34495e;margin-top:5px;">📋 Pedido #${String(Number(pedido.numeroPedido)||0).padStart(3,"0")}</div>
                     <div style="font-size:12px;color:#555;margin-top:4px;">📅 ${formatearFechaPedidoBodega(pedido.fecha,pedido.hora)}${pedido.solicito ? ` · 👤 ${escaparHtmlPedido(pedido.solicito)}` : ''}</div>
-                    <div style="font-size:12px;color:#555;margin-top:4px;">Revisados: <strong>${revisados} de ${total}</strong></div>
+                    <div style="font-size:12px;color:#555;margin-top:4px;">Revisados: <strong id="c62RevisadosBodega">${revisados} de ${total}</strong> · Avance guardado en este dispositivo</div>
                 </div>`;
             html += c60HerramientasPedidoHtml(pedido);
 
@@ -3134,24 +3384,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const fondo = revisado ? (completa ? '#edf9f0' : '#fff4e5') : '#f8f9fa';
                 const borde = revisado ? (completa ? '#b7e1c1' : '#ffd59a') : '#e9ecef';
                 html += `
-                    <div style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:12px;margin:9px 0;">
+                    <div id="c62Tarjeta_${index}" style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:12px;margin:9px 0;">
                         <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">${imagenProductoGlobal(item.producto,item,54)}<div style="font-size:14px;font-weight:800;color:#2c3e50;">${escaparHtmlPedido(item.producto)}</div></div>
                         <div style="font-size:13px;color:#555;margin-bottom:9px;">${item.origen==='ADICIONAL_BODEGA'?'Agregado por Bodega':'Necesitan'}: <strong style="font-size:16px;color:#111;">${item.cantidadSolicitada}</strong> <span class="c60-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span> ${item.origen==='ADICIONAL_BODEGA'?'<span class="c60-chip c60-chip-warning">Adicional</span>':''}</div>
                         ${item.ajustePendiente?'<div class="c60-chip c60-chip-warning">⏳ Corrección pendiente de sucursal · sin preparar</div>':''}
-                        ${!item.ajustePendiente?`<button onclick="c60AbrirFormulario('CORRECCION',${index})" style="background:#566f91;padding:7px;font-size:12px;margin:5px 0;">✏️ Corregir producto o cantidad</button>`:''}
-                        ${item.ajustePendiente?'<p class="c60-note">Esta línea se desbloquea cuando la sucursal apruebe o rechace la corrección.</p>':!revisado ? `
-                            <div style="display:flex;gap:8px;">
-                                <button onclick="marcarDisponibleBodega(${index})" style="background:#087cff;margin:0;flex:1;">✓ Disponible</button>
-                                <button onclick="marcarIncompletoBodega(${index})" style="background:#f0ad4e;margin:0;flex:1;">⚠ No completo</button>
-                            </div>` : `
-                            <div style="font-size:12px;font-weight:700;text-align:center;margin-bottom:7px;color:${completa ? '#28a745' : '#b26a00'};">${completa ? '✅ Disponible completo' : '⚠️ Disponible: ' + item.cantidadSurtida + ' · Faltan: ' + Math.max(0, item.cantidadSolicitada - item.cantidadSurtida)}</div>
-                            ${!completa ? `
-                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
-                                    <button onclick="cambiarCantidadBodega(${index},-1)" style="width:48px;height:44px;margin:0;background:#7a858e;font-size:20px;padding:0;">−</button>
-                                    <input id="bodegaCant_${index}" type="number" min="0" max="${item.cantidadSolicitada}" value="${item.cantidadSurtida}" oninput="editarCantidadBodega(${index},this.value)" style="flex:1;text-align:center;font-size:18px;font-weight:700;margin:0;height:44px;">
-                                    <button onclick="cambiarCantidadBodega(${index},1)" style="width:48px;height:44px;margin:0;background:#087cff;font-size:20px;padding:0;">+</button>
-                                </div>` : ''}
-                            <button onclick="revisarDeNuevoBodega(${index})" style="background:#6c757d;padding:7px;font-size:11px;margin:0;">Cambiar</button>`}
+                        ${!item.ajustePendiente?`<button onclick="c60AbrirFormulario('CORRECCION',${index})" class="c62-corregir">✏️ Corregir solo 1 o cambiar presentación</button>`:''}
+                        <div id="c60EditorLinea_${index}" data-c60-editor></div>
+                        <div id="c62Controles_${index}">${c62HtmlControles(item,index)}</div>
                     </div>`;
             });
 
@@ -3168,7 +3407,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (!pedido || !pedido.productos[index]) return;
             pedido.productos[index].cantidadSurtida = Number(pedido.productos[index].cantidadSolicitada) || 0;
             pedido.productos[index].revisado = true;
-            renderizarDetallePedidoBodega(pedido);
+            c64GuardarRevision(pedido);
+            c62ActualizarLinea(index);
         }
 
         function marcarIncompletoBodega(index) {
@@ -3177,7 +3417,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const solicitada = Number(pedido.productos[index].cantidadSolicitada) || 0;
             pedido.productos[index].cantidadSurtida = Math.max(0, solicitada - 1);
             pedido.productos[index].revisado = true;
-            renderizarDetallePedidoBodega(pedido);
+            c64GuardarRevision(pedido);
+            c62ActualizarLinea(index);
         }
 
         function cambiarCantidadBodega(index, cambio) {
@@ -3187,7 +3428,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const max = Number(item.cantidadSolicitada) || 0;
             item.cantidadSurtida = Math.min(max, Math.max(0, (Number(item.cantidadSurtida) || 0) + cambio));
             item.revisado = true;
-            renderizarDetallePedidoBodega(pedido);
+            c64GuardarRevision(pedido);
+            c62ActualizarLinea(index);
         }
 
         function editarCantidadBodega(index, valor) {
@@ -3197,13 +3439,23 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const max = Number(item.cantidadSolicitada) || 0;
             item.cantidadSurtida = Math.min(max, Math.max(0, Number(valor) || 0));
             item.revisado = true;
-            renderizarDetallePedidoBodega(pedido);
+            c64GuardarRevision(pedido);
+            // No repintar mientras se escribe: evita cierre de teclado y saltos en móvil.
+            const completo=item.cantidadSurtida===max;
+            const estado=document.getElementById('c62Estado_'+index),tarjeta=document.getElementById('c62Tarjeta_'+index),controles=document.getElementById('c62Controles_'+index);
+            if(estado)estado.textContent=(completo?'✅ Se enviará ':'⚠ Se enviará ')+item.cantidadSurtida+(completo?'':' de '+max);
+            if(tarjeta){tarjeta.style.background=completo?'#edf9f0':'#fff4e5';tarjeta.style.borderColor=completo?'#b7e1c1':'#ffd59a';}
+            if(controles){const botones=controles.querySelectorAll('.c62-actions button');
+                botones[0]?.classList.toggle('c62-activo',completo);
+                botones[1]?.classList.toggle('c62-activo',!completo);}
+            c62ActualizarTotalBodega(pedido);
         }
 
         function revisarDeNuevoBodega(index) {
             const pedido = obtenerPedidoBodegaAbierto();
             if (!pedido || !pedido.productos[index]) return;
             pedido.productos[index].revisado = false;
+            c64GuardarRevision(pedido);
             renderizarDetallePedidoBodega(pedido);
         }
 
@@ -3232,6 +3484,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const r = await fetch(URL_API, { method:"POST", body:params });
                 const data = await r.json();
                 if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "No confirmado");
+                c64EliminarRevision(pedido);
                 alert(`Pedido preparado. Completos: ${data.completos} | Con faltante: ${data.conFaltante}`);
                 pedidoBodegaAbierto = null;
                 cargarPedidosEnBodega();
