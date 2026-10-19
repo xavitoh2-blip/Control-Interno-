@@ -1030,6 +1030,60 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #c60EditorBodega .c60-aprobar button {min-height:54px!important;touch-action:manipulation}
 .c65-aviso {border:1px solid #a8daba;background:#ecfff2;color:#176837;font-size:13px;font-weight:750;padding:11px;border-radius:13px;margin:8px 0}
 .c65-aviso-error {border-color:#ffcbba;background:#fff1ec;color:#a02b1a}
+
+
+/* v1.6.66 BETA · Bodega estilo iOS / Liquid Glass. Aislado de los demás módulos. */
+.c66-bodega {font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;--c66-ink:#182940;--c66-muted:#687a93;--c66-line:rgba(149,177,210,.30);color:var(--c66-ink);text-align:left;}
+.c66-bodega button {touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .16s ease,transform .14s ease,border-color .16s ease,box-shadow .16s ease;}
+.c66-bodega button:active:not(:disabled) {transform:scale(.975)}
+.c66-back {display:flex;align-items:center;justify-content:center;gap:7px;width:100%;background:rgba(236,242,250,.89)!important;color:#334761!important;border:1px solid rgba(177,197,221,.6)!important;box-shadow:0 3px 14px rgba(35,73,118,.08)!important;border-radius:18px!important;font-size:14px!important;font-weight:800!important;padding:13px 10px!important;margin:0 0 12px!important;}
+.c66-head {position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(162,190,229,.58);border-radius:26px;padding:19px 16px 17px;margin-bottom:15px;text-align:center;background:linear-gradient(145deg,rgba(233,243,255,.92),rgba(253,254,255,.88) 60%,rgba(220,236,255,.75));box-shadow:0 9px 28px rgba(54,96,160,.09),inset 0 1px 0 rgba(255,255,255,.95);}
+.c66-head:before{content:"";position:absolute;z-index:-1;inset:-45% -10% auto 40%;height:155px;transform:rotate(-20deg);background:radial-gradient(ellipse,rgba(126,184,255,.27),transparent 73%);pointer-events:none}
+.c66-head .c66-overline{font-size:10px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:#6080a7;margin-bottom:8px;}
+.c66-head .c66-sucursal{font-size:clamp(18px,5vw,23px);letter-spacing:-.025em;font-weight:850;color:#1c3554;line-height:1.25;overflow-wrap:anywhere;}
+.c66-head .c66-pedido{margin:5px 0;font-size:15px;font-weight:850;color:#3a5575;}
+.c66-head .c66-sub{font-size:12px;color:#61758f;line-height:1.5;margin-top:5px;}
+.c66-progress-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:15px 0 7px;font-size:12px;font-weight:760;color:#527092;}
+.c66-progress-meta b{font-size:13px;color:#275da4;}
+.c66-progress-track{height:7px;overflow:hidden;background:rgba(125,164,209,.20);border-radius:99px;}
+.c66-progress-track i{display:block;height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#2782f4,#4dbaed);transition:width .22s ease;}
+.c66-card{border:1px solid var(--c66-line);border-radius:25px;padding:15px 14px 13px;margin:11px 0;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(242,248,255,.84));box-shadow:0 6px 18px rgba(35,75,130,.065),inset 0 1px 0 rgba(255,255,255,.95);transition:background .18s ease,border-color .18s ease;}
+.c66-card[data-c66-estado="disponible"]{background:linear-gradient(130deg,rgba(243,255,249,.97),rgba(227,250,238,.88));border-color:rgba(87,188,134,.39);}
+.c66-card[data-c66-estado="no"]{background:linear-gradient(130deg,rgba(255,247,249,.97),rgba(255,233,238,.88));border-color:rgba(224,126,144,.40);}
+.c66-card[data-c66-estado="parcial"]{background:linear-gradient(130deg,rgba(255,251,241,.98),rgba(255,243,217,.90));border-color:rgba(226,178,94,.46);}
+.c66-producto-line{display:flex;gap:11px;align-items:center;margin-bottom:10px;}
+.c66-producto-img{width:57px;min-width:57px;height:57px;border-radius:16px;background:rgba(255,255,255,.70);border:1px solid rgba(188,207,227,.32);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.c66-producto-img img{max-width:100%;max-height:100%;object-fit:contain;}
+.c66-producto-nombre{font-size:14px;font-weight:850;color:#1b293f;overflow-wrap:anywhere;line-height:1.37;letter-spacing:-.012em;}
+.c66-cantidad-necesaria{font-size:12px;color:#62758d;margin:6px 0 11px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.c66-cantidad-necesaria strong{font-size:18px;color:#203b5c;line-height:1;}
+.c66-bodega .c62-corregir{background:rgba(241,246,252,.90)!important;color:#44617f!important;border:1px solid rgba(163,187,216,.37)!important;border-radius:14px!important;font-size:12px!important;min-height:43px!important;padding:9px 7px!important;font-weight:750!important;margin:3px 0 8px!important;box-shadow:none!important;}
+.c66-bodega .c62-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px;}
+.c66-bodega .c62-actions .c66-choice{position:relative;min-width:0;min-height:61px;padding:8px 2px!important;border-radius:16px!important;margin:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px!important;line-height:1.13;font-weight:800!important;border:1px solid rgba(180,198,222,.55)!important;box-shadow:0 2px 6px rgba(29,66,114,.035)!important;background:rgba(255,255,255,.79)!important;color:#5e718a!important;overflow-wrap:anywhere;}
+.c66-bodega .c66-choice .c66-choice-ico{font-size:19px;line-height:1;}
+.c66-bodega .c66-choice[data-c66-boton="disponible"]{color:#137a53!important;}
+.c66-bodega .c66-choice[data-c66-boton="no"]{color:#b33e59!important;}
+.c66-bodega .c66-choice[data-c66-boton="parcial"]{color:#ac7118!important;}
+.c66-bodega .c66-choice.c62-activo[data-c66-boton="disponible"]{color:#fff!important;background:linear-gradient(135deg,#0a9a6d,#31bc89)!important;border-color:rgba(4,143,99,.6)!important;box-shadow:0 5px 14px rgba(11,148,108,.19)!important;outline:none!important;}
+.c66-bodega .c66-choice.c62-activo[data-c66-boton="no"]{color:#fff!important;background:linear-gradient(135deg,#d14e69,#ed7383)!important;border-color:rgba(202,71,97,.59)!important;box-shadow:0 5px 14px rgba(196,69,95,.18)!important;outline:none!important;}
+.c66-bodega .c66-choice.c62-activo[data-c66-boton="parcial"]{color:#5b3a07!important;background:linear-gradient(135deg,#ffde91,#ffc868)!important;border-color:rgba(219,153,54,.48)!important;box-shadow:0 5px 14px rgba(212,151,62,.16)!important;outline:none!important;}
+.c66-bodega .c62-estado{font-size:12px!important;font-weight:800!important;color:#63758c!important;background:rgba(244,247,252,.78);border:1px solid rgba(185,201,222,.27);border-radius:13px;padding:9px 7px;margin:10px 0 0;line-height:1.4;}
+.c66-bodega .c62-estado[data-c66-estado="disponible"]{color:#197550!important;background:rgba(226,250,237,.74);}
+.c66-bodega .c62-estado[data-c66-estado="no"]{color:#ad4056!important;background:rgba(255,231,235,.77);}
+.c66-bodega .c62-estado[data-c66-estado="parcial"]{color:#815918!important;background:rgba(255,242,211,.72);}
+.c66-bodega .c66-parcial-editor{padding:10px 10px 4px;background:rgba(255,255,255,.59);border:1px solid rgba(205,190,160,.39);border-radius:18px;margin-top:9px;}
+.c66-bodega .c66-parcial-titulo{font-size:11px;letter-spacing:.025em;font-weight:850;color:#866328;text-align:center;margin:1px 0 6px;}
+.c66-bodega .c66-parcial-help{font-size:11px;color:#8c7450;text-align:center;margin:3px 0 8px;}
+.c66-bodega .c66-parcial-editor .c62-qty{margin:4px 0 5px;gap:9px;}
+.c66-bodega .c66-parcial-editor .c62-qty button{border-radius:15px!important;height:52px!important;width:52px!important;min-width:52px!important;background:rgba(217,226,238,.87)!important;color:#243c57!important;font-weight:750!important;box-shadow:none!important;border:1px solid rgba(174,192,217,.6)!important;}
+.c66-bodega .c66-parcial-editor .c62-qty button:last-child{background:#137bfa!important;color:white!important;border:1px solid #0e6cde!important;}
+.c66-bodega .c66-parcial-editor .c62-qty input{height:52px!important;min-height:52px!important;font-size:23px!important;border-radius:15px!important;background:rgba(255,255,255,.96)!important;color:#1d3450!important;border:1px solid rgba(161,181,210,.55)!important;box-shadow:none!important;}
+.c66-bodega .c66-confirmar{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:5;padding:15px 12px!important;min-height:57px!important;margin:15px 0 4px!important;border-radius:19px!important;background:linear-gradient(135deg,#1076f2,#409bff)!important;color:white!important;font-size:13px!important;font-weight:800!important;box-shadow:0 7px 22px rgba(25,107,214,.22)!important;}
+.c66-bodega .c66-confirmar:disabled{background:rgba(103,120,141,.94)!important;box-shadow:0 5px 17px rgba(62,76,93,.13)!important;}
+@supports ((-webkit-backdrop-filter:blur(12px)) or (backdrop-filter:blur(12px))){.c66-head,.c66-card,.c66-bodega .c66-choice,.c66-bodega .c66-parcial-editor{-webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3);}}
+@media(max-width:370px){.c66-card{padding:12px 10px}.c66-bodega .c62-actions{gap:5px}.c66-bodega .c62-actions .c66-choice{font-size:10px!important;min-height:61px}.c66-bodega .c66-parcial-editor .c62-qty button{width:45px!important;min-width:45px!important;}}
+@media(prefers-reduced-motion:reduce){.c66-bodega *{transition:none!important;}}
+
 </style>
 </head>
 <body>
@@ -1051,7 +1105,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.65 BETA · Bodega rápida · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.66 BETA · Bodega iOS · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2560,31 +2614,57 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         let c62CatalogoSucursal='',c62CatalogoPromesa=null;
         // Solo actualiza los botones de una línea; no reconstruye las 14 tarjetas,
         // imágenes ni formulario. Esto evita saltos y retrasos en el iPhone.
+        // v1.6.66: mismo contrato con Código.gs; 0 confirmado se distingue de Parcial 0 pendiente.
+        function c66TipoLinea(item){
+            const max=Number(item.cantidadSolicitada)||0,cant=Number(item.cantidadSurtida)||0;
+            if(item.c66ModoParcial || (item.revisado && cant>0 && cant<max))return 'parcial';
+            if(!item.revisado)return 'pendiente';
+            return cant===0?'no':'disponible';
+        }
+        function c66MensajeLinea(item){
+            const max=Number(item.cantidadSolicitada)||0,cant=Number(item.cantidadSurtida)||0,tipo=c66TipoLinea(item);
+            if(tipo==='pendiente')return '○ Sin revisar';
+            if(tipo==='no')return '✕ No disponible · Se enviará 0 de '+max;
+            if(tipo==='parcial' && !item.revisado)return '⏳ Se enviará 0 de '+max+' · suma lo encontrado';
+            if(tipo==='parcial')return '◐ Se enviará '+cant+' de '+max;
+            return '✓ Disponible · Se enviará '+max+' de '+max;
+        }
         function c62HtmlControles(item,index){
             if(item.ajustePendiente)return '<p class="c60-note">La sucursal debe aprobar o rechazar antes de preparar esta línea.</p>';
-            const revisado=!!item.revisado,completa=Number(item.cantidadSurtida)===Number(item.cantidadSolicitada);
-            return `<div class="c62-actions">
-                <button type="button" onclick="marcarDisponibleBodega(${index})" class="${revisado&&completa?'c62-activo':''}" style="background:#087cff;">✓ ${Number(item.cantidadSolicitada)===1?'Enviar 1':'Disponible todo'}</button>
-                <button type="button" onclick="marcarIncompletoBodega(${index})" class="${revisado&&!completa?'c62-activo':''}" style="background:#eda943;color:#493500;">⚠ ${Number(item.cantidadSolicitada)===1?'No hay (0)':'Parcial'}</button>
+            const tipo=c66TipoLinea(item),parcial=tipo==='parcial',max=Number(item.cantidadSolicitada)||0,cant=Number(item.cantidadSurtida)||0;
+            const botones=[['disponible','✓','Disponible','marcarDisponibleBodega'],['no','✕','No disponible','marcarNoDisponibleBodega'],['parcial','◐','Parcial','marcarIncompletoBodega']];
+            return `<div class="c62-actions" role="group" aria-label="Disponibilidad del producto">
+                ${botones.map(([id,ico,label,handler])=>`<button type="button" data-c66-boton="${id}" onclick="${handler}(${index})" class="c66-choice ${tipo===id?'c62-activo':''}" aria-pressed="${tipo===id}"><span class="c66-choice-ico" aria-hidden="true">${ico}</span><span>${label}</span></button>`).join('')}
             </div>
-            ${revisado?`<div class="c62-estado" id="c62Estado_${index}">${completa?'✅ Se enviará '+item.cantidadSurtida:'⚠ Se enviará '+item.cantidadSurtida+' de '+item.cantidadSolicitada}</div>`:''}
-            ${revisado&&!completa?`<div class="c62-qty c62-qty-inline"><button type="button" onclick="cambiarCantidadBodega(${index},-1)">−</button><input id="bodegaCant_${index}" type="number" min="0" max="${item.cantidadSolicitada}" step="1" value="${item.cantidadSurtida}" oninput="editarCantidadBodega(${index},this.value)"><button type="button" onclick="cambiarCantidadBodega(${index},1)">+</button></div>`:''}`;
+            <div class="c62-estado" id="c62Estado_${index}" data-c66-estado="${tipo}" aria-live="polite">${c66MensajeLinea(item)}</div>
+            ${parcial?`<div class="c66-parcial-editor"><div class="c66-parcial-titulo">UNIDADES QUE SÍ TIENES</div>
+                <div class="c62-qty c62-qty-inline"><button type="button" aria-label="Restar una unidad" onclick="cambiarCantidadBodega(${index},-1)">−</button><input id="bodegaCant_${index}" type="number" inputmode="numeric" min="0" max="${max}" step="1" aria-label="Unidades disponibles de ${max}" value="${cant}" oninput="editarCantidadBodega(${index},this.value)" onchange="c66NormalizarInputBodega(${index})"><button type="button" aria-label="Sumar una unidad" onclick="cambiarCantidadBodega(${index},1)">+</button></div>
+                <div class="c66-parcial-help">De 0 a ${max} unidades solicitadas</div></div>`:''}`;
+        }
+        function c66ActualizarEstadoVisual(index){
+            const p=obtenerPedidoBodegaAbierto();if(!p||!p.productos[index])return;
+            const item=p.productos[index],tipo=c66TipoLinea(item),estado=document.getElementById('c62Estado_'+index),tarjeta=document.getElementById('c62Tarjeta_'+index),controles=document.getElementById('c62Controles_'+index);
+            if(estado){estado.textContent=c66MensajeLinea(item);estado.dataset.c66Estado=tipo;}
+            if(tarjeta)tarjeta.dataset.c66Estado=tipo;
+            if(controles)controles.querySelectorAll('.c66-choice').forEach(b=>{
+                const activo=b.dataset.c66Boton===tipo;b.classList.toggle('c62-activo',activo);b.setAttribute('aria-pressed',String(activo));
+            });
+            c62ActualizarTotalBodega(p);
         }
         function c62ActualizarTotalBodega(p){
             const rev=p.productos.filter(x=>x.revisado).length,total=p.productos.length,
                   listo=rev===total&&!p.productos.some(x=>x.ajustePendiente),
-                  count=document.getElementById('c62RevisadosBodega'),btn=document.getElementById('btnConfirmarDespachoBodega');
+                  count=document.getElementById('c62RevisadosBodega'),btn=document.getElementById('btnConfirmarDespachoBodega'),
+                  barra=document.getElementById('c66BarraProgreso');
             if(count)count.textContent=rev+' de '+total;
+            if(barra)barra.style.width=(total?rev/total*100:0)+'%';
             if(btn){btn.disabled=!listo;btn.textContent='🚚 '+(listo?'Confirmar pedido preparado':'Revisa todos los productos ('+rev+'/'+total+')');}
         }
         function c62ActualizarLinea(index){
             const p=obtenerPedidoBodegaAbierto();if(!p||!p.productos[index])return;
-            const item=p.productos[index],out=document.getElementById('c62Controles_'+index),tarjeta=document.getElementById('c62Tarjeta_'+index);
+            const item=p.productos[index],out=document.getElementById('c62Controles_'+index);
             if(out)out.innerHTML=c62HtmlControles(item,index);
-            if(tarjeta){const completo=!!item.revisado&&Number(item.cantidadSurtida)===Number(item.cantidadSolicitada);
-                tarjeta.style.background=!item.revisado?'#f8f9fa':completo?'#edf9f0':'#fff4e5';
-                tarjeta.style.borderColor=!item.revisado?'#e9ecef':completo?'#b7e1c1':'#ffd59a';}
-            c62ActualizarTotalBodega(p);
+            c66ActualizarEstadoVisual(index);
         }
         function c62CambiarCantidadCorregir(delta){
             const el=document.getElementById('c62ParteCorregir');if(!el)return;
@@ -3364,38 +3444,35 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function renderizarDetallePedidoBodega(pedido) {
-            const cont = document.getElementById("listaPedidosBodega");
-            const revisados = pedido.productos.filter(p => p.revisado).length;
-            const total = pedido.productos.length;
-
-            let html = `
-                <button onclick="volverListaPedidosBodega()" style="background:#6c757d;margin:0 0 10px;">← Volver a pedidos</button>
-                <div style="background:#eaf4ff;border:1px solid #b8daff;border-radius:10px;padding:12px;margin-bottom:12px;text-align:center;">
-                    <div style="font-size:17px;font-weight:800;color:#2c3e50;">🏪 ${escaparHtmlPedido(pedido.sucursal)}</div>
-                    <div style="font-size:14px;font-weight:800;color:#34495e;margin-top:5px;">📋 Pedido #${String(Number(pedido.numeroPedido)||0).padStart(3,"0")}</div>
-                    <div style="font-size:12px;color:#555;margin-top:4px;">📅 ${formatearFechaPedidoBodega(pedido.fecha,pedido.hora)}${pedido.solicito ? ` · 👤 ${escaparHtmlPedido(pedido.solicito)}` : ''}</div>
-                    <div style="font-size:12px;color:#555;margin-top:4px;">Revisados: <strong id="c62RevisadosBodega">${revisados} de ${total}</strong> · Avance guardado en este dispositivo</div>
+            const cont=document.getElementById('listaPedidosBodega');
+            const revisados=pedido.productos.filter(p=>p.revisado).length,total=pedido.productos.length;
+            const progreso=total?Math.round(revisados*100/total):0;
+            let html=`<div class="c66-bodega">
+                <button type="button" onclick="volverListaPedidosBodega()" class="c66-back">‹ &nbsp;Volver a pedidos</button>
+                <div class="c66-head"><div class="c66-overline">📦 Preparación de pedidos · Bodega</div>
+                    <div class="c66-sucursal">🏪 ${escaparHtmlPedido(pedido.sucursal)}</div>
+                    <div class="c66-pedido">Pedido #${String(Number(pedido.numeroPedido)||0).padStart(3,'0')}</div>
+                    <div class="c66-sub">${formatearFechaPedidoBodega(pedido.fecha,pedido.hora)}${pedido.solicito?' · 👤 '+escaparHtmlPedido(pedido.solicito):''}</div>
+                    <div class="c66-progress-meta"><span>Productos revisados</span><b id="c62RevisadosBodega">${revisados} de ${total}</b></div>
+                    <div class="c66-progress-track"><i id="c66BarraProgreso" style="width:${progreso}%"></i></div>
                 </div>`;
-            html += c60HerramientasPedidoHtml(pedido);
-
-            pedido.productos.forEach((item, index) => {
-                const revisado = !!item.revisado;
-                const completa = Number(item.cantidadSurtida) === Number(item.cantidadSolicitada);
-                const fondo = revisado ? (completa ? '#edf9f0' : '#fff4e5') : '#f8f9fa';
-                const borde = revisado ? (completa ? '#b7e1c1' : '#ffd59a') : '#e9ecef';
-                html += `
-                    <div id="c62Tarjeta_${index}" style="background:${fondo};border:1px solid ${borde};border-radius:10px;padding:12px;margin:9px 0;">
-                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">${imagenProductoGlobal(item.producto,item,54)}<div style="font-size:14px;font-weight:800;color:#2c3e50;">${escaparHtmlPedido(item.producto)}</div></div>
-                        <div style="font-size:13px;color:#555;margin-bottom:9px;">${item.origen==='ADICIONAL_BODEGA'?'Agregado por Bodega':'Necesitan'}: <strong style="font-size:16px;color:#111;">${item.cantidadSolicitada}</strong> <span class="c60-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span> ${item.origen==='ADICIONAL_BODEGA'?'<span class="c60-chip c60-chip-warning">Adicional</span>':''}</div>
-                        ${item.ajustePendiente?'<div class="c60-chip c60-chip-warning">⏳ Corrección pendiente de sucursal · sin preparar</div>':''}
-                        ${!item.ajustePendiente?`<button onclick="c60AbrirFormulario('CORRECCION',${index})" class="c62-corregir">✏️ Corregir solo 1 o cambiar presentación</button>`:''}
-                        <div id="c60EditorLinea_${index}" data-c60-editor></div>
-                        <div id="c62Controles_${index}">${c62HtmlControles(item,index)}</div>
-                    </div>`;
+            html+=c60HerramientasPedidoHtml(pedido);
+            pedido.productos.forEach((item,index)=>{
+                const tipo=item.ajustePendiente?'pendiente':c66TipoLinea(item);
+                html+=`<div id="c62Tarjeta_${index}" class="c66-card" data-c66-estado="${tipo}">
+                    <div class="c66-producto-line"><div class="c66-producto-img">${imagenProductoGlobal(item.producto,item,54)}</div>
+                        <div class="c66-producto-nombre">${escaparHtmlPedido(item.producto)}</div></div>
+                    <div class="c66-cantidad-necesaria">${item.origen==='ADICIONAL_BODEGA'?'Agregado por Bodega':'Necesitan'} <strong>${Number(item.cantidadSolicitada)||0}</strong>
+                        <span class="c60-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span>${item.origen==='ADICIONAL_BODEGA'?'<span class="c60-chip c60-chip-warning">Adicional</span>':''}</div>
+                    ${item.ajustePendiente?'<div class="c60-chip c60-chip-warning">⏳ Corrección pendiente de sucursal · sin preparar</div>':''}
+                    ${!item.ajustePendiente?`<button type="button" onclick="c60AbrirFormulario('CORRECCION',${index})" class="c62-corregir">✎ Corregir solo 1 o cambiar presentación</button>`:''}
+                    <div id="c60EditorLinea_${index}" data-c60-editor></div>
+                    <div id="c62Controles_${index}">${c62HtmlControles(item,index)}</div>
+                </div>`;
             });
-
-            html += `<button id="btnConfirmarDespachoBodega" onclick="confirmarDespachoBodega()" ${revisados !== total || pedido.productos.some(x=>x.ajustePendiente) ? 'disabled' : ''} style="background:#087cff;position:sticky;bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);">🚚 ${revisados === total ? 'Confirmar pedido preparado' : 'Revisa todos los productos (' + revisados + '/' + total + ')'}</button>`;
-            cont.innerHTML = html;
+            const listo=revisados===total&&!pedido.productos.some(p=>p.ajustePendiente);
+            html+=`<button id="btnConfirmarDespachoBodega" type="button" class="c66-confirmar" onclick="confirmarDespachoBodega()" ${listo?'':'disabled'}>🚚 ${listo?'Confirmar pedido preparado':'Revisa todos los productos ('+revisados+'/'+total+')'}</button></div>`;
+            cont.innerHTML=html;
         }
 
         function obtenerPedidoBodegaAbierto() {
@@ -3403,52 +3480,58 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function marcarDisponibleBodega(index) {
-            const pedido = obtenerPedidoBodegaAbierto();
-            if (!pedido || !pedido.productos[index]) return;
-            pedido.productos[index].cantidadSurtida = Number(pedido.productos[index].cantidadSolicitada) || 0;
-            pedido.productos[index].revisado = true;
-            c64GuardarRevision(pedido);
-            c62ActualizarLinea(index);
+            const pedido=obtenerPedidoBodegaAbierto(),item=pedido?.productos[index];
+            if(!item||item.ajustePendiente)return;
+            item.c66ModoParcial=false;
+            item.cantidadSurtida=Number(item.cantidadSolicitada)||0;
+            item.revisado=true;
+            c64GuardarRevision(pedido);c62ActualizarLinea(index);
+        }
+
+        function marcarNoDisponibleBodega(index) {
+            const pedido=obtenerPedidoBodegaAbierto(),item=pedido?.productos[index];
+            if(!item||item.ajustePendiente)return;
+            item.c66ModoParcial=false;
+            item.cantidadSurtida=0;
+            item.revisado=true; // Cero confirmado, diferente de parcial que comienza en cero.
+            c64GuardarRevision(pedido);c62ActualizarLinea(index);
         }
 
         function marcarIncompletoBodega(index) {
-            const pedido = obtenerPedidoBodegaAbierto();
-            if (!pedido || !pedido.productos[index]) return;
-            const solicitada = Number(pedido.productos[index].cantidadSolicitada) || 0;
-            pedido.productos[index].cantidadSurtida = Math.max(0, solicitada - 1);
-            pedido.productos[index].revisado = true;
-            c64GuardarRevision(pedido);
-            c62ActualizarLinea(index);
+            const pedido=obtenerPedidoBodegaAbierto(),item=pedido?.productos[index];
+            if(!item||item.ajustePendiente)return;
+            // Volver a tocar Parcial no borra una cantidad ya ingresada.
+            if(c66TipoLinea(item)==='parcial')return;
+            item.c66ModoParcial=true;
+            item.cantidadSurtida=0;
+            item.revisado=false; // Al empezar en cero aún falta indicar qué se encontró.
+            c64GuardarRevision(pedido);c62ActualizarLinea(index);
         }
 
-        function cambiarCantidadBodega(index, cambio) {
-            const pedido = obtenerPedidoBodegaAbierto();
-            if (!pedido || !pedido.productos[index]) return;
-            const item = pedido.productos[index];
-            const max = Number(item.cantidadSolicitada) || 0;
-            item.cantidadSurtida = Math.min(max, Math.max(0, (Number(item.cantidadSurtida) || 0) + cambio));
-            item.revisado = true;
-            c64GuardarRevision(pedido);
-            c62ActualizarLinea(index);
+        function cambiarCantidadBodega(index,cambio){
+            const pedido=obtenerPedidoBodegaAbierto(),item=pedido?.productos[index];
+            if(!item||item.ajustePendiente||c66TipoLinea(item)!=='parcial')return;
+            const max=Number(item.cantidadSolicitada)||0;
+            item.c66ModoParcial=true;
+            item.cantidadSurtida=Math.max(0,Math.min(max,(Number(item.cantidadSurtida)||0)+cambio));
+            item.revisado=item.cantidadSurtida>0;
+            c64GuardarRevision(pedido);c62ActualizarLinea(index);
         }
 
-        function editarCantidadBodega(index, valor) {
-            const pedido = obtenerPedidoBodegaAbierto();
-            if (!pedido || !pedido.productos[index]) return;
-            const item = pedido.productos[index];
-            const max = Number(item.cantidadSolicitada) || 0;
-            item.cantidadSurtida = Math.min(max, Math.max(0, Number(valor) || 0));
-            item.revisado = true;
+        function editarCantidadBodega(index,valor){
+            const pedido=obtenerPedidoBodegaAbierto(),item=pedido?.productos[index];
+            if(!item||item.ajustePendiente||c66TipoLinea(item)!=='parcial')return;
+            const max=Number(item.cantidadSolicitada)||0,num=Number(valor);
+            item.c66ModoParcial=true;
+            item.cantidadSurtida=Number.isFinite(num)?Math.max(0,Math.min(max,Math.floor(num))):0;
+            item.revisado=item.cantidadSurtida>0;
             c64GuardarRevision(pedido);
-            // No repintar mientras se escribe: evita cierre de teclado y saltos en móvil.
-            const completo=item.cantidadSurtida===max;
-            const estado=document.getElementById('c62Estado_'+index),tarjeta=document.getElementById('c62Tarjeta_'+index),controles=document.getElementById('c62Controles_'+index);
-            if(estado)estado.textContent=(completo?'✅ Se enviará ':'⚠ Se enviará ')+item.cantidadSurtida+(completo?'':' de '+max);
-            if(tarjeta){tarjeta.style.background=completo?'#edf9f0':'#fff4e5';tarjeta.style.borderColor=completo?'#b7e1c1':'#ffd59a';}
-            if(controles){const botones=controles.querySelectorAll('.c62-actions button');
-                botones[0]?.classList.toggle('c62-activo',completo);
-                botones[1]?.classList.toggle('c62-activo',!completo);}
-            c62ActualizarTotalBodega(pedido);
+            // No reemplazar el input mientras se escribe: mantiene teclado y cursor en iPhone.
+            c66ActualizarEstadoVisual(index);
+        }
+        function c66NormalizarInputBodega(index){
+            const item=obtenerPedidoBodegaAbierto()?.productos[index],input=document.getElementById('bodegaCant_'+index);
+            if(item&&input)input.value=String(Number(item.cantidadSurtida)||0);
         }
 
         function revisarDeNuevoBodega(index) {
@@ -3463,7 +3546,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const pedido = obtenerPedidoBodegaAbierto();
             if (!pedido) return;
             if (pedido.productos.some(p => p.ajustePendiente)) return alert('La sucursal debe resolver la corrección antes de preparar el pedido.');
-            if (pedido.productos.some(p => !p.revisado)) return alert("Revisa todos los productos antes de confirmar.");
+            if (pedido.productos.some(p => !p.revisado)) return alert("Revisa todos los productos antes de confirmar. En Parcial, agrega las unidades disponibles o elige No disponible.");
 
             const btn = document.getElementById("btnConfirmarDespachoBodega");
             if (btn) { btn.disabled = true; btn.innerText = "Guardando despacho..."; }
