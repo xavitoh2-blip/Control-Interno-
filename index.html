@@ -971,6 +971,29 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #listaRuta .c54-nota{font-size:12px;color:#6e7b8e;line-height:1.45;margin-top:9px}
 #listaRuta .c54-resumen{padding:12px;border-radius:16px;background:#edf5ff;border:1px solid #d3e7ff;color:#1d5eaa;font-size:12px;font-weight:750;text-align:center;margin-bottom:10px}
 
+
+/* v1.6.72 · Kardex principal: tres decisiones y sin pestañas duplicadas */
+#moduloRuta .kx-tabs{display:none!important}
+#listaRuta .c54-acciones.c72-acciones{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+#listaRuta .c72-acciones button{border-radius:20px!important;min-height:83px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;padding:12px 5px!important;font-size:12px!important;letter-spacing:-.2px;line-height:1.1!important;box-shadow:0 5px 12px rgba(43,66,107,.06)!important}
+#listaRuta .c72-acciones .c72-ico{font-size:23px!important;line-height:1;font-weight:900!important}
+#listaRuta .c72-acciones .c72-no-btn{background:rgba(255,249,251,.9)!important;color:#a82f4c!important;border:1.5px solid #e9b6c4!important}
+#listaRuta .c72-acciones .c72-no-btn.c54-elegido{background:linear-gradient(135deg,#e84d71,#f27489)!important;color:#fff!important;border-color:#de5775!important}
+#listaRuta .c72-acciones .c72-parcial-btn{background:rgba(255,252,243,.94)!important;color:#a37119!important;border:1.5px solid #e9ce8d!important}
+#listaRuta .c72-acciones .c72-parcial-btn.c54-elegido{background:linear-gradient(135deg,#ffc65b,#ffe095)!important;color:#75470c!important;border-color:#e8ae47!important}
+#listaRuta .c54-card.c72-no{background:rgba(255,239,243,.91)!important;border-color:#e9a4b4!important}
+#listaRuta .c72-estado{margin-top:12px;padding:12px!important;border-radius:16px;font-size:12px!important;font-weight:750!important;line-height:1.5!important}
+#listaRuta .c72-estado-ok{background:#e5f9ed;color:#18744b;border:1px solid #bde5ca}
+#listaRuta .c72-estado-no{background:#ffe8ed;color:#9f3755;border:1px solid #f2c8d1}
+#listaRuta .c72-editor{background:rgba(255,255,255,.65)!important;border-color:rgba(231,198,134,.6)!important}
+#listaRuta .c72-editor label{display:block;text-align:center;color:#855915!important;font-size:12px!important;letter-spacing:.2px}
+#listaRuta .c72-qty{display:grid;grid-template-columns:62px minmax(0,1fr) 62px;gap:8px;align-items:center}
+#listaRuta .c72-qty button{height:57px!important;min-width:0!important;width:100%!important;padding:0!important;font-size:30px!important;font-weight:900!important;margin:0!important;border-radius:17px!important;background:rgba(110,132,165,.19)!important;color:#334964!important;box-shadow:none!important;border:1px solid #ccd8e8!important}
+#listaRuta .c72-qty button:last-child{background:#087cff!important;color:white!important;border-color:#087cff!important}
+#listaRuta .c72-editor .c72-qty input{max-width:none!important;width:100%!important;height:57px!important;min-height:57px!important;margin:0!important;padding:4px!important;font-size:25px!important}
+#listaRuta .c72-hint{margin-top:6px;font-size:11px;color:#8b6f44;text-align:center}
+@media(max-width:380px){#listaRuta .c72-acciones button{font-size:11px!important;min-height:76px!important}#listaRuta .c72-qty{grid-template-columns:52px minmax(0,1fr) 52px}}
+
 /* v1.6.56 · Seguimiento por origen, mismo estilo iOS / Liquid Glass */
 .c56-tabs{display:flex;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding:5px 2px 12px;gap:7px!important;scrollbar-width:thin}
 .c56-tabs button{flex:0 0 auto;white-space:nowrap;width:auto!important;margin:0!important;border-radius:20px!important;padding:13px 15px!important;background:rgba(255,255,255,.8)!important;color:#475a74!important;border:1px solid #dce8f8!important;box-shadow:0 5px 18px rgba(40,99,155,.09)!important;font-size:13px!important;font-weight:800!important;scroll-snap-align:start}
@@ -1235,7 +1258,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.71 BETA · Recibir con 3 botones · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.72 BETA · Kardex inteligente · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -5202,19 +5225,47 @@ function verificarPassword() {
             const max=Math.max(0,requerido-asignado),faltan=Math.max(0,max-base);
             return {requerido,base,faltan,max};
         }
+        // v1.6.72: tres decisiones explícitas; 0 en No disponible y parcial desde 1.
         function c54MarcarBodega(i,tipo){
             if(!rutaActiva||!rutaActiva.productos[i])return;
             c54IniciarBodega();
             const antes=c54SeleccionBodega[i],p=rutaActiva.productos[i],lim=c54DatosBodega(p);
+            if(tipo==='PARCIAL'&&lim.max<=1){
+                alert('Si necesitas 1 unidad, elige Completo (1) o No disponible (0). Parcial se utiliza cuando hay 2 o más unidades requeridas.');
+                return;
+            }
+            const anterior=document.getElementById('rutaCard_'+i);
+            const altura=anterior?anterior.getBoundingClientRect().top:null;
             if(antes?.tipo===tipo)delete c54SeleccionBodega[i];
-            else c54SeleccionBodega[i]={tipo,cantidad:tipo==='COMPLETO'?String(lim.max):''};
+            else c54SeleccionBodega[i]={tipo,cantidad:tipo==='COMPLETO'?String(lim.max):tipo==='NO_DISPONIBLE'?'0':'1'};
             c54GuardarBorrador();renderRutaBodega();
-            if(tipo==='INCOMPLETO'&&c54SeleccionBodega[i])document.getElementById('c54Cantidad_'+i)?.focus();
+            if(altura!==null){
+                const actual=document.getElementById('rutaCard_'+i);
+                if(actual)window.scrollBy({top:actual.getBoundingClientRect().top-altura,behavior:'instant'});
+            }
         }
         function c54CantidadBodega(i,valor){
-            if(c54SeleccionBodega[i]?.tipo!=='INCOMPLETO')return;
+            if(c54SeleccionBodega[i]?.tipo!=='PARCIAL')return;
             c54SeleccionBodega[i].cantidad=String(valor);
             c54GuardarBorrador();
+            const p=rutaActiva?.productos?.[i],max=p?c54DatosBodega(p).max:0;
+            const etiqueta=document.getElementById('c54Saldo_'+i);
+            if(etiqueta){
+                const n=String(valor).trim()===''?NaN:Number(valor);
+                etiqueta.textContent=Number.isInteger(n)&&n>=1&&n<max?'Se prepararán '+n+' de '+max+' · Pendientes por asignar: '+(max-n):'Ingresa una cantidad de 1 a '+(max-1)+' (sin contar el total)';
+                etiqueta.style.color=Number.isInteger(n)&&n>=1&&n<max?'#875d1b':'#b42318';
+            }
+        }
+        function c72AjustarParcialBodega(i,cambio){
+            const p=rutaActiva?.productos?.[i],marca=c54SeleccionBodega[i];
+            if(!p||marca?.tipo!=='PARCIAL')return;
+            const max=c54DatosBodega(p).max;
+            if(max<=1)return;
+            const input=document.getElementById('c54Cantidad_'+i);
+            const actual=Number(marca.cantidad)||1;
+            const siguiente=Math.max(1,Math.min(max-1,actual+cambio));
+            if(input)input.value=String(siguiente);
+            c54CantidadBodega(i,String(siguiente));
         }
         function renderRutaBodega(){
             if(c55RutaRevisionDespacho){cargarRutaActiva();return;}
@@ -5229,24 +5280,47 @@ function verificarPassword() {
             let limpia=false;
             for(const i of Object.keys(c54SeleccionBodega)){
                 const f=filas[Number(i)];
-                if(!f||f.completo||!['COMPLETO','INCOMPLETO'].includes(c54SeleccionBodega[i]?.tipo)){
+                if(!f||f.completo||!['COMPLETO','NO_DISPONIBLE','PARCIAL'].includes(c54SeleccionBodega[i]?.tipo)){
                     delete c54SeleccionBodega[i];limpia=true;
                 }
             }
             if(limpia)c54GuardarBorrador();
             const total=filas.length||1,porcentaje=Math.round(completos.length/total*100);
-            let html=`<div class="kx-dashboard"><div class="kx-stats"><div class="kx-stat"><strong>${filas.length}</strong><span>PRODUCTOS</span></div><div class="kx-stat"><strong>${completos.length}</strong><span>COMPLETOS</span></div><div class="kx-stat"><strong>${pendientes.length}</strong><span>PENDIENTES</span></div></div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#657184;padding:0 2px;"><span>Progreso de preparación</span><span>${porcentaje}%</span></div><div class="kx-progress"><div style="width:${porcentaje}%"></div></div></div>`;
-            if(completos.length)html+=`<button type="button" onclick="alternarCompletadosBodega()" style="background:#e9eef4;color:#465365;box-shadow:none;margin:10px 0 8px;font-size:12px;">${mostrarCompletadosBodega?'Ocultar completados':'Ver completados · '+completos.length}</button>`;
+            let html=`<div class="kx-dashboard"><div class="kx-stats"><div class="kx-stat"><strong>${filas.length}</strong><span>PRODUCTOS</span></div><div class="kx-stat"><strong>${completos.length}</strong><span>REVISADOS</span></div><div class="kx-stat"><strong>${pendientes.length}</strong><span>SIN REVISAR</span></div></div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#657184;padding:0 2px;"><span>Avance de revisión en Bodega</span><span>${porcentaje}%</span></div><div class="kx-progress"><div style="width:${porcentaje}%"></div></div></div>`;
+            if(completos.length)html+=`<button type="button" onclick="alternarCompletadosBodega()" style="background:#e9eef4;color:#465365;box-shadow:none;margin:10px 0 8px;font-size:12px;">${mostrarCompletadosBodega?'Ocultar revisados':'Ver revisados · '+completos.length}</button>`;
             const visibles=(mostrarCompletadosBodega?filas:pendientes).slice().sort((a,b)=>String(a.p.producto||'').localeCompare(String(b.p.producto||''),'es',{sensitivity:'base',numeric:true}));
             if(!visibles.length)html+='<div class="kx-complete">✅ Bodega terminó de revisar sus productos.<br><span style="font-size:12px;font-weight:600;color:#598067;">Consulta Pendientes, Asignados y Completos para continuar la ruta.</span></div>';
-            html+=visibles.map(({p,i,requerido,base,faltan,max,completo})=>{
+            html+=visibles.map(({p,i,requerido,base,faltan,max,completo,track})=>{
                 if(completo)return `<div id="rutaCard_${i}" class="kx-product c54-card"><div class="kx-top">${imagenProductoKardexConcepto(p)}<div class="kx-info"><div class="kx-name">${escaparHtmlPedido(p.producto)}</div><div class="kx-meta">Requerido: <b>${requerido}</b> · Preparó Bodega: <b>${base}</b></div><div class="kx-status ${track?.estado==='COMPLETO'?'done':'pending'}">${track?.estado==='COMPLETO'?'✓ Preparación completa':'✓ Bodega revisó · saldo pendiente en Pendientes'}</div></div></div></div>`;
-                const sel=c54SeleccionBodega[i],clase=sel?(sel.tipo==='COMPLETO'?'c54-ok':'c54-incompleto'):'';
-                return `<div id="rutaCard_${i}" class="kx-product c54-card ${clase}"><div class="kx-top">${imagenProductoKardexConcepto(p)}<div class="kx-info"><div class="kx-name">${escaparHtmlPedido(p.producto)}</div><div class="kx-meta">Cantidad requerida: <b>${requerido}</b>${base?` · Ya preparado: <b>${base}</b>`:''}</div><div class="kx-status pending">Faltan ${faltan}</div></div></div><div class="c54-acciones"><button type="button" class="c54-completo ${sel?.tipo==='COMPLETO'?'c54-elegido':''}" aria-pressed="${sel?.tipo==='COMPLETO'}" onclick="c54MarcarBodega(${i},'COMPLETO')">✓ ${sel?.tipo==='COMPLETO'?'Completo ✓':'Completo'}</button><button type="button" class="c54-incompleto-btn ${sel?.tipo==='INCOMPLETO'?'c54-elegido':''}" aria-pressed="${sel?.tipo==='INCOMPLETO'}" onclick="c54MarcarBodega(${i},'INCOMPLETO')">⚠️ Incompleto</button></div>${sel?.tipo==='COMPLETO'?`<div class="c54-nota">✓ Se guardarán ${max} unidades preparadas por Bodega en total.</div>`:''}${sel?.tipo==='INCOMPLETO'?`<div class="c54-editor"><label for="c54Cantidad_${i}">¿Cuántas unidades preparó Bodega en total? (0 a ${max})</label><input id="c54Cantidad_${i}" type="number" min="0" max="${max}" step="1" inputmode="numeric" placeholder="0 a ${max}" value="${escaparHtmlPedido(sel.cantidad)}" oninput="c54CantidadBodega(${i},this.value)"><div class="c54-nota">Si no encontraste ninguna, escribe 0. Los demás productos seguirán pendientes.</div></div>`:''}</div>`;
+                const sel=c54SeleccionBodega[i],clase=sel?(sel.tipo==='COMPLETO'?'c54-ok':sel.tipo==='NO_DISPONIBLE'?'c72-no':'c54-incompleto'):'';
+                const cantidad=Number(sel?.cantidad)||0;
+                const parcial=sel?.tipo==='PARCIAL';
+                const tope=Math.max(0,max-1);
+                return `<div id="rutaCard_${i}" class="kx-product c54-card ${clase}">
+                  <div class="kx-top">${imagenProductoKardexConcepto(p)}<div class="kx-info"><div class="kx-name">${escaparHtmlPedido(p.producto)}</div><div class="kx-meta">Cantidad requerida: <b>${requerido}</b>${base?` · Ya preparado: <b>${base}</b>`:''}</div><div class="kx-status pending">${faltan} unidad(es) por revisar</div></div></div>
+                  <div class="c54-acciones c72-acciones">
+                    <button type="button" class="c54-completo ${sel?.tipo==='COMPLETO'?'c54-elegido':''}" aria-pressed="${sel?.tipo==='COMPLETO'}" onclick="c54MarcarBodega(${i},'COMPLETO')"><span class="c72-ico">✓</span><span>Completo</span></button>
+                    <button type="button" class="c72-no-btn ${sel?.tipo==='NO_DISPONIBLE'?'c54-elegido':''}" aria-pressed="${sel?.tipo==='NO_DISPONIBLE'}" onclick="c54MarcarBodega(${i},'NO_DISPONIBLE')"><span class="c72-ico">×</span><span>No disponible</span></button>
+                    <button type="button" class="c72-parcial-btn ${parcial?'c54-elegido':''}" aria-pressed="${parcial}" onclick="c54MarcarBodega(${i},'PARCIAL')"><span class="c72-ico">◐</span><span>Parcial</span></button>
+                  </div>
+                  ${sel?.tipo==='COMPLETO'?`<div class="c54-nota c72-estado c72-estado-ok">✓ Bodega confirma ${max} de ${max}. No quedarán unidades pendientes para asignar.</div>`:''}
+                  ${sel?.tipo==='NO_DISPONIBLE'?`<div class="c54-nota c72-estado c72-estado-no">× Bodega confirma 0 unidades. Al guardar, ${max} quedarán disponibles para asignar a otra sucursal.</div>`:''}
+                  ${parcial?`<div class="c54-editor c72-editor">
+                    <label for="c54Cantidad_${i}">UNIDADES QUE SÍ TIENES</label>
+                    <div class="c72-qty"><button type="button" aria-label="Restar una unidad" onclick="c72AjustarParcialBodega(${i},-1)">−</button><input id="c54Cantidad_${i}" type="number" inputmode="numeric" min="1" max="${tope}" step="1" value="${escaparHtmlPedido(sel.cantidad)}" oninput="c54CantidadBodega(${i},this.value)"><button type="button" aria-label="Sumar una unidad" onclick="c72AjustarParcialBodega(${i},1)">+</button></div>
+                    <div class="c54-nota" id="c54Saldo_${i}">Se prepararán ${cantidad} de ${max} · Pendientes por asignar: ${Math.max(0,max-cantidad)}</div>
+                    <div class="c72-hint">Parcial empieza en 1. Si no hay ninguna unidad, usa No disponible.</div>
+                  </div>`:''}
+                </div>`;
             }).join('');
-            if(pendientes.length){const n=Object.keys(c54SeleccionBodega).length;html+=`<div class="kx-save"><div class="c54-resumen">${n} de ${pendientes.length} productos marcados. Los demás no se modificarán.</div><button id="btnGuardarTodoRuteo" onclick="guardarTodoRuteo()" style="margin:0;padding:14px;">✓ Confirmar preparación (${n})</button></div>`;}
+            if(pendientes.length){const n=Object.keys(c54SeleccionBodega).length;html+=`<div class="kx-save"><div class="c54-resumen">${n} de ${pendientes.length} productos marcados. Los que no marques seguirán sin revisar. Los no disponibles y parciales se mostrarán en Pendientes después de confirmar.</div><button id="btnGuardarTodoRuteo" onclick="guardarTodoRuteo()" style="margin:0;padding:14px;">✓ Confirmar preparación (${n})</button></div>`;}
             html+='<div id="resumenCierreKardex23"></div>';
             document.getElementById('listaRuta').innerHTML=html;
+            // El buscador permanece al cambiar una selección; ya no hay filtros duplicados.
+            const q=String(document.getElementById('kxBuscar')?.value||'').trim().toLowerCase();
+            if(q)document.querySelectorAll('#listaRuta .kx-product').forEach(card=>{
+                card.style.display=String(card.textContent||'').toLowerCase().includes(q)?'':'none';
+            });
             // El cierre se consulta solamente desde su propia pestaña.
         }
         async function cargarResumenCierreKardex23(){
@@ -5302,13 +5376,13 @@ function verificarPassword() {
             for(const [key,marca] of Object.entries(c54SeleccionBodega)){
                 const i=Number(key),p=rutaActiva.productos[i];if(!p)continue;
                 const {max}=c54DatosBodega(p);
-                const v=marca.tipo==='COMPLETO'?max:Number(marca.cantidad);
-                if((marca.tipo==='INCOMPLETO'&&String(marca.cantidad).trim()==='')||!Number.isInteger(v)||v<0||v>max){
-                    alert('Revisa cuántas unidades preparó Bodega de '+p.producto+'.');document.getElementById('c54Cantidad_'+i)?.focus();return;
+                const v=marca.tipo==='COMPLETO'?max:marca.tipo==='NO_DISPONIBLE'?0:Number(marca.cantidad);
+                if(!['COMPLETO','NO_DISPONIBLE','PARCIAL'].includes(marca.tipo)||!Number.isInteger(v)||v<0||v>max||(marca.tipo==='PARCIAL'&&(String(marca.cantidad).trim()===''||v<1||v>=max))){
+                    alert('Revisa la cantidad de '+p.producto+'. Parcial debe ser mayor que 0 y menor que '+max+'.');document.getElementById('c54Cantidad_'+i)?.focus();return;
                 }
                 productos.push({producto:p.producto,cantidad:v});
             }
-            if(!productos.length){alert('Marca primero los productos como Completo o Incompleto.');return;}
+            if(!productos.length){alert('Marca primero los productos como Completo, No disponible o Parcial.');return;}
             if(!confirm('¿Guardar la preparación de '+productos.length+' producto(s)? Los demás seguirán pendientes.'))return;
             const btn=document.getElementById('btnGuardarTodoRuteo');if(btn){btn.disabled=true;btn.innerText='Guardando y verificando...';}
             try{
@@ -5325,7 +5399,7 @@ function verificarPassword() {
                 localStorage.removeItem(`ruteo_borrador_${idRutaGuardando}`);
                 localStorage.removeItem(`ruteo_borrador_dirty_${idRutaGuardando}`);
                 c54SeleccionBodega={};rutaActiva=vd.ruta;
-                alert('✅ Preparación guardada y verificada. Productos registrados: '+productos.length+'.');
+                alert('✅ Revisión de Bodega guardada y verificada. Los productos con faltantes se encuentran en Pendientes para asignar. Productos registrados: '+productos.length+'.');
                 etapaRutaActual='faltantes';
                 await cargarRutaActiva();
             }catch(e){alert('No se pudo confirmar la sincronización: '+e.message+'\n\nLas selecciones permanecen en este dispositivo. Actualiza antes de reintentar por si el servidor ya las guardó.');}
@@ -5888,25 +5962,17 @@ if ("serviceWorker" in navigator) {
    if(!lista) return;
    if(!mod.querySelector('.kx-search')){
      const tools=document.createElement('div');
-     tools.innerHTML=`<div class="kx-search"><input id="kxBuscar" type="search" placeholder="Buscar producto..."><button type="button">⚙</button></div>
-       <div class="kx-tabs"><button class="active" data-kf="all">Todos</button><button data-kf="pending">Pendientes</button><button data-kf="done">Completos</button></div>`;
+     tools.innerHTML=`<div class="kx-search"><input id="kxBuscar" type="search" placeholder="Buscar producto en la pestaña actual..."></div>`;
      lista.parentElement.insertBefore(tools,lista);
      const buscar=tools.querySelector('#kxBuscar');
      const aplicar=()=>{
        const q=(buscar.value||'').toLowerCase().trim();
-       const active=tools.querySelector('.kx-tabs button.active')?.dataset.kf||'all';
        lista.querySelectorAll('.kx-product').forEach(card=>{
          const text=(card.textContent||'').toLowerCase();
-         const done=!!card.querySelector('.kx-status.done');
-         const filtro=active==='all'||(active==='done'&&done)||(active==='pending'&&!done);
-         card.style.display=(filtro && (!q||text.includes(q)))?'':'none';
+         card.style.display=(!q||text.includes(q))?'':'none';
        });
      };
      buscar.addEventListener('input',aplicar);
-     tools.querySelectorAll('.kx-tabs button').forEach(b=>b.addEventListener('click',()=>{
-       tools.querySelectorAll('.kx-tabs button').forEach(x=>x.classList.remove('active'));
-       b.classList.add('active'); aplicar();
-     }));
    }
  }
  const run=()=>{mejorarInicioConcepto();mejorarKardexConcepto();};
