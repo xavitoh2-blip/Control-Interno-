@@ -1085,7 +1085,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 @media(prefers-reduced-motion:reduce){.c66-bodega *{transition:none!important;}}
 
 
-/* v1.6.67 BETA · Corrección rápida y Parcial desde 1 · estilo Liquid Glass Bodega. */
+/* v1.6.68 BETA · Corrección rápida y Parcial desde 1 · estilo Liquid Glass Bodega. */
 .c66-bodega .c66-parcial-editor .c62-qty button:disabled{opacity:.42!important;filter:saturate(.6);cursor:not-allowed}
 #listaPedidosBodega .c67-editor{background:linear-gradient(145deg,rgba(244,250,255,.98),rgba(255,255,255,.94))!important;border:1px solid rgba(152,188,228,.54)!important;border-radius:22px!important;padding:15px 12px!important;box-shadow:0 10px 25px rgba(53,95,153,.08),inset 0 1px 0 #fff!important;overflow:hidden}
 #listaPedidosBodega .c67-title{color:#1e3755;font-weight:850;font-size:16px;line-height:1.4;}
@@ -1108,6 +1108,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #listaPedidosBodega .c67-editor .c62-resumen{font-size:12px!important;line-height:1.6!important;background:rgba(231,241,255,.8)!important;}
 @media(max-width:380px){#listaPedidosBodega .c67-counter{grid-template-columns:44px minmax(0,1fr) 44px;}#listaPedidosBodega .c67-counter button{width:44px!important;height:49px!important}#listaPedidosBodega .c67-methods button{font-size:11px!important;padding:9px 3px!important;}}
 
+/* v1.6.68: mensajes útiles al tocar Parcial en pedidos de una unidad. */
+.c66-bodega .c68-parcial-unidad{margin:9px 0 2px;padding:11px 12px;border-radius:15px;border:1px solid rgba(224,169,72,.55);background:rgba(255,245,215,.94);font-size:12px;line-height:1.55;font-weight:700;color:#765220;}
+.c66-bodega .c68-parcial-unidad[hidden]{display:none!important;}
+.c66-bodega .c68-ref{font-size:10px;line-height:1.4;color:#6c7e97;overflow-wrap:anywhere;margin:0 0 2px;}
 </style>
 </head>
 <body>
@@ -1129,7 +1133,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.67 BETA · Bodega iOS · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.68 BETA · Bodega iOS · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2658,9 +2662,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const tipo=c66TipoLinea(item),parcial=tipo==='parcial',max=Number(item.cantidadSolicitada)||0,cant=Number(item.cantidadSurtida)||0;
             const botones=[['disponible','✓','Disponible','marcarDisponibleBodega'],['no','✕','No disponible','marcarNoDisponibleBodega'],['parcial','◐','Parcial','marcarIncompletoBodega']];
             return `<div class="c62-actions" role="group" aria-label="Disponibilidad del producto">
-                ${botones.map(([id,ico,label,handler])=>`<button type="button" data-c66-boton="${id}" onclick="${handler}(${index})" class="c66-choice ${tipo===id?'c62-activo':''}" aria-pressed="${tipo===id}" ${id==='parcial'&&max<=1?'disabled title="Para una unidad usa Disponible o No disponible"':''}><span class="c66-choice-ico" aria-hidden="true">${ico}</span><span>${label}</span></button>`).join('')}
+                ${botones.map(([id,ico,label,handler])=>`<button type="button" data-c66-boton="${id}" onclick="${handler}(${index})" class="c66-choice ${tipo===id?'c62-activo':''}" aria-pressed="${tipo===id}" ${id==='parcial'&&max<=1?'title="Parcial requiere dos o más unidades; toca para ver opciones"':''}><span class="c66-choice-ico" aria-hidden="true">${ico}</span><span>${label}</span></button>`).join('')}
             </div>
             <div class="c62-estado" id="c62Estado_${index}" data-c66-estado="${tipo}" aria-live="polite">${c66MensajeLinea(item)}</div>
+            ${max<=1?`<div class="c68-parcial-unidad" id="c68ParcialAviso_${index}" role="status" aria-live="polite" hidden></div>`:''}
             ${parcial?`<div class="c66-parcial-editor"><div class="c66-parcial-titulo">UNIDADES QUE SÍ TIENES</div>
                 <div class="c62-qty c62-qty-inline"><button type="button" aria-label="Restar una unidad" onclick="cambiarCantidadBodega(${index},-1)">−</button><input id="bodegaCant_${index}" type="number" inputmode="numeric" min="1" max="${Math.max(1,max-1)}" step="1" aria-label="Unidades disponibles de ${max}" value="${cant}" oninput="editarCantidadBodega(${index},this.value)" onchange="c66NormalizarInputBodega(${index})"><button type="button" aria-label="Sumar una unidad" onclick="cambiarCantidadBodega(${index},1)">+</button></div>
                 <div class="c66-parcial-help">De 1 a ${Math.max(1,max-1)}. Para 0 usa No disponible; para ${max}, Disponible.</div></div>`:''}`;
@@ -3429,6 +3434,16 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             return h ? `${f} · ${h}` : f;
         }
 
+        // v1.6.68: backend «verPedidosBodega» returns idPedido but no numeroPedido.
+        // The fallback is the SAME index shown in the Bodega list, never #000.
+        // The unique backend idPedido remains untouched for adjustments, delivery, and deletion.
+        function c68NumeroPedidoBodega(pedido){
+            const folio=String(pedido?.numeroPedido??'').trim();
+            if(folio && folio!=='0' && !/^0+$/.test(folio))
+                return /^\d+$/.test(folio)?folio.padStart(3,'0'):folio;
+            const indice=pedidosBodegaActuales.findIndex(p=>String(p.idPedido)===String(pedido?.idPedido));
+            return indice>=0?String(indice+1).padStart(3,'0'):'Sin número';
+        }
         function renderizarPedidosBodega() {
             const cont = document.getElementById("listaPedidosBodega");
             if (!pedidosBodegaActuales.length) {
@@ -3458,7 +3473,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     <div style="font-size:12px;color:#66717c;margin-top:4px;">📋 ${items.length} pedido(s) pendiente(s) · 📦 ${totalProductos} productos</div>
                 </div>`;
                 items.forEach(({pedido,index})=>{
-                    const numero=index+1;
+                    const numero=c68NumeroPedidoBodega(pedido);
                     html+=`<div style="border:1px solid #dfe5eb;border-radius:12px;padding:13px;margin:9px 0;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.05);">
                         <div style="text-align:left;">
                             <div style="font-size:15px;font-weight:900;color:#2c3e50;">📋 Pedido #${numero}</div>
@@ -3507,7 +3522,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const pedido = pedidosBodegaActuales[index];
             if (!pedido) return;
 
-            const numero = String(Number(pedido.numeroPedido) || 0).padStart(3, "0");
+            const numero = c68NumeroPedidoBodega(pedido);
             const sucursal = pedido.sucursal || "Sin sucursal";
 
             if (!confirm(`¿Seguro que deseas eliminar el Pedido #${numero} de ${sucursal}?\n\nSe eliminará el pedido completo.`)) return;
@@ -3568,7 +3583,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button type="button" onclick="volverListaPedidosBodega()" class="c66-back">‹ &nbsp;Volver a pedidos</button>
                 <div class="c66-head"><div class="c66-overline">📦 Preparación de pedidos · Bodega</div>
                     <div class="c66-sucursal">🏪 ${escaparHtmlPedido(pedido.sucursal)}</div>
-                    <div class="c66-pedido">Pedido #${String(Number(pedido.numeroPedido)||0).padStart(3,'0')}</div>
+                    <div class="c66-pedido">Pedido #${escaparHtmlPedido(c68NumeroPedidoBodega(pedido))}</div>
+                    <div class="c68-ref" title="Identificador permanente del pedido">Referencia: ${escaparHtmlPedido(pedido.idPedido||'No disponible')}</div>
                     <div class="c66-sub">${formatearFechaPedidoBodega(pedido.fecha,pedido.hora)}${pedido.solicito?' · 👤 '+escaparHtmlPedido(pedido.solicito):''}</div>
                     <div class="c66-progress-meta"><span>Productos revisados</span><b id="c62RevisadosBodega">${revisados} de ${total}</b></div>
                     <div class="c66-progress-track"><i id="c66BarraProgreso" style="width:${progreso}%"></i></div>
@@ -3614,11 +3630,17 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             c64GuardarRevision(pedido);c62ActualizarLinea(index);
         }
 
+        function c68AvisarParcialUnidad(index){
+            const aviso=document.getElementById('c68ParcialAviso_'+index);
+            if(!aviso)return;
+            aviso.textContent='Se solicitó 1 unidad. No hay cantidad parcial entre 0 y 1: elige Disponible (1) o No disponible (0). Si necesitas cambiar presentación, toca Corregir.';
+            aviso.hidden=false;
+        }
         function marcarIncompletoBodega(index) {
             const pedido=obtenerPedidoBodegaAbierto(),item=pedido?.productos[index];
             if(!item||item.ajustePendiente)return;
             const max=Number(item.cantidadSolicitada)||0;
-            if(max<=1)return; // Con una sola unidad no existe una cantidad parcial.
+            if(max<=1){c68AvisarParcialUnidad(index);return;} // Botón responde sin falsear cantidades.
             // Volver a tocar Parcial conserva la cantidad; un borrador antiguo en 0 pasa a 1.
             if(c66TipoLinea(item)==='parcial'&&Number(item.cantidadSurtida)>=1)return;
             item.c66ModoParcial=true;
