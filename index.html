@@ -1311,6 +1311,54 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c75-live{font-size:12px;color:#315578;min-height:18px;margin-top:6px;font-weight:700}
 @media(max-width:680px){.c75-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.c75-destinations button.c75-dest{min-height:81px!important}}
 @media(max-width:360px){.c75-destinations{gap:6px}.c75-destinations button.c75-dest{font-size:11px!important;padding:9px 4px!important}}
+
+/* v1.6.77 BETA · Editor compacto: los cuatro botones de destino no se modifican. */
+.c75-assignment .c77-editor {
+  box-sizing:border-box!important;width:min(100%,460px)!important;max-width:100%!important;
+  padding:9px 10px!important;margin:8px 0 0!important;border-radius:15px!important;
+  border:1px solid rgba(141,181,225,.5)!important;
+  background:linear-gradient(140deg,rgba(245,249,255,.97),rgba(255,255,255,.95))!important;
+  box-shadow:0 3px 12px rgba(40,85,140,.07)!important;
+}
+.c75-assignment .c77-editor-head{display:flex;align-items:center;gap:6px;min-height:24px;margin-bottom:6px}
+.c75-assignment .c77-editor-head .c75-editor-title{
+  flex:1;min-width:0;font-size:12px!important;color:#2a4d72!important;line-height:1.3!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.c75-assignment button.c77-all,.c75-assignment button.c77-close{
+  flex:none;width:auto!important;min-width:0!important;height:26px!important;min-height:26px!important;
+  padding:2px 9px!important;margin:0!important;font-size:11px!important;line-height:1!important;
+  border-radius:9px!important;border:1px solid #cfdded!important;
+  background:rgba(231,241,253,.8)!important;color:#3b638a!important;box-shadow:none!important;
+}
+.c75-assignment button.c77-close{width:28px!important;padding:0!important;font-size:18px!important;color:#6d7c8e!important}
+.c75-assignment .c77-editor-row{display:grid;grid-template-columns:40px minmax(65px,1fr) 40px 88px;gap:6px;align-items:center}
+.c75-assignment .c77-editor-row button,.c75-assignment .c77-editor-row input{
+  box-sizing:border-box!important;min-width:0!important;width:100%!important;
+  height:42px!important;min-height:42px!important;margin:0!important;
+  border-radius:12px!important;box-shadow:none!important;
+}
+.c75-assignment .c77-editor-row button.c77-step{
+  padding:0!important;border:0!important;background:#76869a!important;
+  color:white!important;font-size:22px!important;font-weight:800!important;
+}
+.c75-assignment .c77-editor-row button.c77-plus{background:#187cf2!important}
+.c75-assignment .c77-editor-row input{
+  padding:3px 7px!important;border:1px solid #c9d7e8!important;
+  background:#fff!important;text-align:center!important;font-size:19px!important;
+  font-weight:850!important;color:#1e3758!important;
+}
+.c75-assignment .c77-editor-row button.c77-done{
+  border:0!important;padding:4px 7px!important;background:#087cff!important;
+  color:white!important;font-size:13px!important;font-weight:800!important;
+}
+.c75-assignment .c77-editor .c75-live{min-height:0!important;margin-top:5px!important;font-size:11px!important;color:#b42318!important}
+.c75-assignment .c77-editor .c75-live[hidden]{display:none!important}
+@media(max-width:380px){
+ .c75-assignment .c77-editor{padding:8px!important}
+ .c75-assignment .c77-editor-row{grid-template-columns:37px minmax(50px,1fr) 37px 72px;gap:5px}
+ .c75-assignment .c77-editor-row button.c77-done{font-size:12px!important}
+}
 </style>
 </head>
 <body>
@@ -1332,7 +1380,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.76 BETA · Kardex por sucursales · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.77 BETA · Asignaciones compactas · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -5632,20 +5680,19 @@ function verificarPassword() {
                       ${c75BotonDestino(i,'m','Mini súper','🛒',revisada57('Mini super'))}
                       ${c75BotonDestino(i,'d','Despacho','🚚',revisada57('Despacho'))}
                     </div>
-                    <div id="c75_editor_${i}" class="c75-editor" hidden data-sucursal="">
-                      <div id="c75_title_${i}" class="c75-editor-title">Cantidad por asignar</div>
-                      <div id="c75_hint_${i}" class="c75-editor-note"></div>
-                      <div class="c75-qty">
-                        <button type="button" aria-label="Restar una unidad" onclick="c75Ajustar(${i},-1)">−</button>
-                        <input id="c75_cant_${i}" type="number" inputmode="numeric" min="0" step="1" value="0" aria-label="Unidades a asignar" oninput="c75ActualizarAyuda(${i})">
-                        <button type="button" aria-label="Sumar una unidad" onclick="c75Ajustar(${i},1)">＋</button>
+                    <div id="c75_editor_${i}" class="c75-editor c77-editor" hidden data-sucursal="" role="group" aria-label="Asignar cantidad al destino">
+                      <div class="c77-editor-head">
+                        <span id="c75_title_${i}" class="c75-editor-title">Cantidad a asignar</span>
+                        <button type="button" class="c77-all" onclick="c75Todo(${i})" title="Usar todo el saldo libre">Todo</button>
+                        <button type="button" class="c77-close" onclick="c75Cerrar(${i})" aria-label="Cerrar sin cambiar la cantidad">×</button>
                       </div>
-                      <div id="c75_live_${i}" class="c75-live" aria-live="polite"></div>
-                      <div class="c75-editor-actions">
-                        <button type="button" class="c75-fill" onclick="c75Todo(${i})">✓ Todo el saldo</button>
-                        <button type="button" class="c75-ok" onclick="c75Confirmar(${i})">✓ Confirmar cantidad</button>
-                        <button type="button" class="c75-cancel" onclick="c75Cerrar(${i})">Cancelar</button>
+                      <div class="c77-editor-row">
+                        <button type="button" class="c77-step c77-minus" aria-label="Restar una unidad" onclick="c75Ajustar(${i},-1)">−</button>
+                        <input id="c75_cant_${i}" type="number" inputmode="numeric" min="0" step="1" value="0" aria-label="Cantidad a asignar" oninput="c75ActualizarAyuda(${i})">
+                        <button type="button" class="c77-step c77-plus" aria-label="Sumar una unidad" onclick="c75Ajustar(${i},1)">+</button>
+                        <button type="button" class="c77-done" onclick="c75Confirmar(${i})" aria-label="Confirmar cantidad de esta sucursal">✓ Listo</button>
                       </div>
+                      <div id="c75_live_${i}" class="c75-live" aria-live="polite" hidden></div>
                     </div>
                     <div id="c75_estado_${i}" class="c75-footer" aria-live="polite">Elige una sucursal para asignar unidades.</div>
                     <div class="c74-notice">Los cambios se guardan solamente al pulsar <b>Guardar asignaciones</b>. Cada sucursal confirmará después lo encontrado en <b>Faltantes Kardex</b>.</div>
@@ -5690,7 +5737,7 @@ function verificarPassword() {
             const input=document.getElementById('c75_cant_'+i);
             input.max=String(disp);input.value=String(actual>0?actual:disp);
             const titulo=document.getElementById('c75_title_'+i);
-            if(titulo)titulo.textContent='📦 '+c74Sucursales[k]+' · ¿Cuántas unidades buscará?';
+            if(titulo)titulo.textContent=c74Sucursales[k]+' · máx. '+disp;
             const btn=document.getElementById(`c75_dest_${k}_${i}`);
             if(btn){btn.classList.add('c75-open');btn.setAttribute('aria-expanded','true');}
             c75ActualizarAyuda(i);
@@ -5714,11 +5761,9 @@ function verificarPassword() {
             const editor=document.getElementById('c75_editor_'+i),k=editor?.dataset.sucursal;
             if(!k)return;
             const max=c74Disponible(i,k),input=document.getElementById('c75_cant_'+i),n=Number(input?.value);
-            const hint=document.getElementById('c75_hint_'+i),live=document.getElementById('c75_live_'+i);
-            if(hint)hint.textContent='Puedes asignar hasta '+max+' unidades a '+c74Sucursales[k]+'. Modifica la cantidad o confirma el total sugerido.';
-            if(live)live.textContent=input&&String(input.value).trim()!==''&&Number.isSafeInteger(n)&&n>=0&&n<=max?
-              (n===0?'0 unidades · se quitará la asignación en este destino':'Se asignarán '+n+' unidades'):
-              'Escribe un número entero entre 0 y '+max+'.';
+            const live=document.getElementById('c75_live_'+i);
+            const valido=input&&String(input.value).trim()!==''&&Number.isSafeInteger(n)&&n>=0&&n<=max;
+            if(live){live.hidden=!!valido;live.textContent=valido?'':'Introduce una cantidad de 0 a '+max+'.';}
         }
         function c75Confirmar(i){
             const editor=document.getElementById('c75_editor_'+i),k=editor?.dataset.sucursal;
@@ -5728,7 +5773,7 @@ function verificarPassword() {
             const cantidad=Number(num?.value),max=c74Disponible(i,k);
             if(!num||String(num.value).trim()===''||!Number.isSafeInteger(cantidad)||cantidad<0||cantidad>max){
                 const live=document.getElementById('c75_live_'+i);
-                if(live)live.textContent='⚠️ La cantidad debe ser un entero entre 0 y '+max+'.';
+                if(live){live.hidden=false;live.textContent='⚠️ Escribe una cantidad entera entre 0 y '+max+'.';}
                 num?.focus();return;
             }
             inp.value=String(cantidad);
