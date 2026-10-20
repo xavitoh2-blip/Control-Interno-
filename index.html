@@ -1037,6 +1037,15 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #listaRuta .c76-empty{text-align:center;padding:26px 12px;background:rgba(255,255,255,.85);border:1px dashed #cbdced;border-radius:18px;color:#687e95;font-size:13px}
 @media(max-width:550px){#listaRuta .c76-group{padding:10px;border-radius:21px}#listaRuta .c76-group-title{font-size:15px}#listaRuta .c76-product{padding:11px}#listaRuta .c76-qty-chip{font-size:11px}#listaRuta .c76-stats strong{font-size:18px}}
 
+/* v1.6.78 BETA · Fotografías del catálogo existente en Kardex (sin tocar la fuente). */
+#listaRuta .c78-product-head{display:flex;align-items:center;gap:12px;min-width:0;margin-bottom:5px}
+#listaRuta .c78-title-info{min-width:0;flex:1}
+#listaRuta .c78-photo{width:56px;height:56px;flex:0 0 56px;display:flex;align-items:center;justify-content:center}
+#listaRuta .c78-photo .prod-img-global{border-radius:15px!important;box-shadow:0 2px 7px rgba(43,82,132,.07)}
+#listaRuta .c76-product .c78-product-head{margin:0;flex:1;align-items:center}
+#listaRuta .c76-product .c56-head{align-items:flex-start;min-width:0}
+@media(max-width:600px){#listaRuta .c76-product .c56-head{flex-wrap:wrap;row-gap:6px}#listaRuta .c76-product .c56-head>.c56-tag{margin-left:68px}}
+
 /* v1.6.58 BETA · Control logístico central · Liquid Glass */
 .c58-panel{background:linear-gradient(145deg,rgba(238,246,255,.96),rgba(255,255,255,.84));border:1px solid #d6e5f8;border-radius:25px;padding:16px;box-shadow:0 12px 32px rgba(41,91,158,.07);margin:12px 0 17px}
 .c58-panel h4{margin:0 0 5px;font-size:18px;color:#173b66}.c58-help{color:#60758e;font-size:12px;line-height:1.55;margin:6px 0 10px}
@@ -1380,7 +1389,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.77 BETA · Asignaciones compactas · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.78 BETA · Imágenes de Kardex · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3395,7 +3404,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             try{ if(gestionComprasAdminActual?.length) renderizarGestionComprasAdmin(); }catch(_){ }
             // v1.6.39: estas vistas pueden dibujarse antes de que termine de cargar el catálogo global.
             // Al llegar las imágenes, se vuelven a renderizar sin volver a consultar el servidor.
-            try{ if(typeof rutaActiva!=='undefined' && rutaActiva?.productos?.length && document.getElementById('moduloRuta')?.style.display!=='none') renderRutaBodega(); }catch(_){ }
+            try{ if(typeof rutaActiva!=='undefined' && rutaActiva?.productos?.length && document.getElementById('moduloRuta')?.style.display!=='none' && etapaRutaActual==='bodega') renderRutaBodega(); }catch(_){ }
+            try{ c78RefrescarFotosKardex(); }catch(_){ }
             try{ if(typeof faltantesKardexActuales!=='undefined' && faltantesKardexActuales?.length && document.getElementById('moduloFaltantesKardex')?.style.display!=='none'){ normalizarEmpleado(localStorage.getItem('sucursal')||'')==='despacho' ? renderRecepcionKardex() : renderFaltantesKardex(); } }catch(_){ }
             try{ if(typeof c52PreparacionDespacho!=='undefined' && c52PreparacionDespacho.length && document.getElementById('moduloPrepararDespacho')?.style.display!=='none') c52RenderPreparacionDespacho(); }catch(_){ }
             try{ if(typeof faltantesDiaActuales!=='undefined' && faltantesDiaActuales?.length && document.getElementById('listaFaltantesDia')) renderizarFaltantesDelDia(); }catch(_){ }
@@ -5215,6 +5225,23 @@ function verificarPassword() {
             html+='<div class="c56-intro">Cuando una sucursal confirme lo que encontró, verás el resultado en Asignados o Completos. La recepción final se verifica únicamente en Despacho.</div>';
             cont.innerHTML=html;
         }
+        // v1.6.78: reutiliza el catálogo global, sin otra API ni modificar la hoja de imágenes.
+        function c78ImagenKardex(p){
+            const nombre=String(p?.producto||'');
+            return `<div class="c78-photo" data-c78-product="${escaparHtmlPedido(nombre)}">${imagenProductoGlobal(nombre,p,56)}</div>`;
+        }
+        // Al cargar el catálogo de forma asíncrona, solo actualizar miniaturas.
+        // Nunca reconstruir tarjetas de Pendientes: podrían tener asignaciones en edición.
+        function c78RefrescarFotosKardex(){
+            if(!['faltantes','asignados'].includes(etapaRutaActual))return;
+            const cont=document.getElementById('listaRuta');if(!cont)return;
+            cont.querySelectorAll('.c78-photo[data-c78-product]').forEach(photo=>{
+                const nombre=photo.dataset.c78Product||'',url=urlImagenProducto(nombre,null);
+                if(!url||photo.dataset.c78UltimaImagen===url)return;
+                photo.innerHTML=imagenProductoGlobal(nombre,null,56);
+                photo.dataset.c78UltimaImagen=url;
+            });
+        }
         // v1.6.76: las asignaciones se presentan por destino, no mezcladas por producto.
         // Bodega original no es una nueva asignación. Solo se muestran orígenes
         // de KardexFaltantes, conservando los índices del servidor para liberar saldo.
@@ -5300,7 +5327,7 @@ function verificarPassword() {
                         const saldo=Math.max(0,(Number(y.o.asignada)||0)-(Number(y.o.preparada)||0));
                         return `<button type="button" class="c76-liberar" onclick="c57LiberarConfirmado(${x.indice},${y.j})">↪ Liberar ${saldo} unidad(es) no encontrada(s)</button>`;
                     }).join('');
-                    return `<article class="c76-product" data-buscar="${escaparHtmlPedido(x.p.producto)}"><div class="c56-head"><div class="c56-title">${escaparHtmlPedido(x.p.producto)}</div><span class="c56-tag ${tag}">${label}</span></div>
+                    return `<article class="c76-product" data-buscar="${escaparHtmlPedido(x.p.producto)}"><div class="c56-head"><div class="c78-product-head">${c78ImagenKardex(x.p)}<div class="c78-title-info"><div class="c56-title">${escaparHtmlPedido(x.p.producto)}</div></div></div><span class="c56-tag ${tag}">${label}</span></div>
                       <div class="c76-qty-row"><div class="c76-qty-chip">Asignado: <b>${x.asignada}</b></div><div class="c76-qty-chip">Encontrado: <b>${x.preparada}</b></div>${x.recibida?`<div class="c76-qty-chip">Recibido por Despacho: <b>${x.recibida}</b></div>`:''}</div>
                       <div class="c76-hint">Kardex: ${Number(x.p.preparado)||0} de ${Number(x.p.requerido)||0} preparados en total.${!finalizada?' Esta sucursal todavía debe confirmar su revisión.':''}</div>${liberar}</article>`;
                 }).join('');
@@ -5663,9 +5690,9 @@ function verificarPassword() {
                 const vm=original57('m','Mini super'),vd=original57('d','Despacho');
                 const actual=vb+vt+vm+vd,sinAsignar=Math.max(0,max-actual);
                 const historia57=(t.historialLiberaciones||[]).map(h=>`<div class="c56-meta">🔄 ${escaparHtmlPedido(h.origen)}: ${h.asignadaAntes} asignadas, ${h.preparada} encontradas, ${h.liberadas} liberadas.</div>`).join('');
-                return `<div id="faltCard_${i}" class="c56-card c56-warn"><div class="c56-title">${escaparHtmlPedido(p.producto)}</div>
-                  <div class="c56-meta">Requerido: <b>${t.requerido}</b> · Preparó Bodega: <b>${t.preparadoBodega}</b> · Disponible para asignar: <b>${sinAsignar}</b></div>${historia57}
-                  <div id="faltEstado_${i}" class="c56-meta"><b>${sinAsignar?`Sin asignar ${sinAsignar}`:'✓ Todo asignado'}</b></div>
+                return `<div id="faltCard_${i}" class="c56-card c56-warn"><div class="c78-product-head">${c78ImagenKardex(p)}<div class="c78-title-info"><div class="c56-title">${escaparHtmlPedido(p.producto)}</div>
+                  <div class="c56-meta">Requerido: <b>${t.requerido}</b> · Preparó Bodega: <b>${t.preparadoBodega}</b> · Disponible para asignar: <b>${sinAsignar}</b></div>
+                  <div id="faltEstado_${i}" class="c56-meta"><b>${sinAsignar?`Sin asignar ${sinAsignar}`:'✓ Todo asignado'}</b></div></div></div>${historia57}
                   <div style="display:none" aria-hidden="true">
                     ${c74CampoOculto(i,'b',vb,max,revisada57('Bodega'))}
                     ${c74CampoOculto(i,'t',vt,max,revisada57('Tienda Online Shop'))}
