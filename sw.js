@@ -20,3 +20,34 @@ self.addEventListener("fetch", event => {
   }
   event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request)));
 });
+
+/* Notificaciones web: esta función será utilizada cuando se configure un proveedor Web Push.
+   Por sí sola no envía notificaciones ni registra dispositivos. */
+self.addEventListener("push", event => {
+  let payload = {};
+  if (event.data) {
+    try { payload = event.data.json() || {}; }
+    catch (_) { payload = { body: event.data.text() }; }
+  }
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) payload = {};
+  const title = typeof payload.title === "string" && payload.title.trim()
+    ? payload.title.slice(0, 100) : "Online Shop · Recordatorio";
+  const body = typeof payload.body === "string"
+    ? payload.body.slice(0, 240) : "Tienes tareas pendientes por revisar.";
+  const tag = typeof payload.tag === "string" && /^[a-zA-Z0-9_-]{1,64}$/.test(payload.tag)
+    ? payload.tag : "online-shop-recordatorio";
+  event.waitUntil(self.registration.showNotification(title, {
+    body, tag, icon: "./icon-192.png", badge: "./icon-192.png",
+    data: { url: self.registration.scope }
+  }));
+});
+
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true })
+    .then(clients => {
+      const url = self.registration.scope;
+      const existing = clients.find(client => client.url.startsWith(url));
+      return existing ? existing.focus() : self.clients.openWindow(url);
+    }));
+});
