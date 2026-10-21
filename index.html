@@ -1369,15 +1369,20 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
  .c75-assignment .c77-editor-row button.c77-done{font-size:12px!important}
 }
 </style>
-<style id="c79-avisos-style">
-/* v1.6.79 BETA: vista aislada, sin alterar reglas ni estilos de otros módulos */
-#c79Bell{position:relative!important;display:flex!important;align-items:center;justify-content:center;width:44px!important;min-width:44px!important;height:44px!important;margin:0!important;padding:0!important;border-radius:15px!important;border:1px solid rgba(30,115,215,.17)!important;background:linear-gradient(135deg,rgba(242,249,255,.9),rgba(220,237,255,.72))!important;box-shadow:0 5px 20px rgba(33,100,180,.12);font-size:21px!important;color:#1363b9!important;cursor:pointer}
-#c79Count{position:absolute;top:-6px;right:-6px;background:#e44752;color:white;min-width:19px;height:19px;border-radius:20px;padding:0 4px;font-size:10px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid #fff}
-#c79Overlay{position:fixed;inset:0;z-index:200300;display:none;background:rgba(10,31,58,.39);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:14px;align-items:flex-start;justify-content:center;overflow-y:auto}
-#c79Panel{margin:6vh auto 30px;width:min(100%,440px);border:1px solid rgba(255,255,255,.76);border-radius:26px;padding:18px 15px 16px;background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(244,249,255,.95));box-shadow:0 20px 60px rgba(21,45,85,.24);text-align:left;box-sizing:border-box}
-.c79-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.c79-head h3{font-size:21px!important;color:#182e46!important;margin:0!important}.c79-mini{color:#5b7088;font-size:12px;line-height:1.5}.c79-status{font-weight:800;font-size:12px;color:#1760ac;background:#eaf4ff;border-radius:999px;padding:6px 10px}.c79-list{display:grid;gap:9px;max-height:57vh;overflow-y:auto;padding:1px 2px 4px}.c79-item{display:flex;align-items:flex-start;gap:10px;padding:11px;border:1px solid #e0eaf6;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(24,82,150,.04)}.c79-icon{width:39px;height:39px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:#ecf4ff;font-size:19px}.c79-title{color:#203a55;font-size:13px;font-weight:800}.c79-detail{color:#536e86;font-size:12px;margin-top:3px;line-height:1.38}.c79-row{display:flex;justify-content:space-between;align-items:center;gap:8px}.c79-link{border:none!important;background:none!important;padding:4px 0!important;min-height:auto!important;width:auto!important;margin:4px 0 0!important;text-align:left!important;color:#0772d5!important;font-size:12px!important;font-weight:850!important;box-shadow:none!important}.c79-actions{display:flex;gap:7px;margin-top:12px;align-items:center;flex-wrap:wrap}.c79-actions button,.c79-close{width:auto!important;min-height:36px!important;font-size:12px!important;margin:0!important;padding:7px 12px!important;border-radius:13px!important}.c79-close{background:#eef3f8!important;color:#294663!important}.c79-permission{background:#117cf3!important;color:white!important}.c79-reload{background:#edf4fb!important;color:#1764a9!important}.c79-empty{text-align:center;color:#5f7892;padding:24px 12px;background:#f5f9ff;border-radius:17px;font-size:13px}.c79-dot{width:7px;height:7px;border-radius:50%;background:#f09428;flex-shrink:0}
-@media(max-width:440px){#c79Panel{padding:14px;margin:3vh auto 24px}#c79Overlay{padding:10px}.c79-head h3{font-size:19px!important}}
-</style>
+
+<!-- v1.6.81 BETA · OneSignal Web Push. Sin sondeo ni campanita. -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+OneSignalDeferred.push(async function(OneSignal) {
+  try {
+    // Typical Site: la ruta y el alcance del worker se configuran en el panel OneSignal.
+    await OneSignal.init({appId: "81e663fa-c072-4b11-b0b4-bf1c56e7b416"});
+  } catch(err) {
+    console.warn("OneSignal no pudo iniciarse; Online Shop sigue funcionando:", err);
+  }
+});
+</script>
 </head>
 <body>
 <div id="c42PortalPrueba" class="card" style="display:none;max-width:490px;text-align:left;">
@@ -1398,7 +1403,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.79 BETA · Imágenes de Kardex · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.81 BETA · OneSignal Web Push · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1433,21 +1438,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     <span id="infoSucursal" style="font-size: 12px; color: #666; display: block; text-align: left; margin-top: 2px;"></span>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-                  <button type="button" id="c79Bell" aria-label="Ver avisos pendientes" onclick="c79AbrirCentro()">🔔<span id="c79Count"></span></button>
+                  
                   <button onclick="cerrarSesion()" style="background-color: #dc3545; padding: 6px 12px; font-size: 11px; width: auto;">Salir</button>
                 </div>
             </div>
         </div>
 
-        <div id="c79Overlay" role="dialog" aria-label="Notificaciones de Online Shop" aria-modal="true" onclick="if(event.target===this)c79CerrarCentro()">
-          <section id="c79Panel">
-            <div class="c79-head"><div><div class="c79-mini">ONLINE SHOP · RECORDATORIOS</div><h3>🔔 Avisos pendientes</h3></div><button class="c79-close" type="button" onclick="c79CerrarCentro()">✕ Cerrar</button></div>
-            <div class="c79-row" style="margin-bottom:12px"><span id="c79SucursalLabel" class="c79-mini"></span><span class="c79-status" id="c79Resumen">Cargando…</span></div>
-            <div id="c79Lista" class="c79-list"><div class="c79-empty">Buscando tareas pendientes…</div></div>
-            <div class="c79-actions"><button type="button" class="c79-reload" onclick="c79Consultar(true)">↻ Actualizar</button><button type="button" class="c79-permission" id="c79Activar" onclick="c79ActivarEnDispositivo()">🔔 Activar avisos del navegador</button></div>
-            <p id="c79Ayuda" class="c79-mini" style="margin:12px 2px 0">Los avisos desaparecen cuando se completa el trabajo. Se revisan periódicamente mientras la web permanece abierta.</p>
-          </section>
-        </div>
         <div id="menuPrincipalModulos" class="card">
             <h3 style="text-align:center;">Menú principal</h3>
             <div class="menu-grid">
@@ -1465,6 +1461,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button id="btnMenuCatalogoRuta" class="menu-modulo" onclick="abrirModulo('catalogoRuta')" style="display:none;"><span>📖</span><b>Catálogo</b></button>
                 <!-- ÚNICO botón adicional en el menú principal, v1.6.42 BETA -->
                 <button id="btnMenuConteosAsignados" class="menu-modulo" onclick="abrirModulo('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
+            </div>
+            <!-- Activación voluntaria (una sola vez por navegador/dispositivo). No es un centro de avisos. -->
+            <div id="c81PushActivacion" style="margin:14px auto 2px;max-width:450px;text-align:center;padding:12px;border:1px solid #d7e4f4;border-radius:16px;background:#f6faff;">
+              <div style="font-size:13px;font-weight:750;color:#16426e;margin-bottom:4px;">🔔 Avisos de Online Shop</div>
+              <p style="font-size:12px;color:#506477;margin:2px 0 10px;line-height:1.5;">Activa los avisos en este teléfono para recibir recordatorios, incluso con la aplicación cerrada.</p>
+              <div class="onesignal-customlink-container"></div>
+              <p style="font-size:10px;color:#63788a;margin:8px 0 0;">Debes permitir notificaciones en el navegador. En iPhone, abre la app añadida a la pantalla de inicio.</p>
             </div>
         </div>
 
@@ -2057,7 +2060,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 document.getElementById("pantallaPrincipal").style.display = "block";
                 
                 adaptarInterfazSegunSucursal();
-                setTimeout(c79Iniciar,1100);
+
             }
         };
 
@@ -7031,90 +7034,8 @@ setInterval(()=>{
 },90000);
 
 
-// ===== v1.6.79 BETA · Recordatorios por sucursal, solo lectura =====
-// No modifica ningún proceso existente ni abre el acceso a operaciones administrativas.
-const c79Estado={avisos:[],consultando:false,inicializado:false,ids:new Set(),ultima:0,timer:null,actual:false};
-function c79Esc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function c79Sucursal(){return (localStorage.getItem('sucursal')||'').trim();}
-function c79Usuario(){return (localStorage.getItem('usuario')||'').trim();}
-function c79Iniciar(){
- if(!c79Sucursal()||!c79Usuario()||c79Estado.timer)return;
- c79Estado.timer=setInterval(()=>{if(document.visibilityState==='visible')c79Consultar(false);},90000);
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-c79Estado.ultima>45000)c79Consultar(false);});
- c79Consultar(false);
-}
-function c79AbrirCentro(){
- const o=document.getElementById('c79Overlay');if(!o)return;
- o.style.display='flex';document.body.style.overflow='hidden';c79Estado.actual=true;
- c79Pintar();c79Consultar(true);
-}
-function c79CerrarCentro(){const o=document.getElementById('c79Overlay');if(o)o.style.display='none';document.body.style.overflow='';c79Estado.actual=false;}
-function c79Pintar(){
- const datos=c79Estado.avisos||[],badge=document.getElementById('c79Count');
- if(badge){badge.style.display=datos.length?'flex':'none';badge.textContent=datos.length>99?'99+':String(datos.length);}
- const resumen=document.getElementById('c79Resumen');if(resumen)resumen.textContent=datos.length+' pendientes';
- const suc=document.getElementById('c79SucursalLabel');if(suc)suc.textContent=c79Sucursal()||'Sin sucursal';
- const lista=document.getElementById('c79Lista');if(lista){
-  lista.innerHTML=datos.length?datos.map(a=>`<div class="c79-item"><div class="c79-icon">${c79Esc(a.icono||'🔔')}</div><div style="min-width:0;flex:1"><div class="c79-title">${c79Esc(a.titulo)}</div><div class="c79-detail">${c79Esc(a.detalle)}</div><button type="button" class="c79-link" onclick="c79Ir('${c79Esc(a.modulo||'')}')">Abrir módulo →</button></div><span class="c79-dot" title="Pendiente"></span></div>`).join(''):'<div class="c79-empty">✅ No hay tareas pendientes para esta sucursal.</div>';
- }
- const btn=document.getElementById('c79Activar');if(btn){
-  const ok=('Notification'in window)&&Notification.permission==='granted';
-  btn.textContent=ok?'✓ Avisos habilitados':'🔔 Activar avisos del navegador';
- }
-}
-async function c79Consultar(manual){
- if(c79Estado.consultando||!c79Sucursal())return;
- if(!manual&&Date.now()-c79Estado.ultima<35000)return;
- c79Estado.consultando=true;
- const ayuda=document.getElementById('c79Ayuda');
- try{
-  const url=URL_API+'?accion=c79ConsultarPendientes&sucursal='+encodeURIComponent(c79Sucursal())+'&_='+Date.now();
-  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),22000);
-  let r;
-  try{r=await fetch(url,{cache:'no-store',signal:abort.signal});}finally{clearTimeout(timeout);}
-  if(!r.ok)throw Error('HTTP '+r.status);
-  const d=await r.json();if(d.status!=='OK'||!Array.isArray(d.avisos))throw Error(d.mensaje||'Publica Código.gs v1.6.79 para activar recordatorios.');
-  const prev=c79Estado.ids,eraInicial=c79Estado.inicializado;
-  c79Estado.avisos=d.avisos.slice(0,40);
-  const actuales=new Set(c79Estado.avisos.map(a=>String(a.id)));
-  c79Estado.ids=actuales;c79Estado.inicializado=true;c79Estado.ultima=Date.now();
-  c79Pintar();
-  if(eraInicial&&('Notification'in window)&&Notification.permission==='granted'){
-   const nuevos=c79Estado.avisos.filter(a=>!prev.has(String(a.id)));
-   if(nuevos.length)c79AvisoDispositivo(nuevos);
-  }
-  if(ayuda)ayuda.textContent='Última revisión: '+new Date().toLocaleTimeString('es-SV',{hour:'2-digit',minute:'2-digit'})+' · Se actualiza cada 90 segundos con la aplicación abierta.';
- }catch(e){if(ayuda)ayuda.textContent='No se pudo actualizar: '+e.message+' · Revisa la conexión o la publicación de Código.gs v1.6.79.';if(manual)console.warn('c79',e);}
- finally{c79Estado.consultando=false;}
-}
-function c79Ir(modulo){
- const permitidos=['pedidos','recepcion','faltantesKardex','prepararDespacho','faltantesDia','compras','ruta'];
- if(!permitidos.includes(modulo))return;
- c79CerrarCentro();
- try{abrirModulo(modulo);}catch(e){console.warn('No se pudo abrir módulo:',e);alert('Abre '+modulo+' desde el menú principal.');}
-}
-async function c79ActivarEnDispositivo(){
- const ayuda=document.getElementById('c79Ayuda');
- if(!('Notification'in window)||!window.isSecureContext){if(ayuda)ayuda.textContent='Este navegador no admite notificaciones aquí. La campanita seguirá funcionando.';return;}
- try{
-  const permiso=await Notification.requestPermission();
-  if(permiso!=='granted'){if(ayuda)ayuda.textContent='Permiso no concedido. Puedes seguir usando la campanita.';return;}
-  // Registro opcional: requiere publicar online-shop-sw.js en el mismo directorio que Index.html.
-  if('serviceWorker'in navigator){try{await navigator.serviceWorker.register('./online-shop-sw.js',{scope:'./'});}catch(e){console.warn('Sin trabajador de notificaciones:',e);}}
-  c79Estado.ids=new Set((c79Estado.avisos||[]).map(a=>String(a.id)));
-  c79Pintar();
-  if(ayuda)ayuda.textContent='Avisos habilitados en este dispositivo cuando la web esté abierta. Para avisos con la web cerrada falta configurar el servicio Web Push.';
- }catch(e){if(ayuda)ayuda.textContent='Este dispositivo no pudo activar los avisos: '+e.message;}
-}
-async function c79AvisoDispositivo(nuevos){
- if(!nuevos.length||!('Notification'in window)||Notification.permission!=='granted')return;
- const item=nuevos[0],titulo=nuevos.length===1?'Online Shop · '+item.titulo:'Online Shop · '+nuevos.length+' tareas nuevas';
- const opciones={body:nuevos.length===1?item.detalle:'Revisa las tareas pendientes de '+c79Sucursal(),tag:'online-shop-'+c79Sucursal().replace(/\s+/g,'-'),renotify:false,data:{modulo:item.modulo},icon:'./logo online shop.png'};
- try{
-  if('serviceWorker'in navigator){const reg=await navigator.serviceWorker.getRegistration('./');if(reg){await reg.showNotification(titulo,opciones);return;}}
-  new Notification(titulo,opciones);
- }catch(e){console.warn('No se pudo mostrar notificación en este dispositivo:',e);}
-}
+// v1.6.81 BETA: no hay consultas periódicas para notificaciones.
+// SDK de OneSignal carga diferido, aparte del registro SW existente.
 
 </script>
 </body>
