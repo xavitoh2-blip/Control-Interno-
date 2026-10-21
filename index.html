@@ -1370,18 +1370,88 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 }
 </style>
 
-<!-- v1.6.81 BETA · OneSignal Web Push. Sin sondeo ni campanita. -->
+<!-- v1.6.82 BETA · OneSignal: activación explícita, sin sondeo y sin campanita. -->
+<style>
+#c82ActivarPush{display:block;max-width:270px;width:100%;margin:12px auto 8px!important;
+ padding:12px 16px!important;background:#087cff!important;border:0!important;border-radius:13px!important;
+ color:white!important;font-size:14px!important;font-weight:800!important;box-shadow:0 4px 12px rgba(0,111,230,.15)!important;}
+#c82ActivarPush:disabled{opacity:.65!important;cursor:wait!important}
+#c82EstadoPush{font-size:12px;line-height:1.45;color:#365473;margin:7px 5px 2px;}
+</style>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-OneSignalDeferred.push(async function(OneSignal) {
-  try {
-    // Typical Site: la ruta y el alcance del worker se configuran en el panel OneSignal.
-    await OneSignal.init({appId: "81e663fa-c072-4b11-b0b4-bf1c56e7b416"});
-  } catch(err) {
-    console.warn("OneSignal no pudo iniciarse; Online Shop sigue funcionando:", err);
+(function(){
+  let os=null;
+  function mensaje(texto){const el=document.getElementById('c82EstadoPush');if(el)el.textContent=texto;}
+  function botonVisible(mostrar){const b=document.getElementById('c82ActivarPush');if(b)b.style.display=mostrar?'block':'none';}
+  function entorno(){
+    const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent)||
+      (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    const instalado=window.navigator.standalone===true||
+      (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
+    if(ios&&!instalado)return 'En iPhone, agrega Online Shop a la pantalla de inicio desde Safari y ábrela desde el ícono para permitir avisos.';
+    if(!('Notification'in window)||!('serviceWorker'in navigator))return 'Este navegador no admite avisos web en este modo.';
+    return '';
   }
-});
+  function actualizar(){
+    const msg=entorno();
+    if(msg){botonVisible(false);mensaje(msg);return;}
+    if(!os){mensaje('Conectando con OneSignal…');return;}
+    const soporte=os.Notifications&&os.Notifications.isPushSupported&&os.Notifications.isPushSupported();
+    if(!soporte){botonVisible(false);mensaje('Las notificaciones no están disponibles en este navegador. Comprueba que Online Shop se abra como app instalada.');return;}
+    const push=os.User&&os.User.PushSubscription;
+    if(push&&push.optedIn&&push.id){botonVisible(false);mensaje('✅ Avisos activados en este dispositivo.');}
+    else {botonVisible(true);mensaje('Toca el botón azul y acepta el permiso de notificaciones de tu teléfono.');}
+  }
+  window.c82ActivarAvisos=async function(){
+    const e=entorno();if(e){mensaje(e);return;}
+    if(!os){mensaje('OneSignal aún no está conectado. Reabre Online Shop con Internet e inténtalo otra vez.');return;}
+    const btn=document.getElementById('c82ActivarPush');
+    if(btn)btn.disabled=true;
+    try{
+      if(os.Notifications.permission){
+        if(os.User&&os.User.PushSubscription)await os.User.PushSubscription.optIn();
+      }else{
+        // Invocación directa desde el toque del usuario: requisito de iOS.
+        await os.Notifications.requestPermission();
+      }
+      if(!os.Notifications.permission){
+        mensaje('No se concedió permiso. Revisa Ajustes > Notificaciones en tu iPhone y vuelve a intentarlo.');
+      }else{
+        const ps=os.User&&os.User.PushSubscription;
+        if(ps&&!ps.optedIn)await ps.optIn();
+        if(ps&&ps.id&&ps.optedIn)mensaje('✅ Avisos activados. Ya puedes recibir pruebas desde OneSignal.');
+        else mensaje('Permiso concedido. Falta confirmar la suscripción en OneSignal; comprueba la conexión e inténtalo nuevamente.');
+      }
+    }catch(err){
+      console.warn('No fue posible activar OneSignal:',err);
+      mensaje('No se pudo activar OneSignal: '+(err&&err.message?err.message:'revisa Internet y la configuración de OneSignal.'));
+    }finally{
+      if(btn)btn.disabled=false;
+      const ps=os.User&&os.User.PushSubscription;
+      if(ps&&ps.id&&ps.optedIn)botonVisible(false);
+    }
+  };
+  window.OneSignalDeferred=window.OneSignalDeferred||[];
+  OneSignalDeferred.push(async function(OneSignal){
+    try{
+      await OneSignal.init({appId:'81e663fa-c072-4b11-b0b4-bf1c56e7b416'});
+      os=OneSignal;
+      if(os.User&&os.User.PushSubscription&&os.User.PushSubscription.addEventListener){
+        os.User.PushSubscription.addEventListener('change',actualizar);
+      }
+      if(os.Notifications&&os.Notifications.addEventListener){
+        os.Notifications.addEventListener('permissionChange',actualizar);
+      }
+      actualizar();
+    }catch(err){
+      console.warn('OneSignal no pudo iniciarse; Online Shop sigue funcionando:',err);
+      mensaje('No se pudo conectar con OneSignal. Revisa la configuración Web Push y el archivo OneSignalSDKWorker.js.');
+    }
+  });
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',actualizar,{once:true});
+  else actualizar();
+})();
 </script>
 </head>
 <body>
@@ -1466,8 +1536,9 @@ OneSignalDeferred.push(async function(OneSignal) {
             <div id="c81PushActivacion" style="margin:14px auto 2px;max-width:450px;text-align:center;padding:12px;border:1px solid #d7e4f4;border-radius:16px;background:#f6faff;">
               <div style="font-size:13px;font-weight:750;color:#16426e;margin-bottom:4px;">🔔 Avisos de Online Shop</div>
               <p style="font-size:12px;color:#506477;margin:2px 0 10px;line-height:1.5;">Activa los avisos en este teléfono para recibir recordatorios, incluso con la aplicación cerrada.</p>
-              <div class="onesignal-customlink-container"></div>
-              <p style="font-size:10px;color:#63788a;margin:8px 0 0;">Debes permitir notificaciones en el navegador. En iPhone, abre la app añadida a la pantalla de inicio.</p>
+              <button id="c82ActivarPush" type="button" onclick="c82ActivarAvisos()">🔔 Activar notificaciones</button>
+              <p id="c82EstadoPush" role="status">Preparando notificaciones…</p>
+              <p style="font-size:10px;color:#63788a;margin:8px 0 0;">En iPhone, abre Online Shop desde el ícono de la pantalla de inicio.</p>
             </div>
         </div>
 
