@@ -1370,7 +1370,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 }
 </style>
 
-<!-- v1.6.83 BETA · OneSignal: mostrar activación únicamente a dispositivos sin suscripción. -->
+<!-- v1.6.84 BETA · OneSignal: activación silenciosa + etiqueta de sucursal para Push por departamento. -->
 <style>
 #c82ActivarPush{display:block;max-width:270px;width:100%;margin:12px auto 8px!important;
  padding:12px 16px!important;background:#087cff!important;border:0!important;border-radius:13px!important;
@@ -1398,6 +1398,22 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     if(ios&&!instalado)return 'En iPhone, agrega Online Shop a la pantalla de inicio desde Safari y ábrela desde el ícono para permitir avisos.';
     if(!('Notification'in window)||!('serviceWorker'in navigator))return 'Este navegador no admite avisos web en este modo.';
     return '';
+  }
+  // v1.6.84 · Identifica la sucursal del DISPOSITIVO en OneSignal, sin consultas periódicas.
+  // Es una etiqueta de enrutamiento, no un permiso de acceso ni autenticación.
+  function n184CodigoSucursal(s){
+    const v=String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
+    return ['BODEGA','TIENDA ONLINE SHOP','MINI SUPER','DESPACHO'].includes(v)?v:'';
+  }
+  async function n184EtiquetarSucursal(){
+    if(!os||!os.User||typeof os.User.addTag!=='function')return;
+    const suc=n184CodigoSucursal(localStorage.getItem('sucursal'));
+    const ps=os.User.PushSubscription;
+    if(!suc||!ps||!ps.optedIn||!ps.id)return;
+    try{
+      const actuales=(typeof os.User.getTags==='function')?await os.User.getTags():{};
+      if(!actuales||actuales.sucursal!==suc)await os.User.addTag('sucursal',suc);
+    }catch(e){console.warn('OneSignal: no se pudo asignar sucursal al dispositivo',e);}
   }
   function actualizar(){
     // No mostrar el recuadro mientras OneSignal determina el estado de suscripción.
@@ -1438,7 +1454,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     }finally{
       if(btn)btn.disabled=false;
       const ps=os.User&&os.User.PushSubscription;
-      if(ps&&ps.id&&ps.optedIn)panelVisible(false);
+      if(ps&&ps.id&&ps.optedIn){panelVisible(false);n184EtiquetarSucursal();}
     }
   };
   window.OneSignalDeferred=window.OneSignalDeferred||[];
@@ -1447,12 +1463,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
       await OneSignal.init({appId:'81e663fa-c072-4b11-b0b4-bf1c56e7b416'});
       os=OneSignal;
       if(os.User&&os.User.PushSubscription&&os.User.PushSubscription.addEventListener){
-        os.User.PushSubscription.addEventListener('change',actualizar);
+        os.User.PushSubscription.addEventListener('change',function(){actualizar();n184EtiquetarSucursal();});
       }
       if(os.Notifications&&os.Notifications.addEventListener){
         os.Notifications.addEventListener('permissionChange',actualizar);
       }
       actualizar();
+      n184EtiquetarSucursal();
     }catch(err){
       console.warn('OneSignal no pudo iniciarse; Online Shop sigue funcionando:',err);
       panelVisible(true);
