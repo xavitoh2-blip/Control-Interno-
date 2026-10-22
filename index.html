@@ -1370,7 +1370,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 }
 </style>
 
-<!-- v1.6.84 BETA · OneSignal: activación silenciosa + etiqueta de sucursal para Push por departamento. -->
+<!-- v1.6.86 BETA · OneSignal: etiqueta segun sesion iniciada; sin etiqueta al salir. -->
 <style>
 #c82ActivarPush{display:block;max-width:270px;width:100%;margin:12px auto 8px!important;
  padding:12px 16px!important;background:#087cff!important;border:0!important;border-radius:13px!important;
@@ -1399,22 +1399,49 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     if(!('Notification'in window)||!('serviceWorker'in navigator))return 'Este navegador no admite avisos web en este modo.';
     return '';
   }
-  // v1.6.84 · Identifica la sucursal del DISPOSITIVO en OneSignal, sin consultas periódicas.
-  // Es una etiqueta de enrutamiento, no un permiso de acceso ni autenticación.
-  function n184CodigoSucursal(s){
+  // v1.6.86 · Un telefono recibe solo las notificaciones de su SESION ACTIVA.
+  // OneSignal guarda la etiqueta 'sucursal' en la nube. Al cerrar sesion se elimina.
+  // Los permisos del modulo no dependen de esta etiqueta (no es autenticacion).
+  function n186CodigoSucursal(s){
     const v=String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
     return ['BODEGA','TIENDA ONLINE SHOP','MINI SUPER','DESPACHO'].includes(v)?v:'';
   }
-  async function n184EtiquetarSucursal(){
-    if(!os||!os.User||typeof os.User.addTag!=='function')return;
-    const suc=n184CodigoSucursal(localStorage.getItem('sucursal'));
-    const ps=os.User.PushSubscription;
-    if(!suc||!ps||!ps.optedIn||!ps.id)return;
-    try{
-      const actuales=(typeof os.User.getTags==='function')?await os.User.getTags():{};
-      if(!actuales||actuales.sucursal!==suc)await os.User.addTag('sucursal',suc);
-    }catch(e){console.warn('OneSignal: no se pudo asignar sucursal al dispositivo',e);}
+  function n186SucursalDeSesion(){
+    const empleado=String(localStorage.getItem('usuario')||'').trim();
+    return empleado?n186CodigoSucursal(localStorage.getItem('sucursal')):'';
   }
+  // Serializa actualizaciones para evitar etiquetas atrasadas cuando se cambia de
+  // sucursal, se cierra sesion o OneSignal confirma la suscripcion.
+  let n186TrabajoEtiquetas=Promise.resolve();
+  function n186SincronizarSesionPush(){
+    n186TrabajoEtiquetas=n186TrabajoEtiquetas.then(async function(){
+      if(!os||!os.User||typeof os.User.addTag!=='function')return false;
+      const user=os.User;
+      const etiquetas=typeof user.getTags==='function'?await user.getTags():{};
+      // Volver a leer la sesion despues del await: pudo cambiar durante la consulta.
+      const sucursal=n186SucursalDeSesion();
+      const actual=String(etiquetas&&etiquetas.sucursal||'');
+      if(!sucursal){
+        if(typeof user.removeTag==='function' && (actual || typeof user.getTags!=='function')){
+          await user.removeTag('sucursal');
+        }
+        return true;
+      }
+      const ps=user.PushSubscription;
+      if(!ps||!ps.id||!ps.optedIn)return false;
+      if(actual!==sucursal)await user.addTag('sucursal',sucursal);
+      return true;
+    }).catch(function(error){
+      console.warn('OneSignal: no se pudo sincronizar la sucursal activa',error);
+      return false;
+    });
+    return n186TrabajoEtiquetas;
+  }
+  window.n186SincronizarSesionPush=n186SincronizarSesionPush;
+  // No consulta el servidor periodicamente: solo eventos de sesion y OneSignal.
+  window.addEventListener('storage',function(evento){
+    if(evento.key==='usuario'||evento.key==='sucursal')n186SincronizarSesionPush();
+  });
   function actualizar(){
     // No mostrar el recuadro mientras OneSignal determina el estado de suscripción.
     if(!os){panelVisible(false);return;}
@@ -1454,7 +1481,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     }finally{
       if(btn)btn.disabled=false;
       const ps=os.User&&os.User.PushSubscription;
-      if(ps&&ps.id&&ps.optedIn){panelVisible(false);n184EtiquetarSucursal();}
+      if(ps&&ps.id&&ps.optedIn){panelVisible(false);n186SincronizarSesionPush();}
     }
   };
   window.OneSignalDeferred=window.OneSignalDeferred||[];
@@ -1463,13 +1490,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
       await OneSignal.init({appId:'81e663fa-c072-4b11-b0b4-bf1c56e7b416'});
       os=OneSignal;
       if(os.User&&os.User.PushSubscription&&os.User.PushSubscription.addEventListener){
-        os.User.PushSubscription.addEventListener('change',function(){actualizar();n184EtiquetarSucursal();});
+        os.User.PushSubscription.addEventListener('change',function(){actualizar();n186SincronizarSesionPush();});
       }
       if(os.Notifications&&os.Notifications.addEventListener){
         os.Notifications.addEventListener('permissionChange',actualizar);
       }
       actualizar();
-      n184EtiquetarSucursal();
+      n186SincronizarSesionPush();
     }catch(err){
       console.warn('OneSignal no pudo iniciarse; Online Shop sigue funcionando:',err);
       panelVisible(true);
@@ -1501,7 +1528,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.83 BETA · OneSignal Web Push · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.86 BETA · OneSignal por sesión · Liquid Glass</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2528,9 +2555,21 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             location.reload();
         }
 
-        function cerrarSesion() {
+        async function cerrarSesion() {
+            // La sesion local se cierra de inmediato. El aviso de sucursal se
+            // elimina de OneSignal antes de recargar, sin requerir otro permiso.
             localStorage.removeItem("usuario");
             localStorage.removeItem("sucursal");
+            try {
+                if (typeof window.n186SincronizarSesionPush === 'function') {
+                    await Promise.race([
+                        window.n186SincronizarSesionPush(),
+                        new Promise(resolve => setTimeout(resolve, 3500))
+                    ]);
+                }
+            } catch (error) {
+                console.warn('No se pudo actualizar OneSignal al salir:', error);
+            }
             location.reload();
         }
 
