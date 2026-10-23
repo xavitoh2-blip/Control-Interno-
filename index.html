@@ -1566,6 +1566,19 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .n188-panel input,.n188-panel select{margin:4px 0 8px}
 @media(max-width:390px){.n188-grid{grid-template-columns:1fr}.n188-panel{padding:12px}}
 </style>
+<style>
+/* v1.6.89: bloqueo operativo hasta confirmar la Entrada de asistencia */
+.n189-fondo{position:fixed;inset:0;z-index:11000;background:rgba(18,38,66,.64);padding:18px;display:none;align-items:center;justify-content:center;overflow:auto}
+.n189-dialogo{width:100%;max-width:450px;background:linear-gradient(150deg,#fff,#eef6ff);border:1px solid #cee0f5;border-radius:24px;padding:24px 19px;box-shadow:0 18px 55px rgba(5,28,61,.28);text-align:center}
+.n189-icono{font-size:42px;line-height:1.4}
+.n189-dialogo h3{margin:4px 0 10px;color:#15365f;font-size:20px}
+.n189-dialogo p{font-size:14px;color:#455b74;line-height:1.55;margin:10px 0}
+.n189-dialogo button{min-height:46px;margin:10px 0 0;border-radius:13px;font-size:14px}
+.n189-dialogo .n189-secundario{background:#e2ebf7!important;color:#23466a!important}
+.n189-dialogo .n189-salir{background:transparent!important;color:#8b3540!important;border:1px solid #e3b8c0!important}
+#n189AvisoEstado{font-size:12px;color:#345a83;background:#e5f0ff;padding:10px;border-radius:12px;text-align:left}
+#n189AvisoEstado.n189-error{background:#ffeaea;color:#972f36}
+</style>
 </head>
 <body>
 <div id="c42PortalPrueba" class="card" style="display:none;max-width:490px;text-align:left;">
@@ -1586,7 +1599,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.88 BETA · Gestión de tareas y avisos</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.89 BETA · Asistencia obligatoria y tareas</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1624,6 +1637,18 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                   
                   <button onclick="cerrarSesion()" style="background-color: #dc3545; padding: 6px 12px; font-size: 11px; width: auto;">Salir</button>
                 </div>
+            </div>
+        </div>
+
+        <div id="n189Aviso" class="n189-fondo" role="dialog" aria-modal="true" aria-labelledby="n189AvisoTitulo">
+            <div class="n189-dialogo">
+                <div class="n189-icono" aria-hidden="true">🕘</div>
+                <h3 id="n189AvisoTitulo">Registro de asistencia obligatorio</h3>
+                <p>Antes de utilizar los módulos operativos debes registrar tu <b>Entrada</b> de asistencia de hoy.</p>
+                <div id="n189AvisoEstado" role="status" aria-live="polite">Verificando tu asistencia en el servidor…</div>
+                <button type="button" onclick="n189IrAsistencia()" style="background:#087cff">📍 Ir a registrar mi Entrada</button>
+                <button type="button" class="n189-secundario" onclick="n189ComprobarAsistencia()">↻ Ya marqué Entrada, verificar</button>
+                <button type="button" class="n189-salir" onclick="cerrarSesion()">Salir / Cambiar colaborador</button>
             </div>
         </div>
 
@@ -2293,6 +2318,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         let gondolaActual = "";
         let anaquelActual = "";
         let faltantesGondola = {};
+        // v1.6.89: bloquear módulos operativos hasta confirmar la Entrada.
+        let n189Bloqueado = true;
+        let n189EnAsistencia = false;
+        let n189FechaVerificada = "";
+        let n189ConsultaId = 0;
 
         window.onload = function() {
             cargarEmpleadosDesdeSheets();
@@ -2307,6 +2337,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 document.getElementById("pantallaPrincipal").style.display = "block";
                 
                 adaptarInterfazSegunSucursal();
+                n189IniciarControlAsistencia();
 
             }
         };
@@ -2391,6 +2422,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function abrirModulo(nombre) {
+            if (n189DebeBloquear(nombre)) return;
             if(nombre !== "catalogoRuta" && nombre !== "n188") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
             ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
@@ -2458,6 +2490,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function volverMenuPrincipal() {
             ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
+            n189EnAsistencia = false;
+            n189PintarAviso();
             window.scrollTo(0,0);
         }
 
@@ -2670,6 +2704,103 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 selectEmp.innerHTML = '<option value="">No hay empleados para esta sucursal</option>';
             }
         }
+
+        // La verificación proviene de Google Sheets para admitir otros teléfonos.
+        // Si no se puede comprobar, el acceso operativo permanece bloqueado.
+        function n189Hoy(){
+            const partes=new Intl.DateTimeFormat('en-US',{timeZone:'America/El_Salvador',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+            const valor=tipo=>partes.find(p=>p.type===tipo)?.value||'';
+            return valor('year')+'-'+valor('month')+'-'+valor('day');
+        }
+        function n189EstadoAviso(texto,error){
+            const el=document.getElementById('n189AvisoEstado');
+            if(el){el.textContent=texto;el.classList.toggle('n189-error',!!error);}
+        }
+        function n189PintarAviso(){
+            const el=document.getElementById('n189Aviso');
+            if(el)el.style.display=(n189Bloqueado&&!n189EnAsistencia&&localStorage.getItem('usuario'))?'flex':'none';
+        }
+        function n189IniciarControlAsistencia(){
+            if(document.body.getAttribute('data-c42-beta')==='1')return;
+            n189Bloqueado=true;
+            n189EnAsistencia=false;
+            n189FechaVerificada='';
+            n189EstadoAviso('Verificando tu asistencia de hoy…',false);
+            n189PintarAviso();
+            n189ComprobarAsistencia();
+        }
+        async function n189ComprobarAsistencia(){
+            const empleado=localStorage.getItem('usuario')||'';
+            const sucursal=localStorage.getItem('sucursal')||'';
+            if(!empleado||!sucursal)return;
+            const consulta=++n189ConsultaId;
+            n189EstadoAviso('Consultando la Entrada registrada en Google Sheets…',false);
+            try{
+                const params=new URLSearchParams({accion:'n189EstadoAsistencia',empleado,sucursal,_:String(Date.now())});
+                const res=await fetch(URL_API+'?'+params.toString(),{cache:'no-store'});
+                if(!res.ok)throw Error('No hay conexión con Apps Script (HTTP '+res.status+').');
+                const data=await res.json();
+                if(!data||data.status!=='OK'||typeof data.activa!=='boolean')throw Error((data&&data.mensaje)||'No se pudo verificar la asistencia.');
+                if(consulta!==n189ConsultaId||empleado!==localStorage.getItem('usuario')||sucursal!==localStorage.getItem('sucursal'))return;
+                n189Bloqueado=!data.activa;
+                n189FechaVerificada=String(data.fecha||n189Hoy());
+                if(data.activa){
+                    if(['APERTURA','CIERRE'].includes(String(data.turno||'').toUpperCase())){
+                        n188RegistrarTurnoLocal('Entrada',data.turno,sucursal,empleado);
+                    }
+                    n189EstadoAviso('✅ Entrada verificada. Ya puedes utilizar los módulos.',false);
+                }else{
+                    localStorage.removeItem('n188TurnoActivo');
+                    n189EstadoAviso('No encontramos una Entrada activa para hoy. Pulsa «Ir a registrar mi Entrada».',false);
+                }
+                if(typeof window.n186SincronizarSesionPush==='function'){
+                    window.n186SincronizarSesionPush().catch(err=>console.warn('No se actualizaron etiquetas push:',err));
+                }
+            }catch(err){
+                if(consulta!==n189ConsultaId)return;
+                n189Bloqueado=true;
+                n189EstadoAviso('No pudimos comprobar tu asistencia: '+err.message+' Usa «Verificar» para reintentar.',true);
+            }
+            n189PintarAviso();
+        }
+        function n189DebeBloquear(nombre){
+            if(!localStorage.getItem('usuario'))return false;
+            if(n189FechaVerificada&&n189FechaVerificada!==n189Hoy()){
+                n189Bloqueado=true;
+                n189FechaVerificada='';
+                n189EnAsistencia=(nombre==='asistencia');
+                n189ComprobarAsistencia();
+            }
+            if(nombre==='asistencia')return false;
+            if(!n189Bloqueado)return false;
+            n189EnAsistencia=false;
+            n189PintarAviso();
+            return true;
+        }
+        function n189IrAsistencia(){
+            n189EnAsistencia=true;
+            n189PintarAviso();
+            abrirModulo('asistencia');
+        }
+        function n189EntradaConfirmada(empleado,sucursal){
+            if(empleado!==localStorage.getItem('usuario')||sucursal!==localStorage.getItem('sucursal'))return;
+            ++n189ConsultaId; // Ignorar verificaciones iniciadas antes de registrar la Entrada.
+            n189Bloqueado=false;
+            n189FechaVerificada=n189Hoy();
+            n189EnAsistencia=false;
+            n189EstadoAviso('✅ Entrada confirmada. Ya puedes usar la aplicación.',false);
+            n189PintarAviso();
+        }
+        document.addEventListener('visibilitychange',function(){
+            if(document.visibilityState==='visible'&&localStorage.getItem('usuario')&&
+               n189FechaVerificada&&n189FechaVerificada!==n189Hoy()){
+                n189Bloqueado=true;
+                n189EnAsistencia=false;
+                n189FechaVerificada='';
+                n189PintarAviso();
+                n189ComprobarAsistencia();
+            }
+        });
 
         function iniciarSesion() {
             const sucursal = document.getElementById("selectSucursal").value;
@@ -3088,6 +3219,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 .then(res => {
                     if (res === "OK") {
                         n188RegistrarTurnoLocal(tipo, turno, sucursal, empleado);
+                        if(tipo==='Entrada')n189EntradaConfirmada(empleado,sucursal);
                         if(typeof window.n186SincronizarSesionPush==='function'){
                             window.n186SincronizarSesionPush().catch(function(e){console.warn('Etiquetas de tareas no sincronizadas:',e);});
                         }
