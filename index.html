@@ -1399,8 +1399,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     if(!('Notification'in window)||!('serviceWorker'in navigator))return 'Este navegador no admite avisos web en este modo.';
     return '';
   }
-  // v1.6.86 · Un telefono recibe solo las notificaciones de su SESION ACTIVA.
-  // OneSignal guarda la etiqueta 'sucursal' en la nube. Al cerrar sesion se elimina.
+  // v1.6.88 · Un teléfono recibe avisos por sucursal y colaborador.
+  // Las etiquetas de sesión se eliminan al salir. No sustituyen la validación
+  // real de asistencia que hace Código.gs antes de poner avisos en la cola.
   // Los permisos del modulo no dependen de esta etiqueta (no es autenticacion).
   function n186CodigoSucursal(s){
     const v=String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
@@ -1409,6 +1410,24 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
   function n186SucursalDeSesion(){
     const empleado=String(localStorage.getItem('usuario')||'').trim();
     return empleado?n186CodigoSucursal(localStorage.getItem('sucursal')):'';
+  }
+  function n186CodigoEmpleado(v){
+    return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
+  }
+  function n186FechaSalvador(){
+    const partes=new Intl.DateTimeFormat('en-US',{timeZone:'America/El_Salvador',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+    const valor=tipo=>partes.find(p=>p.type===tipo)?.value||'';
+    return valor('year')+'-'+valor('month')+'-'+valor('day');
+  }
+  function n186EntradaActual(sucursal,empleado){
+    try{
+      const t=JSON.parse(localStorage.getItem('n188TurnoActivo')||'null');
+      return !!(t&&sucursal&&empleado&&
+        n186CodigoSucursal(t.sucursal)===sucursal&&
+        n186CodigoEmpleado(t.empleado)===empleado&&
+        String(t.fecha)===n186FechaSalvador()&&
+        ['APERTURA','CIERRE'].includes(n186CodigoEmpleado(t.turno)));
+    }catch(e){return false;}
   }
   // Serializa actualizaciones para evitar etiquetas atrasadas cuando se cambia de
   // sucursal, se cierra sesion o OneSignal confirma la suscripcion.
@@ -1420,16 +1439,26 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
       const etiquetas=typeof user.getTags==='function'?await user.getTags():{};
       // Volver a leer la sesion despues del await: pudo cambiar durante la consulta.
       const sucursal=n186SucursalDeSesion();
-      const actual=String(etiquetas&&etiquetas.sucursal||'');
+      const empleadoSesion=n186CodigoEmpleado(localStorage.getItem('usuario'));
+      const empleado=sucursal?empleadoSesion:'';
+      const enTurno=n186EntradaActual(sucursal,empleado);
+      async function aplicarEtiqueta(clave,valor){
+        const actual=String(etiquetas&&etiquetas[clave]||'');
+        if(!valor){
+          if(typeof user.removeTag==='function'&&(actual||typeof user.getTags!=='function'))await user.removeTag(clave);
+        }else if(actual!==valor)await user.addTag(clave,valor);
+      }
       if(!sucursal){
-        if(typeof user.removeTag==='function' && (actual || typeof user.getTags!=='function')){
-          await user.removeTag('sucursal');
-        }
+        await aplicarEtiqueta('sucursal','');
+        await aplicarEtiqueta('empleado','');
+        await aplicarEtiqueta('en_turno','');
         return true;
       }
       const ps=user.PushSubscription;
       if(!ps||!ps.id||!ps.optedIn)return false;
-      if(actual!==sucursal)await user.addTag('sucursal',sucursal);
+      await aplicarEtiqueta('sucursal',sucursal);
+      await aplicarEtiqueta('empleado',empleado);
+      await aplicarEtiqueta('en_turno',enTurno?'SI':'');
       return true;
     }).catch(function(error){
       console.warn('OneSignal: no se pudo sincronizar la sucursal activa',error);
@@ -1508,6 +1537,35 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
   else actualizar();
 })();
 </script>
+<style>
+/* Online Shop v1.6.88 BETA · únicamente gestión de tareas y recordatorios */
+.n188-panel{margin:12px 0;padding:16px;border-radius:20px;background:linear-gradient(145deg,#fff,#f7fbff);border:1px solid #dce8f7;box-shadow:0 8px 24px rgba(33,77,129,.07);text-align:left}
+.n188-cab{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.n188-cab h3,.n188-cab h4{margin:0;border:0;color:#173b68}
+.n188-sub{font-size:12px;color:#5c6f84;line-height:1.5;margin:8px 0 12px}
+.n188-estado{font-size:12px;color:#45617e;line-height:1.5;padding:10px;background:#edf6ff;border-radius:12px;margin:10px 0}
+.n188-error{color:#a32229;background:#fff0f0}
+.n188-lista{display:grid;gap:9px;margin:12px 0}
+.n188-item{background:#fff;border:1px solid #e0e9f3;border-radius:15px;padding:12px;text-align:left;box-shadow:0 3px 12px rgba(36,73,111,.04)}
+.n188-tarea{font-size:14px;font-weight:800;color:#21354e;line-height:1.4}
+.n188-completo{background:#f0fff5;border-color:#b9e5ca}
+.n188-meta{font-size:11px;color:#677b90;margin-top:5px}
+.n188-chip{display:inline-block;font-size:11px;font-weight:800;color:#1766aa;background:#e6f3ff;border-radius:50px;padding:5px 9px;margin:4px 4px 2px 0}
+.n188-chip.ok{background:#ddf7e5;color:#18864c}
+.n188-contadores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.n188-contadores div{background:#edf6ff;border-radius:14px;padding:11px 4px;text-align:center;font-size:11px;color:#526b85}
+.n188-contadores b{display:block;font-size:23px;color:#087cff}
+.n188-mini{width:auto;min-height:37px;padding:8px 13px;margin:0;border-radius:11px;font-size:12px}
+.n188-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.n188-grid>*{min-width:0}
+.n188-check{display:flex;align-items:flex-start;gap:10px;margin:5px 0;padding:9px;border:1px solid #e2ebf5;border-radius:12px;background:#fff;font-size:12px;line-height:1.4;cursor:pointer}
+.n188-check input{width:18px;min-width:18px;height:18px;min-height:18px;margin:0;accent-color:#087cff}
+.n188-scroll{max-height:240px;overflow:auto;padding-right:2px}
+.n188-label{display:block;text-align:left;font-size:12px;font-weight:750;color:#476078;margin-top:10px}
+.n188-panel textarea{width:100%;min-height:70px;border:1px solid #dce4ee;border-radius:13px;padding:10px;font:inherit;font-size:13px;resize:vertical}
+.n188-panel input,.n188-panel select{margin:4px 0 8px}
+@media(max-width:390px){.n188-grid{grid-template-columns:1fr}.n188-panel{padding:12px}}
+</style>
 </head>
 <body>
 <div id="c42PortalPrueba" class="card" style="display:none;max-width:490px;text-align:left;">
@@ -1528,7 +1586,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.86 BETA · OneSignal por sesión · Liquid Glass</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.88 BETA · Gestión de tareas y avisos</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1574,6 +1632,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div class="menu-grid">
                 <button class="menu-modulo" onclick="abrirModulo('asistencia')"><span>📍</span>Asistencia</button>
                 <button class="menu-modulo" onclick="abrirModulo('tareas')"><span>📋</span>Tareas</button>
+                <button id="n188BotonMisTareas" class="menu-modulo" onclick="abrirModulo('n188')"><span>🔔</span><b>Mis Tareas</b></button>
                 <button class="menu-modulo" onclick="abrirModulo('inventario')"><span>📦</span>Inventario</button>
                 <button id="btnMenuPedidos" class="menu-modulo" onclick="abrirModulo('pedidos')"><span>🛍️</span><b id="textoMenuPedidos">Hacer Pedido</b></button>
                 <button id="btnMenuGondolas" class="menu-modulo" onclick="abrirModulo('gondolas')"><span>🗄️</span><b>Góndolas</b></button>
@@ -1666,6 +1725,22 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <p style="font-size: 12px; color: #666; text-align: center; margin: 10px 0;">
                     Selecciona un turno para ver las tareas...
                 </p>
+            </div>
+        </div>
+
+        <!-- v1.6.88 BETA · Mis Tareas (complemento del checklist anterior) -->
+        <div id="n188MisTareas" class="card modulo-pantalla" style="text-align:left;max-width:560px;">
+            <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+            <div class="n188-panel">
+                <div class="n188-cab"><h3>🔔 Mis Tareas</h3><button class="n188-mini" type="button" onclick="n188CargarMis()">↻ Actualizar</button></div>
+                <p class="n188-sub">Aquí aparecen tus asignaciones personales. Al completar una tarea se detienen sus recordatorios.</p>
+                <div class="n188-contadores">
+                    <div><b id="n188Total">0</b>Asignadas</div>
+                    <div><b id="n188Pendientes">0</b>Pendientes</div>
+                    <div><b id="n188Completadas">0</b>Completadas</div>
+                </div>
+                <div id="n188MisEstado" role="status" class="n188-estado">Pulsa Actualizar para consultar tus tareas.</div>
+                <div id="n188MisLista" class="n188-lista"></div>
             </div>
         </div>
 
@@ -1936,6 +2011,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('asistencia')"><span>👥</span>Asistencia</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('inventario')"><span>📦</span>Inventario</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('tareas')"><span>✅</span>Tareas</button>
+                <button id="n188BotonAdminTareas" class="menu-modulo" onclick="abrirModuloAdmin('n188')"><span>🔔</span><b>Asignar Tareas y Notificaciones</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('pedidos')"><span>🛍️</span>Pedidos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('compras')"><span>🛒</span>Gestión de Compras</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
@@ -1988,6 +2064,51 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div style="overflow-x:auto;"><table id="tablaInventario"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Sistema</th><th>Físico</th><th>Dif.</th><th>Obs.</th></tr></thead><tbody></tbody></table></div>
         </div>
 
+        <!-- v1.6.88 BETA · Administración independiente de tareas y avisos -->
+        <div id="n188AdminTareas" class="admin-modulo" style="display:none;margin-top:18px;">
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+            <div class="n188-panel">
+                <div class="n188-cab"><h3>🔔 Asignar Tareas y Notificaciones</h3><button class="n188-mini" type="button" onclick="n188ActualizarAdmin()">↻</button></div>
+                <p class="n188-sub">Asigna tareas por colaborador, sucursal y turno. La configuración de notificaciones se procesa en el servidor.</p>
+                <div id="n188AdminEstado" class="n188-estado" role="status">Consulta la información para comenzar.</div>
+            </div>
+            <div class="n188-panel">
+                <h4>➕ Crear tarea de catálogo</h4>
+                <label class="n188-label" for="n188DescripcionNueva">Descripción de la tarea</label>
+                <input id="n188DescripcionNueva" maxlength="130" placeholder="Ej.: Revisar fechas de vencimiento">
+                <label class="n188-label" for="n188AreaNueva">Área</label>
+                <input id="n188AreaNueva" maxlength="60" placeholder="Ej.: Góndolas, limpieza, caja">
+                <button type="button" onclick="n188CrearCatalogo()">＋ Guardar tarea en catálogo</button>
+            </div>
+            <div class="n188-panel">
+                <h4>👥 Asignar tareas</h4>
+                <div class="n188-grid">
+                    <div><label class="n188-label" for="n188SucursalAdmin">Sucursal</label>
+                    <select id="n188SucursalAdmin" onchange="n188CambiarSucursal()"><option value="Tienda Online Shop">Tienda Online Shop</option><option value="Mini super">Mini super</option><option value="Bodega">Bodega</option><option value="Despacho">Despacho</option><option value="Vendedor de Ruta">Vendedor de Ruta</option></select></div>
+                    <div><label class="n188-label" for="n188TurnoAdmin">Turno</label>
+                    <select id="n188TurnoAdmin"><option value="apertura">☀️ Apertura</option><option value="cierre">🌙 Cierre</option></select></div>
+                </div>
+                <label class="n188-label" for="n188BuscarEmpleados">Seleccionar colaboradores</label>
+                <input id="n188BuscarEmpleados" placeholder="Buscar colaborador…" oninput="n188RenderEmpleados()">
+                <div class="n188-cab"><span class="n188-meta" id="n188NumEmpleados">0 seleccionados</span><button type="button" class="n188-mini" onclick="n188SeleccionarTodos('empleados')">Todos</button></div>
+                <div id="n188EmpleadosLista" class="n188-scroll"></div>
+                <label class="n188-label" for="n188BuscarCatalogo">Seleccionar tareas del catálogo</label>
+                <input id="n188BuscarCatalogo" placeholder="Buscar tarea o área…" oninput="n188RenderCatalogo()">
+                <div class="n188-cab"><span class="n188-meta" id="n188NumTareas">0 seleccionadas</span><button type="button" class="n188-mini" onclick="n188SeleccionarTodos('tareas')">Todas</button></div>
+                <div id="n188CatalogoLista" class="n188-scroll"></div>
+                <button type="button" style="background:#087cff;margin-top:13px" onclick="n188Asignar()">🔔 Asignar y notificar</button>
+            </div>
+            <div class="n188-panel">
+                <h4>📊 Seguimiento</h4>
+                <div id="n188Seguimiento" class="n188-lista"></div>
+            </div>
+            <div class="n188-panel">
+                <h4>⚙️ Recordatorios automáticos</h4>
+                <p class="n188-sub">Los recordatorios se envían solo con una entrada de asistencia vigente, según la configuración guardada en Apps Script.</p>
+                <div id="n188ConfigCampos"></div>
+                <button type="button" onclick="n188GuardarConfig()">💾 Guardar configuración</button>
+            </div>
+        </div>
         <div id="adminTareas" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button><h4>✅ Tareas / Checklist</h4>
             <div style="overflow-x:auto;"><table id="tablaTareas"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Tarea</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
@@ -2211,7 +2332,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             } else if (esDespacho) {
                 secHacer.style.display = "none"; secBodega.style.display = "none";
                 ["btnMenuPedidos","btnMenuRecepcion","btnMenuGondolas","btnMenuRuta","btnMenuCompras","btnMenuFaltantesDia"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display="none";});
-                document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex"&&x.id!=="btnMenuPrepararDespacho")x.style.display="none";});
+                document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex"&&x.id!=="btnMenuPrepararDespacho"&&x.id!=="n188BotonMisTareas")x.style.display="none";});
                 const fk=document.getElementById("btnMenuFaltantesKardex"); if(fk){fk.style.display="flex";fk.querySelector('b').textContent='Revisar despacho';fk.querySelector('span').textContent='✅';}
                 const pd=document.getElementById("btnMenuPrepararDespacho");if(pd)pd.style.display="flex";
             } else if (esBodega) {
@@ -2233,6 +2354,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const bc = document.getElementById("btnMenuCompras"); if (bc) bc.style.display = "none";
                 const bfd = document.getElementById("btnMenuFaltantesDia"); if (bfd) bfd.style.display = "none";
             }
+            const tareasN188=document.getElementById("n188BotonMisTareas");
+            if(tareasN188)tareasN188.style.display="flex";
         }
 
         function cargarEmpleadosDesdeSheets() {
@@ -2268,12 +2391,15 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function abrirModulo(nombre) {
-            if(nombre !== "catalogoRuta") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
+            if(nombre !== "catalogoRuta" && nombre !== "n188") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
             if (nombre === "conteosAsignados") {
                 document.getElementById("moduloConteosAsignados").style.display = "block";
                 c42CargarMisConteos();
+            } else if (nombre === "n188") {
+                document.getElementById("n188MisTareas").style.display = "block";
+                n188CargarMis();
             } else if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
@@ -2330,7 +2456,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             window.scrollTo(0,0);
         }
@@ -2560,6 +2686,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             // elimina de OneSignal antes de recargar, sin requerir otro permiso.
             localStorage.removeItem("usuario");
             localStorage.removeItem("sucursal");
+            localStorage.removeItem("n188TurnoActivo");
             try {
                 if (typeof window.n186SincronizarSesionPush === 'function') {
                     await Promise.race([
@@ -2960,6 +3087,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 .then(r => r.text())
                 .then(res => {
                     if (res === "OK") {
+                        n188RegistrarTurnoLocal(tipo, turno, sucursal, empleado);
+                        if(typeof window.n186SincronizarSesionPush==='function'){
+                            window.n186SincronizarSesionPush().catch(function(e){console.warn('Etiquetas de tareas no sincronizadas:',e);});
+                        }
                         alert(`¡${tipo} registrada con éxito!`);
                         if (tipo === "Entrada") {
                             document.getElementById("btnEntrada").style.display = "none";
@@ -5092,7 +5223,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -5102,6 +5233,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "conteosAsignados") c42AbrirAdmin();
             if (modulo === "catalogoAkasia") c48Abrir();
             if (modulo === "logistica") c58Cargar();
+            if (modulo === "n188") n188AbrirAdmin();
             // v1.6.46: no dibujar miles de filas ocultas al ingresar al administrador.
             if (["asistencia", "inventario", "tareas", "pedidos"].includes(modulo)) c46MostrarReporte(modulo);
             window.scrollTo(0,0);
@@ -7172,7 +7304,278 @@ setInterval(()=>{
 },90000);
 
 
-// v1.6.81 BETA: no hay consultas periódicas para notificaciones.
+ // ===== v1.6.88 BETA · Gestión de tareas y notificaciones =====
+ // Integración directa en el index actual. No instala ni cambia OneSignal,
+ // service workers, catálogo de productos, inventario o enlaces de imágenes.
+ let n188TareasPropias=[];
+ let n188Catalogo=[];
+ let n188Empleados=[];
+ let n188Asignaciones=[];
+ let n188Configuracion={};
+ let n188ClaveAdmin='';
+ const n188SeleccionEmpleados=new Set();
+ const n188SeleccionTareas=new Set();
+ let n188Guardando=false;
+
+ function n188Esc(valor){return escaparHtmlPedido(valor);}
+ function n188Mensaje(id,mensaje,error){
+   const el=document.getElementById(id);if(!el)return;
+   el.textContent=mensaje;el.classList.toggle('n188-error',!!error);
+ }
+ async function n188Get(accion,parametros){
+   const q=new URLSearchParams(Object.assign({accion:accion,_:Date.now()},parametros||{}));
+   const r=await fetch(URL_API+'?'+q.toString(),{cache:'no-store'});
+   if(!r.ok)throw Error('Error de conexión HTTP '+r.status);
+   let d;
+   try{d=await r.json();}catch(e){throw Error('El servidor no respondió en JSON. Publica Código.gs v1.6.88 en la implementación actual.');}
+   if(!d||d.status!=='OK')throw Error((d&&d.mensaje)||'La operación no está disponible. Comprueba que publicaste Código.gs v1.6.88.');
+   return d;
+ }
+ async function n188Post(parametros){
+   const body=new URLSearchParams();
+   Object.entries(parametros).forEach(function(par){body.append(par[0],String(par[1]));});
+   const r=await fetch(URL_API,{method:'POST',body:body,cache:'no-store'});
+   if(!r.ok)throw Error('Error de conexión HTTP '+r.status);
+   let d;
+   try{d=await r.json();}catch(e){throw Error('El servidor no respondió en JSON. Publica Código.gs v1.6.88 en la implementación actual.');}
+   if(!d||d.status!=='OK')throw Error((d&&d.mensaje)||'No se pudo completar la operación. Verifica Código.gs v1.6.88.');
+   return d;
+ }
+ function n188RegistrarTurnoLocal(tipo,turno,sucursal,empleado){
+   try{
+     if(String(tipo).toLowerCase()==='salida'){
+       localStorage.removeItem('n188TurnoActivo');
+       return;
+     }
+     if(String(tipo).toLowerCase()!=='entrada')return;
+     const partes=new Intl.DateTimeFormat('en-US',{timeZone:'America/El_Salvador',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+     const campo=function(k){return partes.find(function(x){return x.type===k;})?.value||'';};
+     const fecha=campo('year')+'-'+campo('month')+'-'+campo('day');
+     localStorage.setItem('n188TurnoActivo',JSON.stringify({empleado:empleado,sucursal:sucursal,turno:turno,fecha:fecha}));
+   }catch(e){console.warn('No se pudo registrar turno local para tareas:',e);}
+ }
+ function n188RenderMis(){
+   const total=n188TareasPropias.length;
+   const pendientes=n188TareasPropias.filter(function(t){return String(t.estado||'').toUpperCase()!=='COMPLETADA';}).length;
+   document.getElementById('n188Total').textContent=total;
+   document.getElementById('n188Pendientes').textContent=pendientes;
+   document.getElementById('n188Completadas').textContent=total-pendientes;
+   const lista=document.getElementById('n188MisLista');
+   if(!total){lista.innerHTML='<div class="n188-item">✅ No tienes tareas asignadas en este momento.</div>';return;}
+   lista.innerHTML=n188TareasPropias.map(function(x,i){
+     const completa=String(x.estado||'').toUpperCase()==='COMPLETADA';
+     return '<div class="n188-item'+(completa?' n188-completo':'')+'"><div class="n188-tarea">'+n188Esc(x.descripcion||x.tarea||'Tarea')+'</div>'+
+       '<span class="n188-chip'+(completa?' ok':'')+'">'+(completa?'✓ Completada':'⏳ Pendiente')+'</span>'+
+       (x.area?'<span class="n188-chip">'+n188Esc(x.area)+'</span>':'')+
+       (x.turno?'<div class="n188-meta">Turno: '+n188Esc(x.turno)+'</div>':'')+
+       (!completa?'<button type="button" data-n188-completar="'+i+'" class="n188-mini" style="background:#168a52;margin-top:9px">✓ Marcar completada</button>':'')+
+       '</div>';
+   }).join('');
+ }
+ async function n188CargarMis(){
+   const empleado=localStorage.getItem('usuario')||'';
+   const sucursal=localStorage.getItem('sucursal')||'';
+   if(!empleado||!sucursal){n188Mensaje('n188MisEstado','Inicia sesión para consultar tus tareas.',true);return;}
+   n188Mensaje('n188MisEstado','Consultando tareas de '+empleado+'…',false);
+   try{
+     const d=await n188Get('n188MisTareas',{empleado:empleado,sucursal:sucursal});
+     if(!Array.isArray(d.tareas))throw Error('Respuesta de tareas inválida.');
+     n188TareasPropias=d.tareas;
+     n188RenderMis();
+     n188Mensaje('n188MisEstado','Tareas actualizadas. Los avisos automáticos requieren haber marcado entrada en Asistencia.',false);
+   }catch(e){n188Mensaje('n188MisEstado','No se pudieron cargar las tareas: '+e.message,true);}
+ }
+ document.getElementById('n188MisLista').addEventListener('click',async function(ev){
+   const boton=ev.target.closest('button[data-n188-completar]');
+   if(!boton||boton.disabled||n188Guardando)return;
+   const x=n188TareasPropias[Number(boton.dataset.n188Completar)];
+   if(!x||!x.id)return;
+   if(!confirm('¿Confirmas que completaste esta tarea?'))return;
+   n188Guardando=true;boton.disabled=true;boton.textContent='Guardando…';
+   try{
+     await n188Post({accion:'n188Completar',id:x.id,empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''});
+     await n188CargarMis();
+   }catch(e){
+     n188Mensaje('n188MisEstado','No se pudo confirmar: '+e.message+'. Verifica el estado antes de volver a intentar.',true);
+   }finally{n188Guardando=false;if(boton.isConnected){boton.disabled=false;boton.textContent='✓ Marcar completada';}}
+ });
+ function n188Clave(){
+   if(n188ClaveAdmin)return n188ClaveAdmin;
+   const clave=prompt('Clave privada de tareas configurada en Apps Script (TAREAS_ADMIN_CLAVE o CONTEOS_ADMIN_CLAVE):');
+   if(!clave)return '';
+   n188ClaveAdmin=clave;
+   return n188ClaveAdmin;
+ }
+ async function n188AbrirAdmin(){await n188ActualizarAdmin();}
+ async function n188ActualizarAdmin(){
+   const clave=n188Clave();if(!clave){n188Mensaje('n188AdminEstado','Se requiere la clave privada de administración.',true);return;}
+   n188Mensaje('n188AdminEstado','Cargando catálogo, seguimiento y configuración…',false);
+   try{
+     const d=await n188Post({accion:'n188AdminDatos',claveAdmin:clave});
+     if(!Array.isArray(d.catalogo)||!Array.isArray(d.asignaciones))throw Error('La respuesta del servidor no contiene el catálogo y las asignaciones.');
+     n188Catalogo=d.catalogo;n188Asignaciones=d.asignaciones;n188Configuracion=d.config||{};
+     let advertencia='';
+     try{await n188CargarEmpleados();}
+     catch(error){n188Empleados=Array.isArray(listaGlobalNombres)?listaGlobalNombres:[];advertencia=' No se actualizó la lista de empleados: '+error.message;}
+     // verEmpleados existente devuelve filas, no un objeto con status.
+     n188RenderCatalogo();n188RenderEmpleados();n188RenderSeguimiento();n188RenderConfig();
+     n188Mensaje('n188AdminEstado','Gestión de tareas actualizada.'+advertencia,!!advertencia);
+   }catch(e){
+     if(/clave|contraseña|autoriz|acceso|permiso/i.test(e.message))n188ClaveAdmin='';
+     n188Mensaje('n188AdminEstado','No se pudo cargar: '+e.message,true);
+   }
+ }
+ // Lista de colaboradores: la API histórica devuelve filas, no un objeto status.
+ async function n188CargarEmpleados(){
+   const r=await fetch(URL_API+'?accion=verEmpleados&_='+Date.now(),{cache:'no-store'});
+   if(!r.ok)throw Error('No se pudo cargar la lista de empleados.');
+   const filas=await r.json();
+   if(!Array.isArray(filas))throw Error('Respuesta de empleados inválida.');
+   n188Empleados=filas.slice(1).filter(function(x){return Array.isArray(x)&&x[0]&&x[1];});
+ }
+ function n188CambiarSucursal(){n188SeleccionEmpleados.clear();n188RenderEmpleados();}
+ function n188RenderEmpleados(){
+   const suc=normalizarEmpleado(document.getElementById('n188SucursalAdmin').value);
+   const buscar=normalizarEmpleado(document.getElementById('n188BuscarEmpleados').value);
+   const lista=n188Empleados.filter(function(x){return normalizarEmpleado(x[1])===suc&&normalizarEmpleado(x[0]).includes(buscar);});
+   document.getElementById('n188EmpleadosLista').innerHTML=lista.map(function(x){
+     const nombre=String(x[0]).trim();
+     return '<label class="n188-check"><input type="checkbox" data-n188-empleado="'+n188Esc(nombre)+'"'+(n188SeleccionEmpleados.has(nombre)?' checked':'')+'><span>'+n188Esc(nombre)+'</span></label>';
+   }).join('')||'<div class="n188-estado">No hay colaboradores para esta sucursal.</div>';
+   document.getElementById('n188NumEmpleados').textContent=n188SeleccionEmpleados.size+' seleccionados';
+ }
+ function n188RenderCatalogo(){
+   const q=normalizarEmpleado(document.getElementById('n188BuscarCatalogo').value);
+   const lista=n188Catalogo.filter(function(x){
+     return String(x.estado||'ACTIVA').toUpperCase()==='ACTIVA'&&normalizarEmpleado((x.descripcion||'')+' '+(x.area||'')).includes(q);
+   });
+   document.getElementById('n188CatalogoLista').innerHTML=lista.map(function(x){
+     const id=String(x.id||'');
+     return '<label class="n188-check"><input type="checkbox" data-n188-tarea="'+n188Esc(id)+'"'+(n188SeleccionTareas.has(id)?' checked':'')+'><span><b>'+n188Esc(x.descripcion||'Tarea')+'</b><span class="n188-meta" style="display:block">'+n188Esc(x.area||'General')+'</span></span></label>';
+   }).join('')||'<div class="n188-estado">No hay tareas activas. Crea una en el catálogo.</div>';
+   document.getElementById('n188NumTareas').textContent=n188SeleccionTareas.size+' seleccionadas';
+ }
+ document.getElementById('n188EmpleadosLista').addEventListener('change',function(e){
+   if(!e.target.matches('[data-n188-empleado]'))return;
+   const v=e.target.dataset.n188Empleado;
+   if(e.target.checked)n188SeleccionEmpleados.add(v);else n188SeleccionEmpleados.delete(v);
+   document.getElementById('n188NumEmpleados').textContent=n188SeleccionEmpleados.size+' seleccionados';
+ });
+ document.getElementById('n188CatalogoLista').addEventListener('change',function(e){
+   if(!e.target.matches('[data-n188-tarea]'))return;
+   const v=e.target.dataset.n188Tarea;
+   if(e.target.checked)n188SeleccionTareas.add(v);else n188SeleccionTareas.delete(v);
+   document.getElementById('n188NumTareas').textContent=n188SeleccionTareas.size+' seleccionadas';
+ });
+ function n188SeleccionarTodos(tipo){
+   const esEmpleado=tipo==='empleados';
+   const id=esEmpleado?'n188EmpleadosLista':'n188CatalogoLista';
+   const set=esEmpleado?n188SeleccionEmpleados:n188SeleccionTareas;
+   const campo=esEmpleado?'n188Empleado':'n188Tarea';
+   const controles=Array.from(document.getElementById(id).querySelectorAll('input[type="checkbox"]'));
+   const marcar=controles.some(function(c){return !c.checked;});
+   controles.forEach(function(c){c.checked=marcar;const v=c.dataset[campo];if(marcar)set.add(v);else set.delete(v);});
+   if(esEmpleado)n188RenderEmpleados();else n188RenderCatalogo();
+ }
+ function n188RenderSeguimiento(){
+   const lista=n188Asignaciones.slice(0,150);
+   document.getElementById('n188Seguimiento').innerHTML=lista.map(function(x){
+     const ok=String(x.estado||'').toUpperCase()==='COMPLETADA';
+     return '<div class="n188-item'+(ok?' n188-completo':'')+'"><div class="n188-tarea">'+n188Esc(x.descripcion||x.tarea||'Tarea')+'</div>'+
+       '<div class="n188-meta">'+n188Esc(x.empleado||'Colaborador')+' · '+n188Esc(x.sucursal||'')+
+       (x.fecha?' · '+n188Esc(x.fecha):'')+'</div><span class="n188-chip'+(ok?' ok':'')+'">'+(ok?'✓ Completada':'⏳ Pendiente')+'</span></div>';
+   }).join('')||'<div class="n188-estado">Aún no hay asignaciones para mostrar.</div>';
+ }
+ function n188RenderConfig(){
+   const datos=[
+     ['FRECUENCIA_MIN','n188Frecuencia','Frecuencia de recordatorio (minutos)','select'],
+     ['MAX_RECORDATORIOS','n188Max','Máximo de recordatorios por tarea','select'],
+     ['AVISO_FINAL_MIN','n188Final','Avisar antes de terminar turno (minutos)','select'],
+     ['HABILITADO','n188Activo','Recordatorios automáticos','select'],
+     ['TITULO_ASIGNACION','n188TituloAsignacion','Título al asignar tarea','text'],
+     ['MENSAJE_ASIGNACION','n188MensajeAsignacion','Mensaje al asignar tarea','textarea'],
+     ['TITULO_RECORDATORIO','n188TituloRecordatorio','Título de recordatorio','text'],
+     ['MENSAJE_RECORDATORIO','n188MensajeRecordatorio','Mensaje de recordatorio','textarea'],
+     ['TITULO_FINAL','n188TituloFinal','Título del aviso final','text'],
+     ['MENSAJE_FINAL','n188MensajeFinal','Mensaje del aviso final','textarea']
+   ];
+   const def={
+     FRECUENCIA_MIN:'30',MAX_RECORDATORIOS:'3',AVISO_FINAL_MIN:'15',HABILITADO:'SI',
+     TITULO_ASIGNACION:'📋 Nuevas tareas asignadas',
+     MENSAJE_ASIGNACION:'Tienes {cantidad} tarea(s) asignadas. Abre Mis Tareas en Online Shop.',
+     TITULO_RECORDATORIO:'🔔 Tareas pendientes',
+     MENSAJE_RECORDATORIO:'Tienes {cantidad} tarea(s) por completar: {tareas}. Revisa Mis Tareas.',
+     TITULO_FINAL:'⏰ Finaliza tu turno',
+     MENSAJE_FINAL:'Faltan {minutos} minutos para finalizar tu turno. Tienes {cantidad} tarea(s) pendiente(s): {tareas}.'
+   };
+   const cfg=Object.assign({},def,n188Configuracion||{});
+   const opciones={FRECUENCIA_MIN:['15','30','60'],MAX_RECORDATORIOS:['1','2','3','4','5'],AVISO_FINAL_MIN:['5','10','15','30'],HABILITADO:['SI','NO']};
+   document.getElementById('n188ConfigCampos').innerHTML=datos.map(function(x){
+     const valor=n188Esc(cfg[x[0]]==null?'':cfg[x[0]]);
+     const campo=x[3]==='select'?'<select id="'+x[1]+'">'+opciones[x[0]].map(function(v){
+       const texto=x[0]==='HABILITADO'?(v==='SI'?'Activados':'Desactivados'):v;
+       return '<option value="'+v+'"'+(valor===v?' selected':'')+'>'+texto+'</option>';
+     }).join('')+'</select>':
+       x[3]==='textarea'?'<textarea id="'+x[1]+'">'+valor+'</textarea>':
+       '<input id="'+x[1]+'" type="'+x[3]+'"'+(x[3]==='number'?' min="0" step="1"':'')+' value="'+valor+'">';
+     return '<label class="n188-label" for="'+x[1]+'">'+x[2]+'</label>'+campo;
+   }).join('');
+ }
+ async function n188CrearCatalogo(){
+   const descripcion=document.getElementById('n188DescripcionNueva').value.trim();
+   const area=document.getElementById('n188AreaNueva').value.trim();
+   if(!descripcion||!area){alert('Escribe descripción y área.');return;}
+   if(!n188Clave())return;
+   if(!confirm('¿Agregar esta tarea al catálogo?'))return;
+   try{
+     await n188Post({accion:'n188CrearCatalogo',claveAdmin:n188ClaveAdmin,descripcion:descripcion,area:area});
+     document.getElementById('n188DescripcionNueva').value='';
+     await n188ActualizarAdmin();
+   }catch(e){alert('No se guardó la tarea: '+e.message);}
+ }
+ async function n188Asignar(){
+   const empleados=Array.from(n188SeleccionEmpleados);
+   const tareas=Array.from(n188SeleccionTareas);
+   const sucursal=document.getElementById('n188SucursalAdmin').value;
+   const turno=document.getElementById('n188TurnoAdmin').value;
+   if(!empleados.length||!tareas.length){alert('Selecciona al menos un colaborador y una tarea.');return;}
+   if(empleados.length>30||tareas.length>40){alert('Máximo 30 colaboradores y 40 tareas por asignación.');return;}
+   if(!n188Clave())return;
+   if(!confirm('¿Asignar '+tareas.length+' tarea(s) a '+empleados.length+' colaborador(es) de '+sucursal+' ('+turno+')?'))return;
+   try{
+     await n188Post({accion:'n188Asignar',claveAdmin:n188ClaveAdmin,sucursal:sucursal,turno:turno,
+       empleados:JSON.stringify(empleados),tareas:JSON.stringify(tareas),
+       creadoPor:localStorage.getItem('usuario')||'Administrador'});
+     n188SeleccionEmpleados.clear();n188SeleccionTareas.clear();
+     await n188ActualizarAdmin();
+     alert('✅ Asignación registrada. Los avisos dependerán del estado de suscripciones y asistencia.');
+   }catch(e){alert('No se pudo confirmar la asignación: '+e.message+'. Revisa Seguimiento antes de reintentar.');}
+ }
+ async function n188GuardarConfig(){
+   if(!n188Clave())return;
+   const campos={
+     FRECUENCIA_MIN:'n188Frecuencia',MAX_RECORDATORIOS:'n188Max',
+     AVISO_FINAL_MIN:'n188Final',HABILITADO:'n188Activo',
+     TITULO_ASIGNACION:'n188TituloAsignacion',MENSAJE_ASIGNACION:'n188MensajeAsignacion',
+     TITULO_RECORDATORIO:'n188TituloRecordatorio',MENSAJE_RECORDATORIO:'n188MensajeRecordatorio',
+     TITULO_FINAL:'n188TituloFinal',MENSAJE_FINAL:'n188MensajeFinal'
+   };
+   const config={};
+   Object.keys(campos).forEach(function(k){config[k]=document.getElementById(campos[k]).value.trim();});
+   if(![15,30,60].includes(Number(config.FRECUENCIA_MIN))||
+       ![1,2,3,4,5].includes(Number(config.MAX_RECORDATORIOS))||
+       ![5,10,15,30].includes(Number(config.AVISO_FINAL_MIN))){
+     alert('Selecciona una frecuencia, máximo y aviso final de las opciones permitidas.');return;
+   }
+   if(!confirm('¿Guardar esta configuración de notificaciones para los colaboradores?'))return;
+   try{
+     await n188Post({accion:'n188Config',claveAdmin:n188ClaveAdmin,config:JSON.stringify(config)});
+     n188Configuracion=config;
+     alert('✅ Configuración guardada.');
+   }catch(e){alert('No se pudo guardar configuración: '+e.message);}
+ }
+
+ // v1.6.81 BETA: no hay consultas periódicas para notificaciones.
 // SDK de OneSignal carga diferido, aparte del registro SW existente.
 
 </script>
