@@ -2960,6 +2960,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 .then(r => r.text())
                 .then(res => {
                     if (res === "OK") {
+                        // v1.6.88: registrar turno tras respuesta OK de Asistencia.
+                        if (typeof window.n188RegistrarTurnoLocal === "function") window.n188RegistrarTurnoLocal(tipo, turno, sucursal, empleado);
                         alert(`¡${tipo} registrada con éxito!`);
                         if (tipo === "Entrada") {
                             document.getElementById("btnEntrada").style.display = "none";
@@ -7174,6 +7176,108 @@ setInterval(()=>{
 
 // v1.6.81 BETA: no hay consultas periódicas para notificaciones.
 // SDK de OneSignal carga diferido, aparte del registro SW existente.
+
+</script>
+<!-- Online Shop BETA v1.6.88 · Mis Tareas, Asistencia y recordatorios -->
+<script>
+/* Online Shop v1.6.88 — Extensión segura de interfaz para tareas individuales.
+ * Se agrega después del script principal, antes de </body>.
+ * No sustituye ni modifica inventarios, imágenes, Kardex o pedidos.
+ */
+(function(){
+ 'use strict';
+ let sdk=null,clave='',catalogo=[],asignaciones=[],config={},nombres=[],seleccionTareas=new Set(),seleccionEmpleados=new Set(),tareasPropias=[];
+ const $=id=>document.getElementById(id);
+ const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
+ const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function api(datos){return fetch(URL_API,{method:'POST',body:new URLSearchParams(datos),cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Sin conexión con Apps Script ('+r.status+').');return r.json();}).then(d=>{if(!d||d.status!=='OK')throw Error(d&&d.mensaje||'Error del servidor');return d;});}
+ function msg(id,txt,ok){const x=$(id);if(x){x.textContent=txt;x.style.color=ok?'#14845d':'#c04343';}}
+ function sesionActiva(){try{let s=JSON.parse(localStorage.getItem('n188TurnoActivo')||'null');return s&&norm(s.empleado)===norm(localStorage.getItem('usuario'))&&norm(s.sucursal)===norm(localStorage.getItem('sucursal'))&&s.fecha===new Date().toLocaleDateString('en-CA',{timeZone:'America/El_Salvador'})?s:null;}catch(_){return null;}}
+ async function sincronizarTurno(){
+  if(!sdk||!sdk.User)return;
+  const user=sdk.User,s=sesionActiva();
+  try{
+   if(s&&user.PushSubscription&&user.PushSubscription.optedIn){
+    const tags={empleado:norm(s.empleado),turno:norm(s.turno),en_turno:'SI'};
+    if(typeof user.addTags==='function')await user.addTags(tags);
+    else if(typeof user.addTag==='function')for(const k of Object.keys(tags))await user.addTag(k,tags[k]);
+   }else{
+    if(typeof user.removeTags==='function')await user.removeTags(['empleado','turno','en_turno']);
+    else if(typeof user.removeTag==='function')for(const k of ['empleado','turno','en_turno'])await user.removeTag(k);
+   }
+  }catch(err){console.warn('Online Shop: etiquetas de turno pendientes de sincronizar',err);}
+ }
+ window.n188RegistrarTurnoLocal=function(tipo,turno,sucursal,empleado){
+  if(tipo==='Entrada'){
+   const fecha=new Date().toLocaleDateString('en-CA',{timeZone:'America/El_Salvador'});
+   localStorage.setItem('n188TurnoActivo',JSON.stringify({empleado,sucursal,turno,fecha}));
+  }else if(tipo==='Salida')localStorage.removeItem('n188TurnoActivo');
+  return sincronizarTurno();
+ };
+ const cerrarAnterior=window.cerrarSesion;
+ if(typeof cerrarAnterior==='function')window.cerrarSesion=async function(){
+  localStorage.removeItem('n188TurnoActivo');
+  try{await Promise.race([sincronizarTurno(),new Promise(resolve=>setTimeout(resolve,2000))]);}catch(_){}
+  return cerrarAnterior.apply(this,arguments);
+ };
+ window.OneSignalDeferred=window.OneSignalDeferred||[];
+ window.OneSignalDeferred.push(async function(oneSignal){sdk=oneSignal;await sincronizarTurno();if(sdk.User&&sdk.User.PushSubscription&&sdk.User.PushSubscription.addEventListener)sdk.User.PushSubscription.addEventListener('change',sincronizarTurno);});
+ // Las pantallas se agregan sin reescribir menú de pedidos ni otros módulos.
+ function crearPantallas(){
+  if($('n188AdminTareas'))return;
+  const menu=$('menuPrincipalModulos');
+  if(menu){let b=document.createElement('button');b.className='menu-modulo';b.id='n188BotonMisTareas';b.innerHTML='<span>✅</span><b>Mis Tareas</b>';b.onclick=abrirMis;let grid=menu.querySelector('.menu-grid')||menu;grid.appendChild(b);}
+  const admin=$('menuAdmin');if(admin){let b=document.createElement('button');b.className='menu-modulo';b.id='n188BotonAdminTareas';b.innerHTML='<span>📋</span><b>Asignar Tareas y Notificaciones</b>';b.onclick=abrirAdmin;let grid=admin.querySelector('.menu-grid')||admin;grid.appendChild(b);}
+  const principal=$('pantallaPrincipal')||document.body;let mis=document.createElement('div');mis.id='n188MisTareas';mis.className='card modulo-pantalla';mis.style.display='none';mis.innerHTML='<button class="btn-volver" type="button" id="n188VolverMis">← Volver al menú</button><h3>✅ Mis tareas asignadas</h3><p id="n188MisEstado">Cargando…</p><div id="n188MisLista"></div><button type="button" id="n188RefrescarMis" class="n188-secundario">Actualizar tareas</button>';principal.appendChild(mis);
+  $('n188VolverMis').onclick=()=>{mis.style.display='none';$('menuPrincipalModulos').style.display='block';};$('n188RefrescarMis').onclick=cargarMis;
+  const sup=$('supervisorSection')||document.body;let p=document.createElement('div');p.id='n188AdminTareas';p.className='admin-modulo';p.style.display='none';p.innerHTML=`
+  <button type="button" class="btn-volver" id="n188VolverAdmin">← Volver al panel</button>
+  <div class="n188-cab"><h3>📋 Gestión de tareas y notificaciones</h3><p>Selecciona las tareas, asigna colaboradores y personaliza los avisos.</p></div>
+  <div class="n188-panel"><h4>1. Crear tarea para el catálogo</h4><input id="n188NuevaTarea" maxlength="130" placeholder="Descripción de la tarea"><input id="n188Area" maxlength="60" placeholder="Área (ej. Góndolas)"><button type="button" id="n188GuardarTarea">＋ Añadir al catálogo</button></div>
+  <div class="n188-panel"><h4>2. Asignar tareas</h4><label>Sucursal</label><select id="n188Sucursal"><option value="TIENDA ONLINE SHOP">Tienda Online Shop</option><option value="MINI SUPER">Mini Súper</option><option value="BODEGA">Bodega</option><option value="DESPACHO">Despacho</option></select><label>Turno</label><select id="n188Turno"><option value="APERTURA">☀️ Apertura (8–17 h)</option><option value="CIERRE">🌙 Cierre (13–21 h)</option></select><h4>Colaboradores</h4><div id="n188ListaEmpleados" class="n188-lista"></div><h4>Catálogo de tareas</h4><input id="n188Buscar" placeholder="Buscar tarea"><div id="n188ListaCatalogo" class="n188-lista"></div><button type="button" id="n188Asignar">✓ Asignar tareas seleccionadas</button><p id="n188Resultado"></p></div>
+  <div class="n188-panel"><h4>3. Recordatorios editables</h4><label>Frecuencia</label><select id="n188Frecuencia"><option value="15">Cada 15 minutos</option><option value="30">Cada 30 minutos</option><option value="60">Cada 60 minutos</option></select><label>Máximo de recordatorios por turno</label><select id="n188Max"><option value="2">2 avisos</option><option value="3">3 avisos</option><option value="5">5 avisos</option></select><label>Aviso antes de finalizar turno</label><select id="n188Final"><option value="5">5 minutos</option><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="30">30 minutos</option></select><label>Activar recordatorios</label><select id="n188Activo"><option value="SI">Sí</option><option value="NO">No</option></select><label>Título al asignar</label><input id="n188TituloAsignacion"><label>Mensaje al asignar</label><textarea id="n188MensajeAsignacion" rows="2"></textarea><label>Título del recordatorio</label><input id="n188TituloRecordatorio"><label>Mensaje del recordatorio</label><textarea id="n188MensajeRecordatorio" rows="3"></textarea><label>Título de fin de turno</label><input id="n188TituloFinal"><label>Mensaje de fin de turno</label><textarea id="n188MensajeFinal" rows="3"></textarea><p class="n188-help">Usa {cantidad}, {tareas}, {empleado} o {minutos} como variables automáticas.</p><button type="button" id="n188GuardarConfig">Guardar configuración de notificaciones</button><p id="n188ConfigResultado"></p></div>
+  <div class="n188-panel"><h4>4. Seguimiento de asignaciones</h4><div id="n188Seguimiento" class="n188-lista"></div></div>`;
+  sup.appendChild(p);
+  $('n188VolverAdmin').onclick=()=>{p.style.display='none';const menu=$('menuAdmin');if(menu)menu.style.display='block';};
+  $('n188GuardarTarea').onclick=crearTarea;$('n188Asignar').onclick=asignar;
+  $('n188GuardarConfig').onclick=guardarConfig;
+  $('n188Buscar').oninput=renderCatalogo;$('n188Sucursal').onchange=renderEmpleados;
+  const css=document.createElement('style');css.textContent=`
+  #n188AdminTareas,#n188MisTareas{max-width:850px;margin:16px auto;text-align:left}
+  .n188-cab{padding:14px;border-radius:16px;background:#edf6ff;color:#14466b;margin:6px 0 14px}
+  .n188-cab h3{margin:0 0 4px}.n188-cab p{margin:0;font-size:13px}
+  .n188-panel{padding:14px;border:1px solid #dce8f7;border-radius:17px;margin:12px 0;background:white}
+  .n188-panel h4{margin:6px 0 12px}.n188-panel label{display:block;font-size:12px;font-weight:700;margin:10px 0 5px}
+  .n188-panel input,.n188-panel select,.n188-panel textarea{width:100%;box-sizing:border-box;margin:4px 0 8px;padding:11px;border-radius:11px;border:1px solid #d3e0ee;font:inherit}
+  .n188-panel button,#n188MisTareas button.n188-secundario{background:#087cff;color:white;border:0;border-radius:12px;padding:11px 14px;cursor:pointer}
+  .n188-lista{border:1px solid #e5ebf2;border-radius:12px;max-height:230px;overflow-y:auto;margin-bottom:9px;padding:8px;background:#fafcff}
+  .n188-item{display:flex;gap:9px;align-items:center;font-size:14px;padding:9px 6px;border-bottom:1px solid #e9eef4}
+  .n188-item input[type="checkbox"]{width:18px;height:18px;min-width:18px;margin:0}
+  .n188-help{font-size:12px;color:#536b85}
+  .n188-tarea{padding:14px;margin:10px 0;border:1px solid #dce9f6;border-radius:13px;background:#fff}
+  .n188-completo{opacity:.62;background:#eef9f3}.n188-tarea button{margin-top:8px;width:auto!important}
+  `;document.head.appendChild(css);
+ }
+ function renderCatalogo(){const cont=$('n188ListaCatalogo');if(!cont)return;cont.innerHTML='';const filtro=norm($('n188Buscar').value);catalogo.filter(x=>x.estado==='ACTIVA'&&norm(x.descripcion).includes(filtro)).forEach(x=>{let label=document.createElement('label');label.className='n188-item';let check=document.createElement('input');check.type='checkbox';check.checked=seleccionTareas.has(x.id);check.onchange=()=>check.checked?seleccionTareas.add(x.id):seleccionTareas.delete(x.id);let span=document.createElement('span');span.textContent=x.descripcion+' · '+x.area;label.append(check,span);cont.appendChild(label);});if(!cont.children.length)cont.textContent='No hay tareas. Crea una arriba para comenzar.';}
+ function renderEmpleados(){const div=$('n188ListaEmpleados');if(!div)return;div.innerHTML='';seleccionEmpleados.clear();const suc=norm($('n188Sucursal').value);nombres.filter(row=>norm(row[1])===suc).forEach(row=>{let l=document.createElement('label');l.className='n188-item';let check=document.createElement('input');check.type='checkbox';check.onchange=()=>check.checked?seleccionEmpleados.add(norm(row[0])):seleccionEmpleados.delete(norm(row[0]));let span=document.createElement('span');span.textContent=row[0];l.append(check,span);div.appendChild(l);});if(!div.children.length)div.textContent='No hay colaboradores registrados en esta sucursal.';}
+ function renderSeguimiento(){const el=$('n188Seguimiento');if(!el)return;el.innerHTML='';asignaciones.slice(0,35).forEach(a=>{let d=document.createElement('div');d.className='n188-item';d.textContent=(a.estado==='COMPLETADA'?'✅':'⏳')+' '+a.empleado+' · '+a.descripcion+' · '+a.sucursal+' · '+a.fecha;el.appendChild(d);});if(!el.children.length)el.textContent='Aún no hay asignaciones.';}
+ function renderConfig(){const map={FRECUENCIA_MIN:'n188Frecuencia',MAX_RECORDATORIOS:'n188Max',AVISO_FINAL_MIN:'n188Final',HABILITADO:'n188Activo',TITULO_ASIGNACION:'n188TituloAsignacion',MENSAJE_ASIGNACION:'n188MensajeAsignacion',TITULO_RECORDATORIO:'n188TituloRecordatorio',MENSAJE_RECORDATORIO:'n188MensajeRecordatorio',TITULO_FINAL:'n188TituloFinal',MENSAJE_FINAL:'n188MensajeFinal'};Object.keys(map).forEach(k=>{if($(map[k]))$(map[k]).value=config[k]||'';});}
+ async function actualizarAdmin(){const d=await api({accion:'n188AdminDatos',claveAdmin:clave});catalogo=d.catalogo||[];asignaciones=d.asignaciones||[];config=d.config||{};renderCatalogo();renderSeguimiento();renderConfig();}
+ async function abrirAdmin(){
+  const sec=$('supervisorSection');if(!sec||sec.style.display==='none'){alert('Abre primero el panel de Administrador.');return;}
+  if(!clave){let p=prompt('Clave segura de tareas (Propiedades del script: TAREAS_ADMIN_CLAVE o CONTEOS_ADMIN_CLAVE):');if(!p)return;clave=p.trim();}
+  crearPantallas();const p=$('n188AdminTareas'),menu=$('menuAdmin');if(menu)menu.style.display='none';document.querySelectorAll('.admin-modulo').forEach(x=>x.style.display='none');p.style.display='block';
+  try{if(!nombres.length){const data=await fetch(URL_API+'?accion=verEmpleados').then(r=>r.json());nombres=Array.isArray(data)?data.slice(1):[];}await actualizarAdmin();renderEmpleados();}
+  catch(e){clave='';msg('n188Resultado','No se pudo cargar: '+e.message,false);}
+ }
+ async function crearTarea(){const descripcion=$('n188NuevaTarea').value.trim(),area=$('n188Area').value.trim()||'General';if(descripcion.length<3)return alert('Escribe una tarea.');try{await api({accion:'n188CrearCatalogo',claveAdmin:clave,descripcion,area});$('n188NuevaTarea').value='';await actualizarAdmin();msg('n188Resultado','Tarea añadida al catálogo.',true);}catch(e){msg('n188Resultado',e.message,false);}}
+ async function asignar(){if(!seleccionEmpleados.size||!seleccionTareas.size)return alert('Selecciona colaboradores y tareas.');if(!confirm('Asignar '+seleccionTareas.size+' tarea(s) a '+seleccionEmpleados.size+' colaborador(es)?'))return;const b=$('n188Asignar');b.disabled=true;try{const d=await api({accion:'n188Asignar',claveAdmin:clave,sucursal:$('n188Sucursal').value,turno:$('n188Turno').value,empleados:JSON.stringify([...seleccionEmpleados]),tareas:JSON.stringify([...seleccionTareas]),creadoPor:localStorage.getItem('usuario')||'Administrador'});msg('n188Resultado','✅ '+d.total+' asignaciones guardadas.',true);seleccionTareas.clear();await actualizarAdmin();}catch(e){msg('n188Resultado',e.message,false);}finally{b.disabled=false;}}
+ async function guardarConfig(){const map={FRECUENCIA_MIN:'n188Frecuencia',MAX_RECORDATORIOS:'n188Max',AVISO_FINAL_MIN:'n188Final',HABILITADO:'n188Activo',TITULO_ASIGNACION:'n188TituloAsignacion',MENSAJE_ASIGNACION:'n188MensajeAsignacion',TITULO_RECORDATORIO:'n188TituloRecordatorio',MENSAJE_RECORDATORIO:'n188MensajeRecordatorio',TITULO_FINAL:'n188TituloFinal',MENSAJE_FINAL:'n188MensajeFinal'};let val={};Object.keys(map).forEach(k=>val[k]=$(map[k]).value);try{await api({accion:'n188Config',claveAdmin:clave,config:JSON.stringify(val)});msg('n188ConfigResultado','✅ Mensajes y horarios guardados.',true);}catch(e){msg('n188ConfigResultado',e.message,false);}}
+ async function abrirMis(){crearPantallas();const m=$('n188MisTareas'),menu=$('menuPrincipalModulos');if(menu)menu.style.display='none';m.style.display='block';await cargarMis();}
+ async function cargarMis(){const empleado=localStorage.getItem('usuario')||'',sucursal=localStorage.getItem('sucursal')||'';if(!empleado||!sucursal){msg('n188MisEstado','Inicia sesión para ver tus tareas.',false);return;}try{const u=new URL(URL_API);u.searchParams.set('accion','n188MisTareas');u.searchParams.set('empleado',empleado);u.searchParams.set('sucursal',sucursal);u.searchParams.set('_',String(Date.now()));const d=await fetch(u,{cache:'no-store'}).then(r=>r.json());if(d.status!=='OK')throw Error(d.mensaje||'Error');tareasPropias=d.tareas||[];renderMis();}catch(e){msg('n188MisEstado',e.message,false);}}
+ function renderMis(){let div=$('n188MisLista');div.innerHTML='';const n=tareasPropias.filter(x=>x.estado==='PENDIENTE').length;msg('n188MisEstado',tareasPropias.length?('Tienes '+n+' tarea(s) pendiente(s) de '+tareasPropias.length+'.'):'No tienes tareas asignadas hoy.',true);tareasPropias.forEach(x=>{let d=document.createElement('div');d.className='n188-tarea'+(x.estado==='COMPLETADA'?' n188-completo':'');let b=document.createElement('b');b.textContent=(x.estado==='COMPLETADA'?'✅ ':'📋 ')+x.descripcion;d.appendChild(b);if(x.estado==='PENDIENTE'){let btn=document.createElement('button');btn.textContent='✓ Marcar completada';btn.onclick=async()=>{if(!confirm('¿Confirmar tarea realizada?'))return;btn.disabled=true;try{await api({accion:'n188Completar',id:x.id,empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''});await cargarMis();}catch(e){alert(e.message);btn.disabled=false;}};d.appendChild(btn);}div.appendChild(d);});}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',crearPantallas);else crearPantallas();
+})();
 
 </script>
 </body>
