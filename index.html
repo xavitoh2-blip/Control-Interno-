@@ -1599,7 +1599,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.90 BETA · Asistencia y GPS de Bodega</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.91 BETA · Edición rápida de Bodega</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3367,12 +3367,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
         function c62ActualizarTotalBodega(p){
             const rev=p.productos.filter(x=>x.revisado).length,total=p.productos.length,
-                  listo=rev===total&&!p.productos.some(x=>x.ajustePendiente),
+                  listo=rev===total&&!p.productos.some(x=>x.ajustePendiente)&&!c91TotalCambios(),
                   count=document.getElementById('c62RevisadosBodega'),btn=document.getElementById('btnConfirmarDespachoBodega'),
                   barra=document.getElementById('c66BarraProgreso');
             if(count)count.textContent=rev+' de '+total;
             if(barra)barra.style.width=(total?rev/total*100:0)+'%';
-            if(btn){btn.disabled=!listo;btn.textContent='🚚 '+(listo?'Confirmar pedido preparado':'Revisa todos los productos ('+rev+'/'+total+')');}
+            if(btn){btn.disabled=!listo;btn.textContent='🚚 '+(listo?'Confirmar pedido preparado':c91TotalCambios()?'Guarda antes los cambios ('+c91TotalCambios()+')':'Revisa todos los productos ('+rev+'/'+total+')');}
         }
         function c62ActualizarLinea(index){
             const p=obtenerPedidoBodegaAbierto();if(!p||!p.productos[index])return;
@@ -3466,7 +3466,301 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 save.disabled=!correcto||!c60ProductoElegido||diff||!otroValido;
             }
         }
+        // v1.6.91 · La recepción y los estados Disponible/Parcial no se alteran.
+        // Solo simplifica adicionales y correcciones en Bodega.
+        let c91Estado={pedidoId:'',adicionales:[],correcciones:Object.create(null),
+          indiceEditor:-1,borrador:null,guardando:false};
+        function c91IdOperacion(){
+            return 'OP_'+Date.now()+'_'+Math.random().toString(36).slice(2,14);
+        }
+        function c91IniciarPedido(p){
+            if(!p||c91Estado.pedidoId===p.idPedido)return;
+            c91Estado={pedidoId:p.idPedido,adicionales:[],correcciones:Object.create(null),
+              indiceEditor:-1,borrador:null,guardando:false};
+        }
+        function c91TotalCambios(){
+            return c91Estado.adicionales.length+Object.keys(c91Estado.correcciones).length;
+        }
+        function c91Historial(p){
+            const a=(p.ajustes||[]).slice(-8).reverse();
+            return a.length?'<details style="margin-top:12px"><summary style="font-size:13px;color:#275c91;cursor:pointer">📋 Historial de ajustes ('+
+                (p.ajustes||[]).length+')</summary>'+a.map(x=>'<div class="c60-note" style="border-top:1px solid #dbe4ef;padding:8px 0">'+
+                  '<strong>'+escaparHtmlPedido(x.tipo)+'</strong> · '+escaparHtmlPedido(x.estado)+'<br>'+
+                  escaparHtmlPedido(x.anterior||'Nuevo')+' → '+escaparHtmlPedido(x.nuevo)+' × '+Number(x.cantidad||0)+
+                  '<br>'+escaparHtmlPedido(x.usuarioBodega)+' · '+escaparHtmlPedido(x.fecha)+'</div>').join('')+'</details>':'';
+        }
+        function c91PanelPedidoHtml(p){
+            c91IniciarPedido(p);
+            return '<section class="c60-glass" aria-label="Edición rápida de pedidos">'+
+              '<div style="font-size:17px;font-weight:900;margin-bottom:5px">📦 Productos adicionales</div>'+
+              '<p class="c60-note">Busca, toca un producto y ajusta la cantidad. Puedes agregar varios antes de guardar.</p>'+
+              '<input id="c91BuscarAdicional" class="c60-busqueda" style="width:100%" placeholder="🔎 Buscar producto o presentación…" '+
+                'autocomplete="off" autocorrect="off" oninput="c91BuscarAdicional()">'+
+              '<div id="c91ResultadosAdicional" class="c60-resultados"></div>'+
+              '<div id="c91ColaCambios" aria-live="polite"></div>'+
+              '<button id="c91GuardarCambios" type="button" onclick="c91GuardarTodo()" '+
+                'style="background:#087cff;color:white;border:0;border-radius:14px;padding:16px;width:100%;font-weight:900;font-size:15px;margin-top:10px" disabled>'+
+                'Guardar cambios (0)</button>'+
+              '<div id="c91AvisoCambios" role="status" aria-live="polite" style="font-size:13px;margin-top:8px;color:#37668b"></div>'+
+              '<div class="c60-note" style="margin-top:6px">Las correcciones se aplican directamente. Todo queda registrado en el historial.</div>'+
+              c91Historial(p)+'</section>';
+        }
+        async function c91BuscarAdicional(){
+            const inp=document.getElementById('c91BuscarAdicional'),out=document.getElementById('c91ResultadosAdicional');
+            if(!inp||!out)return;
+            const q=inp.value.trim();if(!q){out.innerHTML='';return;}
+            if(!c60CatalogoBodega.length){
+                out.innerHTML='<div class="c60-note">⏳ Cargando catálogo Akasia…</div>';
+                try{await c60CargarCatalogoBodega();}
+                catch(e){out.innerHTML='<div class="c60-note">No se pudo cargar Akasia: '+escaparHtmlPedido(e.message)+'</div>';return;}
+                if(!inp.isConnected)return;
+            }
+            const arr=c60BuscarCatalogo(c60CatalogoBodega,inp.value,12);
+            out.innerHTML=arr.length?arr.map(x=>'<button class="c60-opcion" type="button" onclick="c91AgregarAdicional('+
+              c60CatalogoBodega.indexOf(x)+')"><strong>＋ '+escaparHtmlPedido(x.producto)+'</strong><br><span class="c60-note">'+
+              escaparHtmlPedido(c60EtiquetaPresentacion(x))+'</span></button>').join(''):
+              '<div class="c60-note">Sin resultados. Prueba otra palabra.</div>';
+        }
+        function c91AgregarAdicional(i){
+            const x=c60CatalogoBodega[i];if(!x||c91Estado.guardando)return;
+            const lista=c91Estado.adicionales,existente=lista.find(a=>a.codigo===x.codigo&&a.uuid===x.uuid);
+            if(existente)existente.cantidad=Math.min(99999,existente.cantidad+1);
+            else lista.push({tipo:'ADICIONAL',producto:x.producto,codigo:x.codigo,uuid:x.uuid,
+              cantidad:1,operacionId:c91IdOperacion()});
+            const inp=document.getElementById('c91BuscarAdicional'),res=document.getElementById('c91ResultadosAdicional');
+            if(inp){inp.value='';inp.focus({preventScroll:true});}
+            if(res)res.innerHTML='';
+            c91ActualizarCola();
+        }
+        function c91CantidadAdicional(i,diferencia){
+            const item=c91Estado.adicionales[i];if(!item||c91Estado.guardando)return;
+            item.cantidad=Math.max(1,Math.min(99999,item.cantidad+diferencia));
+            c91ActualizarCola();
+        }
+        function c91EscribirCantidadAdicional(i,valor){
+            const item=c91Estado.adicionales[i];if(!item||c91Estado.guardando)return;
+            const n=Number(valor);
+            item.cantidad=Number.isSafeInteger(n)?Math.max(1,Math.min(99999,n)):1;
+            c91ActualizarCola();
+        }
+        function c91QuitarAdicional(i){
+            if(c91Estado.guardando)return;
+            c91Estado.adicionales.splice(i,1);c91ActualizarCola();
+        }
+        function c91ClaveIndex(p,index){return c64ClaveLinea(p.productos[index]);}
+        function c91QuitarCorreccion(index){
+            if(c91Estado.guardando)return;
+            const p=obtenerPedidoBodegaAbierto();if(!p||!p.productos[index])return;
+            delete c91Estado.correcciones[c91ClaveIndex(p,index)];
+            if(c91Estado.indiceEditor===index)c91AbrirCorreccion(index,true);
+            c91ActualizarCola();
+        }
+        function c91ActualizarCola(){
+            const out=document.getElementById('c91ColaCambios'),boton=document.getElementById('c91GuardarCambios');
+            const adicionales=c91Estado.adicionales,correcciones=Object.values(c91Estado.correcciones);
+            if(out){
+                out.innerHTML=adicionales.length||correcciones.length?
+                  '<div style="font-weight:850;margin:14px 0 8px">📝 Cambios por guardar</div>'+
+                  adicionales.map((x,i)=>'<div style="border:1px solid #d9e4f3;border-radius:12px;padding:10px;margin-bottom:7px;background:#fff">'+
+                    '<div style="font-weight:700;font-size:13px">'+escaparHtmlPedido(x.producto)+'</div>'+
+                    '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:8px">'+
+                    '<button type="button" onclick="c91QuitarAdicional('+i+')" aria-label="Quitar producto" style="color:#b23b46">✕ Quitar</button>'+
+                    '<div class="c62-qty"><button type="button" onclick="c91CantidadAdicional('+i+',-1)">−</button>'+
+                    '<input type="number" min="1" max="99999" value="'+x.cantidad+'" onchange="c91EscribirCantidadAdicional('+i+',this.value)" aria-label="Cantidad adicional">'+
+                    '<button type="button" onclick="c91CantidadAdicional('+i+',1)">+</button></div></div></div>').join('')+
+                  correcciones.map(x=>'<div style="background:#edf7ef;color:#21643d;border-radius:10px;padding:10px;margin:6px 0;font-size:13px">'+
+                    '✏️ '+escaparHtmlPedido(x.anterior)+' → '+escaparHtmlPedido(x.producto)+' × '+x.cantidad+'</div>').join(''):
+                  '<p class="c60-note" style="margin-top:10px">Todavía no has agregado cambios.</p>';
+            }
+            if(boton){boton.textContent=c91Estado.guardando?'Guardando cambios…':'✓ Guardar todos los cambios ('+c91TotalCambios()+')';
+                boton.disabled=c91Estado.guardando||c91TotalCambios()===0;}
+            const p=obtenerPedidoBodegaAbierto();
+            if(p)c62ActualizarTotalBodega(p);
+        }
+        function c91Avisar(t,malo){
+            const el=document.getElementById('c91AvisoCambios');
+            if(el){el.textContent=t;el.style.color=malo?'#ae2f38':'#28704d';}
+        }
+        function c91ProductoOriginal(orig){
+            return c60CatalogoBodega.find(x=>orig.codigo&&orig.uuid?
+              String(x.codigo)===String(orig.codigo)&&String(x.uuid)===String(orig.uuid):
+              String(x.producto).trim().toUpperCase()===String(orig.producto).trim().toUpperCase())||null;
+        }
+        async function c91AbrirCorreccion(index,reabrir){
+            const p=obtenerPedidoBodegaAbierto(),orig=p?.productos[index];
+            if(!orig||orig.ajustePendiente||c91Estado.guardando)return;
+            if(c91Estado.indiceEditor===index&&!reabrir){
+                c91CerrarEditor();return;
+            }
+            document.querySelectorAll('[data-c91-editor]').forEach(el=>el.innerHTML='');
+            c91Estado.indiceEditor=index;
+            const anterior=c91Estado.correcciones[c91ClaveIndex(p,index)];
+            c91Estado.borrador={
+                modo:anterior?.modo||'CANTIDAD',
+                cantidad:anterior?.cantidad||Number(orig.cantidadSolicitada),
+                origen:anterior?.origen||Number(orig.cantidadSolicitada),
+                producto:anterior?.modo==='REEMPLAZO'?anterior.productoData:null
+            };
+            c91DibujarCorreccion();
+            if(!c60CatalogoBodega.length){
+                try{await c60CargarCatalogoBodega();}
+                catch(e){c91AvisoCorreccion('No se pudo cargar Akasia: '+e.message,true);return;}
+            }
+            if(c91Estado.indiceEditor===index&&c91Estado.borrador?.modo==='CANTIDAD')
+                c91SincronizarCorreccion();
+        }
+        function c91CerrarEditor(){
+            document.querySelectorAll('[data-c91-editor]').forEach(el=>el.innerHTML='');
+            c91Estado.indiceEditor=-1;c91Estado.borrador=null;
+        }
+        function c91CambiarModo(modo){
+            const p=obtenerPedidoBodegaAbierto(),i=c91Estado.indiceEditor,orig=p?.productos[i];
+            if(!orig||!['CANTIDAD','REEMPLAZO'].includes(modo))return;
+            delete c91Estado.correcciones[c91ClaveIndex(p,i)];
+            c91Estado.borrador={modo:modo,cantidad:Number(orig.cantidadSolicitada),
+              origen:Number(orig.cantidadSolicitada),producto:null};
+            c91DibujarCorreccion();c91SincronizarCorreccion();
+        }
+        function c91AvisoCorreccion(t,malo){
+            const el=document.getElementById('c91MensajeCorreccion');
+            if(el){el.textContent=t;el.style.color=malo?'#b23b46':'#2d724b';}
+        }
+        function c91DibujarCorreccion(){
+            const p=obtenerPedidoBodegaAbierto(),i=c91Estado.indiceEditor,orig=p?.productos[i],b=c91Estado.borrador;
+            const cont=document.getElementById('c91Editor_'+i);if(!cont||!orig||!b)return;
+            const esCant=b.modo==='CANTIDAD';
+            cont.innerHTML='<div style="background:#f5f9ff;border:1px solid #cbdcf3;padding:13px;border-radius:15px;margin:12px 0">'+
+              '<div style="font-weight:850;margin-bottom:8px">✏️ Editar '+escaparHtmlPedido(orig.producto)+'</div>'+
+              '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+
+              '<button type="button" onclick="c91CambiarModo(&quot;CANTIDAD&quot;)" style="padding:10px;border-radius:10px;background:'+(esCant?'#d6e8ff':'#fff')+'">Cambiar cantidad</button>'+
+              '<button type="button" onclick="c91CambiarModo(&quot;REEMPLAZO&quot;)" style="padding:10px;border-radius:10px;background:'+(!esCant?'#d6e8ff':'#fff')+'">Cambiar producto</button></div>'+
+              (esCant?
+                '<label class="c67-field-label" for="c91CantidadEditor">Nueva cantidad solicitada</label>'+
+                c91ControlCantidad('c91CantidadEditor',b.cantidad,'cantidad')+
+                '<p class="c60-note">Antes: '+Number(orig.cantidadSolicitada)+' · Después: <span id="c91CantidadResumen">'+b.cantidad+'</span></p>':
+                '<label class="c67-field-label" for="c91OrigenEditor">¿Cuántas unidades originales vas a reemplazar?</label>'+
+                c91ControlCantidad('c91OrigenEditor',b.origen,'origen')+
+                '<label class="c67-field-label" for="c91BuscarReemplazo">Producto o presentación nueva</label>'+
+                '<input id="c91BuscarReemplazo" class="c60-busqueda" style="width:100%" placeholder="Buscar en Akasia…" '+
+                'oninput="c91BuscarReemplazo()" autocomplete="off">'+
+                '<div id="c91ResultadosReemplazo" class="c60-resultados"></div>'+
+                '<div id="c91ProductoReemplazo" class="c60-note">'+
+                  (b.producto?'✓ '+escaparHtmlPedido(b.producto.producto):'Selecciona el nuevo producto')+'</div>'+
+                '<label class="c67-field-label" for="c91NuevaEditor">Cantidad del producto nuevo</label>'+
+                c91ControlCantidad('c91NuevaEditor',b.cantidad,'cantidad'))+
+              '<div id="c91MensajeCorreccion" class="c60-note" style="margin-top:7px"></div>'+
+              '<button type="button" onclick="c91CerrarEditor()" class="c60-secondary" style="margin-top:10px">Cerrar editor</button></div>';
+            c91SincronizarCorreccion();
+        }
+        function c91ControlCantidad(id,valor,campo){
+            return '<div class="c67-counter"><button type="button" onclick="c91AjustarNumero(&quot;'+campo+'&quot;,-1)">−</button>'+
+              '<input type="number" id="'+id+'" min="1" max="99999" step="1" value="'+valor+
+              '" oninput="c91CambiarNumero(&quot;'+campo+'&quot;,this.value)">'+
+              '<button type="button" onclick="c91AjustarNumero(&quot;'+campo+'&quot;,1)">+</button></div>';
+        }
+        function c91AjustarNumero(campo,delta){
+            const b=c91Estado.borrador;if(!b)return;
+            const n=Math.max(1,Math.min(99999,(Number(b[campo])||1)+delta));
+            const id=campo==='origen'?'c91OrigenEditor':b.modo==='CANTIDAD'?'c91CantidadEditor':'c91NuevaEditor';
+            const inp=document.getElementById(id);if(inp)inp.value=n;
+            c91CambiarNumero(campo,String(n));
+        }
+        function c91CambiarNumero(campo,valor){
+            const b=c91Estado.borrador;if(!b)return;
+            const p=obtenerPedidoBodegaAbierto(),orig=p?.productos[c91Estado.indiceEditor];
+            if(!orig)return;
+            const n=Number(valor);
+            if(!Number.isSafeInteger(n)||n<1||n>99999){c91AvisoCorreccion('Indica una cantidad válida.',true);return;}
+            if(campo==='origen'){
+                if(n>Number(orig.cantidadSolicitada)){c91AvisoCorreccion('No puedes reemplazar más de lo solicitado.',true);return;}
+                const antes=b.origen;b.origen=n;
+                if(b.cantidad===antes){b.cantidad=n;const e=document.getElementById('c91NuevaEditor');if(e)e.value=n;}
+            }else b.cantidad=n;
+            c91SincronizarCorreccion();
+        }
+        function c91BuscarReemplazo(){
+            const inp=document.getElementById('c91BuscarReemplazo'),out=document.getElementById('c91ResultadosReemplazo'),b=c91Estado.borrador;
+            if(!inp||!out||!b)return;
+            b.producto=null;c91SincronizarCorreccion();
+            const q=inp.value;if(!q.trim()){out.innerHTML='';return;}
+            if(!c60CatalogoBodega.length){out.innerHTML='<p class="c60-note">Cargando Akasia…</p>';return;}
+            const arr=c60BuscarCatalogo(c60CatalogoBodega,q,12);
+            out.innerHTML=arr.length?arr.map(x=>'<button type="button" class="c60-opcion" onclick="c91ElegirReemplazo('+
+              c60CatalogoBodega.indexOf(x)+')"><b>'+escaparHtmlPedido(x.producto)+'</b><br>'+
+              escaparHtmlPedido(c60EtiquetaPresentacion(x))+'</button>').join(''):
+              '<p class="c60-note">Producto no encontrado.</p>';
+        }
+        function c91ElegirReemplazo(i){
+            const b=c91Estado.borrador,x=c60CatalogoBodega[i];if(!b||!x)return;
+            b.producto=x;
+            const inp=document.getElementById('c91BuscarReemplazo'),out=document.getElementById('c91ResultadosReemplazo'),
+              info=document.getElementById('c91ProductoReemplazo');
+            if(inp)inp.value=x.producto;if(out)out.innerHTML='';
+            if(info)info.textContent='✓ '+x.producto;
+            c91SincronizarCorreccion();
+        }
+        function c91SincronizarCorreccion(){
+            const p=obtenerPedidoBodegaAbierto(),i=c91Estado.indiceEditor,orig=p?.productos[i],b=c91Estado.borrador;
+            if(!orig||!b)return;
+            const key=c91ClaveIndex(p,i),prev=c91Estado.correcciones[key],base=Number(orig.cantidadSolicitada);
+            let producto=null,origen=base;
+            if(b.modo==='CANTIDAD'){producto=c91ProductoOriginal(orig);origen=base;}
+            else{producto=b.producto;origen=b.origen;}
+            const cant=Number(b.cantidad);
+            const valido=producto&&Number.isSafeInteger(cant)&&cant>=1&&cant<=99999&&
+              Number.isSafeInteger(origen)&&origen>=1&&origen<=base;
+            const mismo=producto&&(orig.codigo&&orig.uuid?
+              String(producto.codigo)===String(orig.codigo)&&String(producto.uuid)===String(orig.uuid):
+              String(producto.producto).trim().toUpperCase()===String(orig.producto).trim().toUpperCase());
+            const sinCambio=valido&&mismo&&origen===cant;
+            if(valido&&!sinCambio){
+                c91Estado.correcciones[key]={tipo:'CORRECCION',modo:b.modo,anterior:orig.producto,
+                  producto:producto.producto,codigo:producto.codigo,uuid:producto.uuid,productoData:producto,
+                  cantidad:cant,origen:origen,lineaId:orig.lineaId||'',filaPedido:orig.filaPedido||0,
+                  operacionId:prev?.operacionId||c91IdOperacion()};
+                c91AvisoCorreccion('✓ Corrección lista. Guarda todos los cambios al terminar.',false);
+            }else{
+                delete c91Estado.correcciones[key];
+                if(b.modo==='CANTIDAD'&&!producto)c91AvisoCorreccion('⏳ Identificando el producto original en Akasia…',true);
+                else if(sinCambio)c91AvisoCorreccion('Sin cambios respecto al pedido.',false);
+                else c91AvisoCorreccion('Elige el producto y las cantidades válidas.',false);
+            }
+            const cantidad=document.getElementById('c91CantidadResumen');if(cantidad)cantidad.textContent=String(cant);
+            c91ActualizarCola();
+        }
+        async function c91GuardarTodo(){
+            if(c91Estado.guardando||!c91TotalCambios())return;
+            const p=obtenerPedidoBodegaAbierto();if(!p)return;
+            const cola=Object.values(c91Estado.correcciones).concat(c91Estado.adicionales);
+            c91Estado.guardando=true;c91ActualizarCola();
+            let guardados=0,fallo=null;
+            for(const x of cola){
+                c91Avisar('Guardando '+(guardados+1)+' de '+cola.length+'…',false);
+                const datos={accion:'c60NuevoAjustePedido',idPedido:p.idPedido,tipo:x.tipo,
+                  producto:x.producto,codigo:x.codigo,uuid:x.uuid,cantidad:String(x.cantidad),
+                  cantidadOrigenCorregida:String(x.origen||0),empleado:localStorage.getItem('usuario')||'',
+                  lineaId:x.lineaId||'',filaPedido:String(x.filaPedido||0),
+                  productoAnterior:x.anterior||'',operacionId:x.operacionId};
+                try{
+                    const resp=await fetch(URL_API,{method:'POST',body:new URLSearchParams(datos)});
+                    if(!resp.ok)throw Error('HTTP '+resp.status);
+                    const data=await resp.json();
+                    if(data.status!=='OK')throw Error(data.mensaje||'Error del servidor');
+                    guardados++;
+                }catch(e){fallo=e;break;}
+            }
+            c91Estado.guardando=false;
+            // Siempre volver a leer la hoja: si hubo error de red un cambio pudo
+            // aplicarse y el navegador no haber recibido la respuesta.
+            c91Estado.pedidoId='';
+            try{await c60RecargarBodega();}
+            catch(e){alert('Los cambios pudieron guardarse, pero no se pudo actualizar la pantalla. Recarga Bodega y revisa antes de repetirlos.');return;}
+            if(fallo)alert('Se confirmaron '+guardados+' de '+cola.length+' cambios. Hubo un problema: '+fallo.message+
+              '\\nComprueba los ajustes guardados antes de intentar los restantes.');
+            else c91Avisar('✅ '+guardados+' cambio(s) guardado(s) directamente por Bodega.',false);
+        }
         function c60HerramientasPedidoHtml(p){
+            return c91PanelPedidoHtml(p);
             const a=(p.ajustes||[]).slice(-8).reverse();
             return `<div class="c60-glass"><div style="font-weight:900;font-size:15px;">📦 Productos adicionales y correcciones</div>
                 <p class="c60-note">Los productos adicionales se agregan directamente. Las correcciones de productos solicitados requieren aprobación de la sucursal.</p>
@@ -4466,6 +4760,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverListaPedidosBodega() {
+            if(c91TotalCambios()&&!confirm('Tienes cambios sin guardar. ¿Salir del pedido y descartarlos?'))return;
             const pedido = pedidosBodegaActuales.find(p => p.idPedido === pedidoBodegaAbierto);
             if (pedido) sucursalBodegaAbierta = pedido.sucursal || "";
             pedidoBodegaAbierto = null;
@@ -4496,14 +4791,15 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     <div class="c66-cantidad-necesaria">${item.origen==='ADICIONAL_BODEGA'?'Agregado por Bodega':'Necesitan'} <strong>${Number(item.cantidadSolicitada)||0}</strong>
                         <span class="c60-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span>${item.origen==='ADICIONAL_BODEGA'?'<span class="c60-chip c60-chip-warning">Adicional</span>':''}</div>
                     ${item.ajustePendiente?'<div class="c60-chip c60-chip-warning">⏳ Corrección pendiente de sucursal · sin preparar</div>':''}
-                    ${!item.ajustePendiente?`<button type="button" onclick="c60AbrirFormulario('CORRECCION',${index})" class="c62-corregir">✎ Corregir solo 1 o cambiar presentación</button>`:''}
-                    <div id="c60EditorLinea_${index}" data-c60-editor></div>
+                    ${!item.ajustePendiente?`<button type="button" onclick="c91AbrirCorreccion(${index})" class="c62-corregir">✏️ Editar cantidad o producto</button>`:''}
+                    <div id="c91Editor_${index}" data-c91-editor></div>
                     <div id="c62Controles_${index}">${c62HtmlControles(item,index)}</div>
                 </div>`;
             });
-            const listo=revisados===total&&!pedido.productos.some(p=>p.ajustePendiente);
+            const listo=revisados===total&&!pedido.productos.some(p=>p.ajustePendiente)&&!c91TotalCambios();
             html+=`<button id="btnConfirmarDespachoBodega" type="button" class="c66-confirmar" onclick="confirmarDespachoBodega()" ${listo?'':'disabled'}>🚚 ${listo?'Confirmar pedido preparado':'Revisa todos los productos ('+revisados+'/'+total+')'}</button></div>`;
             cont.innerHTML=html;
+            c91ActualizarCola();
         }
 
         function obtenerPedidoBodegaAbierto() {
