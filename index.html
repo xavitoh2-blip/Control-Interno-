@@ -1137,7 +1137,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c66-bodega .c66-parcial-editor .c62-qty button{border-radius:15px!important;height:52px!important;width:52px!important;min-width:52px!important;background:rgba(217,226,238,.87)!important;color:#243c57!important;font-weight:750!important;box-shadow:none!important;border:1px solid rgba(174,192,217,.6)!important;}
 .c66-bodega .c66-parcial-editor .c62-qty button:last-child{background:#137bfa!important;color:white!important;border:1px solid #0e6cde!important;}
 .c66-bodega .c66-parcial-editor .c62-qty input{height:52px!important;min-height:52px!important;font-size:23px!important;border-radius:15px!important;background:rgba(255,255,255,.96)!important;color:#1d3450!important;border:1px solid rgba(161,181,210,.55)!important;box-shadow:none!important;}
-.c66-bodega .c66-confirmar{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:5;padding:15px 12px!important;min-height:57px!important;margin:15px 0 4px!important;border-radius:19px!important;background:linear-gradient(135deg,#1076f2,#409bff)!important;color:white!important;font-size:13px!important;font-weight:800!important;box-shadow:0 7px 22px rgba(25,107,214,.22)!important;}
+.c66-bodega .c66-confirmar{position:static!important;bottom:auto!important;z-index:auto!important;padding:15px 12px!important;min-height:57px!important;margin:18px 0 18px!important;border-radius:19px!important;background:linear-gradient(135deg,#1076f2,#409bff)!important;color:white!important;font-size:13px!important;font-weight:800!important;box-shadow:0 7px 22px rgba(25,107,214,.22)!important;}
 .c66-bodega .c66-confirmar:disabled{background:rgba(103,120,141,.94)!important;box-shadow:0 5px 17px rgba(62,76,93,.13)!important;}
 @supports ((-webkit-backdrop-filter:blur(12px)) or (backdrop-filter:blur(12px))){.c66-head,.c66-card,.c66-bodega .c66-choice,.c66-bodega .c66-parcial-editor{-webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3);}}
 @media(max-width:370px){.c66-card{padding:12px 10px}.c66-bodega .c62-actions{gap:5px}.c66-bodega .c62-actions .c66-choice{font-size:10px!important;min-height:61px}.c66-bodega .c66-parcial-editor .c62-qty button{width:45px!important;min-width:45px!important;}}
@@ -1599,7 +1599,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.91 BETA · Edición rápida de Bodega</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.93 BETA · Bodega sin botón flotante</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3632,8 +3632,16 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             cont.innerHTML='<div style="background:#f5f9ff;border:1px solid #cbdcf3;padding:13px;border-radius:15px;margin:12px 0">'+
               '<div style="font-weight:850;margin-bottom:8px">✏️ Editar '+escaparHtmlPedido(orig.producto)+'</div>'+
               '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+
-              '<button type="button" onclick="c91CambiarModo(&quot;CANTIDAD&quot;)" style="padding:10px;border-radius:10px;background:'+(esCant?'#d6e8ff':'#fff')+'">Cambiar cantidad</button>'+
-              '<button type="button" onclick="c91CambiarModo(&quot;REEMPLAZO&quot;)" style="padding:10px;border-radius:10px;background:'+(!esCant?'#d6e8ff':'#fff')+'">Cambiar producto</button></div>'+
+              '<button type="button" onclick="c91CambiarModo(&quot;CANTIDAD&quot;)" aria-pressed="'+esCant+'" '+
+                'style="padding:12px 6px;min-height:66px;border:2px solid '+(esCant?'#087cff':'#cbdaf0')+
+                ';border-radius:12px;background:'+(esCant?'#087cff':'#fff')+';color:'+(esCant?'#fff':'#1e3a5a')+
+                ';font-weight:900;font-size:14px;line-height:1.3;white-space:normal;text-shadow:none">'+
+                '🔢 Cambiar cantidad</button>'+
+              '<button type="button" onclick="c91CambiarModo(&quot;REEMPLAZO&quot;)" aria-pressed="'+(!esCant)+'" '+
+                'style="padding:12px 6px;min-height:66px;border:2px solid '+(!esCant?'#087cff':'#cbdaf0')+
+                ';border-radius:12px;background:'+(!esCant?'#087cff':'#fff')+';color:'+(!esCant?'#fff':'#1e3a5a')+
+                ';font-weight:900;font-size:14px;line-height:1.3;white-space:normal;text-shadow:none">'+
+                '🔁 Cambiar producto</button></div>'+
               (esCant?
                 '<label class="c67-field-label" for="c91CantidadEditor">Nueva cantidad solicitada</label>'+
                 c91ControlCantidad('c91CantidadEditor',b.cantidad,'cantidad')+
