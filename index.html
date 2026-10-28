@@ -1612,7 +1612,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.99 BETA · Mini Súper 7 a 3</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.00 BETA · Control de mercadería</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1690,6 +1690,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button id="btnMenuCatalogoRuta" class="menu-modulo" onclick="abrirModulo('catalogoRuta')" style="display:none;"><span>📖</span><b>Catálogo</b></button>
                 <!-- ÚNICO botón adicional en el menú principal, v1.6.42 BETA -->
                 <button id="btnMenuConteosAsignados" class="menu-modulo" onclick="abrirModulo('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
+                <button id="m200MenuDirecto" class="menu-modulo" onclick="abrirModulo('m200Directa')" style="display:none"><span>📥</span><b>Recepción Directa</b></button>
+                <button id="m200MenuAdmin" class="menu-modulo" onclick="abrirModulo('m200Admin')" style="display:none"><span>📊</span><b>Control de Mercadería</b></button>
             </div>
             <!-- Activación voluntaria (una sola vez por navegador/dispositivo). No es un centro de avisos. -->
             <div id="c81PushActivacion" aria-hidden="true" style="display:none;margin:14px auto 2px;max-width:450px;text-align:center;padding:12px;border:1px solid #d7e4f4;border-radius:16px;background:#f6faff;">
@@ -1699,6 +1701,55 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <p id="c82EstadoPush" role="status">Preparando notificaciones…</p>
               <p style="font-size:10px;color:#63788a;margin:8px 0 0;">En iPhone, abre Online Shop desde el ícono de la pantalla de inicio.</p>
             </div>
+        </div>
+
+        <div id="m200ModuloDirecta" class="card modulo-pantalla" style="display:none;text-align:left">
+          <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+          <h3>📥 Recepción Directa</h3>
+          <p style="font-size:12px;color:#64748b">Para mercadería que llega sin pedido preparado por Bodega. Se registra para revisión de Administración y no ajusta Akasia.</p>
+          <label for="m200Origen">¿De dónde llega?</label>
+          <select id="m200Origen" onchange="m200CambiarOrigen()">
+            <option value="">-- Procedencia --</option>
+            <option value="TIENDA ONLINE SHOP">🏪 Tienda Online Shop (Matriz)</option>
+            <option value="MINI SUPER">🏪 Mini Súper</option>
+            <option value="BODEGA">📦 Bodega (sin pedido de Bodega)</option>
+            <option value="COMPRAS">🛒 Compras</option>
+            <option value="PROVEEDOR">🚚 Proveedor directo</option>
+            <option value="OTRO">📍 Otro lugar</option>
+          </select>
+          <input id="m200DetalleOrigen" placeholder="Proveedor, referencia o lugar de procedencia" maxlength="120"/>
+          <label for="m200BuscarDirecta">Producto exacto del catálogo Akasia</label>
+          <input id="m200BuscarDirecta" type="search" placeholder="Buscar por nombre o código…" oninput="m200BuscarProducto('directa')"/>
+          <div id="m200ResultadosDirecta" style="max-height:230px;overflow:auto"></div>
+          <p id="m200ElegidoDirecta" style="font-size:12px;color:#155eaa;font-weight:800">Selecciona un producto.</p>
+          <label for="m200CantidadDirecta">Unidades recibidas físicamente</label>
+          <input id="m200CantidadDirecta" type="number" min="1" step="1" value="1" inputmode="numeric"/>
+          <label for="m200DanadasDirecta">Unidades dañadas (0 si todo llegó bien)</label>
+          <input id="m200DanadasDirecta" type="number" min="0" step="1" value="0" inputmode="numeric" onchange="m200VerFotoDirecta()"/>
+          <div id="m200FotoDirectaBox" style="display:none;padding:12px;background:#fff4ec;border-radius:12px">
+            <label for="m200FotoDirecta">📸 Foto obligatoria del daño</label>
+            <input id="m200FotoDirecta" type="file" accept="image/*" capture="environment"/>
+          </div>
+          <textarea id="m200ObservacionDirecta" rows="2" placeholder="Observaciones, factura o referencia (opcional)"></textarea>
+          <button id="m200GuardarDirectaBtn" onclick="m200GuardarRecepcionDirecta()" style="background:#087cff">✓ Registrar y reportar a Administración</button>
+          <p id="m200DirectaEstado" style="font-size:12px" role="status"></p>
+        </div>
+
+        <div id="m200ModuloAdmin" class="card modulo-pantalla" style="display:none;text-align:left">
+          <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+          <h3>📊 Control de Mercadería</h3>
+          <p style="font-size:12px;color:#667085">Solo ADMIN puede aprobar pedidos o resolver incidencias. Los movimientos quedan registrados.</p>
+          <button onclick="m200CargarAdmin()" style="background:#155eaa">↻ Actualizar información</button>
+          <p id="m200AdminEstado" role="status" style="font-size:12px"></p>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:12px 0">
+            <button type="button" onclick="m200Pestana('pedidos')" id="m200TabPedidos">🛍️ Pedidos</button>
+            <button type="button" onclick="m200Pestana('directas')" id="m200TabDirectas">📥 Directas</button>
+            <button type="button" onclick="m200Pestana('incidencias')" id="m200TabIncidencias">🚨 Daños</button>
+          </div>
+          <div id="m200AdminPedidos"></div>
+          <div id="m200AdminEditor" style="display:none"></div>
+          <div id="m200AdminDirectas" style="display:none"></div>
+          <div id="m200AdminIncidencias" style="display:none"></div>
         </div>
 
     
@@ -2426,6 +2477,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const asistencia=document.querySelector('#menuPrincipalModulos button[onclick="abrirModulo(\'asistencia\')"]');
                 if(asistencia)asistencia.style.display='none';
             }
+            const adm=normalizarEmpleado(localStorage.getItem('usuario'))==='admin';
+            const miniTienda=['mini super','tienda online shop'].includes(normalizarEmpleado(sucursalActual));
+            const btAdmin=document.getElementById('m200MenuAdmin');
+            const btDirecta=document.getElementById('m200MenuDirecto');
+            if(btAdmin)btAdmin.style.display=adm?'flex':'none';
+            if(btDirecta)btDirecta.style.display=(!adm&&miniTienda)?'flex':'none';
         }
 
         function cargarEmpleadosDesdeSheets() {
@@ -2462,9 +2519,16 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         function abrirModulo(nombre) {
             if (n189DebeBloquear(nombre)) return;
-            if(nombre !== "catalogoRuta" && nombre !== "n188") cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
+            if(!['catalogoRuta','n188','m200Admin','m200Directa'].includes(nombre)) cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados","m200ModuloAdmin","m200ModuloDirecta"].forEach(id => document.getElementById(id).style.display = "none");
+            if(nombre==='m200Admin'){
+                if(normalizarEmpleado(localStorage.getItem('usuario'))!=='admin'||!a197Autorizado)return volverMenuPrincipal();
+                document.getElementById('m200ModuloAdmin').style.display='block';m200CargarAdmin();
+            }else if(nombre==='m200Directa'){
+                if(!['mini super','tienda online shop'].includes(normalizarEmpleado(localStorage.getItem('sucursal')))||normalizarEmpleado(localStorage.getItem('usuario'))==='admin')return volverMenuPrincipal();
+                document.getElementById('m200ModuloDirecta').style.display='block';m200IniciarDirecta();
+            }else
             if (nombre === "conteosAsignados") {
                 document.getElementById("moduloConteosAsignados").style.display = "block";
                 c42CargarMisConteos();
@@ -2528,7 +2592,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados","m200ModuloAdmin","m200ModuloDirecta"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             n189EnAsistencia = false;
             n189PintarAviso();
@@ -4736,6 +4800,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                                 <div class="c70-qty-help">Preparado por Bodega: ${esperado} · Elige cuántas unidades recibiste realmente.</div>
                               </div>
                               <div class="c69-status" id="estadoRec_${i}" aria-live="polite"></div>
+                              <div style="background:#f6faff;border:1px solid #e1e9f4;border-radius:12px;padding:10px;margin:9px 0">
+                                <label for="m200RecDano_${i}" style="font-size:12px">🔎 ¿Llegó alguna unidad dañada? (0 si todo está bien)</label>
+                                <input id="m200RecDano_${i}" type="number" min="0" step="1" max="${esperado}" value="0" inputmode="numeric" onchange="m200RecordarDanoRec(${i})"/>
+                                <div id="m200RecFotoBox_${i}" style="display:none;padding:7px;background:#fff2e9;border-radius:10px">
+                                  <label for="m200RecFoto_${i}" style="font-size:12px">📸 Foto obligatoria de los daños</label>
+                                  <input id="m200RecFoto_${i}" type="file" accept="image/*" capture="environment" onchange="m200RecordarDanoRec(${i})"/>
+                                </div>
+                              </div>
                               ${adicional?`<label class="c69-reject"><input id="c60Rechazo_${i}" type="checkbox" onchange="c60CambiarRechazoAdicional(${i})"/> Rechazar este producto adicional de Bodega</label>`:''}
                             </article>`;
                         });
@@ -4743,6 +4815,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     });
                     html+='</div><div id="c69SinFiltro" class="c69-empty" hidden>No hay productos con ese filtro.</div><div class="c69-save"><div class="c69-save-note">Solo podrás guardar tras revisar todos los productos. Los filtros no excluyen productos del guardado.</div><button id="btnConfirmarRecepcion" type="button" onclick="confirmarRecepcionPedido()">✓ Confirmar recepción</button></div>';
                     cont.innerHTML=html;
+                    m200RestaurarDanosRec();
                     pedidosRecepcionActuales.forEach((item,i)=>{
                         const antes=c70Snapshot.get(c70ClaveRecepcion(item,i));
                         if(!antes)return;
@@ -4773,6 +4846,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if(valor===null) return alert('Corrige la cantidad recibida de '+pedidosRecepcionActuales[i].producto+' antes de confirmar.');
             }
             if((c69FiltroActual!=='todos'||c69BusquedaActual)&&!confirm('Hay filtros activos. Se guardarán TODOS los productos ya revisados, incluso los ocultos. ¿Confirmar recepción completa?'))return;
+            for(let i=0;i<pedidosRecepcionActuales.length;i++){
+                m200RecordarDanoRec(i);
+                const x=m200DanosRecepcion[m200ClaveDanoRec(pedidosRecepcionActuales[i])]||{};
+                const recibidos=Number(document.getElementById('recibido_'+i)?.value)||0;
+                if(!Number.isSafeInteger(x.cantidad||0)||(x.cantidad||0)<0||(x.cantidad||0)>recibidos)
+                    return alert('La cantidad dañada no puede superar la cantidad físicamente recibida: '+pedidosRecepcionActuales[i].producto);
+                if(x.cantidad>0&&!x.fotoId&&!x.archivo)return alert('Adjunta una fotografía del producto dañado: '+pedidosRecepcionActuales[i].producto);
+            }
             const btn = document.getElementById("btnConfirmarRecepcion");
             if (btn) { btn.disabled = true;btn.dataset.guardando='1'; btn.innerText = "Guardando recepción…"; }
             const productos = pedidosRecepcionActuales.map((item, index) => ({
@@ -4791,6 +4872,17 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 productos: JSON.stringify(productos)
             });
             try {
+                for(let i=0;i<pedidosRecepcionActuales.length;i++){
+                    const x=m200DanosRecepcion[m200ClaveDanoRec(pedidosRecepcionActuales[i])]||{};
+                    if(x.cantidad>0){
+                        if(btn)btn.textContent='Subiendo foto de daño '+(i+1)+'/'+pedidosRecepcionActuales.length+'…';
+                        if(!x.fotoId)x.fotoId=await m200SubirFoto(x.archivo,'DANO_EN_RECEPCION');
+                        productos[i].cantidadDanada=x.cantidad;
+                        productos[i].fotoDanoId=x.fotoId;
+                    }
+                }
+                if(btn)btn.textContent='Guardando recepción y reportes…';
+                params.set('productos',JSON.stringify(productos));
                 const r = await fetch(URL_API, { method:"POST", body:params });
                 const data = await r.json();
                 if (!data || data.status !== "OK") throw new Error(data && data.mensaje ? data.mensaje : "No confirmado");
@@ -4798,6 +4890,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 alert(`Recepción guardada. Completos: ${data.completos} | Con diferencia: ${data.conDiferencia}\nUnidades faltantes en Bodega: ${data.unidadesFaltanteBodega||0} | Unidades para revisar en Despacho: ${data.unidadesIncidenciaDespacho||0}`);
                 pedidosRecepcionActuales = [];
                 c70EstadoPorIndice=Object.create(null);c70AntesRechazo=Object.create(null);
+                m200DanosRecepcion={};
                 cargarPedidosParaRecepcion();
             } catch (err) {
                 console.error("Error confirmando recepción:", err);
@@ -4888,7 +4981,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                             <div style="font-size:12px;color:#666;margin-top:3px;">📦 ${pedido.productos.length} productos por preparar</div>
                         </div>
                         <button onclick="abrirPedidoBodega(${index})" style="background:#007bff;margin-top:11px;">Ver pedido</button>
-                        <button onclick="eliminarPedidoBodega(${index})" style="background:#7a858e;margin-top:5px;">🗑️ Eliminar pedido</button>
                     </div>`;
                 });
                 cont.innerHTML=html;
@@ -4970,7 +5062,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             renderizarDetallePedidoBodega(pedido);
             window.scrollTo(0,0);
             // Precarga sin bloquear la revisión de productos. No edita ni las hojas ni imágenes.
-            c60CargarCatalogoBodega().catch(()=>{});
+            // Bodega prepara pedidos aprobados; no carga herramientas de edición.
         }
 
         function volverListaPedidosBodega() {
@@ -4996,7 +5088,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     <div class="c66-progress-meta"><span>Productos revisados</span><b id="c62RevisadosBodega">${revisados} de ${total}</b></div>
                     <div class="c66-progress-track"><i id="c66BarraProgreso" style="width:${progreso}%"></i></div>
                 </div>`;
-            html+=c60HerramientasPedidoHtml(pedido);
+            html+='<div style="padding:10px;border-radius:13px;background:#eef8ff;color:#174876;font-size:12px;margin:10px 0">🔒 Productos y cantidades aprobados por Administración. Si detectas un daño, repórtalo; prepara únicamente unidades en buen estado.</div>';
             pedido.productos.forEach((item,index)=>{
                 const tipo=item.ajustePendiente?'pendiente':c66TipoLinea(item);
                 html+=`<div id="c62Tarjeta_${index}" class="c66-card" data-c66-estado="${tipo}">
@@ -5005,8 +5097,15 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     <div class="c66-cantidad-necesaria">${item.origen==='ADICIONAL_BODEGA'?'Agregado por Bodega':'Necesitan'} <strong>${Number(item.cantidadSolicitada)||0}</strong>
                         <span class="c60-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span>${item.origen==='ADICIONAL_BODEGA'?'<span class="c60-chip c60-chip-warning">Adicional</span>':''}</div>
                     ${item.ajustePendiente?'<div class="c60-chip c60-chip-warning">⏳ Corrección pendiente de sucursal · sin preparar</div>':''}
-                    ${!item.ajustePendiente?`<button type="button" onclick="c91AbrirCorreccion(${index})" class="c62-corregir">✏️ Editar cantidad o producto</button>`:''}
-                    <div id="c91Editor_${index}" data-c91-editor></div>
+                    <button type="button" onclick="m200AbrirDanoBodega(${index})" style="background:#fff4ed;color:#a63b19;border:1px solid #f5c9b5;font-size:12px">🚨 Reportar unidades dañadas</button>
+                    <div id="m200BodegaDano_${index}" style="display:none;background:#fff9f5;border-radius:13px;padding:10px">
+                      <label>Unidades dañadas</label>
+                      <input id="m200BodegaCantidad_${index}" type="number" min="1" max="${Number(item.cantidadSolicitada)||0}" value="1" step="1" inputmode="numeric"/>
+                      <label>📸 Foto obligatoria del daño</label>
+                      <input id="m200BodegaFoto_${index}" type="file" accept="image/*" capture="environment"/>
+                      <textarea id="m200BodegaDetalle_${index}" rows="2" placeholder="Qué daño tiene el producto (opcional)"></textarea>
+                      <button id="m200BodegaEnviar_${index}" type="button" onclick="m200EnviarDanoBodega(${index})" style="background:#a63b19">Enviar reporte a Administración</button>
+                    </div>
                     <div id="c62Controles_${index}">${c62HtmlControles(item,index)}</div>
                 </div>`;
             });
@@ -5110,6 +5209,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const params = new URLSearchParams({
                 accion: "ProcesarDespachoBodegaLote",
                 idPedido: pedido.idPedido,
+                versionPedido: pedido.versionPedido || "",
                 empleado: localStorage.getItem("usuario") || "",
                 productos: JSON.stringify(productos)
             });
@@ -8267,6 +8367,270 @@ setInterval(()=>{
      n188Configuracion=config;
      alert('✅ Configuración guardada.');
    }catch(e){alert('No se pudo guardar configuración: '+e.message);}
+ }
+
+ // ===== v1.7.00 · Control de Mercadería =====
+ let m200Catalogos={},m200ProductoDirecta=null,m200OperacionDirecta='',m200FotoDirectaId='';
+ let m200Panel=null,m200Tab='pedidos',m200PedidoEditando=null,m200Borrador=[],m200DanoOperacion={};
+ let m200DanosRecepcion={};
+ function m200ClaveDanoRec(item){return [item.idPedido||'',item.lineaId||'',item.filaPedido||'',item.filaFaltante||''].join('|');}
+ function m200RecordarDanoRec(index){
+   const item=pedidosRecepcionActuales[index];if(!item)return;
+   const key=m200ClaveDanoRec(item),prev=m200DanosRecepcion[key]||{cantidad:0,archivo:null,fotoId:''};
+   const input=document.getElementById('m200RecDano_'+index),archivo=document.getElementById('m200RecFoto_'+index)?.files?.[0];
+   if(input){const n=Number(input.value);prev.cantidad=Number.isSafeInteger(n)?n:-1;}
+   if(archivo&&archivo!==prev.archivo){prev.archivo=archivo;prev.fotoId='';}
+   m200DanosRecepcion[key]=prev;
+   const box=document.getElementById('m200RecFotoBox_'+index);
+   if(box)box.style.display=prev.cantidad>0?'block':'none';
+ }
+ function m200RestaurarDanosRec(){
+   pedidosRecepcionActuales.forEach((item,i)=>{
+     const x=m200DanosRecepcion[m200ClaveDanoRec(item)];if(!x)return;
+     const inp=document.getElementById('m200RecDano_'+i);if(inp)inp.value=String(x.cantidad||0);
+     const box=document.getElementById('m200RecFotoBox_'+i);if(box)box.style.display=x.cantidad>0?'block':'none';
+     if(x.cantidad>0&&(x.archivo||x.fotoId)){
+       const note=document.createElement('small');note.textContent=x.fotoId?'✓ Evidencia ya subida':'✓ Foto seleccionada: '+x.archivo.name;
+       if(box)box.appendChild(note);
+     }
+   });
+ }
+ const m200Esc=(v)=>escaparHtmlPedido(String(v??''));
+ function m200Operacion(){return 'M200-'+(window.crypto?.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2));}
+ function m200Params(obj){return new URLSearchParams(Object.fromEntries(Object.entries(obj).map(([k,v])=>[k,String(v??'')])));}
+ async function m200Post(obj){
+   const r=await fetch(URL_API,{method:'POST',body:m200Params(obj),cache:'no-store'});
+   if(!r.ok)throw Error('Sin conexión con Apps Script (HTTP '+r.status+').');
+   const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No fue posible guardar los datos.');
+   return d;
+ }
+ function m200DatosUsuario(){return {sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};}
+ function m200CredencialesAdmin(){
+   if(normalizarEmpleado(localStorage.getItem('usuario'))!=='admin'||!a197Autorizado)throw Error('Acceso ADMIN requerido.');
+   const token=sessionStorage.getItem('a197TokenAdmin');if(!token)throw Error('La sesión administrativa venció.');
+   return {sucursal:localStorage.getItem('sucursal')||'',empleado:'ADMIN',token};
+ }
+ async function m200PostAdmin(obj){return m200Post({...m200CredencialesAdmin(),...obj});}
+ async function m200CargarCatalogo(sucursal){
+   const key=normalizarEmpleado(sucursal);if(m200Catalogos[key])return m200Catalogos[key];
+   const r=await fetch(URL_API+'?accion=c60CatalogoPedidos&sucursal='+encodeURIComponent(sucursal)+'&_='+Date.now(),{cache:'no-store'});
+   if(!r.ok)throw Error('Catálogo Akasia no disponible.');
+   const d=await r.json();if(d.status!=='OK'||!Array.isArray(d.productos))throw Error(d.mensaje||'Catálogo Akasia incorrecto.');
+   return m200Catalogos[key]=d.productos.filter(x=>x.producto&&x.codigo&&x.uuid);
+ }
+ function m200CambiarOrigen(){
+   const o=document.getElementById('m200Origen').value,s=normalizarEmpleado(localStorage.getItem('sucursal'));
+   if(normalizarEmpleado(o)===s){alert('La procedencia debe ser diferente de la sucursal que recibe.');document.getElementById('m200Origen').value='';}
+ }
+ function m200VerFotoDirecta(){const n=Number(document.getElementById('m200DanadasDirecta').value)||0;document.getElementById('m200FotoDirectaBox').style.display=n>0?'block':'none';}
+ async function m200IniciarDirecta(){
+   const destino=localStorage.getItem('sucursal')||'';
+   document.getElementById('m200ResultadosDirecta').textContent='Cargando catálogo Akasia…';
+   m200ProductoDirecta=null;
+   try{await m200CargarCatalogo(destino);document.getElementById('m200ResultadosDirecta').textContent='Escribe el nombre o código del producto.';}
+   catch(e){document.getElementById('m200ResultadosDirecta').textContent='Error: '+e.message;}
+ }
+ function m200BuscarProducto(modo,index){
+   const s=modo==='directa'?(localStorage.getItem('sucursal')||''):(m200PedidoEditando?.sucursal||'');
+   const q=normalizarEmpleado(document.getElementById(modo==='directa'?'m200BuscarDirecta':'m200BuscarAdmin_'+index)?.value||'');
+   const destino=document.getElementById(modo==='directa'?'m200ResultadosDirecta':'m200ResultadosAdmin_'+index);
+   if(!destino)return;
+   if(q.length<2){destino.innerHTML='';return;}
+   const cat=m200Catalogos[normalizarEmpleado(s)]||[];
+   const items=cat.map((p,i)=>({p,i})).filter(x=>normalizarEmpleado(x.p.producto).includes(q)||String(x.p.codigo).toLowerCase().includes(q)).slice(0,12);
+   destino.replaceChildren();
+   if(!items.length){destino.textContent='Sin coincidencias en Akasia.';return;}
+   items.forEach(({p,i})=>{
+     const b=document.createElement('button');b.type='button';
+     b.style.cssText='background:#f4f8ff;color:#23394f;border:1px solid #d9e6f7;text-align:left;font-size:12px;padding:9px;margin:4px 0';
+     b.textContent=p.producto+' · Código '+p.codigo;
+     b.onclick=()=>{
+       if(modo==='directa'){m200ProductoDirecta={...p};document.getElementById('m200ElegidoDirecta').textContent='✓ '+p.producto;document.getElementById('m200BuscarDirecta').value=p.producto;}
+       else{m200Borrador[index]={...m200Borrador[index],producto:p.producto,codigo:p.codigo,uuid:p.uuid};m200RenderEditor();}
+       destino.replaceChildren();
+     };destino.appendChild(b);
+   });
+ }
+ async function m200FotoComoBase64(archivo){
+   if(!archivo||!String(archivo.type).startsWith('image/'))throw Error('Debes seleccionar una fotografía.');
+   return new Promise((resolve,reject)=>{
+     const reader=new FileReader();
+     reader.onerror=()=>reject(Error('No se pudo abrir la fotografía.'));
+     reader.onload=()=>{
+       const img=new Image();img.onerror=()=>reject(Error('Foto no compatible.'));
+       img.onload=()=>{
+         const factor=Math.min(1,1280/Math.max(img.width,img.height)),c=document.createElement('canvas');
+         c.width=Math.max(1,Math.round(img.width*factor));c.height=Math.max(1,Math.round(img.height*factor));
+         c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+         let url='';
+         for(const calidad of [.76,.62,.48]){url=c.toDataURL('image/jpeg',calidad);if(url.length<2550000)break;}
+         if(url.length>2550000){reject(Error('La imagen sigue siendo muy grande. Intenta otra fotografía.'));return;}
+         resolve({base64:url.slice(url.indexOf(',')+1),mime:'image/jpeg'});
+       };img.src=String(reader.result);
+     };reader.readAsDataURL(archivo);
+   });
+ }
+ async function m200SubirFoto(archivo,contexto){
+   const foto=await m200FotoComoBase64(archivo);
+   const d=await m200Post({accion:'m200GuardarFoto',...m200DatosUsuario(),...foto,contexto});
+   return d.fotoId;
+ }
+ async function m200GuardarRecepcionDirecta(){
+   const btn=document.getElementById('m200GuardarDirectaBtn'),info=document.getElementById('m200DirectaEstado');
+   const origen=document.getElementById('m200Origen').value,detalle=document.getElementById('m200DetalleOrigen').value.trim();
+   const cant=Number(document.getElementById('m200CantidadDirecta').value),dan=Number(document.getElementById('m200DanadasDirecta').value);
+   if(!origen||!m200ProductoDirecta)return alert('Selecciona la procedencia y un producto exacto de Akasia.');
+   if(!Number.isSafeInteger(cant)||cant<1||!Number.isSafeInteger(dan)||dan<0||dan>cant)return alert('Revisa unidades recibidas y dañadas.');
+   if(origen==='OTRO'&&!detalle)return alert('Indica el lugar de procedencia.');
+   if(dan>0&&!m200FotoDirectaId&&!document.getElementById('m200FotoDirecta').files?.[0])return alert('Toma una foto de los productos dañados.');
+   if(!m200OperacionDirecta)m200OperacionDirecta=m200Operacion();
+   btn.disabled=true;info.textContent='Guardando recepción y evidencias…';
+   try{
+     if(dan>0&&!m200FotoDirectaId)m200FotoDirectaId=await m200SubirFoto(document.getElementById('m200FotoDirecta').files[0],'RECEPCION_DIRECTA');
+     const resp=await m200Post({accion:'m200RecibirDirecto',...m200DatosUsuario(),origen,detalleOrigen:detalle,
+       producto:m200ProductoDirecta.producto,codigo:m200ProductoDirecta.codigo,uuid:m200ProductoDirecta.uuid,
+       cantidad:cant,danadas:dan,fotoId:dan>0?m200FotoDirectaId:'',
+       observacion:document.getElementById('m200ObservacionDirecta').value,operacionId:m200OperacionDirecta});
+     info.textContent='✅ '+resp.mensaje;
+     document.getElementById('m200BuscarDirecta').value='';
+     document.getElementById('m200ElegidoDirecta').textContent='Selecciona otro producto.';
+     document.getElementById('m200CantidadDirecta').value='1';
+     document.getElementById('m200DanadasDirecta').value='0';
+     document.getElementById('m200FotoDirecta').value='';
+     document.getElementById('m200ObservacionDirecta').value='';
+     m200VerFotoDirecta();m200ProductoDirecta=null;m200OperacionDirecta='';m200FotoDirectaId='';
+   }catch(e){info.textContent='⚠️ '+e.message+' Verifica en Administrador antes de volver a enviar.';}
+   finally{btn.disabled=false;}
+ }
+ async function m200CargarAdmin(){
+   const info=document.getElementById('m200AdminEstado');info.textContent='Actualizando pedidos y movimientos…';
+   try{
+     m200Panel=await m200PostAdmin({accion:'m200PanelAdmin'});
+     const p=m200Panel.pedidos||[],r=m200Panel.directas||[],i=m200Panel.incidencias||[];
+     info.textContent=p.filter(x=>x.estado==='POR_APROBAR').length+' pedido(s) por aprobar · '+r.length+' recepciones directas recientes · '+i.filter(x=>x.estado==='PENDIENTE').length+' incidencias pendientes.';
+     m200PedidoEditando=null;m200Borrador=[];m200RenderAdmin();
+   }catch(e){info.textContent='⚠️ '+e.message;}
+ }
+ function m200Pestana(tab){m200Tab=tab;m200PedidoEditando=null;m200RenderAdmin();}
+ function m200LinkFoto(id){
+   return /^[a-zA-Z0-9_-]{20,90}$/.test(String(id||''))?
+     '<a href="https://drive.google.com/file/d/'+encodeURIComponent(id)+'/view" target="_blank" rel="noopener noreferrer" style="color:#087cff">📸 Ver fotografía privada</a>':'Sin fotografía';
+ }
+ function m200RenderAdmin(){
+   if(!m200Panel)return;
+   for(const [tipo,id] of [['pedidos','m200AdminPedidos'],['directas','m200AdminDirectas'],['incidencias','m200AdminIncidencias']]){
+     document.getElementById(id).style.display=m200Tab===tipo?'block':'none';
+   }
+   document.getElementById('m200AdminEditor').style.display=m200PedidoEditando?'block':'none';
+   document.getElementById('m200AdminPedidos').style.display=m200Tab==='pedidos'&&!m200PedidoEditando?'block':'none';
+   const p=m200Panel.pedidos||[];
+   document.getElementById('m200AdminPedidos').innerHTML=p.length?p.map((x,i)=>
+     '<div style="border:1px solid #dbe6f3;padding:12px;border-radius:15px;margin:8px 0">'+
+     '<div style="font-size:14px;font-weight:900">'+m200Esc(x.sucursal)+' · '+m200Esc(x.idPedido)+'</div>'+
+     '<div style="font-size:12px;color:#667085">'+m200Esc(x.solicito)+' · '+x.productos.length+' producto(s) · '+m200Esc(x.fecha)+'</div>'+
+     '<span style="font-size:12px;color:'+(x.estado==='POR_APROBAR'?'#b45309':'#175cd3')+'">'+(x.estado==='POR_APROBAR'?'⏳ Pendiente de aprobación':'📦 En Bodega')+'</span>'+
+     '<button type="button" onclick="m200EditarPedido('+i+')" style="background:#087cff">'+(x.estado==='POR_APROBAR'?'Revisar y aprobar':'Corregir antes de preparar')+'</button>'+
+     '</div>').join(''):'<p>No hay pedidos pendientes.</p>';
+   const d=m200Panel.directas||[];
+   document.getElementById('m200AdminDirectas').innerHTML=d.length?d.map(x=>
+     '<div style="border:1px solid #dbe6f3;padding:12px;border-radius:15px;margin:8px 0"><b>'+m200Esc(x.producto)+'</b>'+
+     '<div style="font-size:12px">'+m200Esc(x.sucursal)+' · Desde '+m200Esc(x.origen)+(x.detalle?' ('+m200Esc(x.detalle)+')':'')+'</div>'+
+     '<div style="font-size:12px">Recibidas: '+x.cantidad+' · Buenas: '+x.buenas+' · Dañadas: '+x.danadas+'</div>'+
+     '<div style="font-size:12px">'+m200Esc(x.fecha)+' · '+m200Esc(x.empleado)+'</div>'+ 
+     '<div style="font-size:12px">'+m200LinkFoto(x.foto)+'</div>'+
+     '<div style="font-size:12px">Estado: <b>'+m200Esc(x.estado)+'</b></div>'+ 
+     '<div style="font-size:11px;color:#667085">Reporte para revisión; no ajusta inventario de Akasia.</div>'+ 
+     (x.estado==='PENDIENTE_REVISION'?'<button type="button" onclick="m200RevisarDirecta(\''+m200Esc(x.id)+'\')" style="background:#18834d">✓ Marcar revisada</button>':'')+'</div>').join(''):'<p>No hay recepciones directas.</p>';
+   const i=m200Panel.incidencias||[];
+   document.getElementById('m200AdminIncidencias').innerHTML=i.length?i.map((x,j)=>
+     '<div style="border:1px solid #f1d4cc;padding:12px;border-radius:15px;margin:8px 0">'+
+     '<div style="font-weight:900">🚨 '+m200Esc(x.producto)+' · '+x.cantidad+' dañadas</div>'+
+     '<div style="font-size:12px">'+m200Esc(x.tipo)+' · '+m200Esc(x.origen)+' → '+m200Esc(x.destino)+'</div>'+
+     '<div style="font-size:12px">'+m200Esc(x.fecha)+' · '+m200Esc(x.empleado)+'</div>'+
+     '<div style="font-size:12px">'+m200Esc(x.detalle)+'</div>'+
+     '<div>'+m200LinkFoto(x.foto)+'</div>'+
+     '<div style="font-size:12px">Estado: <b>'+m200Esc(x.estado)+'</b></div>'+
+     (x.estado==='PENDIENTE'||x.estado==='REPOSICION_PENDIENTE'?
+       '<button type="button" onclick="m200ResolverIncidencia('+j+',\'REPOSICION_PENDIENTE\')" style="background:#a65d0a">Solicitar reposición</button>'+
+       '<button type="button" onclick="m200ResolverIncidencia('+j+',\'RESUELTO\')" style="background:#18834d">Marcar resuelto</button>'+ 
+       '<button type="button" onclick="m200ResolverIncidencia('+j+',\'RECHAZADO\')" style="background:#777">No procede</button>':'')+
+     '</div>').join(''):'<p>No hay incidencias registradas.</p>';
+   if(m200PedidoEditando)m200RenderEditor();
+ }
+ async function m200EditarPedido(index){
+   const p=m200Panel?.pedidos?.[index];if(!p||!['POR_APROBAR','EN_BODEGA'].includes(p.estado))return;
+   m200PedidoEditando=p;m200Borrador=p.productos.map(x=>({...x}));
+   m200RenderAdmin();
+   try{await m200CargarCatalogo(p.sucursal);}
+   catch(e){alert('No se pudo cargar el catálogo de Akasia para cambiar productos: '+e.message);}
+ }
+ function m200RenderEditor(){
+   const area=document.getElementById('m200AdminEditor'),p=m200PedidoEditando;if(!p)return;
+   area.innerHTML='<button type="button" onclick="m200PedidoEditando=null;m200RenderAdmin()" style="background:#7a858e">← Volver a pedidos</button>'+
+     '<h4>🛍️ Aprobar '+m200Esc(p.idPedido)+'</h4><p style="font-size:12px">Sucursal: '+m200Esc(p.sucursal)+' · Solicitó: '+m200Esc(p.solicito)+'</p>'+
+     m200Borrador.map((x,j)=>'<div style="border:1px solid #e0e7ef;padding:10px;border-radius:14px;margin:8px 0">'+
+       '<b>'+m200Esc(x.producto||'Nuevo producto')+'</b><div style="display:flex;gap:6px;align-items:center;margin:8px 0">'+
+       '<button type="button" onclick="m200Sumar('+j+',-1)" style="width:45px;background:#eaf2fb;color:#234">−</button>'+
+       '<input type="number" id="m200Qty_'+j+'" min="1" step="1" value="'+Number(x.cantidad||1)+'" onchange="m200FijarCantidad('+j+',this.value)" style="flex:1;margin:0"/>'+
+       '<button type="button" onclick="m200Sumar('+j+',1)" style="width:45px;background:#eaf2fb;color:#234">+</button></div>'+
+       '<input id="m200BuscarAdmin_'+j+'" type="search" placeholder="Cambiar producto (buscar Akasia)…" oninput="m200BuscarProducto(\'admin\','+j+')" style="margin:0"/>'+
+       '<div id="m200ResultadosAdmin_'+j+'" style="max-height:200px;overflow:auto"></div>'+
+       '<button type="button" onclick="m200EliminarLinea('+j+')" style="background:#fff2f1;color:#ad2b32">✕ Quitar este producto</button></div>').join('')+
+     '<button type="button" onclick="m200AgregarLinea()" style="background:#eef4ff;color:#174876">＋ Agregar producto nuevo</button>'+
+     '<button id="m200AprobarBtn" type="button" onclick="m200ConfirmarPedido(\'APROBAR\')" style="background:#15803d">✓ Aprobar y enviar a Bodega</button>'+
+     '<button type="button" onclick="m200ConfirmarPedido(\'RECHAZAR\')" style="background:#9b2c2c">Rechazar pedido</button>';
+ }
+ function m200Sumar(i,delta){m200Borrador[i].cantidad=Math.max(1,Number(m200Borrador[i].cantidad||1)+delta);m200RenderEditor();}
+ function m200FijarCantidad(i,v){const n=Number(v);if(!Number.isSafeInteger(n)||n<1||n>99999){alert('La cantidad debe ser entera y positiva.');m200RenderEditor();return;}m200Borrador[i].cantidad=n;}
+ function m200AgregarLinea(){m200Borrador.push({lineaId:'',producto:'',codigo:'',uuid:'',cantidad:1});m200RenderEditor();}
+ function m200EliminarLinea(i){if(!confirm('¿Quitar este producto de la versión aprobada?'))return;m200Borrador.splice(i,1);m200RenderEditor();}
+ async function m200ConfirmarPedido(decision){
+   const p=m200PedidoEditando;if(!p)return;
+   if(decision==='APROBAR'&&(!m200Borrador.length||m200Borrador.some(x=>!x.producto||!x.cantidad||(!x.codigo&&!x.lineaId)))){
+     alert('Debes elegir productos del catálogo y cantidades válidas.');return;
+   }
+   if(!confirm(decision==='APROBAR'?'¿Aprobar este pedido y enviarlo a Bodega? Después no se editará desde Bodega.':'¿Rechazar el pedido completo?'))return;
+   const btn=document.getElementById('m200AprobarBtn');if(btn)btn.disabled=true;
+   try{
+     const d=await m200PostAdmin({accion:'m200AprobarPedido',idPedido:p.idPedido,version:p.version,decision,
+       productos:JSON.stringify(m200Borrador)});
+     alert(d.mensaje);await m200CargarAdmin();
+   }catch(e){alert('⚠️ '+e.message+' Actualiza la lista antes de intentar otra vez.');if(btn)btn.disabled=false;}
+ }
+ async function m200ResolverIncidencia(index,decision){
+   const x=m200Panel?.incidencias?.[index];if(!x)return;
+   const nota=prompt('Explica la decisión que tomaste sobre '+x.producto+':');
+   if(!nota?.trim())return;
+   try{const d=await m200PostAdmin({accion:'m200ResolverIncidencia',id:x.id,decision,detalle:nota.trim()});
+     alert(d.mensaje);await m200CargarAdmin();}catch(e){alert(e.message);}
+ }
+ async function m200RevisarDirecta(id){
+   const nota=prompt('Observaciones sobre la recepción directa. ¿Ya revisaste la cantidad, procedencia y estado?');
+   if(!nota?.trim())return;
+   try{const d=await m200PostAdmin({accion:'m200RevisarDirecta',id,nota:nota.trim()});
+     alert(d.mensaje);await m200CargarAdmin();}catch(e){alert('⚠️ '+e.message);}
+ }
+ function m200AbrirDanoBodega(index){
+   const el=document.getElementById('m200BodegaDano_'+index);
+   if(el)el.style.display=el.style.display==='none'?'block':'none';
+ }
+ async function m200EnviarDanoBodega(index){
+   const p=obtenerPedidoBodegaAbierto(),x=p?.productos[index];if(!x)return;
+   const qty=Number(document.getElementById('m200BodegaCantidad_'+index)?.value);
+   const f=document.getElementById('m200BodegaFoto_'+index)?.files?.[0];
+   if(!Number.isSafeInteger(qty)||qty<1||qty>Number(x.cantidadSolicitada)||!f)return alert('Indica unidades dañadas y toma una fotografía.');
+   const btn=document.getElementById('m200BodegaEnviar_'+index);btn.disabled=true;btn.textContent='Enviando evidencia…';
+   const key=p.idPedido+'|'+x.lineaId;
+   if(!m200DanoOperacion[key])m200DanoOperacion[key]={op:m200Operacion(),fotoId:''};
+   try{
+     const control=m200DanoOperacion[key];
+     if(!control.fotoId)control.fotoId=await m200SubirFoto(f,'DANO_BODEGA');
+     const d=await m200Post({accion:'m200DanoBodega',...m200DatosUsuario(),idPedido:p.idPedido,lineaId:x.lineaId,
+       filaPedido:x.filaPedido||0,
+       cantidad:qty,detalle:document.getElementById('m200BodegaDetalle_'+index)?.value||'',
+       fotoId:control.fotoId,operacionId:control.op});
+     btn.textContent='✅ Reportado a Administración';alert(d.mensaje);
+   }catch(e){alert('No se pudo confirmar el reporte: '+e.message);btn.disabled=false;btn.textContent='Reintentar reporte';}
  }
 
  // v1.6.81 BETA: no hay consultas periódicas para notificaciones.
