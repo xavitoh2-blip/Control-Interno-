@@ -906,6 +906,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloFaltantesKardex .c51-card{border:2px solid #e4eaf4;border-radius:22px;background:#fff;padding:14px;margin:11px 0;box-shadow:0 7px 23px rgba(20,53,100,.06);text-align:left}
 #moduloFaltantesKardex .c51-card.c51-completo{border-color:#85d8a5;background:#f3fff7}
 #moduloFaltantesKardex .c51-card.c51-incompleto{border-color:#ffbd93;background:#fff7ef}
+#moduloFaltantesKardex .c51-card.c51-parcial{border-color:#ecc26d;background:#fffbef}
 #moduloFaltantesKardex .c51-card.c51-pendiente{border-color:#cfe3fc}
 #moduloFaltantesKardex .c51-card.c51-registrado{border-color:#cbd5e1;background:#f8fafc}
 .c51-row{display:flex;align-items:center;gap:10px;min-width:0}
@@ -917,6 +918,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c51-okbtn.c51-escogido{background:#16954e!important;color:#fff!important}
 .c51-faltabtn{background:#fff0e6!important;color:#b7550a!important;border:1px solid #f3b485!important}
 .c51-faltabtn.c51-escogido{background:#d46419!important;color:#fff!important}
+.c51-parcialbtn{background:#fff8df!important;color:#8e6216!important;border:1px solid #e9c76d!important}
+.c51-parcialbtn.c51-escogido{background:#edbc42!important;color:#583c04!important}
+#moduloFaltantesKardex .c51-acciones.c94-tres button{font-size:12px;line-height:1.25;padding:9px 3px;min-height:55px}
+.c94-cantidad{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:8px}
+.c94-cantidad button{width:50px!important;min-width:50px!important;min-height:48px!important;margin:0!important;border-radius:14px!important;background:#e7eef8!important;color:#263f62!important;font-size:22px!important;font-weight:900!important}
+.c94-cantidad button:last-child{background:#087cff!important;color:#fff!important}
+.c94-cantidad input{width:95px!important;max-width:95px!important;min-height:49px!important;margin:0!important;text-align:center;font-size:22px!important;font-weight:900!important;background:#fff!important;color:#1b3457!important}
+.c94-cantidad button:disabled{opacity:.4!important}
 .c51-edicion{background:#fff;border:1px solid #f3c9a8;border-radius:14px;margin:10px 0 0;padding:10px}
 .c51-edicion label{font-size:12px;font-weight:800;color:#744015;display:block;margin-bottom:6px}
 .c51-edicion input{max-width:150px;margin:0;min-height:45px;font-size:20px;font-weight:850;text-align:center}
@@ -948,6 +957,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloFaltantesKardex .c53-acciones .c53-incompleto,#moduloPrepararDespacho .c53-acciones .c53-incompleto{background:#fff0e5!important;color:#b25108!important;border:1.5px solid #ffb37b!important}
 #moduloFaltantesKardex .c53-acciones .c53-seleccionado.c53-completo,#moduloPrepararDespacho .c53-acciones .c53-seleccionado.c53-completo{background:#167c49!important;color:white!important;border-color:#167c49!important}
 #moduloFaltantesKardex .c53-acciones .c53-seleccionado.c53-incompleto,#moduloPrepararDespacho .c53-acciones .c53-seleccionado.c53-incompleto{background:#c76717!important;color:white!important;border-color:#c76717!important}
+#moduloPrepararDespacho .c53-acciones.c94-tres{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+#moduloPrepararDespacho .c53-acciones.c94-tres button{font-size:12px!important;padding:9px 3px!important;min-height:59px!important}
+#moduloPrepararDespacho .c53-acciones .c53-parcial{background:#fff8df!important;color:#8b6119!important;border:1.5px solid #e9c76d!important}
+#moduloPrepararDespacho .c53-acciones .c53-seleccionado.c53-parcial{background:#edbc42!important;color:#583c04!important;border-color:#d9a72a!important}
 .c53-detalle{margin-top:12px;padding:13px;background:rgba(255,255,255,.84);border:1px solid #f2cda9;border-radius:18px}
 .c53-detalle label{display:block;font-size:13px;font-weight:800;color:#814618;margin-bottom:9px}
 #moduloFaltantesKardex .c53-detalle input,#moduloPrepararDespacho .c53-detalle input{display:block;max-width:175px;width:100%;height:54px;min-height:54px;background:#f1f5fa!important;border:1px solid #d5e0ec!important;border-radius:16px!important;text-align:center;font-size:23px;font-weight:850;margin:0!important;padding:5px}
@@ -1599,7 +1612,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.93 BETA · Bodega sin botón flotante</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.95 BETA · Recordatorios constantes</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -6588,23 +6601,36 @@ function verificarPassword() {
         function c53Pendiente(x){return Math.max(0,(Number(x.cantidadAsignada)||0)-(Number(x.cantidadPreparada)||0));}
         function c53Marcar(ambito,i,tipo){
           const lista=c53Lista(ambito), item=lista[i];if(!item)return;
+          if(ambito==='despacho'&&tipo==='PARCIAL'&&c53Pendiente(item)<=1){
+            alert('Para una sola unidad usa Completo si la encontraste o Incompleto si no la encontraste.');return;
+          }
           const sel=c53Estado(ambito), anterior=sel[i];
           if(anterior&&anterior.tipo===tipo)delete sel[i];
-          else sel[i]={tipo:tipo,cantidad:tipo==='COMPLETO'?String(c53Pendiente(item)):''};
+          else sel[i]={tipo:tipo,cantidad:tipo==='COMPLETO'?String(c53Pendiente(item)):ambito==='despacho'?'0':''};
           if(ambito==='despacho')c52RenderPreparacionDespacho();else renderFaltantesKardex();
         }
-        function c53Escribir(ambito,i,valor){const sel=c53Estado(ambito);if(sel[i]&&sel[i].tipo==='INCOMPLETO')sel[i].cantidad=String(valor);}
+        function c53Escribir(ambito,i,valor){const sel=c53Estado(ambito);if(sel[i]&&['INCOMPLETO','PARCIAL'].includes(sel[i].tipo))sel[i].cantidad=String(valor);}
+        function c94AjustarPreparacion(i,paso){
+          const x=c52PreparacionDespacho[i],sel=c53SeleccionDespacho[i];
+          if(!x||sel?.tipo!=='PARCIAL')return;
+          const max=c53Pendiente(x)-1,valor=Math.trunc(Number(sel.cantidad)||0);
+          sel.cantidad=String(Math.max(0,Math.min(max,valor+paso)));
+          const input=document.getElementById('c53_despacho_'+i);
+          if(input)input.value=sel.cantidad;
+        }
         function c53Tarjeta(ambito,x,i){
-          const restante=c53Pendiente(x),sel=c53Estado(ambito)[i];
+          const restante=c53Pendiente(x),sel=c53Estado(ambito)[i],tres=ambito==='despacho';
           const clase=sel?(sel.tipo==='COMPLETO'?'c53-ok':'c53-falta'):'';
           const prep=Math.max(0,Number(x.cantidadPreparada)||0);
           return `<div class="fk-card c53-card ${clase}"><div style="display:flex;align-items:center;gap:11px;margin-bottom:8px">${imagenProductoGlobal(x.producto,x,58)}<div class="fk-name" style="flex:1;margin:0">${escaparHtmlPedido(x.producto)}</div></div>
             <div class="fk-meta">Asignado: <b>${Number(x.cantidadAsignada)||0}</b>${prep?` · Ya preparado: <b>${prep}</b>`:''}</div>
             <div class="fk-pill">Por preparar: ${restante}</div>
-            <div class="c53-acciones"><button type="button" class="c53-completo ${sel?.tipo==='COMPLETO'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='COMPLETO'}" onclick="c53Marcar('${ambito}',${i},'COMPLETO')">✓ ${sel?.tipo==='COMPLETO'?'Completo ✓':'Completo'}</button>
-            <button type="button" class="c53-incompleto ${sel?.tipo==='INCOMPLETO'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='INCOMPLETO'}" onclick="c53Marcar('${ambito}',${i},'INCOMPLETO')">⚠️ Incompleto</button></div>
+            <div class="c53-acciones ${tres?'c94-tres':''}"><button type="button" class="c53-completo ${sel?.tipo==='COMPLETO'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='COMPLETO'}" onclick="c53Marcar('${ambito}',${i},'COMPLETO')">✓ Completo</button>
+            <button type="button" class="c53-incompleto ${sel?.tipo==='INCOMPLETO'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='INCOMPLETO'}" onclick="c53Marcar('${ambito}',${i},'INCOMPLETO')">✕ Incompleto</button>${tres?`<button type="button" class="c53-parcial ${sel?.tipo==='PARCIAL'?'c53-seleccionado':''}" aria-pressed="${sel?.tipo==='PARCIAL'}" onclick="c53Marcar('despacho',${i},'PARCIAL')">◐ Parcial</button>`:''}</div>
             ${sel?.tipo==='COMPLETO'?`<div class="c53-ayuda">✓ Se prepararán las ${restante} unidades pendientes al confirmar.</div>`:''}
-            ${sel?.tipo==='INCOMPLETO'?`<div class="c53-detalle"><label for="c53_${ambito}_${i}">¿Cuántas unidades encontraste? (de ${restante})</label><input id="c53_${ambito}_${i}" type="number" inputmode="numeric" min="0" max="${restante}" step="1" value="${escaparHtmlPedido(sel.cantidad)}" oninput="c53Escribir('${ambito}',${i},this.value)" placeholder="0 a ${restante}"><div class="c53-ayuda">Si no encontraste ninguna, escribe 0. El saldo no hallado quedará disponible para reasignar y se conservará el historial.</div></div>`:''}
+            ${tres&&sel?.tipo==='INCOMPLETO'?`<div class="c53-ayuda">✕ No encontraste ninguna unidad. Se registrará 0 y el saldo quedará disponible para reasignar.</div>`:''}
+            ${tres&&sel?.tipo==='PARCIAL'?`<div class="c53-detalle"><label for="c53_despacho_${i}">¿Cuántas unidades SÍ encontraste? (de ${restante})</label><div class="c94-cantidad"><button type="button" onclick="c94AjustarPreparacion(${i},-1)" aria-label="Restar una">−</button><input id="c53_despacho_${i}" type="number" inputmode="numeric" min="0" max="${restante-1}" step="1" value="${escaparHtmlPedido(sel.cantidad)}" oninput="c53Escribir('despacho',${i},this.value)"><button type="button" onclick="c94AjustarPreparacion(${i},1)" aria-label="Sumar una">+</button></div><div class="c53-ayuda">Empieza en 0. Para guardar como Parcial debes encontrar de 1 a ${restante-1}. Si es 0, usa Incompleto; si encuentras todas, Completo.</div></div>`:''}
+            ${!tres&&sel?.tipo==='INCOMPLETO'?`<div class="c53-detalle"><label for="c53_${ambito}_${i}">¿Cuántas unidades encontraste? (de ${restante})</label><input id="c53_${ambito}_${i}" type="number" inputmode="numeric" min="0" max="${restante}" step="1" value="${escaparHtmlPedido(sel.cantidad)}" oninput="c53Escribir('${ambito}',${i},this.value)" placeholder="0 a ${restante}"><div class="c53-ayuda">Si no encontraste ninguna, escribe 0. El saldo no hallado quedará disponible para reasignar y se conservará el historial.</div></div>`:''}
             </div>`;
         }
         function c53ObtenerConfirmacion(ambito){
@@ -6614,14 +6640,20 @@ function verificarPassword() {
             const max=c53Pendiente(x);
             if(max<=0)throw Error('El producto '+x.producto+' no tiene unidades pendientes.');
             let n=max;
-            if(marca.tipo==='INCOMPLETO'){
+            if(ambito==='despacho'&&marca.tipo==='INCOMPLETO'){
+              n=0;
+            }else if(ambito==='despacho'&&marca.tipo==='PARCIAL'){
+              if(String(marca.cantidad).trim()==='')throw Error('Indica cuántas unidades encontraste de '+x.producto+'.');
+              n=Number(marca.cantidad);
+              if(!Number.isInteger(n)||n<1||n>=max)throw Error('Parcial de '+x.producto+': debes indicar entre 1 y '+(max-1)+' unidad(es).');
+            }else if(marca.tipo==='INCOMPLETO'){
               if(String(marca.cantidad).trim()==='')throw Error('Escribe cuántas unidades encontraste de '+x.producto+'.');
               n=Number(marca.cantidad);
               if(!Number.isInteger(n)||n<0||n>=max)throw Error('Para '+x.producto+', escribe una cantidad entre 0 y '+(max-1)+'. Si encontraste todo, usa Completo.');
             }else if(marca.tipo!=='COMPLETO')throw Error('Selección inválida de '+x.producto+'.');
             items.push({idRuta:x.idRuta,producto:x.producto,cantidad:n});
           }
-          if(!items.length)throw Error('Marca primero como Completo o Incompleto los productos que revisaste.');
+          if(!items.length)throw Error('Marca primero los productos como Completo, Incompleto o Parcial.');
           return items;
         }
 
@@ -6657,7 +6689,8 @@ function verificarPassword() {
         async function c52ConfirmarPreparacionDespacho(){
           let items;try{items=c53ObtenerConfirmacion('despacho');}catch(e){alert(e.message);return;}
           const incompletos=Object.values(c53SeleccionDespacho).filter(x=>x.tipo==='INCOMPLETO').length;
-          if(!confirm(`¿Confirmar ${items.length} producto(s) preparados?${incompletos?'\n⚠️ '+incompletos+' incompleto(s), incluyendo los que encontraste en cero.':''}\nLos no marcados seguirán pendientes.`))return;
+          const parciales=Object.values(c53SeleccionDespacho).filter(x=>x.tipo==='PARCIAL').length;
+          if(!confirm(`¿Confirmar ${items.length} producto(s) preparados?${incompletos?'\n✕ '+incompletos+' incompleto(s), sin unidades encontradas.':''}${parciales?'\n◐ '+parciales+' parcial(es), con algunas unidades.':''}\nLos no marcados seguirán pendientes.`))return;
           const btn=document.getElementById('c52GuardarPreparacion');if(btn){btn.disabled=true;btn.textContent='Guardando preparación...';}
           try{
             const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:'Despacho',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
@@ -6678,7 +6711,7 @@ function verificarPassword() {
             const esDespacho=normalizarEmpleado(suc)==='despacho';
             const titulo=document.getElementById('c51TituloRevision'); if(titulo)titulo.textContent=esDespacho?'✅ Revisar despacho':'📦 Faltantes Kardex';
             if(esDespacho)c51Marcados={};
-            cab.innerHTML=esDespacho?'🚚 <b>Despacho</b> · Marca ✓ si llegó completo, o indica cuántas unidades faltaron.':`📍 <b>${escaparHtmlPedido(suc)}</b> · Confirma lo que realmente encontraste. Al confirmar, tu revisión queda terminada.`;
+            cab.innerHTML=esDespacho?'🚚 <b>Despacho</b> · Completo: llegó todo · Incompleto: no llegó nada · Parcial: llegó una parte.':`📍 <b>${escaparHtmlPedido(suc)}</b> · Confirma lo que realmente encontraste. Al confirmar, tu revisión queda terminada.`;
             cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando...</p>';
             try{
                 const accion=esDespacho?'verRecepcionFaltantesKardex':'verFaltantesKardex';
@@ -6709,16 +6742,27 @@ function verificarPassword() {
         function c51Filtro(v){c51FiltroRecepcion=v;renderRecepcionKardex();}
         function c51Marcar(i,tipo){
           const x=faltantesKardexActuales[i];if(!x||Number(x.disponibleRecibir)<=0)return;
+          if(tipo==='PARCIAL'&&Number(x.disponibleRecibir)<=1){
+            alert('Para una sola unidad elige Completo si llegó, o Incompleto si no llegó.');return;
+          }
           if(c51Marcados[i]&&c51Marcados[i].tipo===tipo){delete c51Marcados[i];}
-          else c51Marcados[i]={tipo:tipo,faltante:tipo==='INCOMPLETO'?'':0};
+          else c51Marcados[i]={tipo:tipo,cantidad:'0'};
           renderRecepcionKardex();
         }
-        function c51CambiarFaltante(i,v){
-          if(!c51Marcados[i])return;
+        function c94CambiarRecibido(i,v){
+          if(c51Marcados[i]?.tipo!=='PARCIAL')return;
           // Mantener el valor sin forzar 0 a 1 mientras el usuario está escribiendo.
-          c51Marcados[i].faltante=v;
-          const el=document.getElementById('c51Faltante_'+i);
-          if(el)el.setAttribute('aria-invalid',String(!Number.isInteger(Number(v))||Number(v)<1||Number(v)>Number(faltantesKardexActuales[i].disponibleRecibir)));
+          c51Marcados[i].cantidad=String(v);
+          const el=document.getElementById('c94Recibido_'+i),max=Number(faltantesKardexActuales[i].disponibleRecibir)||0;
+          if(el)el.setAttribute('aria-invalid',String(String(v).trim()===''||!Number.isInteger(Number(v))||Number(v)<1||Number(v)>=max));
+        }
+        function c94AjustarRecibido(i,paso){
+          const marca=c51Marcados[i],x=faltantesKardexActuales[i];
+          if(!x||marca?.tipo!=='PARCIAL')return;
+          const max=Math.max(0,(Number(x.disponibleRecibir)||0)-1),base=Math.trunc(Number(marca.cantidad)||0);
+          marca.cantidad=String(Math.max(0,Math.min(max,base+paso)));
+          const inp=document.getElementById('c94Recibido_'+i);
+          if(inp){inp.value=marca.cantidad;c94CambiarRecibido(i,inp.value);}
         }
         function renderRecepcionKardex(){
           const cont=document.getElementById('listaFaltantesKardex'),todos=faltantesKardexActuales;
@@ -6736,7 +6780,7 @@ function verificarPassword() {
             const i=x.i,suc=String(x.sucursal||'Sin origen'),asig=Number(x.cantidadAsignada)||0,prep=Number(x.cantidadPreparada)||0,objetivo=Number(x.objetivoRecibir)||0;
             const rec=Number(x.cantidadRecibida)||0,disponible=Math.max(0,Number(x.disponibleRecibir)||0),falta=Number(x.faltanteDespacho)||0;
             const marcado=c51Marcados[i],estado=x.estadoRecepcion,guardado=['RECIBIDO','FALTANTE_DESPACHO','NO_DISPONIBLE'].includes(estado);
-            const clase=marcado?.tipo==='COMPLETO'?'c51-completo':marcado?.tipo==='INCOMPLETO'?'c51-incompleto':guardado?'c51-registrado':'c51-pendiente';
+            const clase=marcado?.tipo==='COMPLETO'?'c51-completo':marcado?.tipo==='INCOMPLETO'?'c51-incompleto':marcado?.tipo==='PARCIAL'?'c51-parcial':guardado?'c51-registrado':'c51-pendiente';
             if(suc!==ultima){html+=`<div class="rx23-group">📍 ${escaparHtmlPedido(suc)}</div>`;ultima=suc;}
             html+=`<div class="c51-card ${clase}" data-buscar="${escaparHtmlPedido(normalizarEmpleado(x.producto))}"><div class="c51-row">${imagenProductoGlobal(x.producto,x,56)}<div class="c51-card-info"><div class="fk-name">${escaparHtmlPedido(x.producto)}</div><div class="fk-meta">Preparado: <b>${objetivo}</b> · Recibido: <b>${rec}</b></div></div></div>`;
             if(estado==='FALTANTE_DESPACHO')html+=`<span class="c51-chip falta">⚠️ Faltaron ${falta} unidades · Registrado</span>`;
@@ -6744,8 +6788,9 @@ function verificarPassword() {
             else if(estado==='NO_DISPONIBLE')html+='<span class="c51-chip espera">⚠️ La sucursal no pudo preparar este producto</span>';
             else if(estado==='ESPERANDO_SUCURSAL')html+='<span class="c51-chip espera">⏳ Esperando preparación de '+(normalizarEmpleado(suc)==='despacho'?'Despacho':'la sucursal')+'</span>';
             else if(disponible>0){
-              html+=`<div class="c51-acciones"><button type="button" class="c51-okbtn ${marcado?.tipo==='COMPLETO'?'c51-escogido':''}" onclick="c51Marcar(${i},'COMPLETO')">${marcado?.tipo==='COMPLETO'?'✓ Marcado completo':'✓ Llegó completo'}</button><button type="button" class="c51-faltabtn ${marcado?.tipo==='INCOMPLETO'?'c51-escogido':''}" onclick="c51Marcar(${i},'INCOMPLETO')">⚠️ Incompleto</button></div>`;
-              if(marcado?.tipo==='INCOMPLETO')html+=`<div class="c51-edicion"><label for="c51Faltante_${i}">¿Cuántas unidades faltaron? (máximo ${disponible})</label><input id="c51Faltante_${i}" inputmode="numeric" type="number" min="1" max="${disponible}" step="1" value="${escaparHtmlPedido(marcado.faltante)}" oninput="c51CambiarFaltante(${i},this.value)"><div class="c51-nota">Recibido: ${rec} + (${disponible} − faltantes). El faltante quedará visible al administrador.</div></div>`;
+              html+=`<div class="c51-acciones c94-tres"><button type="button" class="c51-okbtn ${marcado?.tipo==='COMPLETO'?'c51-escogido':''}" aria-pressed="${marcado?.tipo==='COMPLETO'}" onclick="c51Marcar(${i},'COMPLETO')">✓ Completo</button><button type="button" class="c51-faltabtn ${marcado?.tipo==='INCOMPLETO'?'c51-escogido':''}" aria-pressed="${marcado?.tipo==='INCOMPLETO'}" onclick="c51Marcar(${i},'INCOMPLETO')">✕ Incompleto</button><button type="button" class="c51-parcialbtn ${marcado?.tipo==='PARCIAL'?'c51-escogido':''}" aria-pressed="${marcado?.tipo==='PARCIAL'}" onclick="c51Marcar(${i},'PARCIAL')">◐ Parcial</button></div>`;
+              if(marcado?.tipo==='INCOMPLETO')html+=`<div class="c51-nota">✕ No llegó ninguna de las ${disponible} unidades pendientes. Se reportarán como faltantes de Despacho.</div>`;
+              else if(marcado?.tipo==='PARCIAL')html+=`<div class="c51-edicion"><label for="c94Recibido_${i}">¿Cuántas unidades SÍ llegaron? (de ${disponible})</label><div class="c94-cantidad"><button type="button" onclick="c94AjustarRecibido(${i},-1)" aria-label="Restar una">−</button><input id="c94Recibido_${i}" inputmode="numeric" type="number" min="0" max="${disponible-1}" step="1" value="${escaparHtmlPedido(marcado.cantidad)}" oninput="c94CambiarRecibido(${i},this.value)"><button type="button" onclick="c94AjustarRecibido(${i},1)" aria-label="Sumar una">+</button></div><div class="c51-nota">Parcial debe ser de 1 a ${disponible-1}. La diferencia quedará registrada como faltante para el administrador.</div></div>`;
               else if(marcado?.tipo==='COMPLETO')html+=`<div class="c51-nota">✓ Al confirmar, se registrarán las ${disponible} unidades disponibles.</div>`;
             }
             html+='</div>';
@@ -6760,11 +6805,18 @@ function verificarPassword() {
           const items=[];
           for(const [key,marca] of Object.entries(c51Marcados)){
             const i=Number(key),x=faltantesKardexActuales[i];if(!x)continue;
-            const faltante=marca.tipo==='COMPLETO'?0:Number(marca.faltante),limite=Number(x.disponibleRecibir);
-            if(!Number.isInteger(faltante)||faltante<0||faltante>limite||(marca.tipo==='INCOMPLETO'&&faltante<1)){alert('Revisa la cantidad faltante de '+x.producto+'.');document.getElementById('c51Faltante_'+i)?.focus();return;}
-            items.push({fila:x.fila,idRuta:x.idRuta,producto:x.producto,sucursal:x.sucursal,esperado:limite,tipo:marca.tipo,faltante});
+            const limite=Number(x.disponibleRecibir),cant=Number(marca.cantidad);
+            if(!['COMPLETO','INCOMPLETO','PARCIAL'].includes(marca.tipo))return alert('Estado inválido para '+x.producto+'.');
+            if(marca.tipo==='PARCIAL'&&(String(marca.cantidad).trim()===''||!Number.isInteger(cant)||cant<1||cant>=limite)){
+              alert('Parcial de '+x.producto+': indica una cantidad recibida entre 1 y '+(limite-1)+'.');
+              document.getElementById('c94Recibido_'+i)?.focus();return;
+            }
+            const faltante=marca.tipo==='COMPLETO'?0:marca.tipo==='INCOMPLETO'?limite:limite-cant;
+            if(!Number.isInteger(faltante)||faltante<0||faltante>limite)return alert('Revisa '+x.producto+'.');
+            // El contrato con Apps Script permanece intacto: diferencia positiva = INCOMPLETO.
+            items.push({fila:x.fila,idRuta:x.idRuta,producto:x.producto,sucursal:x.sucursal,esperado:limite,tipo:faltante?'INCOMPLETO':'COMPLETO',faltante});
           }
-          if(!items.length)return alert('Marca primero un producto como Completo o Incompleto.');
+          if(!items.length)return alert('Marca primero un producto como Completo, Incompleto o Parcial.');
           const incompletos=items.filter(x=>x.tipo==='INCOMPLETO');
           const texto=`¿Confirmar ${items.length} producto(s)?${incompletos.length?'\n⚠️ '+incompletos.length+' con faltantes: se registrarán en el reporte de despacho.':''}`;
           if(!confirm(texto))return;
@@ -7925,7 +7977,7 @@ setInterval(()=>{
  function n188RenderConfig(){
    const datos=[
      ['FRECUENCIA_MIN','n188Frecuencia','Frecuencia de recordatorio (minutos)','select'],
-     ['MAX_RECORDATORIOS','n188Max','Máximo de recordatorios por tarea','select'],
+     ['MAX_RECORDATORIOS','n188Max','Máximo de recordatorios por tarea (0 = hasta completar)','select'],
      ['AVISO_FINAL_MIN','n188Final','Avisar antes de terminar turno (minutos)','select'],
      ['HABILITADO','n188Activo','Recordatorios automáticos','select'],
      ['TITULO_ASIGNACION','n188TituloAsignacion','Título al asignar tarea','text'],
@@ -7945,11 +7997,11 @@ setInterval(()=>{
      MENSAJE_FINAL:'Faltan {minutos} minutos para finalizar tu turno. Tienes {cantidad} tarea(s) pendiente(s): {tareas}.'
    };
    const cfg=Object.assign({},def,n188Configuracion||{});
-   const opciones={FRECUENCIA_MIN:['15','30','60'],MAX_RECORDATORIOS:['1','2','3','4','5'],AVISO_FINAL_MIN:['5','10','15','30'],HABILITADO:['SI','NO']};
+   const opciones={FRECUENCIA_MIN:['15','30','60'],MAX_RECORDATORIOS:['0','1','2','3','4','5'],AVISO_FINAL_MIN:['5','10','15','30'],HABILITADO:['SI','NO']};
    document.getElementById('n188ConfigCampos').innerHTML=datos.map(function(x){
      const valor=n188Esc(cfg[x[0]]==null?'':cfg[x[0]]);
      const campo=x[3]==='select'?'<select id="'+x[1]+'">'+opciones[x[0]].map(function(v){
-       const texto=x[0]==='HABILITADO'?(v==='SI'?'Activados':'Desactivados'):v;
+       const texto=x[0]==='HABILITADO'?(v==='SI'?'Activados':'Desactivados'):x[0]==='MAX_RECORDATORIOS'&&v==='0'?'Sin límite (hasta completar)':v;
        return '<option value="'+v+'"'+(valor===v?' selected':'')+'>'+texto+'</option>';
      }).join('')+'</select>':
        x[3]==='textarea'?'<textarea id="'+x[1]+'">'+valor+'</textarea>':
@@ -7999,7 +8051,7 @@ setInterval(()=>{
    const config={};
    Object.keys(campos).forEach(function(k){config[k]=document.getElementById(campos[k]).value.trim();});
    if(![15,30,60].includes(Number(config.FRECUENCIA_MIN))||
-       ![1,2,3,4,5].includes(Number(config.MAX_RECORDATORIOS))||
+       ![0,1,2,3,4,5].includes(Number(config.MAX_RECORDATORIOS))||
        ![5,10,15,30].includes(Number(config.AVISO_FINAL_MIN))){
      alert('Selecciona una frecuencia, máximo y aviso final de las opciones permitidas.');return;
    }
