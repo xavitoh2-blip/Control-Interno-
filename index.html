@@ -1612,7 +1612,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.95 BETA · Recordatorios constantes</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.96 BETA · Asistencia GPS y horarios</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1725,25 +1725,27 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 
                 <select id="selectTurno" onchange="cambiarOpcionesTurno()">
                     <option value="">-- Selecciona Turno --</option>
-                    <option value="apertura">☀️ Apertura (8am - 5pm)</option>
-                    <option value="cierre">🌙 Cierre (1pm - 9pm)</option>
                 </select>
                 
                 <p id="textoHorario" style="font-size: 13px; color: #007bff; font-weight: bold; margin: 5px 0; text-align: center;"></p>
+                <div id="a196Estado" style="padding:10px;border-radius:12px;background:#eef5ff;font-size:13px;margin:7px 0;" role="status">Consultando tu turno…</div>
+                <div id="a196MotivoBox" style="display:none;margin:10px 0;padding:12px;border:1px solid #f6d396;border-radius:13px;background:#fff8ec;">
+                    <label id="a196MotivoTitulo" style="font-size:13px;font-weight:bold;display:block;margin-bottom:8px;">Motivo de la incidencia</label>
+                    <select id="a196Motivo">
+                        <option value="">-- Selecciona un motivo --</option>
+                        <option value="Transporte">Problemas de transporte</option>
+                        <option value="Situación personal">Situación personal o familiar</option>
+                        <option value="Salud">Motivos de salud</option>
+                        <option value="Actividad laboral">Actividad laboral</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                    <textarea id="a196Detalle" rows="2" style="width:100%;margin-top:8px;" placeholder="Explica brevemente qué ocurrió"></textarea>
+                </div>
                 
                 <div id="contenedorBotones" style="display: none; margin-top: 10px;">
                     <button id="btnEntrada" onclick="validarYRegistrar('Entrada')" style="background-color:#087cff;">Marcar Entrada</button>
                     
                     <div id="seccionSalida" style="display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
-                        <label style="font-size: 12px; color: #555; display: block; text-align: left; margin-bottom: 3px;">Horas Extra (Opcional):</label>
-                        <select id="selectHorasExtra" style="margin-bottom: 8px;">
-                            <option value="0">Sin horas extra</option>
-                            <option value="0.5">30 minutos (0.5 hrs)</option>
-                            <option value="1">1 hora</option>
-                            <option value="1.5">1 hora y media</option>
-                            <option value="2">2 horas</option>
-                            <option value="3">3 horas</option>
-                        </select>
                         <button id="btnSalida" onclick="validarYRegistrar('Salida')" style="background-color: #dc3545;">Marcar Salida</button>
                     </div>
                 </div>
@@ -2095,6 +2097,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <div id="adminAsistencia" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button><h4>👥 Registro de Asistencias</h4>
             <div style="overflow-x:auto;"><table id="tablaAsistencia"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr></thead><tbody></tbody></table></div>
+            <div style="margin-top:22px;padding:14px;border:1px solid #dbe6f3;border-radius:17px;background:#f9fbff;">
+                <h4 style="margin:0 0 8px">📍 Revisión de asistencia y horas extras</h4>
+                <p style="font-size:12px;color:#536477;">Consulta horas reales, tardanzas, ubicaciones GPS y autoriza jornada completa u horas adicionales. La clave se valida en el servidor.</p>
+                <button onclick="a196CargarAdmin()" style="background:#087cff;">↻ Consultar registros</button>
+                <p id="a196AdminEstado" role="status" style="font-size:12px;"></p>
+                <div id="a196AdminLista"></div>
+            </div>
         </div>
 
         <div id="adminInventario" class="admin-modulo" style="display:none;margin-top:18px;">
@@ -2319,6 +2328,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             "Bodega": { lat: 13.674754, lon: -89.438076 }         
         };
         const RADIO_METROS = 200;
+        let a196EstadoActual=null;
+        let a196Marcando=false;
 
         let listaGlobalNombres = [];
         let tareasGlobales = [];
@@ -2373,10 +2384,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (esVendedorRuta) {
                 document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>x.style.display="none");
                 const cat=document.getElementById("btnMenuCatalogoRuta"); if(cat)cat.style.display="flex";
+                const asistencia=document.querySelector('#menuPrincipalModulos button[onclick="abrirModulo(\'asistencia\')"]');
+                if(asistencia)asistencia.style.display="flex";
+                const misTareas=document.getElementById('n188BotonMisTareas');if(misTareas)misTareas.style.display='flex';
             } else if (esDespacho) {
                 secHacer.style.display = "none"; secBodega.style.display = "none";
                 ["btnMenuPedidos","btnMenuRecepcion","btnMenuGondolas","btnMenuRuta","btnMenuCompras","btnMenuFaltantesDia"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display="none";});
-                document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex"&&x.id!=="btnMenuPrepararDespacho"&&x.id!=="n188BotonMisTareas")x.style.display="none";});
+                document.querySelectorAll('#menuPrincipalModulos .menu-modulo').forEach(x=>{if(x.id!=="btnMenuFaltantesKardex"&&x.id!=="btnMenuPrepararDespacho"&&x.id!=="n188BotonMisTareas"&&x.getAttribute('onclick')!=="abrirModulo('asistencia')")x.style.display="none";});
                 const fk=document.getElementById("btnMenuFaltantesKardex"); if(fk){fk.style.display="flex";fk.querySelector('b').textContent='Revisar despacho';fk.querySelector('span').textContent='✅';}
                 const pd=document.getElementById("btnMenuPrepararDespacho");if(pd)pd.style.display="flex";
             } else if (esBodega) {
@@ -2448,6 +2462,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             } else if (nombre === "asistencia") {
                 document.getElementById("moduloAsistencia").style.display = "block";
                 document.getElementById("menuAsistencia").style.display = "block";
+                a196ConsultarEstado();
             } else if (nombre === "tareas") {
                 document.getElementById("moduloTareas").style.display = "block";
                 if (!tareasGlobales.length) descargarTareasConfig();
@@ -2749,22 +2764,24 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const consulta=++n189ConsultaId;
             n189EstadoAviso('Consultando la Entrada registrada en Google Sheets…',false);
             try{
-                const params=new URLSearchParams({accion:'n189EstadoAsistencia',empleado,sucursal,_:String(Date.now())});
+                const params=new URLSearchParams({accion:'a196Estado',empleado,sucursal,_:String(Date.now())});
                 const res=await fetch(URL_API+'?'+params.toString(),{cache:'no-store'});
                 if(!res.ok)throw Error('No hay conexión con Apps Script (HTTP '+res.status+').');
                 const data=await res.json();
                 if(!data||data.status!=='OK'||typeof data.activa!=='boolean')throw Error((data&&data.mensaje)||'No se pudo verificar la asistencia.');
                 if(consulta!==n189ConsultaId||empleado!==localStorage.getItem('usuario')||sucursal!==localStorage.getItem('sucursal'))return;
                 n189Bloqueado=!data.activa;
+                a196EstadoActual=data;
+                a196RenderEstado();
                 n189FechaVerificada=String(data.fecha||n189Hoy());
                 if(data.activa){
-                    if(['APERTURA','CIERRE'].includes(String(data.turno||'').toUpperCase())){
+                    if(Array.isArray(data.turnos)&&data.turnos.some(t=>t.id===String(data.turno||'').toLowerCase())){
                         n188RegistrarTurnoLocal('Entrada',data.turno,sucursal,empleado);
                     }
                     n189EstadoAviso('✅ Entrada verificada. Ya puedes utilizar los módulos.',false);
                 }else{
                     localStorage.removeItem('n188TurnoActivo');
-                    n189EstadoAviso('No encontramos una Entrada activa para hoy. Pulsa «Ir a registrar mi Entrada».',false);
+                    n189EstadoAviso(data.completada?'El turno de hoy está cerrado.':'No encontramos una Entrada activa para hoy. Pulsa «Ir a registrar mi Entrada».',false);
                 }
                 if(typeof window.n186SincronizarSesionPush==='function'){
                     window.n186SincronizarSesionPush().catch(err=>console.warn('No se actualizaron etiquetas push:',err));
@@ -3074,27 +3091,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function cambiarOpcionesTurno() {
-            const turnoSeleccionado = document.getElementById("selectTurno").value;
-            const textoHorario = document.getElementById("textoHorario");
-            const contenedorBotones = document.getElementById("contenedorBotones");
-            const btnEntrada = document.getElementById("btnEntrada");
-            const seccionSalida = document.getElementById("seccionSalida");
-
-            if (turnoSeleccionado === "apertura" || turnoSeleccionado === "cierre") {
-                textoHorario.innerText = turnoSeleccionado === "apertura" ? "Horario: 8:00 am - 5:00 pm" : "Horario: 1:00 pm - 9:00 pm";
-                contenedorBotones.style.display = "block";
-                btnEntrada.style.display = "block"; 
-                seccionSalida.style.display = "block";
-                
-                if (tareasGlobales.length === 0) {
-                    descargarTareasConfig().then(renderizarTareas);
-                } else {
-                    renderizarTareas();
-                }
-            } else {
-                textoHorario.innerText = "";
-                contenedorBotones.style.display = "none";
-                document.getElementById("contenedorTareas").innerHTML = "<p style='font-size: 12px; color: #666; text-align: center; margin: 10px 0;'>Selecciona un turno para ver las tareas...</p>";
+            a196RenderEstado();
+            if(document.getElementById('selectTurno').value){
+                if (tareasGlobales.length === 0) descargarTareasConfig().then(renderizarTareas);
+                else renderizarTareas();
             }
         }
 
@@ -3177,33 +3177,87 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 });
         }
 
-        function validarYRegistrar(tipoMarca) {
-            const turno = document.getElementById("selectTurno").value;
-            const sucursal = localStorage.getItem("sucursal");
-            const empleado = localStorage.getItem("usuario");
-            const horasExtra = document.getElementById("selectHorasExtra") ? document.getElementById("selectHorasExtra").value : 0;
-
-            if (!turno) return alert("Selecciona el turno.");
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const latUser = position.coords.latitude;
-                    const lonUser = position.coords.longitude;
-                    const sucursalData = UBICACIONES[sucursal];
-
-                    if (sucursalData) {
-                        const distancia = calcularDistanciaMetros(latUser, lonUser, sucursalData.lat, sucursalData.lon);
-                        if (distancia > RADIO_METROS) {
-                            return alert(`Estás fuera del radio permitido (${Math.round(distancia)}m del local). Acércate para marcar.`);
-                        }
-                    }
-                    ejecutarRegistroAsistencia(tipoMarca, turno, sucursal, empleado, horasExtra);
-                }, () => {
-                    alert("No se pudo obtener tu ubicación GPS. Asegúrate de activarla en tu dispositivo.");
-                }, { enableHighAccuracy: true });
-            } else {
-                alert("Tu navegador no soporta geolocalización.");
+        async function a196ConsultarEstado(){
+            const empleado=localStorage.getItem('usuario'),sucursal=localStorage.getItem('sucursal');
+            if(!empleado||!sucursal)return;
+            const aviso=document.getElementById('a196Estado');if(aviso)aviso.textContent='Verificando tu turno…';
+            try{
+                const r=await fetch(URL_API+'?'+new URLSearchParams({accion:'a196Estado',empleado,sucursal,_:String(Date.now())}),{cache:'no-store'});
+                const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error de consulta.');
+                if(empleado!==localStorage.getItem('usuario')||sucursal!==localStorage.getItem('sucursal'))return;
+                a196EstadoActual=d;a196RenderEstado();
+            }catch(e){a196EstadoActual=null;a196RenderEstado();if(aviso)aviso.textContent='No se pudo verificar el turno: '+e.message;}
+        }
+        function a196HoraActual(){
+            return new Intl.DateTimeFormat('en-GB',{timeZone:'America/El_Salvador',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
+        }
+        function a196Minutos(v){const x=String(v).split(':').map(Number);return x[0]*60+x[1];}
+        function a196RenderEstado(){
+            const d=a196EstadoActual,sel=document.getElementById('selectTurno'),info=document.getElementById('a196Estado'),
+                cont=document.getElementById('contenedorBotones'),entrada=document.getElementById('btnEntrada'),
+                salida=document.getElementById('seccionSalida'),motivos=document.getElementById('a196MotivoBox'),
+                horario=document.getElementById('textoHorario');
+            if(!sel||!info||!cont)return;
+            if(!d||!Array.isArray(d.turnos)){cont.style.display='none';return;}
+            const previo=d.activa?d.turno:sel.value;
+            sel.replaceChildren(new Option('-- Selecciona Turno --',''));
+            d.turnos.forEach(t=>{
+                const nombre=t.id==='bodega_11_19'?'Bodega 11 a 7':t.id.charAt(0).toUpperCase()+t.id.slice(1);
+                sel.add(new Option(nombre+' ('+t.inicio+' - '+t.fin+')',t.id));
+            });
+            if(d.turnos.some(t=>t.id===previo))sel.value=previo;
+            sel.disabled=!!(d.activa||d.completada);
+            const actual=d.turnos.find(t=>t.id===sel.value);
+            cont.style.display='none';entrada.style.display='none';salida.style.display='none';motivos.style.display='none';
+            horario.textContent=actual?'Horario: '+actual.inicio+' - '+actual.fin+' · Almuerzo: '+(actual.almuerzo?'1 hora':'sin hora'):'';
+            if(d.completada){info.textContent='✅ Turno finalizado hoy. Entrada: '+(d.horaEntrada||'—')+' · Salida: '+(d.horaSalida||'—');return;}
+            if(d.activa){
+                cont.style.display='block';salida.style.display='block';info.textContent='🟢 Turno activo desde '+(d.horaEntrada||'la entrada registrada')+'. Puedes cerrar tu turno con GPS.';
+                // En Bodega el motivo es obligatorio únicamente si sale fuera de la zona.
+                return;
             }
+            if(!actual){info.textContent='Selecciona tu turno para registrar entrada.';return;}
+            const faltan=a196Minutos(actual.inicio)-a196Minutos(a196HoraActual());
+            if(faltan>15){info.textContent='🕒 Podrás registrar entrada desde las '+(function(){const min=a196Minutos(actual.inicio)-15;return String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0');})();return;}
+            cont.style.display='block';entrada.style.display='block';
+            if(faltan<0){motivos.style.display='block';document.getElementById('a196MotivoTitulo').textContent='Llegada tarde ('+(-faltan)+' min). Explica por qué registras tu entrada después de la hora.';info.textContent='⚠️ Tu entrada tiene '+(-faltan)+' minutos de tardanza. Se guardará para revisión.';}
+            else info.textContent='✅ Ya puedes registrar tu entrada con GPS.';
+        }
+        setInterval(()=>{if(document.getElementById('moduloAsistencia')?.style.display==='block')a196RenderEstado();},30000);
+        function validarYRegistrar(tipoMarca) {
+            if(a196Marcando)return;
+            const d=a196EstadoActual,turno=document.getElementById('selectTurno').value,
+                sucursal=localStorage.getItem('sucursal'),empleado=localStorage.getItem('usuario');
+            const t=d?.turnos?.find(x=>x.id===turno);
+            if(!t)return alert('Selecciona un turno válido.');
+            if(tipoMarca==='Entrada'&&(d.activa||d.completada))return alert('Ya registraste este turno.');
+            if(tipoMarca==='Salida'&&!d.activa)return alert('No tienes un turno abierto.');
+            const tarde=tipoMarca==='Entrada'&&a196Minutos(a196HoraActual())>a196Minutos(t.inicio);
+            const motivo=document.getElementById('a196Motivo').value,detalle=document.getElementById('a196Detalle').value.trim();
+            if(tarde&&(!motivo||!detalle))return alert('Indica el motivo y explica tu tardanza.');
+            if(!navigator.geolocation)return alert('Tu dispositivo no permite consultar el GPS.');
+            a196Marcando=true;
+            const boton=document.getElementById(tipoMarca==='Entrada'?'btnEntrada':'btnSalida');
+            boton.disabled=true;boton.textContent='📍 Verificando GPS…';
+            navigator.geolocation.getCurrentPosition(async position=>{
+                try{
+                    const lat=position.coords.latitude,lon=position.coords.longitude,precision=position.coords.accuracy;
+                    if(precision>150)throw Error('El GPS tiene una precisión de '+Math.round(precision)+' m. Muévete a un espacio abierto y vuelve a intentar.');
+                    const lugar=UBICACIONES[sucursal],dist=lugar?calcularDistanciaMetros(lat,lon,lugar.lat,lugar.lon):0;
+                    const fuera=dist>RADIO_METROS;
+                    if(lugar&&(tipoMarca==='Entrada'||sucursal!=='Bodega')&&fuera)throw Error('Estás a '+Math.round(dist)+' m del establecimiento (máximo 200 m).');
+                    if(tipoMarca==='Salida'&&sucursal==='Bodega'&&fuera&&(!motivo||!detalle)){
+                        document.getElementById('a196MotivoBox').style.display='block';
+                        document.getElementById('a196MotivoTitulo').textContent='Estás fuera de Bodega. Indica por qué cierras el turno en este lugar.';
+                        throw Error('Completa el motivo de salida fuera de Bodega y vuelve a pulsar Cerrar turno.');
+                    }
+                    await ejecutarRegistroAsistencia(tipoMarca,turno,sucursal,empleado,0,{lat,lon,precision,motivo,detalle});
+                }catch(e){alert(e.message||'No se pudo registrar asistencia.');await a196ConsultarEstado();}
+                finally{a196Marcando=false;boton.disabled=false;boton.textContent=tipoMarca==='Entrada'?'Marcar Entrada':'Marcar Salida';}
+            },error=>{
+                a196Marcando=false;boton.disabled=false;boton.textContent=tipoMarca==='Entrada'?'Marcar Entrada':'Marcar Salida';
+                alert('No se pudo obtener el GPS: '+error.message+'. Activa ubicación y da permiso al navegador.');
+            },{enableHighAccuracy:true,timeout:25000,maximumAge:0});
         }
 
         function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
@@ -3217,37 +3271,99 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             return R * c;
         }
 
-        function ejecutarRegistroAsistencia(tipo, turno, sucursal, empleado, horasExtra) {
+        async function ejecutarRegistroAsistencia(tipo, turno, sucursal, empleado, horasExtra, gps) {
             const params = new URLSearchParams({
-                accion: "Asistencia",
+                accion: "a196Marcar",
                 sucursal: sucursal,
                 turno: turno,
                 tipo: tipo,
                 empleado: empleado,
-                horasExtra: horasExtra
+                lat: gps.lat,lon:gps.lon,precision:gps.precision,motivo:gps.motivo,detalle:gps.detalle
             });
+            const r=await fetch(URL_API,{method:'POST',body:params,cache:'no-store'});
+            let res;try{res=await r.json();}catch(e){throw Error('El servidor no tiene publicada la versión nueva de Apps Script.');}
+            if(!r.ok||res.status!=='OK')throw Error(res.mensaje||'El servidor rechazó el registro.');
+            n188RegistrarTurnoLocal(tipo,turno,sucursal,empleado);
+            if(tipo==='Entrada')n189EntradaConfirmada(empleado,sucursal);
+            if(typeof window.n186SincronizarSesionPush==='function')window.n186SincronizarSesionPush().catch(console.warn);
+            document.getElementById('a196Motivo').value='';
+            document.getElementById('a196Detalle').value='';
+            alert('✅ '+tipo+' registrada a las '+res.hora+'.');
+            await a196ConsultarEstado();
+            if(tipo==='Salida'){
+                n189Bloqueado=true;n189FechaVerificada=n189Hoy();
+                volverMenuPrincipal();
+                n189EstadoAviso('Tu turno está cerrado. Ya no puedes usar módulos sin una nueva entrada autorizada.',false);
+                n189PintarAviso();
+            }
+        }
 
-            fetch(URL_API, { method: "POST", body: params })
-                .then(r => r.text())
-                .then(res => {
-                    if (res === "OK") {
-                        n188RegistrarTurnoLocal(tipo, turno, sucursal, empleado);
-                        if(tipo==='Entrada')n189EntradaConfirmada(empleado,sucursal);
-                        if(typeof window.n186SincronizarSesionPush==='function'){
-                            window.n186SincronizarSesionPush().catch(function(e){console.warn('Etiquetas de tareas no sincronizadas:',e);});
-                        }
-                        alert(`¡${tipo} registrada con éxito!`);
-                        if (tipo === "Entrada") {
-                            document.getElementById("btnEntrada").style.display = "none";
-                            document.getElementById("seccionSalida").style.display = "block";
-                        } else {
-                            cerrarSesion();
-                        }
-                    } else {
-                        alert("Error al registrar en el servidor.");
+        // v1.6.96 · Panel privado de revisión: la contraseña nunca se guarda en Sheets.
+        let a196ClaveAdmin='',a196RegistrosAdmin=[];
+        function a196Esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+        function a196SolicitarClave(){
+            if(a196ClaveAdmin)return a196ClaveAdmin;
+            a196ClaveAdmin=prompt('Contraseña administrativa de asistencia (ASISTENCIA_ADMIN_CLAVE o clave privada de tareas):')||'';
+            return a196ClaveAdmin;
+        }
+        async function a196PostAdmin(accion,datos){
+            const clave=a196SolicitarClave();if(!clave)throw Error('Introduce la contraseña administrativa.');
+            const p=new URLSearchParams({accion,claveAdmin:clave,...datos});
+            const r=await fetch(URL_API,{method:'POST',body:p,cache:'no-store'});
+            const d=await r.json();if(!r.ok||d.status!=='OK'){
+                if(/clave|contraseña|autoriz/i.test(d.mensaje||''))a196ClaveAdmin='';
+                throw Error(d.mensaje||'Error al consultar asistencia.');
+            }
+            return d;
+        }
+        function a196Mapa(gps){
+            if(!gps||!Number.isFinite(gps.lat)||!Number.isFinite(gps.lon))return '<span style="color:#999">Sin GPS histórico</span>';
+            const url='https://www.google.com/maps?q='+encodeURIComponent(gps.lat+','+gps.lon);
+            return '<a href="'+url+'" target="_blank" rel="noopener noreferrer" style="color:#087cff">📍 Ver en Google Maps</a> <small style="color:#64748b">±'+Math.round(gps.precision||0)+' m</small>';
+        }
+        async function a196CargarAdmin(){
+            const aviso=document.getElementById('a196AdminEstado'),lista=document.getElementById('a196AdminLista');
+            aviso.textContent='Consultando historial privado…';
+            try{
+                const data=await a196PostAdmin('a196AdminListar',{});
+                a196RegistrosAdmin=data.registros||[];
+                lista.replaceChildren();
+                if(!a196RegistrosAdmin.length){aviso.textContent='No hay registros todavía.';return;}
+                a196RegistrosAdmin.forEach((x,i)=>{
+                    const card=document.createElement('div');
+                    card.style.cssText='background:white;border:1px solid #dce6f1;border-radius:15px;padding:13px;margin:10px 0;font-size:13px;';
+                    card.innerHTML='<div style="font-weight:800;font-size:15px">'+a196Esc(x.empleado)+' <span style="color:#64748b;font-size:11px">'+a196Esc(x.sucursal)+'</span></div>'+
+                        '<div style="margin:5px 0">'+a196Esc(x.fecha)+' · '+a196Esc(x.turno)+'</div>'+
+                        '<div>🟢 Entrada: <b>'+a196Esc(x.entrada||'—')+'</b> '+a196Mapa(x.gpsEntrada)+'</div>'+
+                        '<div>🔴 Salida: <b>'+a196Esc(x.salida||'Pendiente')+'</b> '+a196Mapa(x.gpsSalida)+'</div>'+
+                        '<div>⏰ Tardanza: <b>'+Number(x.tarde||0)+' min</b> · Adicional registrado: '+Number(x.extraReal||0)+' min</div>'+
+                        (x.motivo?'<div style="padding:7px;background:#fff5e8;border-radius:9px;margin-top:5px">Motivo: '+a196Esc(x.motivo)+' — '+a196Esc(x.detalle)+'</div>':'')+
+                        '<div style="font-size:11px;color:#526277;margin-top:6px">Jornada: '+Number(x.jornada||480)/60+' h programadas. Revisión: '+a196Esc(x.revision?.decision||'PENDIENTE')+'</div>';
+                    if(x.salida){
+                        const div=document.createElement('div');div.style.cssText='margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px';
+                        const decision=document.createElement('select');
+                        [['PENDIENTE','Pendiente de revisión'],['COMPLETA','Reconocer jornada completa (8 h)'],['EFECTIVA','Reconocer tiempo efectivo']].forEach(([v,t])=>decision.add(new Option(t,v)));
+                        decision.value=x.revision?.decision||'PENDIENTE';decision.style.cssText='width:100%;margin-bottom:7px';
+                        const extra=document.createElement('input');extra.type='number';extra.min='0';extra.max=String(x.extraReal||0);extra.step='1';
+                        extra.value=String(x.revision?.extra||0);extra.placeholder='Minutos extras autorizados';extra.style.cssText='width:100%;margin-bottom:7px';
+                        const leyenda=document.createElement('label');leyenda.textContent='Minutos extras autorizados (máximo '+Number(x.extraReal||0)+')';leyenda.style.fontSize='12px';
+                        const comentario=document.createElement('textarea');comentario.rows=2;comentario.placeholder='Comentario del administrador (opcional)';
+                        comentario.value=x.revision?.comentario||'';comentario.style.cssText='width:100%;margin-bottom:7px';
+                        const boton=document.createElement('button');boton.textContent='🔐 Guardar revisión';boton.style.background='#155eaa';
+                        boton.onclick=async()=>{
+                            if(!confirm('¿Guardar esta decisión de asistencia y horas extras?'))return;
+                            boton.disabled=true;
+                            try{
+                                await a196PostAdmin('a196AdminResolver',{key:x.key,decision:decision.value,extra:extra.value,comentario:comentario.value});
+                                alert('Revisión guardada.');await a196CargarAdmin();
+                            }catch(e){alert(e.message);}finally{boton.disabled=false;}
+                        };
+                        div.append(decision,leyenda,extra,comentario,boton);card.appendChild(div);
                     }
-                })
-                .catch(err => { console.error(err); alert("Error de conexión."); });
+                    lista.appendChild(card);
+                });
+                aviso.textContent=a196RegistrosAdmin.length+' registros recientes. Solo el administrador puede cambiar decisiones.';
+            }catch(e){aviso.textContent='Error: '+e.message;}
         }
 
 
