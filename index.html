@@ -1273,6 +1273,21 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
 </style>
 <style id="c71-recepcion-style">
+/* v1.7.02: reporte de daños plegado; recepción sin campos adicionales visibles por defecto. */
+#moduloRecepcion .m202-dano-resumen{margin-top:9px;text-align:left}
+#moduloRecepcion button.m202-dano-boton{display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;width:auto!important;max-width:100%!important;min-height:37px!important;margin:0!important;padding:8px 12px!important;box-sizing:border-box!important;border:1px solid #d8e4f2!important;background:rgba(244,249,255,.9)!important;color:#506c89!important;border-radius:11px!important;box-shadow:none!important;font-size:12px!important;font-weight:750!important;line-height:1.3!important;text-align:left!important}
+#moduloRecepcion button.m202-dano-boton.m202-con-dano{background:#fff1e5!important;border-color:#f2c89f!important;color:#9b511d!important}
+#moduloRecepcion button.m202-dano-boton:focus-visible{outline:3px solid #96c7ff!important;outline-offset:2px}
+#moduloRecepcion .m202-dano-panel{margin-top:8px;padding:12px;border:1px solid #e9d4be;border-radius:14px;background:#fffaf5}
+#moduloRecepcion .m202-dano-panel label{display:block;font-size:12px;color:#81532c;font-weight:760;margin:0 0 7px}
+#moduloRecepcion .m202-dano-cantidad{display:grid;grid-template-columns:46px minmax(0,1fr) 46px;gap:8px;align-items:center;margin-bottom:8px}
+#moduloRecepcion .m202-dano-cantidad button,#moduloRecepcion .m202-dano-cantidad input{box-sizing:border-box!important;width:100%!important;height:44px!important;min-height:44px!important;margin:0!important;border-radius:12px!important}
+#moduloRecepcion .m202-dano-cantidad button{padding:0!important;background:#e4ecf6!important;color:#34536f!important;font-size:24px!important;font-weight:800!important}
+#moduloRecepcion .m202-dano-cantidad button:last-child{background:#087cff!important;color:white!important}
+#moduloRecepcion .m202-dano-cantidad input{background:#fff!important;color:#253c54!important;border:1px solid #d6e0eb!important;text-align:center!important;font-size:20px!important;font-weight:800!important}
+#moduloRecepcion .m202-dano-foto{margin-top:8px;padding:10px;background:#fff1e9;border-radius:10px}
+#moduloRecepcion .m202-dano-foto input{margin:0!important;font-size:12px!important}
+#moduloRecepcion button.m202-dano-cancelar{width:auto!important;background:transparent!important;color:#855f44!important;box-shadow:none!important;border:0!important;text-decoration:underline!important;margin:7px 0 0!important;padding:4px 0!important;font-size:12px!important}
 #moduloRecepcion .c71-note,#moduloFaltantesDia .c71-note{padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,rgba(234,245,255,.94),rgba(251,254,255,.97));border:1px solid #cee0f3;color:#365979;font-size:12px;font-weight:640;line-height:1.6;margin:10px 0 15px}
 #moduloFaltantesDia .c71-faltante{padding:15px;margin:12px 0;background:linear-gradient(145deg,#fff,#f4f8ff);border:1px solid #d6e2f2;border-radius:22px;box-shadow:0 8px 22px rgba(48,88,143,.07)}
 #moduloFaltantesDia .c71-incident-card{border-radius:17px;border:1px solid #f8daac;background:#fff9ee;padding:13px;margin:9px 0;color:#7e5d32;font-size:13px;line-height:1.5}
@@ -1612,7 +1627,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.01 BETA · Administración central</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.02 BETA · Recepción más limpia</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -4797,12 +4812,20 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                                 <div class="c70-qty-help">Preparado por Bodega: ${esperado} · Elige cuántas unidades recibiste realmente.</div>
                               </div>
                               <div class="c69-status" id="estadoRec_${i}" aria-live="polite"></div>
-                              <div style="background:#f6faff;border:1px solid #e1e9f4;border-radius:12px;padding:10px;margin:9px 0">
-                                <label for="m200RecDano_${i}" style="font-size:12px">🔎 ¿Llegó alguna unidad dañada? (0 si todo está bien)</label>
-                                <input id="m200RecDano_${i}" type="number" min="0" step="1" max="${esperado}" value="0" inputmode="numeric" onchange="m200RecordarDanoRec(${i})"/>
-                                <div id="m200RecFotoBox_${i}" style="display:none;padding:7px;background:#fff2e9;border-radius:10px">
-                                  <label for="m200RecFoto_${i}" style="font-size:12px">📸 Foto obligatoria de los daños</label>
-                                  <input id="m200RecFoto_${i}" type="file" accept="image/*" capture="environment" onchange="m200RecordarDanoRec(${i})"/>
+                              <div class="m202-dano-resumen">
+                                <button id="m202RecBoton_${i}" type="button" class="m202-dano-boton" onclick="m202ToggleDanoRec(${i})" aria-expanded="false" aria-controls="m202RecPanel_${i}">⚠️ Reportar producto en mal estado</button>
+                                <div id="m202RecPanel_${i}" class="m202-dano-panel" style="display:none">
+                                  <label for="m200RecDano_${i}">¿Cuántas unidades llegaron dañadas?</label>
+                                  <div class="m202-dano-cantidad">
+                                    <button type="button" onclick="m202CambiarDanoRec(${i},-1)" aria-label="Restar unidad dañada">−</button>
+                                    <input id="m200RecDano_${i}" type="number" min="0" step="1" max="${esperado}" value="0" inputmode="numeric" onchange="m200RecordarDanoRec(${i})"/>
+                                    <button type="button" onclick="m202CambiarDanoRec(${i},1)" aria-label="Sumar unidad dañada">+</button>
+                                  </div>
+                                  <div id="m200RecFotoBox_${i}" class="m202-dano-foto" style="display:none">
+                                    <label for="m200RecFoto_${i}">📸 Fotografía obligatoria del producto dañado</label>
+                                    <input id="m200RecFoto_${i}" type="file" accept="image/*" capture="environment" onchange="m200RecordarDanoRec(${i})"/>
+                                  </div>
+                                  <button type="button" class="m202-dano-cancelar" onclick="m202CancelarDanoRec(${i})">Cancelar reporte</button>
                                 </div>
                               </div>
                               ${adicional?`<label class="c69-reject"><input id="c60Rechazo_${i}" type="checkbox" onchange="c60CambiarRechazoAdicional(${i})"/> Rechazar este producto adicional de Bodega</label>`:''}
@@ -4888,6 +4911,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 pedidosRecepcionActuales = [];
                 c70EstadoPorIndice=Object.create(null);c70AntesRechazo=Object.create(null);
                 m200DanosRecepcion={};
+                m202DanoAbierto={};
                 cargarPedidosParaRecepcion();
             } catch (err) {
                 console.error("Error confirmando recepción:", err);
@@ -8373,7 +8397,47 @@ setInterval(()=>{
  let m200Catalogos={},m200ProductoDirecta=null,m200OperacionDirecta='',m200FotoDirectaId='';
  let m200Panel=null,m200Tab='pedidos',m200PedidoEditando=null,m200Borrador=[],m200DanoOperacion={};
  let m200DanosRecepcion={};
+ let m202DanoAbierto={};
  function m200ClaveDanoRec(item){return [item.idPedido||'',item.lineaId||'',item.filaPedido||'',item.filaFaltante||''].join('|');}
+ function m202PintarDanoRec(index){
+   const item=pedidosRecepcionActuales[index];if(!item)return;
+   const key=m200ClaveDanoRec(item),abierto=!!m202DanoAbierto[key],
+     cantidad=Number(m200DanosRecepcion[key]?.cantidad)||0;
+   const panel=document.getElementById('m202RecPanel_'+index);
+   if(panel)panel.style.display=abierto?'block':'none';
+   const boton=document.getElementById('m202RecBoton_'+index);
+   if(!boton)return;
+   boton.textContent=abierto?'⌃ Ocultar reporte de mal estado':
+     cantidad>0?'⚠️ '+cantidad+' unidad(es) dañada(s) · Editar':'⚠️ Reportar producto en mal estado';
+   boton.setAttribute('aria-expanded',String(abierto));
+   boton.classList.toggle('m202-con-dano',cantidad>0);
+ }
+ function m202ToggleDanoRec(index){
+   const item=pedidosRecepcionActuales[index];if(!item)return;
+   m200RecordarDanoRec(index);
+   const key=m200ClaveDanoRec(item);
+   m202DanoAbierto[key]=!m202DanoAbierto[key];
+   m202PintarDanoRec(index);
+ }
+ function m202CambiarDanoRec(index,delta){
+   const input=document.getElementById('m200RecDano_'+index);if(!input)return;
+   const actual=Number(input.value)||0,limite=Number(input.max)||0;
+   input.value=String(Math.max(0,Math.min(limite,actual+delta)));
+   m200RecordarDanoRec(index);
+ }
+ function m202CancelarDanoRec(index){
+   const item=pedidosRecepcionActuales[index];if(!item)return;
+   const key=m200ClaveDanoRec(item);
+   m200DanosRecepcion[key]={cantidad:0,archivo:null,fotoId:''};
+   m202DanoAbierto[key]=false;
+   const input=document.getElementById('m200RecDano_'+index);
+   const foto=document.getElementById('m200RecFoto_'+index);
+   const box=document.getElementById('m200RecFotoBox_'+index);
+   if(input)input.value='0';
+   if(foto)foto.value='';
+   if(box){box.style.display='none';box.querySelectorAll('small').forEach(n=>n.remove());}
+   m202PintarDanoRec(index);
+ }
  function m200RecordarDanoRec(index){
    const item=pedidosRecepcionActuales[index];if(!item)return;
    const key=m200ClaveDanoRec(item),prev=m200DanosRecepcion[key]||{cantidad:0,archivo:null,fotoId:''};
@@ -8383,16 +8447,20 @@ setInterval(()=>{
    m200DanosRecepcion[key]=prev;
    const box=document.getElementById('m200RecFotoBox_'+index);
    if(box)box.style.display=prev.cantidad>0?'block':'none';
+   m202PintarDanoRec(index);
  }
  function m200RestaurarDanosRec(){
    pedidosRecepcionActuales.forEach((item,i)=>{
-     const x=m200DanosRecepcion[m200ClaveDanoRec(item)];if(!x)return;
-     const inp=document.getElementById('m200RecDano_'+i);if(inp)inp.value=String(x.cantidad||0);
-     const box=document.getElementById('m200RecFotoBox_'+i);if(box)box.style.display=x.cantidad>0?'block':'none';
-     if(x.cantidad>0&&(x.archivo||x.fotoId)){
-       const note=document.createElement('small');note.textContent=x.fotoId?'✓ Evidencia ya subida':'✓ Foto seleccionada: '+x.archivo.name;
-       if(box)box.appendChild(note);
+     const x=m200DanosRecepcion[m200ClaveDanoRec(item)];
+     if(x){
+       const inp=document.getElementById('m200RecDano_'+i);if(inp)inp.value=String(x.cantidad||0);
+       const box=document.getElementById('m200RecFotoBox_'+i);if(box)box.style.display=x.cantidad>0?'block':'none';
+       if(x.cantidad>0&&(x.archivo||x.fotoId)){
+         const note=document.createElement('small');note.textContent=x.fotoId?'✓ Evidencia ya subida':'✓ Foto seleccionada: '+x.archivo.name;
+         if(box)box.appendChild(note);
+       }
      }
+     m202PintarDanoRec(i);
    });
  }
  const m200Esc=(v)=>escaparHtmlPedido(String(v??''));
