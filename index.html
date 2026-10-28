@@ -1612,7 +1612,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.98 BETA · Avisos según turno</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.6.99 BETA · Mini Súper 7 a 3</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -8118,7 +8118,8 @@ setInterval(()=>{
    const suc=document.getElementById('n188SucursalAdmin')?.value||'';
    const sel=document.getElementById('n188TurnoAdmin');if(!sel)return;
    const fecha=n189Hoy(),dia=new Date(fecha+'T12:00:00Z').getUTCDay();
-   let turnos=dia===0?[['apertura','☀️ Apertura (7-3)'],['cierre','🌙 Cierre (1-9)']]:
+   let turnos=normalizarEmpleado(suc)==='mini super'?[['apertura','☀️ Apertura (7-3)'],['cierre','🌙 Cierre (1-9)']]:
+     dia===0?[['apertura','☀️ Apertura (7-3)'],['cierre','🌙 Cierre (1-9)']]:
      dia===6?[['apertura','☀️ Apertura (7-4)'],['intermedio','🕘 Intermedio (9-6)'],['cierre','🌙 Cierre (1-9)']]:
      [['apertura','☀️ Apertura (8-5)'],['cierre','🌙 Cierre (1-9)']];
    if(normalizarEmpleado(suc)==='bodega'&&dia!==0)turnos.push(['bodega_11_19','📦 Bodega (11-7)']);
