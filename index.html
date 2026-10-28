@@ -1612,7 +1612,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.00 BETA · Control de mercadería</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.01 BETA · Administración central</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1691,7 +1691,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <!-- ÚNICO botón adicional en el menú principal, v1.6.42 BETA -->
                 <button id="btnMenuConteosAsignados" class="menu-modulo" onclick="abrirModulo('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
                 <button id="m200MenuDirecto" class="menu-modulo" onclick="abrirModulo('m200Directa')" style="display:none"><span>📥</span><b>Recepción Directa</b></button>
-                <button id="m200MenuAdmin" class="menu-modulo" onclick="abrirModulo('m200Admin')" style="display:none"><span>📊</span><b>Control de Mercadería</b></button>
             </div>
             <!-- Activación voluntaria (una sola vez por navegador/dispositivo). No es un centro de avisos. -->
             <div id="c81PushActivacion" aria-hidden="true" style="display:none;margin:14px auto 2px;max-width:450px;text-align:center;padding:12px;border:1px solid #d7e4f4;border-radius:16px;background:#f6faff;">
@@ -1733,23 +1732,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           <textarea id="m200ObservacionDirecta" rows="2" placeholder="Observaciones, factura o referencia (opcional)"></textarea>
           <button id="m200GuardarDirectaBtn" onclick="m200GuardarRecepcionDirecta()" style="background:#087cff">✓ Registrar y reportar a Administración</button>
           <p id="m200DirectaEstado" style="font-size:12px" role="status"></p>
-        </div>
-
-        <div id="m200ModuloAdmin" class="card modulo-pantalla" style="display:none;text-align:left">
-          <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
-          <h3>📊 Control de Mercadería</h3>
-          <p style="font-size:12px;color:#667085">Solo ADMIN puede aprobar pedidos o resolver incidencias. Los movimientos quedan registrados.</p>
-          <button onclick="m200CargarAdmin()" style="background:#155eaa">↻ Actualizar información</button>
-          <p id="m200AdminEstado" role="status" style="font-size:12px"></p>
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:12px 0">
-            <button type="button" onclick="m200Pestana('pedidos')" id="m200TabPedidos">🛍️ Pedidos</button>
-            <button type="button" onclick="m200Pestana('directas')" id="m200TabDirectas">📥 Directas</button>
-            <button type="button" onclick="m200Pestana('incidencias')" id="m200TabIncidencias">🚨 Daños</button>
-          </div>
-          <div id="m200AdminPedidos"></div>
-          <div id="m200AdminEditor" style="display:none"></div>
-          <div id="m200AdminDirectas" style="display:none"></div>
-          <div id="m200AdminIncidencias" style="display:none"></div>
         </div>
 
     
@@ -2111,6 +2093,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('tareas')"><span>✅</span>Tareas</button>
                 <button id="n188BotonAdminTareas" class="menu-modulo" onclick="abrirModuloAdmin('n188')"><span>🔔</span><b>Asignar Tareas y Notificaciones</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('pedidos')"><span>🛍️</span>Pedidos</button>
+                <button id="m201MenuMercaderia" class="menu-modulo" onclick="abrirModuloAdmin('mercaderia')"><span>📊</span><b>Control de Mercadería</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('compras')"><span>🛒</span>Gestión de Compras</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
@@ -2119,6 +2102,24 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoAkasia')"><span>🔄</span><b>Actualizar catálogo Akasia</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('logistica')"><span>🚚</span><b>Control Logístico</b></button>
             </div>
+        </div>
+
+        <!-- v1.7.01: Control de Mercadería integrado en el Panel Administrativo central. -->
+        <div id="m200ModuloAdmin" class="admin-modulo" style="display:none;margin-top:18px;text-align:left">
+          <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al Panel Administrativo</button>
+          <h3>📊 Control de Mercadería</h3>
+          <p style="font-size:12px;color:#667085">Aprueba pedidos de todas las sucursales, revisa recepciones directas y resuelve reportes de daños. Los movimientos quedan registrados.</p>
+          <button type="button" onclick="m201AbrirMercaderia()" style="background:#155eaa">↻ Actualizar información</button>
+          <p id="m200AdminEstado" role="status" style="font-size:12px"></p>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:12px 0">
+            <button type="button" onclick="m200Pestana('pedidos')" id="m200TabPedidos">🛍️ Pedidos</button>
+            <button type="button" onclick="m200Pestana('directas')" id="m200TabDirectas">📥 Directas</button>
+            <button type="button" onclick="m200Pestana('incidencias')" id="m200TabIncidencias">🚨 Daños</button>
+          </div>
+          <div id="m200AdminPedidos"></div>
+          <div id="m200AdminEditor" style="display:none"></div>
+          <div id="m200AdminDirectas" style="display:none"></div>
+          <div id="m200AdminIncidencias" style="display:none"></div>
         </div>
 
 
@@ -2479,9 +2480,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             }
             const adm=normalizarEmpleado(localStorage.getItem('usuario'))==='admin';
             const miniTienda=['mini super','tienda online shop'].includes(normalizarEmpleado(sucursalActual));
-            const btAdmin=document.getElementById('m200MenuAdmin');
             const btDirecta=document.getElementById('m200MenuDirecto');
-            if(btAdmin)btAdmin.style.display=adm?'flex':'none';
             if(btDirecta)btDirecta.style.display=(!adm&&miniTienda)?'flex':'none';
         }
 
@@ -2518,14 +2517,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function abrirModulo(nombre) {
+            if(nombre==='m200Admin'){alert('Control de Mercadería ahora está dentro del Panel Administrativo.');return;}
             if (n189DebeBloquear(nombre)) return;
-            if(!['catalogoRuta','n188','m200Admin','m200Directa'].includes(nombre)) cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
+            if(!['catalogoRuta','n188','m200Directa'].includes(nombre)) cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
             ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados","m200ModuloAdmin","m200ModuloDirecta"].forEach(id => document.getElementById(id).style.display = "none");
-            if(nombre==='m200Admin'){
-                if(normalizarEmpleado(localStorage.getItem('usuario'))!=='admin'||!a197Autorizado)return volverMenuPrincipal();
-                document.getElementById('m200ModuloAdmin').style.display='block';m200CargarAdmin();
-            }else if(nombre==='m200Directa'){
+            if(nombre==='m200Directa'){
                 if(!['mini super','tienda online shop'].includes(normalizarEmpleado(localStorage.getItem('sucursal')))||normalizarEmpleado(localStorage.getItem('usuario'))==='admin')return volverMenuPrincipal();
                 document.getElementById('m200ModuloDirecta').style.display='block';m200IniciarDirecta();
             }else
@@ -5965,7 +5962,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -5976,6 +5973,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "catalogoAkasia") c48Abrir();
             if (modulo === "logistica") c58Cargar();
             if (modulo === "n188") n188AbrirAdmin();
+            if (modulo === "mercaderia") m201AbrirMercaderia();
             // v1.6.46: no dibujar miles de filas ocultas al ingresar al administrador.
             if (["asistencia", "inventario", "tareas", "pedidos"].includes(modulo)) c46MostrarReporte(modulo);
             window.scrollTo(0,0);
@@ -6000,6 +5998,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function cerrarSupervisor() {
             c49SesionAdministrador = '';
             c58Datos=null;c58Ruta=null;
+            m201TokenSupervisor='';
+            m200Panel=null;
             document.getElementById("supervisorSection").style.display = "none";
             volverMenuAdmin();
             modoSupervisorActivo(false);
@@ -8405,7 +8405,28 @@ setInterval(()=>{
    return d;
  }
  function m200DatosUsuario(){return {sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};}
+ let m201TokenSupervisor='';
+ async function m201AbrirMercaderia(){
+   const info=document.getElementById('m200AdminEstado');
+   try{
+     if(!c49SesionAdministrador||document.getElementById('supervisorSection')?.style.display!=='block')
+       throw Error('Primero ingresa al Panel Administrativo.');
+     if(!m201TokenSupervisor){
+       const clave=prompt('Introduce la contraseña administrativa privada usada para GPS y revisión de asistencia. Es una autorización independiente del acceso al panel.');
+       if(!clave){info.textContent='🔒 Se requiere la clave privada para aprobar o revisar mercadería.';return;}
+       info.textContent='Verificando permisos…';
+       const d=await m200Post({accion:'m201EntrarSupervisorMercaderia',claveAdmin:clave});
+       m201TokenSupervisor=d.token;
+     }
+     await m200CargarAdmin();
+   }catch(e){
+     m201TokenSupervisor='';
+     info.textContent='⚠️ '+e.message;
+   }
+ }
  function m200CredencialesAdmin(){
+   if(m201TokenSupervisor&&c49SesionAdministrador&&document.getElementById('supervisorSection')?.style.display==='block')
+     return {empleado:'SUPERVISOR',sucursal:'',token:m201TokenSupervisor};
    if(normalizarEmpleado(localStorage.getItem('usuario'))!=='admin'||!a197Autorizado)throw Error('Acceso ADMIN requerido.');
    const token=sessionStorage.getItem('a197TokenAdmin');if(!token)throw Error('La sesión administrativa venció.');
    return {sucursal:localStorage.getItem('sucursal')||'',empleado:'ADMIN',token};
