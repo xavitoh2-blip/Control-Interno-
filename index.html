@@ -1301,7 +1301,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloFaltantesDia .c71-quantity button,#moduloFaltantesDia .c71-quantity input{min-width:0!important;width:100%!important;height:48px!important;margin:0!important;text-align:center;font-weight:800;font-size:18px;border-radius:14px!important}
 #moduloFaltantesDia .c71-quantity button:first-child{background:#6e7b8e!important}#moduloFaltantesDia .c71-quantity button:last-child{background:#087cff!important}
 #moduloFaltantesDia button.c71-blue,#moduloFaltantesDia button.c71-grey{margin-top:9px!important;border-radius:14px!important;font-size:13px!important;padding:13px!important}#moduloFaltantesDia button.c71-blue{background:#087cff!important}#moduloFaltantesDia button.c71-grey{background:#6c7b8b!important}
-/* v1.7.03: revisión tipo Recibir Pedido, envío único desde el pie. */
+/* v1.7.04: revisión tipo Recibir Pedido, Compras automáticas en el envío único. */
 #moduloFaltantesDia .m203-opciones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0 7px}
 #moduloFaltantesDia .m203-opciones button{box-sizing:border-box!important;min-width:0!important;width:100%!important;min-height:70px!important;margin:0!important;padding:9px 4px!important;border-radius:15px!important;border:1.5px solid #d0dced!important;background:#fff!important;color:#38516b!important;font-size:12px!important;font-weight:790!important;line-height:1.35!important;box-shadow:0 4px 12px rgba(43,85,143,.05)!important}
 #moduloFaltantesDia .m203-opciones button .m203-icono{display:block;font-size:21px;font-weight:850;margin-bottom:4px}
@@ -1310,8 +1310,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloFaltantesDia .m203-opciones button:disabled{opacity:.4!important}
 #moduloFaltantesDia .m203-parcial{margin:9px 0;padding:11px;border-radius:13px;background:#f2f7ff;border:1px solid #d8e7f8}
 #moduloFaltantesDia .m203-parcial label{font-size:12px;font-weight:800;color:#355a82}
-#moduloFaltantesDia .m203-compra{display:flex;align-items:flex-start;gap:8px;margin:12px 0 0;padding:10px 12px;border:1px solid #e6ddc8;background:#fffcf5;border-radius:12px;font-size:12px;font-weight:740;color:#85601d;line-height:1.45;cursor:pointer}
-#moduloFaltantesDia .m203-compra input{width:21px!important;height:21px!important;min-height:0!important;margin:0!important;flex:none;accent-color:#087cff}
+#moduloFaltantesDia .m204-compra-auto{display:block;margin:12px 0 0;padding:10px 12px;border:1px solid #e6ddc8;background:#fffcf5;border-radius:12px;font-size:12px;font-weight:740;color:#85601d;line-height:1.45}
 #moduloFaltantesDia .m203-elegido{min-height:18px;margin-top:6px;color:#56718c;font-size:12px}
 #moduloFaltantesDia .m203-pie{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:12;margin:12px 0;padding:12px;background:rgba(248,251,255,.97);border:1px solid #cdddf1;border-radius:20px;box-shadow:0 8px 28px rgba(45,83,128,.17);backdrop-filter:blur(12px);text-align:center}
 #moduloFaltantesDia .m203-pie-info{font-size:12px;font-weight:720;color:#526c86;margin:0 0 9px;line-height:1.45}
@@ -1644,7 +1643,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.03 BETA · Faltantes en una sola revisión</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.04 BETA · Compras automáticas de faltantes</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -5309,7 +5308,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                   <label for="faltDiaCant_${i}">Unidades que sí preparó Bodega</label>
                   <div class="c71-quantity"><button onclick="m203Cantidad(${i},-1)" type="button">−</button><input id="faltDiaCant_${i}" type="number" min="1" max="${pen-1}" step="1" value="1" oninput="m203CantidadManual(${i})" inputmode="numeric"/><button onclick="m203Cantidad(${i},1)" type="button">+</button></div>
                 </div>
-                <label id="m203CompraBox_${i}" class="m203-compra" style="display:none"><input id="m203Comprar_${i}" type="checkbox" onchange="m203CompraCambiar(${i})"/> 🛒 Enviar a Compras las unidades que no se lograron surtir</label>
+                <div id="m204CompraAuto_${i}" class="m204-compra-auto" style="display:none" aria-live="polite">🛒 Las unidades faltantes se enviarán automáticamente a Compras al guardar toda la revisión.</div>
                 <div id="m203Estado_${i}" class="m203-elegido">⏳ Pendiente de revisar</div>`:''}
                 ${enCamino?'<div class="c71-muted" style="margin-top:10px">🚚 Esperando confirmación de recepción en la sucursal.</div>':''}</div>`;
             }).join('');
@@ -5323,7 +5322,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(modo==='PARCIAL'&&pen<2)return;
             const cantidad=modo==='COMPLETO'?pen:modo==='INCOMPLETO'?0:
               anterior.modo==='PARCIAL'?Math.min(pen-1,Math.max(1,Number(anterior.cantidad)||1)):1;
-            m203Revision[x.fila]={modo,cantidad,compras:modo==='COMPLETO'?false:!!anterior.compras};
+            m203Revision[x.fila]={modo,cantidad};
             m203Operacion='';
             m203ActualizarTarjeta(i);m203ActualizarPie();
         }
@@ -5339,12 +5338,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             s.cantidad=el.value===''?0:Number(el.value);
             m203Operacion='';m203ActualizarTarjeta(i,true);m203ActualizarPie();
         }
-        function m203CompraCambiar(i){
-            const x=faltantesDiaActuales[i],s=x&&m203Revision[x.fila];
-            if(!x||!s||s.modo==='COMPLETO')return;
-            s.compras=!!document.getElementById('m203Comprar_'+i)?.checked;
-            m203Operacion='';m203ActualizarTarjeta(i);m203ActualizarPie();
-        }
         function m203ActualizarTarjeta(i,mantenerInput){
             const x=faltantesDiaActuales[i];if(!m203Accionable(x))return;
             const s=m203Revision[x.fila],pen=Number(x.pendiente);
@@ -5359,10 +5352,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(parcial)parcial.style.display=s?.modo==='PARCIAL'?'block':'none';
             const input=document.getElementById('faltDiaCant_'+i);
             if(input&&s?.modo==='PARCIAL'&&!mantenerInput)input.value=String(s.cantidad);
-            const compraBox=document.getElementById('m203CompraBox_'+i);
-            if(compraBox)compraBox.style.display=s&&s.modo!=='COMPLETO'?'flex':'none';
-            const chk=document.getElementById('m203Comprar_'+i);
-            if(chk)chk.checked=!!s?.compras;
+            const compraAviso=document.getElementById('m204CompraAuto_'+i);
+            if(compraAviso){
+              const enviar=s&&s.modo!=='COMPLETO'&&Number.isSafeInteger(Number(s.cantidad))&&Number(s.cantidad)>=0&&Number(s.cantidad)<pen;
+              compraAviso.style.display=enviar?'block':'none';
+              if(enviar)compraAviso.textContent='🛒 '+(pen-Number(s.cantidad))+' unidad(es) se enviarán automáticamente a Compras al guardar la revisión.';
+            }
             const estado=document.getElementById('m203Estado_'+i);
             if(!estado)return;
             if(!s){estado.textContent='⏳ Pendiente de revisar';return;}
@@ -5370,7 +5365,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             estado.textContent=s.modo==='COMPLETO'?'✓ Se prepararán '+pen+' unidad(es).':
               s.modo==='PARCIAL'?'◐ Preparar '+prep+' y dejar '+saldo+' sin surtir.':
               '× No se preparará ninguna unidad.';
-            if(s.compras)estado.textContent+=' 🛒 Saldo para Compras.';
+            if(s.modo!=='COMPLETO')estado.textContent+=' 🛒 Saldo para Compras.';
         }
         function m203ResumenActual(){
             const activos=faltantesDiaActuales.filter(m203Accionable);
@@ -5385,7 +5380,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                   (s.modo==='INCOMPLETO'&&n!==0)||
                   (s.modo==='PARCIAL'&&(n<=0||n>=pen)))return;
                 revisados++;preparados+=n;
-                if(s.compras)compras+=pen-n;else sinSurtir+=pen-n;
+                if(s.modo!=='COMPLETO')compras+=pen-n;else sinSurtir+=pen-n;
             });
             return {activos,revisados,preparados,compras,sinSurtir};
         }
@@ -5396,7 +5391,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const q=m203ResumenActual();pie.style.display=q.activos.length?'block':'none';
             if(!q.activos.length)return;
             info.textContent=q.revisados+' de '+q.activos.length+' revisados · '+q.preparados+
-              ' por preparar · '+q.compras+' para Compras · '+q.sinSurtir+' aún sin surtir';
+              ' por preparar · '+q.compras+' para Compras automáticamente';
             btn.disabled=m203Enviando||q.revisados!==q.activos.length;
             btn.textContent=m203Enviando?'Guardando revisión…':
               q.revisados===q.activos.length?'✓ Guardar y enviar revisión ('+q.activos.length+')':
@@ -5410,11 +5405,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const productos=q.activos.map(x=>({
                 fila:x.fila,idPedido:x.idPedido,sucursal:x.sucursal,producto:x.producto,
                 pendiente:Number(x.pendiente),modo:m203Revision[x.fila].modo,
-                cantidad:Number(m203Revision[x.fila].cantidad),compras:!!m203Revision[x.fila].compras
+                cantidad:Number(m203Revision[x.fila].cantidad)
             }));
             if(!confirm('¿Guardar la revisión de '+productos.length+' producto(s)?\n'+q.preparados+
               ' unidades quedarán preparadas para las sucursales.\n'+q.compras+
-              ' unidades se agregarán a Compras.\n'+q.sinSurtir+' quedarán pendientes.'))return;
+              ' unidades faltantes se enviarán automáticamente a Compras.'))return;
             if(!m203Operacion)m203Operacion='FD-'+(window.crypto?.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2));
             m203Enviando=true;m203ActualizarPie();
             try{
