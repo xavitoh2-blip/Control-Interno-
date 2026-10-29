@@ -1301,6 +1301,23 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloFaltantesDia .c71-quantity button,#moduloFaltantesDia .c71-quantity input{min-width:0!important;width:100%!important;height:48px!important;margin:0!important;text-align:center;font-weight:800;font-size:18px;border-radius:14px!important}
 #moduloFaltantesDia .c71-quantity button:first-child{background:#6e7b8e!important}#moduloFaltantesDia .c71-quantity button:last-child{background:#087cff!important}
 #moduloFaltantesDia button.c71-blue,#moduloFaltantesDia button.c71-grey{margin-top:9px!important;border-radius:14px!important;font-size:13px!important;padding:13px!important}#moduloFaltantesDia button.c71-blue{background:#087cff!important}#moduloFaltantesDia button.c71-grey{background:#6c7b8b!important}
+/* v1.7.03: revisión tipo Recibir Pedido, envío único desde el pie. */
+#moduloFaltantesDia .m203-opciones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0 7px}
+#moduloFaltantesDia .m203-opciones button{box-sizing:border-box!important;min-width:0!important;width:100%!important;min-height:70px!important;margin:0!important;padding:9px 4px!important;border-radius:15px!important;border:1.5px solid #d0dced!important;background:#fff!important;color:#38516b!important;font-size:12px!important;font-weight:790!important;line-height:1.35!important;box-shadow:0 4px 12px rgba(43,85,143,.05)!important}
+#moduloFaltantesDia .m203-opciones button .m203-icono{display:block;font-size:21px;font-weight:850;margin-bottom:4px}
+#moduloFaltantesDia .m203-opciones button.m203-activo{border-color:#1684ee!important;background:#e8f4ff!important;color:#1455a1!important;box-shadow:0 0 0 2px rgba(22,132,238,.12)!important}
+#moduloFaltantesDia .m203-opciones button.m203-sin{border-color:#de9c90!important;background:#fff0ed!important;color:#9e4032!important}
+#moduloFaltantesDia .m203-opciones button:disabled{opacity:.4!important}
+#moduloFaltantesDia .m203-parcial{margin:9px 0;padding:11px;border-radius:13px;background:#f2f7ff;border:1px solid #d8e7f8}
+#moduloFaltantesDia .m203-parcial label{font-size:12px;font-weight:800;color:#355a82}
+#moduloFaltantesDia .m203-compra{display:flex;align-items:flex-start;gap:8px;margin:12px 0 0;padding:10px 12px;border:1px solid #e6ddc8;background:#fffcf5;border-radius:12px;font-size:12px;font-weight:740;color:#85601d;line-height:1.45;cursor:pointer}
+#moduloFaltantesDia .m203-compra input{width:21px!important;height:21px!important;min-height:0!important;margin:0!important;flex:none;accent-color:#087cff}
+#moduloFaltantesDia .m203-elegido{min-height:18px;margin-top:6px;color:#56718c;font-size:12px}
+#moduloFaltantesDia .m203-pie{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:12;margin:12px 0;padding:12px;background:rgba(248,251,255,.97);border:1px solid #cdddf1;border-radius:20px;box-shadow:0 8px 28px rgba(45,83,128,.17);backdrop-filter:blur(12px);text-align:center}
+#moduloFaltantesDia .m203-pie-info{font-size:12px;font-weight:720;color:#526c86;margin:0 0 9px;line-height:1.45}
+#moduloFaltantesDia #m203GuardarBtn{width:100%!important;min-height:50px!important;margin:0!important;border-radius:13px!important;background:#087cff!important;color:#fff!important;font-size:14px!important;font-weight:850!important}
+#moduloFaltantesDia #m203GuardarBtn:disabled{background:#8ca8ca!important;opacity:.8!important}
+#moduloFaltantesDia #listaFaltantesDia{padding-bottom:10px}
 
 /* v1.6.74 · Asignador rápido de Faltantes Kardex (sin afectar otras pantallas) */
 .c74-assignment {margin-top:13px;background:rgba(247,250,255,.82);border:1px solid #d6e5f5;border-radius:19px;padding:13px;box-shadow:0 8px 25px rgba(70,112,159,.07)}
@@ -1627,7 +1644,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.02 BETA · Recepción más limpia</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.03 BETA · Faltantes en una sola revisión</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1988,7 +2005,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <h3 style="text-align:center;">🟠 Faltantes del día</h3>
         <p style="font-size:12px;color:#666;text-align:center;">Controla lo que Bodega no pudo surtir. Los complementos preparados regresan a Recepción; lo preparado que no llegó va a revisión de Despacho.</p>
         <button onclick="cargarFaltantesDelDia()" style="background:#007bff;">🔄 Actualizar faltantes</button>
-        <div id="listaFaltantesDia" style="margin-top:10px;"></div><h4 style="margin:24px 0 8px">🚚 Diferencias de entrega pendientes de Despacho</h4><div id="listaIncidenciasDespacho" class="c71-incidencias"></div>
+        <div id="listaFaltantesDia" style="margin-top:10px;"></div>
+        <div id="m203Pie" class="m203-pie" style="display:none">
+          <div id="m203Resumen" class="m203-pie-info">Revisa los productos pendientes.</div>
+          <button id="m203GuardarBtn" type="button" onclick="m203ConfirmarRevision()" disabled>Revisa todos los productos</button>
+        </div>
+        <h4 style="margin:24px 0 8px">🚚 Diferencias de entrega pendientes de Despacho</h4>
+        <div id="listaIncidenciasDespacho" class="c71-incidencias"></div>
     </div>
 
     <!-- MÓDULO DE COMPRAS - SOLO BODEGA -->
@@ -5251,10 +5274,25 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         let faltantesDiaActuales=[];
-        function cargarFaltantesDelDia(){c71CargarIncidencias();const cont=document.getElementById("listaFaltantesDia");if(!cont)return;cont.innerHTML='<p style="font-size:12px;color:#666;text-align:center;">Cargando faltantes...</p>';fetch(URL_API+"?accion=verFaltantesDelDia&_="+Date.now()).then(r=>r.json()).then(d=>{if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Respuesta inválida");faltantesDiaActuales=d.faltantes||[];renderizarFaltantesDelDia();}).catch(e=>{console.error(e);cont.innerHTML='<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar los faltantes.</p>';});}
+        let m203Revision=Object.create(null),m203Operacion='',m203Enviando=false;
+        function cargarFaltantesDelDia(){
+            if(m203Enviando)return;
+            c71CargarIncidencias();
+            const cont=document.getElementById("listaFaltantesDia");if(!cont)return;
+            cont.innerHTML='<p style="font-size:12px;color:#666;text-align:center;">Cargando faltantes...</p>';
+            fetch(URL_API+"?accion=verFaltantesDelDia&_="+Date.now()).then(r=>r.json()).then(d=>{
+                if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Respuesta inválida");
+                faltantesDiaActuales=d.faltantes||[];
+                m203Revision=Object.create(null);m203Operacion='';
+                renderizarFaltantesDelDia();
+            }).catch(e=>{
+                console.error(e);cont.innerHTML='<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar los faltantes.</p>';
+                document.getElementById('m203Pie').style.display='none';
+            });
+        }
         function renderizarFaltantesDelDia(){
             const cont=document.getElementById('listaFaltantesDia');if(!cont)return;
-            if(!faltantesDiaActuales.length){cont.innerHTML='<div class="c71-note">✅ No hay faltantes de Bodega pendientes de preparación ni complementos en tránsito.</div>';return;}
+            if(!faltantesDiaActuales.length){cont.innerHTML='<div class="c71-note">✅ No hay faltantes de Bodega pendientes de preparación ni complementos en tránsito.</div>';m203ActualizarPie();return;}
             cont.innerHTML='<div class="c71-note">🟠 <strong>Sin surtir:</strong> pendiente por encontrar o comprar. 🚚 <strong>En tránsito:</strong> Bodega preparó el complemento; la sucursal lo confirma desde Recibir pedidos. ⚠️ Las diferencias de entrega se revisan con Despacho, no se compran automáticamente.</div>'+faltantesDiaActuales.map((x,i)=>{
                 const pen=Number(x.pendiente)||0,enCamino=Number(x.enTransito)||0,revision=Number(x.enRevisionDespacho)||0;
                 const puedePreparar=x.estado==='Pendiente del día'&&pen>0;
@@ -5262,9 +5300,136 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <div class="c71-faltante-stats"><span>Sin surtir <strong>${pen}</strong></span><span>En camino <strong>${enCamino}</strong></span><span>Confirmado <strong>${Number(x.complementosRecibidos)||0}</strong></span></div>
                 ${revision?`<div class="c71-warning">⚠️ ${revision} unidad(es) del complemento en revisión de Despacho. No pasar automáticamente a Compras.</div>`:''}
                 ${x.estado==='Enviado a Compras'?'<div class="c71-warning">🛒 Saldo remitido a Compras. No se enviará de nuevo.</div>':''}
-                ${puedePreparar?`<div class="c71-quantity"><button onclick="cambiarComplementoFaltante(${i},-1)" type="button">−</button><input id="faltDiaCant_${i}" type="number" min="1" max="${pen}" value="${pen}"/><button onclick="cambiarComplementoFaltante(${i},1)" type="button">+</button></div><button type="button" class="c71-blue" onclick="completarFaltanteDia(${i})">📦 Preparar complemento</button><button type="button" class="c71-grey" onclick="enviarFaltanteDiaCompras(${i})">🛒 Enviar solo ${pen} pendiente(s) a Compras</button>`:''}
+                ${puedePreparar?`<div class="m203-opciones" role="group" aria-label="Revisar faltante ${escaparHtmlPedido(x.producto)}">
+                  <button id="m203Completo_${i}" type="button" onclick="m203Elegir(${i},'COMPLETO')" aria-pressed="false"><span class="m203-icono">✓</span>Completo</button>
+                  <button id="m203Incompleto_${i}" type="button" onclick="m203Elegir(${i},'INCOMPLETO')" aria-pressed="false"><span class="m203-icono">×</span>Incompleto</button>
+                  <button id="m203Parcial_${i}" type="button" onclick="m203Elegir(${i},'PARCIAL')" aria-pressed="false" ${pen===1?'disabled title="No se puede preparar una cantidad intermedia de 1"':''}><span class="m203-icono">◐</span>Parcial</button>
+                </div>
+                <div id="m203ParcialBox_${i}" class="m203-parcial" style="display:none">
+                  <label for="faltDiaCant_${i}">Unidades que sí preparó Bodega</label>
+                  <div class="c71-quantity"><button onclick="m203Cantidad(${i},-1)" type="button">−</button><input id="faltDiaCant_${i}" type="number" min="1" max="${pen-1}" step="1" value="1" oninput="m203CantidadManual(${i})" inputmode="numeric"/><button onclick="m203Cantidad(${i},1)" type="button">+</button></div>
+                </div>
+                <label id="m203CompraBox_${i}" class="m203-compra" style="display:none"><input id="m203Comprar_${i}" type="checkbox" onchange="m203CompraCambiar(${i})"/> 🛒 Enviar a Compras las unidades que no se lograron surtir</label>
+                <div id="m203Estado_${i}" class="m203-elegido">⏳ Pendiente de revisar</div>`:''}
                 ${enCamino?'<div class="c71-muted" style="margin-top:10px">🚚 Esperando confirmación de recepción en la sucursal.</div>':''}</div>`;
             }).join('');
+            faltantesDiaActuales.forEach((_,i)=>m203ActualizarTarjeta(i));
+            m203ActualizarPie();
+        }
+        function m203Accionable(x){return x&&x.estado==='Pendiente del día'&&Number(x.pendiente)>0;}
+        function m203Elegir(i,modo){
+            const x=faltantesDiaActuales[i];if(!m203Accionable(x))return;
+            const pen=Number(x.pendiente),anterior=m203Revision[x.fila]||{};
+            if(modo==='PARCIAL'&&pen<2)return;
+            const cantidad=modo==='COMPLETO'?pen:modo==='INCOMPLETO'?0:
+              anterior.modo==='PARCIAL'?Math.min(pen-1,Math.max(1,Number(anterior.cantidad)||1)):1;
+            m203Revision[x.fila]={modo,cantidad,compras:modo==='COMPLETO'?false:!!anterior.compras};
+            m203Operacion='';
+            m203ActualizarTarjeta(i);m203ActualizarPie();
+        }
+        function m203Cantidad(i,d){
+            const x=faltantesDiaActuales[i],s=x&&m203Revision[x.fila];
+            if(!x||!s||s.modo!=='PARCIAL')return;
+            s.cantidad=Math.max(1,Math.min(Number(x.pendiente)-1,(Number(s.cantidad)||1)+d));
+            m203Operacion='';m203ActualizarTarjeta(i);m203ActualizarPie();
+        }
+        function m203CantidadManual(i){
+            const x=faltantesDiaActuales[i],s=x&&m203Revision[x.fila],el=document.getElementById('faltDiaCant_'+i);
+            if(!x||!s||!el||s.modo!=='PARCIAL')return;
+            s.cantidad=el.value===''?0:Number(el.value);
+            m203Operacion='';m203ActualizarTarjeta(i,true);m203ActualizarPie();
+        }
+        function m203CompraCambiar(i){
+            const x=faltantesDiaActuales[i],s=x&&m203Revision[x.fila];
+            if(!x||!s||s.modo==='COMPLETO')return;
+            s.compras=!!document.getElementById('m203Comprar_'+i)?.checked;
+            m203Operacion='';m203ActualizarTarjeta(i);m203ActualizarPie();
+        }
+        function m203ActualizarTarjeta(i,mantenerInput){
+            const x=faltantesDiaActuales[i];if(!m203Accionable(x))return;
+            const s=m203Revision[x.fila],pen=Number(x.pendiente);
+            [['COMPLETO','m203Completo_'],['INCOMPLETO','m203Incompleto_'],['PARCIAL','m203Parcial_']].forEach(([modo,pref])=>{
+                const b=document.getElementById(pref+i);if(!b)return;
+                const activo=!!s&&s.modo===modo;
+                b.classList.toggle('m203-activo',activo);
+                b.classList.toggle('m203-sin',activo&&modo==='INCOMPLETO');
+                b.setAttribute('aria-pressed',String(activo));
+            });
+            const parcial=document.getElementById('m203ParcialBox_'+i);
+            if(parcial)parcial.style.display=s?.modo==='PARCIAL'?'block':'none';
+            const input=document.getElementById('faltDiaCant_'+i);
+            if(input&&s?.modo==='PARCIAL'&&!mantenerInput)input.value=String(s.cantidad);
+            const compraBox=document.getElementById('m203CompraBox_'+i);
+            if(compraBox)compraBox.style.display=s&&s.modo!=='COMPLETO'?'flex':'none';
+            const chk=document.getElementById('m203Comprar_'+i);
+            if(chk)chk.checked=!!s?.compras;
+            const estado=document.getElementById('m203Estado_'+i);
+            if(!estado)return;
+            if(!s){estado.textContent='⏳ Pendiente de revisar';return;}
+            const prep=Number(s.cantidad)||0,saldo=pen-prep;
+            estado.textContent=s.modo==='COMPLETO'?'✓ Se prepararán '+pen+' unidad(es).':
+              s.modo==='PARCIAL'?'◐ Preparar '+prep+' y dejar '+saldo+' sin surtir.':
+              '× No se preparará ninguna unidad.';
+            if(s.compras)estado.textContent+=' 🛒 Saldo para Compras.';
+        }
+        function m203ResumenActual(){
+            const activos=faltantesDiaActuales.filter(m203Accionable);
+            let revisados=0,preparados=0,compras=0,sinSurtir=0;
+            activos.forEach(x=>{
+                const s=m203Revision[x.fila],pen=Number(x.pendiente);
+                if(!s)return;
+                const n=Number(s.cantidad);
+                if(!['COMPLETO','PARCIAL','INCOMPLETO'].includes(s.modo)||
+                  !Number.isSafeInteger(n)||n<0||n>pen||
+                  (s.modo==='COMPLETO'&&n!==pen)||
+                  (s.modo==='INCOMPLETO'&&n!==0)||
+                  (s.modo==='PARCIAL'&&(n<=0||n>=pen)))return;
+                revisados++;preparados+=n;
+                if(s.compras)compras+=pen-n;else sinSurtir+=pen-n;
+            });
+            return {activos,revisados,preparados,compras,sinSurtir};
+        }
+        function m203ActualizarPie(){
+            const pie=document.getElementById('m203Pie'),info=document.getElementById('m203Resumen'),
+              btn=document.getElementById('m203GuardarBtn');
+            if(!pie||!info||!btn)return;
+            const q=m203ResumenActual();pie.style.display=q.activos.length?'block':'none';
+            if(!q.activos.length)return;
+            info.textContent=q.revisados+' de '+q.activos.length+' revisados · '+q.preparados+
+              ' por preparar · '+q.compras+' para Compras · '+q.sinSurtir+' aún sin surtir';
+            btn.disabled=m203Enviando||q.revisados!==q.activos.length;
+            btn.textContent=m203Enviando?'Guardando revisión…':
+              q.revisados===q.activos.length?'✓ Guardar y enviar revisión ('+q.activos.length+')':
+              '⏳ Revisa todos los productos ('+q.revisados+'/'+q.activos.length+')';
+        }
+        async function m203ConfirmarRevision(){
+            if(m203Enviando)return;
+            const q=m203ResumenActual();
+            if(!q.activos.length||q.revisados!==q.activos.length)
+              return alert('Selecciona Completo, Parcial o Incompleto en cada producto antes de guardar.');
+            const productos=q.activos.map(x=>({
+                fila:x.fila,idPedido:x.idPedido,sucursal:x.sucursal,producto:x.producto,
+                pendiente:Number(x.pendiente),modo:m203Revision[x.fila].modo,
+                cantidad:Number(m203Revision[x.fila].cantidad),compras:!!m203Revision[x.fila].compras
+            }));
+            if(!confirm('¿Guardar la revisión de '+productos.length+' producto(s)?\n'+q.preparados+
+              ' unidades quedarán preparadas para las sucursales.\n'+q.compras+
+              ' unidades se agregarán a Compras.\n'+q.sinSurtir+' quedarán pendientes.'))return;
+            if(!m203Operacion)m203Operacion='FD-'+(window.crypto?.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2));
+            m203Enviando=true;m203ActualizarPie();
+            try{
+                const body=new URLSearchParams({accion:'m203ProcesarFaltantesDiaLote',
+                    sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',
+                    operacionId:m203Operacion,productos:JSON.stringify(productos)});
+                const r=await fetch(URL_API,{method:'POST',body}),d=await r.json();
+                if(!r.ok||!d||d.status!=='OK')throw Error(d?.mensaje||'El servidor no pudo guardar la revisión.');
+                alert('✅ '+d.mensaje);
+                m203Enviando=false;
+                cargarFaltantesDelDia();
+            }catch(e){
+                alert('⚠️ '+e.message+' Verifica los faltantes antes de reintentar para evitar duplicados.');
+                m203Enviando=false;m203ActualizarPie();
+            }
         }
         async function c71CargarIncidencias(){
             const cont=document.getElementById('listaIncidenciasDespacho');if(!cont)return;
