@@ -1703,7 +1703,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.10 BETA · Un solo envío de faltantes y adicionales</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.11 BETA · Archivo administrativo de pedidos</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2191,6 +2191,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button id="n188BotonAdminTareas" class="menu-modulo" onclick="abrirModuloAdmin('n188')"><span>🔔</span><b>Asignar Tareas y Notificaciones</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('pedidos')"><span>🛍️</span>Pedidos</button>
                 <button id="m201MenuMercaderia" class="menu-modulo" onclick="abrirModuloAdmin('mercaderia')"><span>📊</span><b>Control de Mercadería</b></button>
+                <button id="m211MenuArchivo" class="menu-modulo" onclick="abrirModuloAdmin('archivoPedidos')"><span>🗂️</span><b>Archivar pedidos antiguos</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('compras')"><span>🛒</span>Gestión de Compras</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
@@ -2208,15 +2209,41 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           <p style="font-size:12px;color:#667085">Aprueba pedidos de todas las sucursales, revisa recepciones directas y resuelve reportes de daños. Los movimientos quedan registrados.</p>
           <button type="button" onclick="m201AbrirMercaderia()" style="background:#155eaa">↻ Actualizar información</button>
           <p id="m200AdminEstado" role="status" style="font-size:12px"></p>
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:12px 0">
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0">
             <button type="button" onclick="m200Pestana('pedidos')" id="m200TabPedidos">🛍️ Pedidos</button>
             <button type="button" onclick="m200Pestana('directas')" id="m200TabDirectas">📥 Directas</button>
             <button type="button" onclick="m200Pestana('incidencias')" id="m200TabIncidencias">🚨 Daños</button>
+            <button type="button" onclick="m200Pestana('archivo')" id="m200TabArchivo">🗂️ Archivar antiguos</button>
           </div>
           <div id="m200AdminPedidos"></div>
           <div id="m200AdminEditor" style="display:none"></div>
           <div id="m200AdminDirectas" style="display:none"></div>
           <div id="m200AdminIncidencias" style="display:none"></div>
+          <div id="m211AdminArchivo" style="display:none">
+            <div style="padding:14px;background:#eff6ff;border:1px solid #cce0f8;border-radius:17px;margin:12px 0;">
+              <h4 style="margin:0 0 8px;font-size:17px;color:#173e70">🗂️ Limpiar pedidos antiguos</h4>
+              <p style="font-size:12px;color:#4c6685;line-height:1.55;margin:0">Marca los pedidos viejos y archívalos en un solo paso. Desaparecerán de Bodega, Recepción y Faltantes del día. No se borran del historial ni se modifica Akasia; puedes restaurarlos.</p>
+            </div>
+            <button type="button" onclick="m211CargarAdmin()" style="background:#155eaa">↻ Actualizar pedidos antiguos</button>
+            <p id="m211Mensaje" role="status" style="font-size:12px;color:#526b85"></p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0">
+              <label style="font-size:12px;font-weight:800;color:#314c69">Sucursal
+                <select id="m211Sucursal" onchange="m211Render()" style="margin-top:5px"><option value="TODAS">Todas</option></select>
+              </label>
+              <label style="font-size:12px;font-weight:800;color:#314c69">Estado
+                <select id="m211Estado" onchange="m211Render()" style="margin-top:5px"><option value="TODOS">Todos</option><option value="BODEGA">En Bodega</option><option value="RECEPCION">En Recepción</option><option value="APROBACION">Por aprobar</option></select>
+              </label>
+            </div>
+            <div id="m211Pendientes"></div>
+            <label style="font-size:12px;color:#365577;display:block;margin:12px 0 5px">Motivo del archivo
+              <input id="m211Motivo" type="text" maxlength="200" value="Pedido antiguo" placeholder="Ej. Pedido antiguo de octubre" style="margin-top:5px" />
+            </label>
+            <button type="button" id="m211GuardarBtn" onclick="m211ArchivarSeleccionados()" disabled style="background:#ad531c">🗂️ Archivar seleccionados (0)</button>
+            <details style="margin:18px 0 4px;border:1px solid #dae3ec;border-radius:15px;padding:12px;background:white">
+              <summary style="cursor:pointer;font-weight:800;color:#325275">↩ Pedidos archivados (se pueden restaurar)</summary>
+              <div id="m211Historial" style="margin-top:10px;font-size:12px;color:#526b85">Actualiza para ver el historial.</div>
+            </details>
+          </div>
         </div>
 
 
@@ -6451,7 +6478,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function abrirModuloAdmin(modulo) {
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin",archivoPedidos:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -6462,7 +6489,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "catalogoAkasia") c48Abrir();
             if (modulo === "logistica") c58Cargar();
             if (modulo === "n188") n188AbrirAdmin();
-            if (modulo === "mercaderia") m201AbrirMercaderia();
+            if (modulo === "mercaderia") {m200Tab='pedidos';m201AbrirMercaderia();}
+            if (modulo === "archivoPedidos") {m200Tab='archivo';m201AbrirMercaderia('archivo');}
             // v1.6.46: no dibujar miles de filas ocultas al ingresar al administrador.
             if (["asistencia", "inventario", "tareas", "pedidos"].includes(modulo)) c46MostrarReporte(modulo);
             window.scrollTo(0,0);
@@ -8939,7 +8967,7 @@ setInterval(()=>{
  }
  function m200DatosUsuario(){return {sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};}
  let m201TokenSupervisor='';
- async function m201AbrirMercaderia(){
+ async function m201AbrirMercaderia(tabSolicitada){
    const info=document.getElementById('m200AdminEstado');
    try{
      if(!c49SesionAdministrador||document.getElementById('supervisorSection')?.style.display!=='block')
@@ -8952,6 +8980,7 @@ setInterval(()=>{
        m201TokenSupervisor=d.token;
      }
      await m200CargarAdmin();
+     if(tabSolicitada==='archivo')await m211CargarAdmin();
    }catch(e){
      m201TokenSupervisor='';
      info.textContent='⚠️ '+e.message;
@@ -9065,14 +9094,98 @@ setInterval(()=>{
      m200PedidoEditando=null;m200Borrador=[];m200RenderAdmin();
    }catch(e){info.textContent='⚠️ '+e.message;}
  }
- function m200Pestana(tab){m200Tab=tab;m200PedidoEditando=null;m200RenderAdmin();}
+ function m200Pestana(tab){m200Tab=tab;m200PedidoEditando=null;m200RenderAdmin();if(tab==='archivo')m211CargarAdmin();}
+ // v1.7.11: un solo control de archivo para Bodega y Recepción, solo en Administrador.
+ let m211Datos=null,m211Seleccion=new Set(),m211Ocupado=false;
+ async function m211CargarAdmin(){
+   const estado=document.getElementById('m211Mensaje');
+   if(!estado)return;
+   estado.textContent='Consultando pedidos antiguos…';
+   try{
+     m211Datos=await m200PostAdmin({accion:'m211ListarPedidosAdmin'});
+     m211Seleccion.clear();
+     const sel=document.getElementById('m211Sucursal'),anterior=sel.value;
+     const sucursales=[...new Set((m211Datos.pedidos||[]).concat(m211Datos.archivados||[]).map(x=>String(x.sucursal||'Sin sucursal')))].sort();
+     sel.innerHTML='<option value="TODAS">Todas</option>'+sucursales.map(s=>'<option value="'+m200Esc(s)+'">'+m200Esc(s)+'</option>').join('');
+     if(sucursales.includes(anterior))sel.value=anterior;
+     estado.textContent=(m211Datos.pedidos||[]).length+' pedidos con trabajo pendiente · '+(m211Datos.archivados||[]).length+' archivados.';
+     m211Render();
+   }catch(e){estado.textContent='⚠️ '+e.message;}
+ }
+ function m211Visibles(){
+   const suc=document.getElementById('m211Sucursal')?.value||'TODAS';
+   const estado=document.getElementById('m211Estado')?.value||'TODOS';
+   return (m211Datos?.pedidos||[]).map((x,i)=>({x,i})).filter(({x})=>
+     (suc==='TODAS'||String(x.sucursal||'Sin sucursal')===suc)&&
+     (estado==='TODOS'||(estado==='BODEGA'&&x.bodega>0)||(estado==='RECEPCION'&&x.recepcion>0)||(estado==='APROBACION'&&x.aprobacion>0)));
+ }
+ function m211Seleccionar(index,seleccionado){
+   if(seleccionado)m211Seleccion.add(index);else m211Seleccion.delete(index);
+   const b=document.getElementById('m211GuardarBtn');
+   if(b){b.disabled=!m211Seleccion.size||m211Ocupado;b.textContent='🗂️ Archivar seleccionados ('+m211Seleccion.size+')';}
+ }
+ function m211TodosVisibles(){
+   const items=m211Visibles().slice(0,30),ya=items.length&&items.every(x=>m211Seleccion.has(x.i));
+   items.forEach(x=>ya?m211Seleccion.delete(x.i):m211Seleccion.add(x.i));
+   m211Render();
+ }
+ function m211Render(){
+   const cont=document.getElementById('m211Pendientes'),hist=document.getElementById('m211Historial');if(!cont||!hist)return;
+   const visibles=m211Visibles();
+   let html='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:13px 0 9px"><b style="font-size:13px;color:#284763">📋 '+visibles.length+' pedido(s) por revisar</b>'+
+     (visibles.length?'<button type="button" onclick="m211TodosVisibles()" style="background:#ecf4ff;border:1px solid #bfd8fb;color:#1568bb;width:auto;font-size:11px;padding:9px 11px">✓ Seleccionar hasta 30</button>':'')+'</div>';
+   const grupos=new Map();visibles.forEach(v=>{const k=String(v.x.sucursal||'Sin sucursal');if(!grupos.has(k))grupos.set(k,[]);grupos.get(k).push(v);});
+   for(const [s,items] of grupos){
+     html+='<div style="font-size:13px;font-weight:900;color:#174c88;margin:15px 0 7px">🏪 '+m200Esc(s)+' · '+items.length+' pedido(s)</div>';
+     for(const {x,i} of items){
+       const etiquetas=[x.bodega?'📦 Bodega: '+x.bodega:'',x.recepcion?'📥 Recepción: '+x.recepcion:'',x.aprobacion?'⏳ Por aprobar: '+x.aprobacion:''].filter(Boolean).join(' · ');
+       html+='<label style="display:flex;align-items:flex-start;gap:12px;background:white;border:1px solid #d7e4f5;border-radius:15px;padding:13px;margin:8px 0;cursor:pointer">'+
+         '<input type="checkbox" '+(m211Seleccion.has(i)?'checked ':'')+'onchange="m211Seleccionar('+i+',this.checked)" style="width:22px;height:22px;flex:0 0 auto;margin:2px 0" aria-label="Seleccionar pedido '+m200Esc(x.idPedido)+'">'+
+         '<span style="min-width:0"><b style="font-size:13px;color:#233b59">'+m200Esc(x.idPedido)+'</b><span style="display:block;font-size:11px;color:#687d94;margin-top:4px">📅 '+m200Esc(x.fecha)+' · '+m200Esc(x.solicito)+'</span><span style="display:block;font-size:11px;color:#38618c;margin-top:4px">'+m200Esc(etiquetas)+'</span></span></label>';
+     }
+   }
+   cont.innerHTML=html+(visibles.length?'':'<div style="padding:18px;text-align:center;color:#73849b;border:1px dashed #c8d8e8;border-radius:15px">No hay pedidos pendientes para este filtro.</div>');
+   const b=document.getElementById('m211GuardarBtn');if(b){b.disabled=!m211Seleccion.size||m211Ocupado;b.textContent='🗂️ Archivar seleccionados ('+m211Seleccion.size+')';}
+   const archivados=m211Datos?.archivados||[];
+   hist.innerHTML=archivados.length?archivados.map((x,i)=>'<div style="padding:11px;border-bottom:1px solid #e7edf5;display:flex;align-items:center;justify-content:space-between;gap:9px">'+
+     '<div><b>'+m200Esc(x.idPedido)+'</b><div>'+m200Esc(x.sucursal)+' · '+m200Esc(x.fechaArchivo)+'</div><div>Motivo: '+m200Esc(x.motivo)+'</div></div>'+
+     '<button type="button" onclick="m211Restaurar('+i+')" style="background:#16834c;width:auto;flex:none;font-size:11px;padding:9px 12px">↩ Restaurar</button></div>').join(''):
+     '<div style="padding:12px;text-align:center">Todavía no hay pedidos archivados.</div>';
+ }
+ async function m211ArchivarSeleccionados(){
+   if(m211Ocupado||!m211Datos)return;
+   const elegidos=[...m211Seleccion].map(i=>m211Datos.pedidos[i]).filter(Boolean);
+   if(!elegidos.length)return;
+   if(elegidos.length>30)return alert('Puedes archivar hasta 30 pedidos a la vez.');
+   const motivo=document.getElementById('m211Motivo')?.value.trim()||'';
+   if(!motivo)return alert('Escribe el motivo del archivo.');
+   if(!confirm('¿Archivar '+elegidos.length+' pedido(s)?\n\nDejarán de aparecer en Bodega, Recepción y Faltantes del día. Podrás restaurarlos desde esta pantalla.'))return;
+   const mensaje=document.getElementById('m211Mensaje');m211Ocupado=true;m211Render();mensaje.textContent='Archivando los pedidos seleccionados…';
+   try{
+     const d=await m200PostAdmin({accion:'m211ArchivarPedidosAdmin',ids:JSON.stringify(elegidos.map(x=>x.idPedido)),motivo});
+     await m211CargarAdmin();
+     await m200CargarAdmin();
+     mensaje.textContent='✅ '+d.mensaje;
+   }catch(e){mensaje.textContent='⚠️ '+e.message;}
+   finally{m211Ocupado=false;m211Render();}
+ }
+ async function m211Restaurar(index){
+   const pedido=m211Datos?.archivados?.[index];if(!pedido||m211Ocupado)return;
+   if(!confirm('¿Restaurar el pedido '+pedido.idPedido+'?\nVolverá a mostrarse si conserva movimientos pendientes.'))return;
+   const mensaje=document.getElementById('m211Mensaje');m211Ocupado=true;mensaje.textContent='Restaurando pedido…';
+   try{
+     const d=await m200PostAdmin({accion:'m211RestaurarPedidoAdmin',idPedido:pedido.idPedido});
+     await m211CargarAdmin();await m200CargarAdmin();mensaje.textContent='✅ '+d.mensaje;
+   }catch(e){mensaje.textContent='⚠️ '+e.message;}
+   finally{m211Ocupado=false;m211Render();}
+ }
  function m200LinkFoto(id){
    return /^[a-zA-Z0-9_-]{20,90}$/.test(String(id||''))?
      '<a href="https://drive.google.com/file/d/'+encodeURIComponent(id)+'/view" target="_blank" rel="noopener noreferrer" style="color:#087cff">📸 Ver fotografía privada</a>':'Sin fotografía';
  }
  function m200RenderAdmin(){
    if(!m200Panel)return;
-   for(const [tipo,id] of [['pedidos','m200AdminPedidos'],['directas','m200AdminDirectas'],['incidencias','m200AdminIncidencias']]){
+   for(const [tipo,id] of [['pedidos','m200AdminPedidos'],['directas','m200AdminDirectas'],['incidencias','m200AdminIncidencias'],['archivo','m211AdminArchivo']]){
      document.getElementById(id).style.display=m200Tab===tipo?'block':'none';
    }
    document.getElementById('m200AdminEditor').style.display=m200PedidoEditando?'block':'none';
