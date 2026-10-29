@@ -1241,8 +1241,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloRecepcion .c69-status.ok{background:#e5f8ee;color:#247c50;}
 #moduloRecepcion .c69-status.diff{background:#fff3d9;color:#9a6a12;}
 #moduloRecepcion .c69-status.more{background:#e7f1ff;color:#1664b2;}
-#moduloRecepcion .c69-reject{display:flex;gap:9px;align-items:center;font-size:12px;font-weight:740;color:#5d728e;margin-top:12px;line-height:1.4;}
-#moduloRecepcion .c69-reject input{width:20px;height:20px;margin:0;accent-color:#087cff;flex:0 0 20px;}
 #moduloRecepcion .c69-save{position:sticky;bottom:8px;z-index:10;padding:8px;margin:18px 0 22px;border:1px solid #bed6f0;border-radius:19px;background:rgba(242,248,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 9px 23px rgba(31,74,127,.15);}
 #moduloRecepcion .c69-save .c69-save-note{font-size:10px;line-height:1.35;text-align:center;color:#55728f;font-weight:700;margin:0 3px 7px;}
 #moduloRecepcion .c69-save button{margin:0!important;min-height:51px!important;padding:12px!important;border-radius:14px!important;background:linear-gradient(135deg,#087cff,#4c9bff)!important;font-size:15px!important;font-weight:850!important;}
@@ -1338,6 +1336,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloFaltantesDia .m206-filtros .m206-pills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 #moduloFaltantesDia .m206-pills button{width:auto!important;min-height:34px!important;padding:7px 11px!important;margin:0!important;background:#fff!important;color:#476784!important;border:1px solid #c9ddf2!important;border-radius:999px!important;font-size:11px!important;font-weight:800!important}
 #moduloFaltantesDia .m206-pills button.m206-elegido{background:#0a84ff!important;color:#fff!important;border-color:#0a84ff!important}
+/* v1.7.07 · Productos extras de Bodega, plegados para mantener la revisión limpia. */
+#moduloFaltantesDia .m207-accion{width:100%!important;margin:9px 0 0!important;padding:11px!important;background:#eef7ff!important;color:#1464b5!important;border:1px solid #c7def7!important;border-radius:13px!important;font-size:12px!important;font-weight:850!important}
+#moduloFaltantesDia .m207-caja{margin:8px 0 0;padding:12px;background:#eef8ff;border:1px solid #d1e5fa;border-radius:14px}
+#moduloFaltantesDia .m207-nuevos{padding:12px;margin:13px 0;background:#f7fbff;border:1px solid #d1e4f8;border-radius:17px}
+#moduloFaltantesDia .m207-nuevos input,#moduloFaltantesDia .m207-nuevos select{width:100%!important;min-height:42px!important;background:#fff!important;border-radius:12px!important;margin:8px 0!important}
+#moduloFaltantesDia .m207-lista-item{padding:9px 10px;margin:8px 0;background:#fff;border:1px solid #d4e3f4;border-radius:12px;font-size:12px}
+#moduloFaltantesDia .m207-lista-item button{width:auto!important;padding:7px 9px!important;margin:4px!important;border-radius:10px!important;font-size:12px!important}
 
 /* v1.6.74 · Asignador rápido de Faltantes Kardex (sin afectar otras pantallas) */
 .c74-assignment {margin-top:13px;background:rgba(247,250,255,.82);border:1px solid #d6e5f5;border-radius:19px;padding:13px;box-shadow:0 8px 25px rgba(70,112,159,.07)}
@@ -1664,7 +1669,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.06 BETA · Faltantes como Pedidos de Bodega</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.08 BETA · Recepción sin aprobación de adicionales</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -4607,7 +4612,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         // «cantidad» no implica «revisado»: evita aprobar silenciosamente productos precargados.
         let c69FiltroActual='todos',c69BusquedaActual='';
         let c70EstadoPorIndice=Object.create(null);
-        let c70AntesRechazo=Object.create(null);
         function c69NumeroValido(value){
             if(value===null||value===undefined||String(value).trim()==='')return null;
             const num=Number(value);
@@ -4636,7 +4640,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const estado=c70EstadoPorIndice[i];
                 if(!estado)return;
                 const inp=document.getElementById('recibido_'+i);
-                snapshot.set(c70ClaveRecepcion(item,i),{modo:estado,valor:inp?inp.value:'0',rechazado:!!document.getElementById('c60Rechazo_'+i)?.checked});
+                snapshot.set(c70ClaveRecepcion(item,i),{modo:estado,valor:inp?inp.value:'0'});
             });
             return snapshot;
         }
@@ -4677,22 +4681,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             c70EstadoPorIndice[index]=valor===null||valor>pedido?'PARCIAL':valor===0?'NADA':valor===pedido?'RECIBIDO':'PARCIAL';
             actualizarEstadoRecepcion(index);
         }
-        function c60CambiarRechazoAdicional(i){
-            const marcado=!!document.getElementById('c60Rechazo_'+i)?.checked;
-            const input=document.getElementById('recibido_'+i);
-            if(!input)return;
-            if(marcado){
-                c70AntesRechazo[i]={modo:c70EstadoPorIndice[i],valor:input.value};
-                input.value='0';c70EstadoPorIndice[i]='NADA';input.disabled=true;
-            }else{
-                const previo=c70AntesRechazo[i];
-                input.disabled=false;
-                if(previo){input.value=previo.valor; if(previo.modo)c70EstadoPorIndice[i]=previo.modo;else delete c70EstadoPorIndice[i];}
-                else{input.value='0';delete c70EstadoPorIndice[i];}
-                delete c70AntesRechazo[i];
-            }
-            actualizarEstadoRecepcion(i);
-        }
         function actualizarEstadoRecepcion(index){
             const item=pedidosRecepcionActuales[index],input=document.getElementById('recibido_'+index);
             const estado=document.getElementById('estadoRec_'+index),tarjeta=document.getElementById('c69Item_'+index);
@@ -4700,28 +4688,26 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const recibido=c69NumeroValido(input.value);
             const pedido=c71CantidadEsperada(item);
             const solicitado=c69NumeroValido(item.cantidadOriginal??item.cantidadPedida)??pedido;
-            const rechazado=!!document.getElementById('c60Rechazo_'+index)?.checked;
             const modo=c70EstadoPorIndice[index]||'';
             const espera=!modo||recibido===null||recibido>pedido||(modo==='PARCIAL'&&(recibido<=0||recibido>=pedido));
             ['RECIBIDO','NADA','PARCIAL'].forEach((k,j)=>{
                 const btn=document.getElementById(['c69Todo_','c69Nada_','c70Parcial_'][j]+index);
-                if(btn){btn.classList.toggle('c70-selected',modo===k&&!espera);btn.setAttribute('aria-pressed',String(modo===k&&!espera));btn.disabled=rechazado;}
+                if(btn){btn.classList.toggle('c70-selected',modo===k&&!espera);btn.setAttribute('aria-pressed',String(modo===k&&!espera));}
             });
             const control=document.getElementById('c70Cantidad_'+index);
-            if(control)control.hidden=modo!=='PARCIAL'||rechazado;
+            if(control)control.hidden=modo!=='PARCIAL';
             estado.className='c69-status';
             if(!modo){estado.textContent='⏳ Pendiente de revisar · elige una opción';estado.classList.add('c70-wait');}
             else if(recibido===null||recibido>pedido){estado.textContent='⚠️ Ingresa una cantidad entre 0 y '+pedido+' (lo preparado por Bodega)';estado.classList.add('diff');}
             else if(modo==='PARCIAL'&&(recibido<=0||recibido>=pedido)){estado.textContent='⚠️ Para parcial, ingresa una cantidad de 1 a '+Math.max(1,pedido-1);estado.classList.add('diff');}
-            else if(rechazado){estado.textContent='✕ Adicional rechazado · se recibirá 0';estado.classList.add('diff');}
             else if(modo==='NADA'){estado.textContent='✕ No recibido · 0 de '+pedido+' preparados';estado.classList.add('diff');}
             else if(recibido===pedido){estado.textContent='✓ Recibido '+recibido+' de '+pedido+' preparados'+(!c71EsComplemento(item)&&solicitado>pedido?' · '+(solicitado-pedido)+' sin surtir en Bodega':'');estado.classList.add('ok');}
             else if(recibido<pedido){estado.textContent='◐ Recibido '+recibido+' de '+pedido+' · Faltan '+(pedido-recibido);estado.classList.add('diff');}
             else{estado.textContent='＋ Recibido '+recibido+' de '+pedido+' · '+(recibido-pedido)+' extra';estado.classList.add('more');}
             if(tarjeta){
                 tarjeta.classList.toggle('c70-pending',espera);
-                tarjeta.classList.toggle('c69-card-ok',!espera&&recibido===pedido&&!rechazado);
-                tarjeta.classList.toggle('c69-card-diff',!espera&&(recibido!==pedido||rechazado));
+                tarjeta.classList.toggle('c69-card-ok',!espera&&recibido===pedido);
+                tarjeta.classList.toggle('c69-card-diff',!espera&&recibido!==pedido);
             }
             c69ActualizarResumen();
         }
@@ -4734,8 +4720,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 const v=c69NumeroValido(inp.value),pedido=c71CantidadEsperada(p);
                 if(v===null||v>pedido||(modo==='PARCIAL'&&(v<=0||v>=pedido))){invalidos++;return;}
                 revisados++;
-                const rechazo=!!document.getElementById('c60Rechazo_'+i)?.checked;
-                if(v===pedido&&!rechazo)coinciden++;else diferencias++;
+                if(v===pedido)coinciden++;else diferencias++;
             });
             const total=pedidosRecepcionActuales.length,pendientes=total-revisados;
             const pct=total?Math.round(revisados/total*100):0;
@@ -4746,7 +4731,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const btn=document.getElementById('btnConfirmarRecepcion');
             if(btn&&!btn.dataset.guardando){
                 btn.disabled=pendientes>0||invalidos>0;
-                btn.textContent=invalidos?'⚠️ Corrige las cantidades inválidas':pendientes?'⏳ Revisa todos los productos ('+revisados+'/'+total+')':'✓ Confirmar recepción';
+                btn.textContent=invalidos?'⚠️ Corrige las cantidades inválidas':pendientes?'⏳ Revisa todos los productos ('+revisados+'/'+total+')':'✓ Guardar revisión de llegada';
             }
             c69AplicarFiltros();
         }
@@ -4764,7 +4749,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     if(!item)return;
                     const val=c69NumeroValido(document.getElementById('recibido_'+i)?.value);
                     const revisado=!!c70EstadoPorIndice[i]&&val!==null&&val<=c71CantidadEsperada(item)&&!(c70EstadoPorIndice[i]==='PARCIAL'&&(val<=0||val>=c71CantidadEsperada(item)));
-                    const igual=revisado&&val===c71CantidadEsperada(item)&&!document.getElementById('c60Rechazo_'+i)?.checked;
+                    const igual=revisado&&val===c71CantidadEsperada(item);
                     const filtro=c69FiltroActual==='todos'||(c69FiltroActual==='pendientes'&&!revisado)||(c69FiltroActual==='iguales'&&igual)||(c69FiltroActual==='diferencias'&&revisado&&!igual);
                     const texto=[item.producto,item.idPedido,item.solicito,item.fecha].join(' ').toLowerCase();
                     const visible=filtro&&(!c69BusquedaActual||texto.includes(c69BusquedaActual));
@@ -4789,7 +4774,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                     if(!data||data.status!=='OK')throw Error(data?.mensaje||'Respuesta inválida');
                     if(data.recepcionVersion!=='1.6.71')throw Error('Publica Código.gs v1.6.71 antes de usar la recepción nueva. No se modificó ningún pedido.');
                     pedidosRecepcionActuales=Array.isArray(data.productos)?data.productos:[];
-                    c70EstadoPorIndice=Object.create(null);c70AntesRechazo=Object.create(null);
+                    c70EstadoPorIndice=Object.create(null);
                     if(!pedidosRecepcionActuales.length){
                         cont.innerHTML='<div class="c69-empty">✓ No tienes productos pendientes por recibir.</div>';
                         return;
@@ -4804,14 +4789,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                         const fa=c69FechaVisible(a[1].item.fecha).orden,fb=c69FechaVisible(b[1].item.fecha).orden;
                         return fb.localeCompare(fa)||b[1].indices[0]-a[1].indices[0];
                     });
-                    let html=`<div class="c71-note">📦 <strong>Recibir</strong> confirma lo preparado por Bodega, no lo solicitado originalmente. Lo que Bodega no tuvo va a Faltantes del día; si algo preparado no llegó, se registra para revisión de Despacho.</div><section class="c69-dashboard" aria-label="Resumen de cantidades a recibir">
+                    let html=`<div class="c71-note">📦 <strong>Revisión de llegada:</strong> Bodega ya envió los productos. Selecciona lo que llegó, sin aprobar el envío. Lo que Bodega no tuvo va a Faltantes del día; si algo enviado no llegó, se reporta a Despacho.</div><section class="c69-dashboard" aria-label="Resumen de cantidades a recibir">
                         <div class="c69-stats"><div class="c69-stat"><strong id="c69Total">0</strong><span>PRODUCTOS</span></div>
                           <div class="c69-stat"><strong id="c70Revisados">0</strong><span>REVISADOS</span></div>
                           <div class="c69-stat"><strong id="c70Pendientes">0</strong><span>PENDIENTES</span></div>
                           <div class="c69-stat"><strong id="c69Diferencias">0</strong><span>DIFERENCIAS</span></div></div>
                         <div class="c69-progress-label"><span>Productos comprobados físicamente</span><span id="c69Porcentaje">0%</span></div>
                         <div class="c69-progress"><div id="c69Barra" style="width:0%"></div></div>
-                        <div class="c69-help">Revisado significa que alguien eligió una opción. Diferencias son cantidades revisadas que no coinciden con lo solicitado. Guarda al finalizar.</div>
+                        <div class="c69-help">Revisado significa que alguien comprobó cómo llegó el producto. Las diferencias indican unidades enviadas que no llegaron. Guarda el reporte al finalizar.</div>
                     </section><div class="c69-tools"><input class="c69-search" type="search" placeholder="⌕ Buscar producto o número de pedido…" value="${escaparHtmlPedido(c69BusquedaActual)}" oninput="c69BuscarRecepcion(this.value)" aria-label="Buscar en pedidos de recepción" />
                     <div class="c69-filters" role="group" aria-label="Filtrar productos de recepción">
                       <button type="button" data-filtro="todos" class="${c69FiltroActual==='todos'?'c69-active':''}" onclick="c69FiltroRecepcion('todos')">Todos</button>
@@ -4839,7 +4824,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                             const adicional=item.origen==='ADICIONAL_BODEGA';
                             html+=`<article class="c69-card" id="c69Item_${i}" data-index="${i}">
                               <div class="c69-product-top"><div class="c69-photo">${imagenProductoGlobal(item.producto,item,58)}</div><div class="c69-product-name">${escaparHtmlPedido(item.producto)}</div></div>
-                              <div class="c69-product-meta"><span>${esComplemento?'Complemento preparado':'Solicitado'}: <strong>${pedido}</strong></span><span class="c69-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span>${adicional?'<span class="c69-chip">Adicional de Bodega</span>':''}${esComplemento?'<span class="c69-chip">🚚 Complemento pendiente de confirmar</span>':''}</div>
+                              <div class="c69-product-meta"><span>${esComplemento?'Complemento preparado':adicional?'Adicional enviado':'Solicitado'}: <strong>${pedido}</strong></span><span class="c69-chip">${escaparHtmlPedido(item.presentacion||'Individual')}</span>${adicional?'<span class="c69-chip">➕ Adicional de Bodega</span>':''}${esComplemento?'<span class="c69-chip">🚚 Complemento pendiente de confirmar</span>':''}</div>
                               ${conocido?`<div class="c69-prepared">📦 Cantidad que debes recibir de Bodega: <strong>${esperado}</strong>${!esComplemento&&pedido>esperado?` · 🟠 Sin surtir: <strong>${pedido-esperado}</strong> (Faltantes del día)`:''}</div>`:''}
                               <div class="c69-quick" role="group" aria-label="Estado de recepción de ${escaparHtmlPedido(item.producto)}">
                                 <button id="c69Todo_${i}" type="button" data-c70-mode="RECIBIDO" aria-pressed="false" onclick="c70SeleccionarRecepcion(${i},'RECIBIDO')"><span class="c70-ico">✓</span>Recibido</button>
@@ -4871,12 +4856,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                                   <button type="button" class="m202-dano-cancelar" onclick="m202CancelarDanoRec(${i})">Cancelar reporte</button>
                                 </div>
                               </div>
-                              ${adicional?`<label class="c69-reject"><input id="c60Rechazo_${i}" type="checkbox" onchange="c60CambiarRechazoAdicional(${i})"/> Rechazar este producto adicional de Bodega</label>`:''}
                             </article>`;
                         });
                         html+='</section>';
                     });
-                    html+='</div><div id="c69SinFiltro" class="c69-empty" hidden>No hay productos con ese filtro.</div><div class="c69-save"><div class="c69-save-note">Solo podrás guardar tras revisar todos los productos. Los filtros no excluyen productos del guardado.</div><button id="btnConfirmarRecepcion" type="button" onclick="confirmarRecepcionPedido()">✓ Confirmar recepción</button></div>';
+                    html+='</div><div id="c69SinFiltro" class="c69-empty" hidden>No hay productos con ese filtro.</div><div class="c69-save"><div class="c69-save-note">Solo registrarás cómo llegó cada producto. No se solicita aprobar ni rechazar el envío de Bodega.</div><button id="btnConfirmarRecepcion" type="button" onclick="confirmarRecepcionPedido()">✓ Guardar revisión de llegada</button></div>';
                     cont.innerHTML=html;
                     m200RestaurarDanosRec();
                     pedidosRecepcionActuales.forEach((item,i)=>{
@@ -4885,8 +4869,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                         const inp=document.getElementById('recibido_'+i);
                         if(inp)inp.value=antes.valor;
                         if(antes.modo)c70EstadoPorIndice[i]=antes.modo;
-                        const chk=document.getElementById('c60Rechazo_'+i);
-                        if(chk&&antes.rechazado){chk.checked=true;inp.disabled=true;c70EstadoPorIndice[i]='NADA';inp.value='0';}
                     });
                     // Ningún producto se marca «recibido» automáticamente.
                     pedidosRecepcionActuales.forEach((_,i)=>actualizarEstadoRecepcion(i));
@@ -4908,7 +4890,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if(c70EstadoPorIndice[i]==='PARCIAL'&&(valor===null||valor<=0||valor>=esperado))return alert('Parcial requiere una cantidad de 1 a '+(esperado-1)+' para '+pedidosRecepcionActuales[i].producto+'.');
                 if(valor===null) return alert('Corrige la cantidad recibida de '+pedidosRecepcionActuales[i].producto+' antes de confirmar.');
             }
-            if((c69FiltroActual!=='todos'||c69BusquedaActual)&&!confirm('Hay filtros activos. Se guardarán TODOS los productos ya revisados, incluso los ocultos. ¿Confirmar recepción completa?'))return;
+            if((c69FiltroActual!=='todos'||c69BusquedaActual)&&!confirm('Hay filtros activos. Se guardará la revisión de TODOS los productos, incluso los ocultos. ¿Continuar?'))return;
             for(let i=0;i<pedidosRecepcionActuales.length;i++){
                 m200RecordarDanoRec(i);
                 const x=m200DanosRecepcion[m200ClaveDanoRec(pedidosRecepcionActuales[i])]||{};
@@ -4926,7 +4908,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 cantidadRecibida: Math.max(0, Number(document.getElementById(`recibido_${index}`).value) || 0),
                 lineaId:item.lineaId||'',filaPedido:item.filaPedido||0,
                 tipoRegistro:item.tipoRegistro||'',filaFaltante:item.filaFaltante||0,
-                rechazado:!!document.getElementById(`c60Rechazo_${index}`)?.checked
+                rechazado:false // La sucursal solo reporta la llegada; no aprueba ni rechaza adicionales.
             }));
             const params = new URLSearchParams({
                 accion: "ConfirmarRecepcionPedido",
@@ -4952,14 +4934,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if(data.recepcionVersion!=='1.6.71')throw new Error('La versión del servidor es antigua. Publica Código.gs v1.6.71.');
                 alert(`Recepción guardada. Completos: ${data.completos} | Con diferencia: ${data.conDiferencia}\nUnidades faltantes en Bodega: ${data.unidadesFaltanteBodega||0} | Unidades para revisar en Despacho: ${data.unidadesIncidenciaDespacho||0}`);
                 pedidosRecepcionActuales = [];
-                c70EstadoPorIndice=Object.create(null);c70AntesRechazo=Object.create(null);
+                c70EstadoPorIndice=Object.create(null);
                 m200DanosRecepcion={};
                 m202DanoAbierto={};
                 cargarPedidosParaRecepcion();
             } catch (err) {
                 console.error("Error confirmando recepción:", err);
                 alert("No se pudo guardar la recepción: "+err.message);
-                if (btn) { btn.disabled = false;delete btn.dataset.guardando;btn.innerText = "✓ Confirmar recepción"; }
+                if (btn) { btn.disabled = false;delete btn.dataset.guardando;btn.innerText = "✓ Guardar revisión de llegada"; }
             }
         }
 
@@ -5295,6 +5277,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         let faltantesDiaActuales=[];
         let m206Vista='MENU',m206Busqueda='',m206Estado='TODOS',m206Fecha='';
+        let m207ExtraAbierto=Object.create(null),m207Nuevos=[],m207EditorAbierto=false,
+            m207OrdenActiva='',m207Catalogos=Object.create(null),m207Promesas=Object.create(null),
+            m207ResultadosIndices=[],m207BusquedaSecuencia=0;
         let m203Revision=Object.create(null),m203Operacion='',m203Enviando=false;
         function cargarFaltantesDelDia(){
             if(m203Enviando)return;
@@ -5306,6 +5291,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 faltantesDiaActuales=d.faltantes||[];
                 m203Revision=Object.create(null);m203Operacion='';
                 m206Vista='MENU';m206Busqueda='';m206Estado='TODOS';m206Fecha='';
+                m207ExtraAbierto=Object.create(null);m207Nuevos=[];m207EditorAbierto=false;
+                m207OrdenActiva='';m207ResultadosIndices=[];
                 renderizarFaltantesDelDia();
             }).catch(e=>{
                 console.error(e);cont.innerHTML='<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar los faltantes.</p>';
@@ -5354,6 +5341,109 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function m206FiltrarBusqueda(valor){m206Busqueda=String(valor||'');m206RenderProductos();}
         function m206FiltrarEstado(valor){m206Estado=valor;m206RenderProductos();}
         function m206FiltrarFecha(valor){m206Fecha=String(valor||'');m206RenderProductos();}
+        function m207OrdenesVista(){
+            const ordenes=new Map();
+            m206ElementosVista().forEach(({x})=>{
+                if(!m203Accionable(x))return;
+                const token=encodeURIComponent(JSON.stringify([x.sucursal,x.idPedido]));
+                if(!ordenes.has(token))ordenes.set(token,{token,sucursal:x.sucursal,idPedido:x.idPedido});
+            });
+            return [...ordenes.values()];
+        }
+        function m207OrdenSeleccionada(){
+            const ordenes=m207OrdenesVista();
+            if(!ordenes.some(o=>o.token===m207OrdenActiva))m207OrdenActiva=ordenes[0]?.token||'';
+            return ordenes.find(o=>o.token===m207OrdenActiva)||null;
+        }
+        function m207NuevosVista(){
+            const permitidos=new Set(m207OrdenesVista().map(o=>o.token));
+            return m207Nuevos.filter(x=>permitidos.has(encodeURIComponent(JSON.stringify([x.sucursal,x.idPedido]))));
+        }
+        function m207AlternarEditor(){m207EditorAbierto=!m207EditorAbierto;renderizarFaltantesDelDia();}
+        function m207SeleccionarOrden(token){
+            if(!m207OrdenesVista().some(o=>o.token===token))return;
+            m207OrdenActiva=token;m207ResultadosIndices=[];
+            const input=document.getElementById('m207BuscarNuevo');if(input)input.value='';
+            const res=document.getElementById('m207Resultados');if(res)res.innerHTML='';
+            m207RenderListaNuevos();
+        }
+        async function m207BuscarNuevo(valor){
+            const sec=++m207BusquedaSecuencia,q=String(valor||'').trim(),orden=m207OrdenSeleccionada(),
+                resultados=document.getElementById('m207Resultados');
+            if(!resultados||!orden)return;
+            if(!q){resultados.innerHTML='';return;}
+            resultados.innerHTML='<div style="font-size:12px;color:#627d99">Buscando en catálogo Akasia…</div>';
+            try{
+                const suc=orden.sucursal;
+                if(!m207Catalogos[suc]){
+                    if(!m207Promesas[suc])m207Promesas[suc]=(async()=>{
+                        const r=await fetch(URL_API+'?accion=c60CatalogoPedidos&sucursal='+encodeURIComponent(suc));
+                        const d=await r.json();if(!r.ok||!d||d.status!=='OK'||!Array.isArray(d.productos))throw Error(d?.mensaje||'No se pudo cargar el catálogo.');
+                        return d.productos;
+                    })();
+                    try{m207Catalogos[suc]=await m207Promesas[suc];}
+                    finally{delete m207Promesas[suc];}
+                }
+                if(sec!==m207BusquedaSecuencia||m207OrdenActiva!==orden.token)return;
+                const normalizar=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+                const palabras=normalizar(q).split(/\s+/).filter(Boolean),catalogo=m207Catalogos[suc];
+                m207ResultadosIndices=[];
+                catalogo.forEach((p,i)=>{if(m207ResultadosIndices.length>=10)return;
+                    const nombre=normalizar(p.producto+' '+p.codigo);
+                    if(faltantesDiaActuales.some(x=>m203Accionable(x)&&x.idPedido===orden.idPedido&&
+                      x.sucursal===orden.sucursal&&normalizar(x.producto)===normalizar(p.producto)))return;
+                    if(palabras.every(w=>nombre.includes(w)))m207ResultadosIndices.push(i);
+                });
+                resultados.innerHTML=m207ResultadosIndices.length?m207ResultadosIndices.map((idx,j)=>
+                    `<button type="button" class="m207-accion" onclick="m207AgregarNuevo(${j})">＋ ${escaparHtmlPedido(catalogo[idx].producto)}</button>`).join(''):
+                    '<div style="font-size:12px;color:#627d99">No se encontraron productos.</div>';
+            }catch(e){if(sec===m207BusquedaSecuencia)resultados.innerHTML='<div class="c71-warning">'+escaparHtmlPedido(e.message)+'</div>';}
+        }
+        function m207AgregarNuevo(pos){
+            const orden=m207OrdenSeleccionada(),catalogo=orden&&m207Catalogos[orden.sucursal],
+                producto=catalogo&&catalogo[m207ResultadosIndices[pos]];
+            if(!orden||!producto)return;
+            const anterior=m207Nuevos.find(x=>x.idPedido===orden.idPedido&&x.sucursal===orden.sucursal&&
+                x.codigo===producto.codigo&&x.uuid===producto.uuid&&x.producto===producto.producto);
+            if(anterior)anterior.cantidad=Math.min(99999,anterior.cantidad+1);
+            else m207Nuevos.push({idPedido:orden.idPedido,sucursal:orden.sucursal,producto:producto.producto,
+                codigo:producto.codigo,uuid:producto.uuid,cantidad:1});
+            m203Operacion='';m207ResultadosIndices=[];
+            const input=document.getElementById('m207BuscarNuevo');if(input)input.value='';
+            const res=document.getElementById('m207Resultados');if(res)res.innerHTML='';
+            m207RenderListaNuevos();m203ActualizarPie();
+        }
+        function m207CambiarNuevo(i,d){
+            const item=m207NuevosVista()[i];if(!item)return;
+            item.cantidad=Math.max(1,Math.min(99999,Number(item.cantidad)+d));
+            m203Operacion='';m207RenderListaNuevos();m203ActualizarPie();
+        }
+        function m207QuitarNuevo(i){
+            const item=m207NuevosVista()[i];if(!item)return;
+            m207Nuevos.splice(m207Nuevos.indexOf(item),1);
+            m203Operacion='';m207RenderListaNuevos();m203ActualizarPie();
+        }
+        function m207RenderListaNuevos(){
+            const cont=document.getElementById('m207ListaNuevos');if(!cont)return;
+            const items=m207NuevosVista();
+            cont.innerHTML=items.length?'<div style="font-weight:850;margin-top:9px">Adicionales pendientes de enviar</div>'+
+                items.map((x,i)=>`<div class="m207-lista-item"><b>${escaparHtmlPedido(x.producto)}</b>
+                   <div style="color:#667085;margin:4px 0">${escaparHtmlPedido(m205NombreSucursal(x.sucursal))} · Pedido ${escaparHtmlPedido(x.idPedido)}</div>
+                   <button type="button" onclick="m207CambiarNuevo(${i},-1)">−</button><strong>${x.cantidad}</strong>
+                   <button type="button" onclick="m207CambiarNuevo(${i},1)">+</button>
+                   <button type="button" onclick="m207QuitarNuevo(${i})" style="background:#fee!important;color:#a22!important">Quitar</button></div>`).join(''):
+                '<div style="font-size:11px;color:#667085;margin-top:8px">Aún no agregaste productos adicionales.</div>';
+        }
+        function m207EditorHtml(){
+            const ordenes=m207OrdenesVista();if(!ordenes.length)return '';
+            const actual=m207OrdenSeleccionada();
+            return `<div class="m207-nuevos"><button type="button" class="m207-accion" onclick="m207AlternarEditor()">${m207EditorAbierto?'− Cerrar productos adicionales':'➕ Agregar producto no solicitado'}</button>
+              ${m207EditorAbierto?`<div style="margin-top:9px"><label style="font-size:12px;font-weight:850">Pedido de destino</label>
+                <select onchange="m207SeleccionarOrden(this.value)">${ordenes.map(o=>`<option value="${o.token}" ${o.token===actual?.token?'selected':''}>${escaparHtmlPedido(m205NombreSucursal(o.sucursal)+' · '+o.idPedido)}</option>`).join('')}</select>
+                <input id="m207BuscarNuevo" type="search" placeholder="Buscar otro producto en Akasia" oninput="m207BuscarNuevo(this.value)" autocomplete="off"/>
+                <div id="m207Resultados"></div><div id="m207ListaNuevos"></div>
+                <div style="font-size:11px;color:#627d99;margin-top:9px">Los adicionales se envían desde Bodega al pulsar el botón final de revisión. La sucursal solo comprueba si llegaron completos, parciales, no llegaron o tienen daños; no requiere aprobarlos.</div></div>`:''}</div>`;
+        }
         function renderizarFaltantesDelDia(){
             const cont=document.getElementById('listaFaltantesDia');if(!cont)return;
             if(!faltantesDiaActuales.length){cont.innerHTML='<div class="c71-note">✅ No hay faltantes de Bodega pendientes de preparación ni complementos en tránsito.</div>';m203ActualizarPie();return;}
@@ -5389,7 +5479,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 </div>
                 <select id="m206Fecha" onchange="m206FiltrarFecha(this.value)"><option value="">📅 Todas las fechas</option>${fechas.map(f=>`<option value="${escaparHtmlPedido(f)}" ${f===m206Fecha?'selected':''}>${escaparHtmlPedido(m205FechaVisible(f))}</option>`).join('')}</select>
                 <div style="font-size:11px;color:#58738e;margin-top:8px">Los filtros ayudan a buscar; para guardar debes revisar todos los productos de esta vista.</div>
-              </div><div id="m206ListaProductos"></div>`;
+              </div>${m207EditorHtml()}<div id="m206ListaProductos"></div>`;
+            m207RenderListaNuevos();
             m206RenderProductos();
             m203ActualizarPie();
         }
@@ -5440,6 +5531,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                   <label for="faltDiaCant_${i}">Unidades que sí preparó Bodega</label>
                   <div class="c71-quantity"><button onclick="m203Cantidad(${i},-1)" type="button">−</button><input id="faltDiaCant_${i}" type="number" min="1" max="${pen-1}" step="1" value="1" oninput="m203CantidadManual(${i})" inputmode="numeric"/><button onclick="m203Cantidad(${i},1)" type="button">+</button></div>
                 </div>
+                <div id="m207AccionExtra_${i}" style="display:none"><button id="m207BotonExtra_${i}" type="button" class="m207-accion" onclick="m207AlternarExtra(${i})">➕ Enviar más de este producto</button>
+                  <div id="m207ExtraBox_${i}" class="m207-caja" style="display:none">
+                    <label for="m207ExtraCant_${i}" style="font-size:12px;font-weight:800">Unidades adicionales (se registran aparte)</label>
+                    <div class="c71-quantity"><button type="button" onclick="m207CambiarExtra(${i},-1)">−</button>
+                    <input id="m207ExtraCant_${i}" type="number" min="0" max="99999" step="1" value="0" inputmode="numeric" oninput="m207ExtraManual(${i})"/>
+                    <button type="button" onclick="m207CambiarExtra(${i},1)">+</button></div>
+                  </div></div>
                 <div id="m204CompraAuto_${i}" class="m204-compra-auto" style="display:none" aria-live="polite">🛒 Las unidades faltantes se enviarán automáticamente a Compras al guardar toda la revisión.</div>
                 <div id="m203Estado_${i}" class="m203-elegido">⏳ Pendiente de revisar</div>`:''}
                 ${enCamino?'<div class="c71-muted" style="margin-top:10px">🚚 Esperando confirmación de recepción en la sucursal.</div>':''}</div>`;
@@ -5451,7 +5549,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(modo==='PARCIAL'&&pen<2)return;
             const cantidad=modo==='COMPLETO'?pen:modo==='INCOMPLETO'?0:
               anterior.modo==='PARCIAL'?Math.min(pen-1,Math.max(1,Number(anterior.cantidad)||1)):1;
-            m203Revision[x.fila]={modo,cantidad};
+            m203Revision[x.fila]={modo,cantidad,extra:modo==='COMPLETO'?(Number(anterior.extra)||0):0};
             m203Operacion='';
             m203ActualizarTarjeta(i);m203ActualizarPie();
         }
@@ -5465,6 +5563,23 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const x=faltantesDiaActuales[i],s=x&&m203Revision[x.fila],el=document.getElementById('faltDiaCant_'+i);
             if(!x||!s||!el||s.modo!=='PARCIAL')return;
             s.cantidad=el.value===''?0:Number(el.value);
+            m203Operacion='';m203ActualizarTarjeta(i,true);m203ActualizarPie();
+        }
+        function m207AlternarExtra(i){
+            const x=faltantesDiaActuales[i],s=x&&m203Revision[x.fila];
+            if(!s||s.modo!=='COMPLETO')return;
+            m207ExtraAbierto[x.fila]=!m207ExtraAbierto[x.fila];m203ActualizarTarjeta(i);
+        }
+        function m207CambiarExtra(i,d){
+            const x=faltantesDiaActuales[i],s=x&&m203Revision[x.fila];
+            if(!s||s.modo!=='COMPLETO')return;
+            s.extra=Math.max(0,Math.min(99999,(Number(s.extra)||0)+d));
+            m207ExtraAbierto[x.fila]=true;m203Operacion='';m203ActualizarTarjeta(i);m203ActualizarPie();
+        }
+        function m207ExtraManual(i){
+            const x=faltantesDiaActuales[i],s=x&&m203Revision[x.fila],input=document.getElementById('m207ExtraCant_'+i);
+            if(!s||s.modo!=='COMPLETO'||!input)return;
+            s.extra=input.value===''?0:Number(input.value);
             m203Operacion='';m203ActualizarTarjeta(i,true);m203ActualizarPie();
         }
         function m203ActualizarTarjeta(i,mantenerInput){
@@ -5481,6 +5596,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(parcial)parcial.style.display=s?.modo==='PARCIAL'?'block':'none';
             const input=document.getElementById('faltDiaCant_'+i);
             if(input&&s?.modo==='PARCIAL'&&!mantenerInput)input.value=String(s.cantidad);
+            const extraAccion=document.getElementById('m207AccionExtra_'+i);
+            if(extraAccion)extraAccion.style.display=s?.modo==='COMPLETO'?'block':'none';
+            const extraBox=document.getElementById('m207ExtraBox_'+i);
+            if(extraBox)extraBox.style.display=s?.modo==='COMPLETO'&&(m207ExtraAbierto[x.fila]||Number(s.extra)>0)?'block':'none';
+            const extraBoton=document.getElementById('m207BotonExtra_'+i);
+            if(extraBoton)extraBoton.textContent=Number(s?.extra)>0?'➕ '+s.extra+' unidad(es) adicionales':'➕ Enviar más de este producto';
+            const inputExtra=document.getElementById('m207ExtraCant_'+i);
+            if(inputExtra&&s?.modo==='COMPLETO'&&!mantenerInput)inputExtra.value=String(s.extra||0);
             const compraAviso=document.getElementById('m204CompraAuto_'+i);
             if(compraAviso){
               const enviar=s&&s.modo!=='COMPLETO'&&Number.isSafeInteger(Number(s.cantidad))&&Number(s.cantidad)>=0&&Number(s.cantidad)<pen;
@@ -5495,12 +5618,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               s.modo==='PARCIAL'?'◐ Preparar '+prep+' y dejar '+saldo+' sin surtir.':
               '× No se preparará ninguna unidad.';
             if(s.modo!=='COMPLETO')estado.textContent+=' 🛒 Saldo para Compras.';
+            if(s.modo==='COMPLETO'&&Number(s.extra)>0)estado.textContent+=' 📦 '+s.extra+' adicional(es) para la sucursal.';
         }
         function m203ResumenActual(){
             // En una sucursal se guarda solo su revisión; en Todos se guardan ambas.
             // Los filtros de búsqueda, fecha y estado no excluyen filas del guardado.
             const activos=m206ElementosVista().map(({x})=>x).filter(m203Accionable);
-            let revisados=0,preparados=0,compras=0,sinSurtir=0;
+            let revisados=0,preparados=0,compras=0,sinSurtir=0,extras=0;
             activos.forEach(x=>{
                 const s=m203Revision[x.fila],pen=Number(x.pendiente);
                 if(!s)return;
@@ -5509,11 +5633,15 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                   !Number.isSafeInteger(n)||n<0||n>pen||
                   (s.modo==='COMPLETO'&&n!==pen)||
                   (s.modo==='INCOMPLETO'&&n!==0)||
-                  (s.modo==='PARCIAL'&&(n<=0||n>=pen)))return;
+                  (s.modo==='PARCIAL'&&(n<=0||n>=pen))||
+                  !Number.isSafeInteger(Number(s.extra||0))||Number(s.extra||0)<0||Number(s.extra||0)>99999||
+                  (s.modo!=='COMPLETO'&&Number(s.extra||0)>0))return;
                 revisados++;preparados+=n;
+                extras+=Number(s.extra)||0;
                 if(s.modo!=='COMPLETO')compras+=pen-n;else sinSurtir+=pen-n;
             });
-            return {activos,revisados,preparados,compras,sinSurtir};
+            extras+=m207NuevosVista().reduce((n,x)=>n+Number(x.cantidad||0),0);
+            return {activos,revisados,preparados,compras,sinSurtir,extras};
         }
         function m203ActualizarPie(){
             const pie=document.getElementById('m203Pie'),info=document.getElementById('m203Resumen'),
@@ -5522,7 +5650,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const q=m203ResumenActual();pie.style.display=q.activos.length?'block':'none';
             if(!q.activos.length)return;
             info.textContent=q.revisados+' de '+q.activos.length+' revisados · '+q.preparados+
-              ' por preparar · '+q.compras+' para Compras automáticamente';
+              ' por preparar · '+q.compras+' para Compras · '+q.extras+' adicionales';
             btn.disabled=m203Enviando||q.revisados!==q.activos.length;
             btn.textContent=m203Enviando?'Guardando revisión…':
               q.revisados===q.activos.length?'✓ Guardar y enviar revisión ('+q.activos.length+')':
@@ -5536,20 +5664,24 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const productos=q.activos.map(x=>({
                 fila:x.fila,idPedido:x.idPedido,sucursal:x.sucursal,producto:x.producto,
                 pendiente:Number(x.pendiente),modo:m203Revision[x.fila].modo,
-                cantidad:Number(m203Revision[x.fila].cantidad)
+                cantidad:Number(m203Revision[x.fila].cantidad),extra:Number(m203Revision[x.fila].extra)||0
             }));
             const fuera=faltantesDiaActuales.filter(x=>m203Accionable(x)&&
               !q.activos.includes(x)&&!!m203Revision[x.fila]).length;
-            const avisoFuera=fuera?'\n⚠️ Tienes '+fuera+' producto(s) revisados de otra sucursal sin guardar. Si continúas se perderá esa selección. Puedes volver y elegir Todos para enviarlos juntos.':'';
+            const extrasFuera=m207Nuevos.length-m207NuevosVista().length;
+            const avisoFuera=fuera||extrasFuera?'\n⚠️ Tienes '+fuera+' producto(s) revisados y '+extrasFuera+
+              ' adicional(es) de otra sucursal sin guardar. Si continúas se perderá esa selección. Puedes volver y elegir Todos para enviarlos juntos.':'';
             if(!confirm('¿Guardar la revisión de '+productos.length+' producto(s)?\n'+q.preparados+
               ' unidades quedarán preparadas para las sucursales.\n'+q.compras+
-              ' unidades faltantes se enviarán automáticamente a Compras.'+avisoFuera))return;
+              ' unidades faltantes se enviarán a Compras.\n'+q.extras+
+              ' unidades adicionales se enviarán como registros separados.'+avisoFuera))return;
             if(!m203Operacion)m203Operacion='FD-'+(window.crypto?.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2));
             m203Enviando=true;m203ActualizarPie();
             try{
                 const body=new URLSearchParams({accion:'m203ProcesarFaltantesDiaLote',
                     sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',
-                    operacionId:m203Operacion,productos:JSON.stringify(productos)});
+                    operacionId:m203Operacion,productos:JSON.stringify(productos),
+                    adicionales:JSON.stringify(m207NuevosVista())});
                 const r=await fetch(URL_API,{method:'POST',body}),d=await r.json();
                 if(!r.ok||!d||d.status!=='OK')throw Error(d?.mensaje||'El servidor no pudo guardar la revisión.');
                 alert('✅ '+d.mensaje);
