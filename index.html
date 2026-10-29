@@ -1317,6 +1317,27 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloFaltantesDia #m203GuardarBtn{width:100%!important;min-height:50px!important;margin:0!important;border-radius:13px!important;background:#087cff!important;color:#fff!important;font-size:14px!important;font-weight:850!important}
 #moduloFaltantesDia #m203GuardarBtn:disabled{background:#8ca8ca!important;opacity:.8!important}
 #moduloFaltantesDia #listaFaltantesDia{padding-bottom:10px}
+/* v1.7.05: Faltantes separados por sucursal y fecha del pedido. */
+#moduloFaltantesDia .m205-nav{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:16px 0 10px}
+#moduloFaltantesDia .m205-nav button{width:auto!important;min-height:38px!important;padding:8px 12px!important;margin:0!important;border:1px solid #c6d9ef!important;border-radius:13px!important;background:#ecf5ff!important;color:#19548d!important;font-size:12px!important;font-weight:850!important}
+#moduloFaltantesDia .m205-sucursal{margin:15px 0 25px;scroll-margin-top:16px}
+#moduloFaltantesDia .m205-sucursal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:15px 13px;border:1px solid #bed7f3;border-radius:17px;background:linear-gradient(110deg,#dcecff,#f5faff);color:#164878}
+#moduloFaltantesDia .m205-sucursal-head b{font-size:16px;font-weight:900;line-height:1.2}
+#moduloFaltantesDia .m205-sucursal-head span{font-size:11px;font-weight:800;white-space:nowrap;background:#fff;padding:7px 9px;border-radius:999px}
+#moduloFaltantesDia .m205-fecha-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:16px 2px 8px;padding:0 4px;color:#4c6480}
+#moduloFaltantesDia .m205-fecha-head b{font-size:13px;font-weight:850}
+#moduloFaltantesDia .m205-fecha-head span{font-size:11px;font-weight:750}
+/* v1.7.06: navegación por carpetas, vista Todos y filtros como Pedidos de Bodega. */
+#moduloFaltantesDia .m206-carpeta{display:block;width:100%!important;margin:10px 0!important;padding:17px 15px!important;text-align:left!important;border:1px solid #d1e0ef!important;border-left:5px solid #0780f9!important;border-radius:16px!important;background:#fff!important;color:#243447!important;box-shadow:0 4px 15px rgba(35,86,144,.07)!important}
+#moduloFaltantesDia .m206-carpeta.m206-todos{background:linear-gradient(120deg,#e4f2ff,#f9fcff)!important;border-left-color:#1454bc!important}
+#moduloFaltantesDia .m206-carpeta strong{display:block;font-size:16px;font-weight:900}
+#moduloFaltantesDia .m206-carpeta small{display:block;font-size:12px;color:#627d99;font-weight:650;margin-top:6px;line-height:1.45}
+#moduloFaltantesDia .m206-volver{width:auto!important;padding:10px 14px!important;margin:0 0 12px!important;border-radius:12px!important;background:#e9eff8!important;color:#355a81!important}
+#moduloFaltantesDia .m206-filtros{padding:12px;margin:12px 0;background:#f0f7ff;border:1px solid #d5e6f8;border-radius:17px}
+#moduloFaltantesDia .m206-filtros input,#moduloFaltantesDia .m206-filtros select{width:100%!important;min-height:42px!important;margin:0!important;border-radius:12px!important;background:#fff!important;font-size:13px!important}
+#moduloFaltantesDia .m206-filtros .m206-pills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+#moduloFaltantesDia .m206-pills button{width:auto!important;min-height:34px!important;padding:7px 11px!important;margin:0!important;background:#fff!important;color:#476784!important;border:1px solid #c9ddf2!important;border-radius:999px!important;font-size:11px!important;font-weight:800!important}
+#moduloFaltantesDia .m206-pills button.m206-elegido{background:#0a84ff!important;color:#fff!important;border-color:#0a84ff!important}
 
 /* v1.6.74 · Asignador rápido de Faltantes Kardex (sin afectar otras pantallas) */
 .c74-assignment {margin-top:13px;background:rgba(247,250,255,.82);border:1px solid #d6e5f5;border-radius:19px;padding:13px;box-shadow:0 8px 25px rgba(70,112,159,.07)}
@@ -1643,7 +1664,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.04 BETA · Compras automáticas de faltantes</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.06 BETA · Faltantes como Pedidos de Bodega</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -5273,6 +5294,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         let faltantesDiaActuales=[];
+        let m206Vista='MENU',m206Busqueda='',m206Estado='TODOS',m206Fecha='';
         let m203Revision=Object.create(null),m203Operacion='',m203Enviando=false;
         function cargarFaltantesDelDia(){
             if(m203Enviando)return;
@@ -5283,19 +5305,129 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if(!d||d.status!=="OK")throw new Error(d&&d.mensaje||"Respuesta inválida");
                 faltantesDiaActuales=d.faltantes||[];
                 m203Revision=Object.create(null);m203Operacion='';
+                m206Vista='MENU';m206Busqueda='';m206Estado='TODOS';m206Fecha='';
                 renderizarFaltantesDelDia();
             }).catch(e=>{
                 console.error(e);cont.innerHTML='<p style="font-size:12px;color:#dc3545;text-align:center;">No se pudieron cargar los faltantes.</p>';
                 document.getElementById('m203Pie').style.display='none';
             });
         }
+        function m205NombreSucursal(valor){
+            const original=String(valor||'').trim()||'Sin sucursal';
+            const key=original.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+            if(key==='minisuper'||key==='minisuper1')return 'Mini Súper';
+            if(['tiendaonlineshop','matriz','sucursalmatriz'].includes(key))return 'Tienda Online Shop';
+            return original;
+        }
+        function m205FechaClave(valor){
+            const texto=String(valor||'').trim();if(!texto)return '';
+            let m=texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if(m)return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
+            m=texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+            const d=new Date(texto);if(Number.isNaN(d.getTime()))return '';
+            return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        }
+        function m205FechaVisible(clave){
+            if(!clave)return 'Sin fecha registrada';
+            const [y,m,d]=clave.split('-').map(Number);
+            const f=new Date(y,m-1,d);
+            if(Number.isNaN(f.getTime()))return 'Sin fecha registrada';
+            return f.toLocaleDateString('es-SV',{day:'numeric',month:'short',year:'numeric'}).replace(/\./g,'');
+        }
+        function m206ElementosVista(){
+            if(m206Vista==='MENU')return [];
+            return faltantesDiaActuales.map((x,i)=>({x,i})).filter(({x})=>
+              m206Vista==='TODOS'||m205NombreSucursal(x.sucursal)===m206Vista);
+        }
+        function m206AbrirVista(codigo){
+            const vista=decodeURIComponent(String(codigo||''));
+            if(vista!=='TODOS'&&!faltantesDiaActuales.some(x=>m205NombreSucursal(x.sucursal)===vista))return;
+            m206Vista=vista;m206Busqueda='';m206Estado='TODOS';m206Fecha='';m203Operacion='';
+            renderizarFaltantesDelDia();
+            document.getElementById('moduloFaltantesDia')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+        function m206Volver(){
+            m206Vista='MENU';m203Operacion='';renderizarFaltantesDelDia();
+            document.getElementById('moduloFaltantesDia')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+        function m206FiltrarBusqueda(valor){m206Busqueda=String(valor||'');m206RenderProductos();}
+        function m206FiltrarEstado(valor){m206Estado=valor;m206RenderProductos();}
+        function m206FiltrarFecha(valor){m206Fecha=String(valor||'');m206RenderProductos();}
         function renderizarFaltantesDelDia(){
             const cont=document.getElementById('listaFaltantesDia');if(!cont)return;
             if(!faltantesDiaActuales.length){cont.innerHTML='<div class="c71-note">✅ No hay faltantes de Bodega pendientes de preparación ni complementos en tránsito.</div>';m203ActualizarPie();return;}
-            cont.innerHTML='<div class="c71-note">🟠 <strong>Sin surtir:</strong> pendiente por encontrar o comprar. 🚚 <strong>En tránsito:</strong> Bodega preparó el complemento; la sucursal lo confirma desde Recibir pedidos. ⚠️ Las diferencias de entrega se revisan con Despacho, no se compran automáticamente.</div>'+faltantesDiaActuales.map((x,i)=>{
+            const grupos=new Map();
+            faltantesDiaActuales.forEach(x=>{
+                const sucursal=m205NombreSucursal(x.sucursal);
+                if(!grupos.has(sucursal))grupos.set(sucursal,[]);
+                grupos.get(sucursal).push(x);
+            });
+            const orden={'Mini Súper':0,'Tienda Online Shop':1};
+            const sucursales=[...grupos.entries()].sort((a,b)=>(orden[a[0]]??99)-(orden[b[0]]??99)||a[0].localeCompare(b[0],'es'));
+            if(m206Vista==='MENU'){
+                const pendientes=faltantesDiaActuales.filter(m203Accionable).length;
+                const carpeta=(titulo,descripcion,clave,cantidad,pending,todos)=>`<button type="button" class="m206-carpeta${todos?' m206-todos':''}" onclick="m206AbrirVista('${encodeURIComponent(clave)}')"><strong>${todos?'📦':'🏬'} ${escaparHtmlPedido(titulo)} <span style="float:right;color:#087cff;font-size:21px">›</span></strong><small>${cantidad} productos · ${pending} por revisar · ${escaparHtmlPedido(descripcion)}</small></button>`;
+                cont.innerHTML='<div class="c71-note">Selecciona una sucursal para revisar sus faltantes, o abre <b>Todos</b> para reunirlos y enviarlos juntos.</div>'+
+                  carpeta('Todos los faltantes','Ambas sucursales en una sola revisión','TODOS',faltantesDiaActuales.length,pendientes,true)+
+                  sucursales.map(([sucursal,items])=>carpeta(sucursal,'Pedidos separados por fecha',sucursal,items.length,items.filter(m203Accionable).length,false)).join('');
+                m203ActualizarPie();return;
+            }
+            const alcance=m206ElementosVista();
+            if(!alcance.length){m206Vista='MENU';renderizarFaltantesDelDia();return;}
+            const fechas=[...new Set(alcance.map(({x})=>m205FechaClave(x.fecha)))].sort((a,b)=>b.localeCompare(a));
+            const titulo=m206Vista==='TODOS'?'Todas las sucursales':m206Vista;
+            cont.innerHTML=`<button type="button" class="m206-volver" onclick="m206Volver()">← Volver a sucursales</button>
+              <div class="m205-sucursal-head"><b>🏬 ${escaparHtmlPedido(titulo)}</b><span>${alcance.length} producto(s)</span></div>
+              <div class="m206-filtros">
+                <input id="m206Buscar" type="search" placeholder="🔎 Buscar producto o pedido..." oninput="m206FiltrarBusqueda(this.value)" value="${escaparHtmlPedido(m206Busqueda)}" autocomplete="off"/>
+                <div class="m206-pills">
+                  <button id="m206Filtro_TODOS" type="button" onclick="m206FiltrarEstado('TODOS')">Todos</button>
+                  <button id="m206Filtro_SIN_REVISAR" type="button" onclick="m206FiltrarEstado('SIN_REVISAR')">Por revisar</button>
+                  <button id="m206Filtro_REVISADOS" type="button" onclick="m206FiltrarEstado('REVISADOS')">Revisados</button>
+                  <button id="m206Filtro_EN_TRANSITO" type="button" onclick="m206FiltrarEstado('EN_TRANSITO')">En tránsito</button>
+                </div>
+                <select id="m206Fecha" onchange="m206FiltrarFecha(this.value)"><option value="">📅 Todas las fechas</option>${fechas.map(f=>`<option value="${escaparHtmlPedido(f)}" ${f===m206Fecha?'selected':''}>${escaparHtmlPedido(m205FechaVisible(f))}</option>`).join('')}</select>
+                <div style="font-size:11px;color:#58738e;margin-top:8px">Los filtros ayudan a buscar; para guardar debes revisar todos los productos de esta vista.</div>
+              </div><div id="m206ListaProductos"></div>`;
+            m206RenderProductos();
+            m203ActualizarPie();
+        }
+        function m206RenderProductos(){
+            const cont=document.getElementById('m206ListaProductos');if(!cont)return;
+            const normalizar=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+            const buscar=normalizar(m206Busqueda.trim());
+            const visibles=m206ElementosVista().filter(({x})=>{
+                if(m206Fecha&&m205FechaClave(x.fecha)!==m206Fecha)return false;
+                if(buscar&&!normalizar(x.producto+' '+x.idPedido+' '+x.sucursal).includes(buscar))return false;
+                if(m206Estado==='SIN_REVISAR'&&(!m203Accionable(x)||m203Revision[x.fila]))return false;
+                if(m206Estado==='REVISADOS'&&(!m203Accionable(x)||!m203Revision[x.fila]))return false;
+                if(m206Estado==='EN_TRANSITO'&&!(Number(x.enTransito)>0))return false;
+                return true;
+            });
+            ['TODOS','SIN_REVISAR','REVISADOS','EN_TRANSITO'].forEach(modo=>
+                document.getElementById('m206Filtro_'+modo)?.classList.toggle('m206-elegido',modo===m206Estado));
+            if(!visibles.length){cont.innerHTML='<div class="c71-note">No hay productos con estos filtros. Prueba otra fecha o vista.</div>';return;}
+            const grupos=new Map();
+            visibles.forEach(({x,i})=>{
+                const sucursal=m205NombreSucursal(x.sucursal),fecha=m205FechaClave(x.fecha);
+                if(!grupos.has(sucursal))grupos.set(sucursal,new Map());
+                const fechas=grupos.get(sucursal);if(!fechas.has(fecha))fechas.set(fecha,[]);
+                fechas.get(fecha).push({x,i});
+            });
+            const orden={'Mini Súper':0,'Tienda Online Shop':1};
+            cont.innerHTML='<div style="font-size:12px;color:#5b7188;padding:8px 3px">Mostrando '+visibles.length+' producto(s)</div>'+
+              [...grupos.entries()].sort((a,b)=>(orden[a[0]]??99)-(orden[b[0]]??99)||a[0].localeCompare(b[0],'es'))
+              .map(([sucursal,fechas])=>`<section class="m205-sucursal">
+                ${m206Vista==='TODOS'?`<div class="m205-sucursal-head"><b>🏬 ${escaparHtmlPedido(sucursal)}</b><span>${[...fechas.values()].reduce((n,items)=>n+items.length,0)} producto(s)</span></div>`:''}
+                ${[...fechas.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([fecha,items])=>`<div class="m205-fecha-head"><b>📅 ${escaparHtmlPedido(m205FechaVisible(fecha))}</b><span>${items.length} producto(s)</span></div>${items.map(({x,i})=>m205HtmlTarjetaFaltante(x,i)).join('')}`).join('')}
+              </section>`).join('');
+            visibles.forEach(({i})=>m203ActualizarTarjeta(i));
+        }
+        function m205HtmlTarjetaFaltante(x,i){
                 const pen=Number(x.pendiente)||0,enCamino=Number(x.enTransito)||0,revision=Number(x.enRevisionDespacho)||0;
                 const puedePreparar=x.estado==='Pendiente del día'&&pen>0;
-                return `<div class="c71-faltante"><div class="c71-faltante-head">${imagenProductoGlobal(x.producto,x,52)}<div style="flex:1;min-width:0"><b>${escaparHtmlPedido(x.producto)}</b><div class="c71-muted">${escaparHtmlPedido(x.sucursal)} · Pedido ${escaparHtmlPedido(x.idPedido)}</div></div></div>
+                return `<div class="c71-faltante"><div class="c71-faltante-head">${imagenProductoGlobal(x.producto,x,52)}<div style="flex:1;min-width:0"><b>${escaparHtmlPedido(x.producto)}</b><div class="c71-muted">Pedido ${escaparHtmlPedido(x.idPedido)} · 📅 ${escaparHtmlPedido(m205FechaVisible(m205FechaClave(x.fecha)))}</div></div></div>
                 <div class="c71-faltante-stats"><span>Sin surtir <strong>${pen}</strong></span><span>En camino <strong>${enCamino}</strong></span><span>Confirmado <strong>${Number(x.complementosRecibidos)||0}</strong></span></div>
                 ${revision?`<div class="c71-warning">⚠️ ${revision} unidad(es) del complemento en revisión de Despacho. No pasar automáticamente a Compras.</div>`:''}
                 ${x.estado==='Enviado a Compras'?'<div class="c71-warning">🛒 Saldo remitido a Compras. No se enviará de nuevo.</div>':''}
@@ -5311,9 +5443,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <div id="m204CompraAuto_${i}" class="m204-compra-auto" style="display:none" aria-live="polite">🛒 Las unidades faltantes se enviarán automáticamente a Compras al guardar toda la revisión.</div>
                 <div id="m203Estado_${i}" class="m203-elegido">⏳ Pendiente de revisar</div>`:''}
                 ${enCamino?'<div class="c71-muted" style="margin-top:10px">🚚 Esperando confirmación de recepción en la sucursal.</div>':''}</div>`;
-            }).join('');
-            faltantesDiaActuales.forEach((_,i)=>m203ActualizarTarjeta(i));
-            m203ActualizarPie();
         }
         function m203Accionable(x){return x&&x.estado==='Pendiente del día'&&Number(x.pendiente)>0;}
         function m203Elegir(i,modo){
@@ -5368,7 +5497,9 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(s.modo!=='COMPLETO')estado.textContent+=' 🛒 Saldo para Compras.';
         }
         function m203ResumenActual(){
-            const activos=faltantesDiaActuales.filter(m203Accionable);
+            // En una sucursal se guarda solo su revisión; en Todos se guardan ambas.
+            // Los filtros de búsqueda, fecha y estado no excluyen filas del guardado.
+            const activos=m206ElementosVista().map(({x})=>x).filter(m203Accionable);
             let revisados=0,preparados=0,compras=0,sinSurtir=0;
             activos.forEach(x=>{
                 const s=m203Revision[x.fila],pen=Number(x.pendiente);
@@ -5407,9 +5538,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 pendiente:Number(x.pendiente),modo:m203Revision[x.fila].modo,
                 cantidad:Number(m203Revision[x.fila].cantidad)
             }));
+            const fuera=faltantesDiaActuales.filter(x=>m203Accionable(x)&&
+              !q.activos.includes(x)&&!!m203Revision[x.fila]).length;
+            const avisoFuera=fuera?'\n⚠️ Tienes '+fuera+' producto(s) revisados de otra sucursal sin guardar. Si continúas se perderá esa selección. Puedes volver y elegir Todos para enviarlos juntos.':'';
             if(!confirm('¿Guardar la revisión de '+productos.length+' producto(s)?\n'+q.preparados+
               ' unidades quedarán preparadas para las sucursales.\n'+q.compras+
-              ' unidades faltantes se enviarán automáticamente a Compras.'))return;
+              ' unidades faltantes se enviarán automáticamente a Compras.'+avisoFuera))return;
             if(!m203Operacion)m203Operacion='FD-'+(window.crypto?.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2));
             m203Enviando=true;m203ActualizarPie();
             try{
