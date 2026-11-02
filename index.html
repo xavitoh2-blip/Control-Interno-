@@ -1823,7 +1823,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.19</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.20</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2281,8 +2281,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     <!-- MODAL SUPERVISOR -->
     <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 1000;">
         <h3>Clave de Administración</h3>
-        <input type="password" id="adminPassword" placeholder="Contraseña">
-        <button onclick="verificarPassword()" style="background-color: #007bff;">Ingresar</button>
+        <input type="password" id="adminPassword" placeholder="Clave privada de administración" autocomplete="current-password">
+        <button id="adminLoginSubmit" onclick="verificarPassword()" style="background-color: #007bff;">Ingresar</button>
         <button onclick="ocultarLogin()" style="background-color: #dc3545;">Cancelar</button>
     </div>
 
@@ -3695,12 +3695,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         let a196ClaveAdmin='',a196RegistrosAdmin=[];
         function a196Esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
         function a196SolicitarClave(){
-            if(a196ClaveAdmin)return a196ClaveAdmin;
-            a196ClaveAdmin=prompt('Contraseña administrativa de asistencia (ASISTENCIA_ADMIN_CLAVE o clave privada de tareas):')||'';
-            return a196ClaveAdmin;
+            // La contraseña ya se validó al entrar al Panel Administrativo.
+            return c49SesionAdministrador?a196ClaveAdmin:'';
         }
         async function a196PostAdmin(accion,datos){
-            const clave=a196SolicitarClave();if(!clave)throw Error('Introduce la contraseña administrativa.');
+            const clave=a196SolicitarClave();if(!clave)throw Error('La sesión administrativa venció. Sal del panel y vuelve a ingresar.');
             const p=new URLSearchParams({accion,claveAdmin:clave,...datos});
             const r=await fetch(URL_API,{method:'POST',body:p,cache:'no-store'});
             const d=await r.json();if(!r.ok||d.status!=='OK'){
@@ -6763,6 +6762,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             c49SesionAdministrador = '';
             a196ClaveAdmin='';
             a196RegistrosAdmin=[];
+            n188ClaveAdmin='';
             const avisoSalida=document.getElementById('a217AdminSinSalida');
             const avisoMenu=document.getElementById('a217MenuAlertasSalida');
             if(avisoSalida)avisoSalida.style.display='none';
@@ -6791,21 +6791,37 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (version) version.style.display = activo ? "none" : "block";
         }
 
-// v1.6.49: Reutiliza solo el acceso ya realizado al Administrador.
-        // Guardado en memoria; se borra al salir. No hay una segunda clave.
+// Entrada única: se verifica la clave privada en Apps Script y se conserva
+        // temporalmente el token para mercadería. Nunca se persiste en storage.
         let c49SesionAdministrador = '';
-function verificarPassword() {
+async function verificarPassword() {
             const pass = document.getElementById("adminPassword").value;
-            if (pass === "admin123") {
-                c49SesionAdministrador = pass;
+            const btn=document.getElementById('adminLoginSubmit');
+            if(!pass){alert('Introduce tu clave privada de Administración.');return;}
+            if(btn){btn.disabled=true;btn.textContent='Verificando…';}
+            try {
+                // Solo el servidor valida la clave. El PIN HTML anterior no
+                // autoriza operaciones privadas de mercadería ni asistencia.
+                const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'m201EntrarSupervisorMercaderia',claveAdmin:pass}),cache:'no-store'});
+                const d=await r.json();
+                if(!r.ok||d.status!=='OK'||!d.token)throw Error(d.mensaje||'No se pudo validar el acceso administrativo.');
+                if(document.getElementById('loginModal')?.style.display==='none')return;
+                // Compatibilidad con módulos antiguos que comprueban el
+                // indicador interno de panel; el acceso real ya está validado.
+                c49SesionAdministrador = 'admin123';
+                m201TokenSupervisor=d.token;
+                a196ClaveAdmin=pass;
+                n188ClaveAdmin=pass;
                 ocultarLogin();
                 const principal=document.querySelector(".container");
                 if(principal) principal.style.display="none";
                 modoSupervisorActivo(true);
                 document.getElementById("supervisorSection").style.display = "block";
                 cargarDatosSupervisor();
-            } else {
-                alert("Contraseña incorrecta.");
+            } catch(e) {
+                alert('No se pudo ingresar a Administración: '+e.message+'\n\nLa clave única debe estar configurada en Apps Script (ASISTENCIA_ADMIN_CLAVE, mínimo 12 caracteres).');
+            } finally {
+                if(btn){btn.disabled=false;btn.textContent='Ingresar';}
             }
         }
 
@@ -8991,11 +9007,8 @@ setInterval(()=>{
    }finally{n188Guardando=false;if(boton.isConnected){boton.disabled=false;boton.textContent='✓ Marcar completada';}}
  });
  function n188Clave(){
-   if(n188ClaveAdmin)return n188ClaveAdmin;
-   const clave=prompt('Clave privada de tareas configurada en Apps Script (TAREAS_ADMIN_CLAVE o CONTEOS_ADMIN_CLAVE):');
-   if(!clave)return '';
-   n188ClaveAdmin=clave;
-   return n188ClaveAdmin;
+   // Única verificación de contraseña en el acceso al Panel Administrativo.
+   return c49SesionAdministrador?n188ClaveAdmin:'';
  }
  async function n188AbrirAdmin(){n188ActualizarTurnosAdmin();await n188ActualizarAdmin();}
  async function n188ActualizarAdmin(){
@@ -9265,13 +9278,7 @@ setInterval(()=>{
    try{
      if(!c49SesionAdministrador||document.getElementById('supervisorSection')?.style.display!=='block')
        throw Error('Primero ingresa al Panel Administrativo.');
-     if(!m201TokenSupervisor){
-       const clave=prompt('Introduce la contraseña administrativa privada usada para GPS y revisión de asistencia. Es una autorización independiente del acceso al panel.');
-       if(!clave){info.textContent='🔒 Se requiere la clave privada para aprobar o revisar mercadería.';return;}
-       info.textContent='Verificando permisos…';
-       const d=await m200Post({accion:'m201EntrarSupervisorMercaderia',claveAdmin:clave});
-       m201TokenSupervisor=d.token;
-     }
+     if(!m201TokenSupervisor)throw Error('La sesión privada venció. Sal del Panel Administrativo y vuelve a ingresar para renovarla.');
      await m200CargarAdmin();
      if(tabSolicitada==='archivo')await m211CargarAdmin();
    }catch(e){
