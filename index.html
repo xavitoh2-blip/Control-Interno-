@@ -1683,6 +1683,126 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #n189AvisoEstado{font-size:12px;color:#345a83;background:#e5f0ff;padding:10px;border-radius:12px;text-align:left}
 #n189AvisoEstado.n189-error{background:#ffeaea;color:#972f36}
 </style>
+<style>
+/* v1.7.14 · Kardex reutilizado dentro de Administrador.
+   Las reglas globales de tablet/PC dan al Kardex un ancho relativo a la
+   ventana; cuando está anidado en el panel, debe respetar a su contenedor. */
+#adminControlLogistico,
+#m214Contenedor {
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+#m214Contenedor {
+  overflow-x:clip;
+}
+#m214Contenedor > #moduloRuta.card,
+#m214Contenedor > #moduloFaltantesKardex.card {
+  display:block;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin:8px 0 0!important;
+  float:none!important;
+  box-sizing:border-box;
+}
+#m214Contenedor #rutaResumen,
+#m214Contenedor #rutaEtapas,
+#m214Contenedor #listaRuta,
+#m214Contenedor #listaFaltantesKardex,
+#m214Contenedor #faltantesKardexSucursal {
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+#m214Contenedor #rutaEtapas,
+#m214Contenedor #listaRuta .c76-tabs {
+  max-width:100%;
+  overflow-x:auto;
+}
+#m214Contenedor #listaRuta > div,
+#m214Contenedor #listaFaltantesKardex > div {
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+#adminControlLogistico > div:first-of-type {
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+#adminControlLogistico > div:first-of-type button {
+  min-width:0;
+  white-space:normal;
+}
+@media (min-width:800px) {
+  /* En escritorio muestra todas las pestañas sin ensanchar la página. */
+  #m214Contenedor #rutaEtapas {
+    flex-wrap:wrap;
+    overflow-x:visible;
+  }
+}
+@media (max-width:530px) {
+  #adminControlLogistico > div:first-of-type button {
+    padding:10px 5px;
+    font-size:12px;
+    line-height:1.3;
+  }
+  #m214Contenedor > #moduloRuta.card,
+  #m214Contenedor > #moduloFaltantesKardex.card {
+    padding:7px!important;
+  }
+}
+</style>
+<style>
+/* v1.7.15 · Asistencia administrativa por fechas y estados. */
+.a215-panel{background:linear-gradient(145deg,#edf6ff,#fff);border:1px solid #d1e2f8;border-radius:25px;padding:16px;margin-top:13px;max-width:100%;min-width:0}
+.a215-cabecera{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.a215-cabecera h3{font-size:22px!important;color:#153b66!important;border:0!important;margin:0!important;padding:0!important}
+.a215-cabecera p{font-size:12px;color:#627a96;line-height:1.5;margin:6px 0 12px}
+.a215-actualizar{width:auto!important;min-width:115px;min-height:42px!important;padding:9px 13px!important;margin:0!important;border-radius:13px!important;font-size:12px!important}
+.a215-indicadores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0 16px}
+.a215-kpi{background:white;border:1px solid #deebf9;border-radius:18px;padding:13px 8px;min-width:0;text-align:center}
+.a215-kpi strong{display:block;font-size:24px;font-weight:900;color:#173e6f;font-variant-numeric:tabular-nums}
+.a215-kpi span{display:block;color:#5c7190;font-size:11px;font-weight:800;line-height:1.3;margin-top:4px}
+.a215-kpi.a215-alerta strong{color:#c36a16}
+.a215-filtros{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.a215-filtros label{display:block;font-size:11px;font-weight:850;color:#44617f;min-width:0}
+.a215-filtros input,.a215-filtros select{width:100%;max-width:100%;min-width:0;margin:5px 0!important;font-size:13px!important}
+.a215-atajos{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.a215-atajos button{width:auto!important;min-width:0!important;min-height:38px!important;margin:0!important;padding:8px 13px!important;font-size:12px!important;background:#e3f0ff!important;color:#16599d!important;border:1px solid #c5dcf7!important;box-shadow:none!important}
+.a215-estado{font-size:12px;color:#527091;line-height:1.5;margin:12px 0!important}
+.a215-aviso{font-size:12px;line-height:1.5;padding:12px;background:#fff8eb;border:1px solid #efd9b2;color:#825e26;border-radius:14px;margin:10px 0 15px}
+.a217-alerta-salida{background:#fff1f2;border:2px solid #f2a2ad;color:#8f2034;border-radius:18px;padding:15px;margin:14px 0;box-shadow:0 6px 18px rgba(180,40,60,.09)}
+.a217-alerta-salida strong{display:block;font-size:16px;line-height:1.4;margin-bottom:7px}
+.a217-alerta-salida ul{margin:8px 0 12px;padding-left:22px;font-size:13px;line-height:1.7}
+.a217-alerta-salida button{width:auto!important;margin:0!important;background:#ba3249!important;border-radius:12px!important;padding:10px 14px!important;font-size:13px!important}
+.a215-fecha{background:#e4f0ff;border:1px solid #c3dcfa;border-radius:16px;padding:12px;margin:16px 0 8px;color:#1b518a;font-weight:900}
+.a215-fecha summary{cursor:pointer}
+.a215-sucursal{font-size:13px;color:#2a598b;font-weight:900;margin:14px 0 7px}
+.a215-persona{border:1px solid #dce7f6;background:white;border-radius:18px;padding:13px;margin:9px 0;box-shadow:0 5px 12px rgba(36,77,124,.04);min-width:0}
+.a215-persona-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.a215-persona-head strong{font-size:14px;color:#233b59;overflow-wrap:anywhere}
+.a215-persona-head small{font-size:11px;color:#7a8ca3;display:block;margin-top:4px}
+.a215-badge{font-size:11px;font-weight:850;padding:6px 9px;border-radius:99px;background:#ecf3fb;color:#486682}
+.a215-badge.rojo{background:#ffebeb;color:#a72b37}
+.a215-badge.amarillo{background:#fff3d9;color:#996014}
+.a215-badge.verde{background:#e7f8ed;color:#176d43}
+.a215-horas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:11px 0 8px}
+.a215-hora{background:#f3f7fd;border:1px solid #e4edf9;border-radius:13px;padding:10px;min-width:0}
+.a215-hora span{display:block;color:#75879b;font-size:11px}
+.a215-hora b{font-size:16px;color:#234a74;font-variant-numeric:tabular-nums}
+.a215-detalle{font-size:11px;color:#5e7390;line-height:1.6;overflow-wrap:anywhere}
+.a215-revision{border-top:1px solid #e3ebf5;padding-top:10px;margin-top:11px}
+.a215-revision summary{cursor:pointer;font-size:12px;font-weight:850;color:#146bbb;padding:4px 0}
+.a215-revision label{display:block;font-size:11px;font-weight:750;color:#516987;margin-top:8px}
+.a215-revision textarea{display:block;width:100%;min-height:65px;padding:10px;margin:6px 0;border:1px solid #dce5f1;border-radius:12px;font:inherit;font-size:12px}
+.a215-revision select,.a215-revision input{margin:5px 0!important;max-width:100%}
+.a215-revision button{font-size:12px!important;min-height:43px!important}
+.a215-original{margin-top:17px;border:1px solid #dce6f3;border-radius:14px;padding:12px;background:white;color:#536d8b}
+.a215-original summary{cursor:pointer;font-size:12px;font-weight:800}
+@media (max-width:670px){.a215-indicadores{grid-template-columns:repeat(2,minmax(0,1fr))}.a215-panel{padding:12px}.a215-cabecera h3{font-size:19px!important}}
+</style>
 </head>
 <body>
 <div id="c42PortalPrueba" class="card" style="display:none;max-width:490px;text-align:left;">
@@ -1703,7 +1823,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.13 BETA · Archivo selectivo y Control Logístico</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.17 BETA · Alertas de salida en Administración</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1767,7 +1887,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <h3 style="text-align:center;">Menú principal</h3>
             <div class="menu-grid">
                 <button class="menu-modulo" onclick="abrirModulo('asistencia')"><span>📍</span>Asistencia</button>
-                <button class="menu-modulo" onclick="abrirModulo('tareas')"><span>📋</span>Tareas</button>
                 <button id="n188BotonMisTareas" class="menu-modulo" onclick="abrirModulo('n188')"><span>🔔</span><b>Mis Tareas</b></button>
                 <button class="menu-modulo" onclick="abrirModulo('inventario')"><span>📦</span>Inventario</button>
                 <button id="btnMenuPedidos" class="menu-modulo" onclick="abrirModulo('pedidos')"><span>🛍️</span><b id="textoMenuPedidos">Hacer Pedido</b></button>
@@ -2183,6 +2302,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         <div id="menuAdmin" style="margin-top:18px;">
             <p style="font-size:12px;color:#666;text-align:center;">Selecciona el módulo que deseas administrar.</p>
+            <button id="a217MenuAlertasSalida" type="button" class="a217-alerta-salida" style="display:none;width:100%;text-align:left" onclick="abrirModuloAdmin('asistencia');a217VerPendientesSalida()">
+              <strong id="a217MenuAlertasSalidaTexto">⚠️ Salidas de asistencia pendientes</strong>
+              <span style="font-size:12px">Toca para revisar quién olvidó marcar su salida.</span>
+            </button>
             <div class="menu-grid">
                 <button class="menu-modulo" onclick="abrirModuloAdmin('resumen')"><span>📊</span>Resumen</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('asistencia')"><span>👥</span>Asistencia</button>
@@ -2316,15 +2439,30 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         </div>
 
         <div id="adminAsistencia" class="admin-modulo" style="display:none;margin-top:18px;">
-            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button><h4>👥 Registro de Asistencias</h4>
-            <div style="overflow-x:auto;"><table id="tablaAsistencia"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr></thead><tbody></tbody></table></div>
-            <div style="margin-top:22px;padding:14px;border:1px solid #dbe6f3;border-radius:17px;background:#f9fbff;">
-                <h4 style="margin:0 0 8px">📍 Revisión de asistencia y horas extras</h4>
-                <p style="font-size:12px;color:#536477;">Consulta horas reales, tardanzas, ubicaciones GPS y autoriza jornada completa u horas adicionales. La clave se valida en el servidor.</p>
-                <button onclick="a196CargarAdmin()" style="background:#087cff;">↻ Consultar registros</button>
-                <p id="a196AdminEstado" role="status" style="font-size:12px;"></p>
-                <div id="a196AdminLista"></div>
+            <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+            <div class="a215-panel">
+                <div class="a215-cabecera"><div><h3>👥 Control de asistencia</h3><p>Personal, jornadas, tardanzas y revisiones por fecha.</p></div>
+                  <button type="button" onclick="a196CargarAdmin()" class="a215-actualizar">↻ Actualizar</button></div>
+                <div id="a217AdminSinSalida" class="a217-alerta-salida" role="alert" aria-live="polite" style="display:none">
+                  <strong id="a217AdminSinSalidaTitulo"></strong>
+                  <ul id="a217AdminSinSalidaLista"></ul>
+                  <button type="button" onclick="a217VerPendientesSalida()">⚠️ Ver salidas pendientes</button>
+                </div>
+                <div id="a215Indicadores" class="a215-indicadores"></div>
+                <div class="a215-filtros">
+                  <label>Fecha<input id="a215Fecha" type="date" onchange="a215RenderAdmin()"></label>
+                  <label>Sucursal<select id="a215Sucursal" onchange="a215RenderAdmin()"><option value="TODAS">Todas las sucursales</option></select></label>
+                  <label>Estado<select id="a215Estado" onchange="a215RenderAdmin()"><option value="TODOS">Todos los registros</option><option value="SIN_SALIDA">⚠️ Sin salida</option><option value="EN_TURNO">🟢 Turnos activos</option><option value="TARDE">⏰ Llegadas tarde</option><option value="REVISAR">📋 Revisión pendiente</option><option value="COMPLETO">✅ Con salida</option></select></label>
+                  <label>Empleado<input id="a215Buscar" type="search" placeholder="Buscar por nombre" oninput="a215RenderAdmin()"></label>
+                </div>
+                <div class="a215-atajos"><button type="button" onclick="a215FechaHoy()">📅 Hoy</button><button type="button" onclick="a215FechaTodas()">🗓️ Todas las fechas</button></div>
+                <p id="a196AdminEstado" role="status" class="a215-estado">Pulsa Actualizar para consultar las asistencias.</p>
+                <div id="a215Aviso" class="a215-aviso">🔔 Las alertas de entradas no registradas se activarán cuando cada empleado tenga su turno asignado. Así no se confunden descansos con ausencias.</div>
+                <div id="a196AdminLista" class="a215-lista"></div>
             </div>
+            <details class="a215-original"><summary>📑 Ver tabla original de marcas (consulta técnica)</summary>
+              <div style="overflow-x:auto;"><table id="tablaAsistencia"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Turno</th><th>Tipo</th><th>Empleado</th><th>H. Extra</th></tr></thead><tbody></tbody></table></div>
+            </details>
         </div>
 
         <div id="adminInventario" class="admin-modulo" style="display:none;margin-top:18px;">
@@ -3621,50 +3759,164 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const url='https://www.google.com/maps?q='+encodeURIComponent(gps.lat+','+gps.lon);
             return '<a href="'+url+'" target="_blank" rel="noopener noreferrer" style="color:#087cff">📍 Ver en Google Maps</a> <small style="color:#64748b">±'+Math.round(gps.precision||0)+' m</small>';
         }
-        async function a196CargarAdmin(){
-            const aviso=document.getElementById('a196AdminEstado'),lista=document.getElementById('a196AdminLista');
-            aviso.textContent='Consultando historial privado…';
+        // v1.7.15: mostrar asistencias por fecha/área, sin alterar las marcas originales.
+        function a215Hoy(){
+            const partes=new Intl.DateTimeFormat('en-US',{timeZone:'America/El_Salvador',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+            const p=k=>partes.find(x=>x.type===k)?.value||'';
+            return p('year')+'-'+p('month')+'-'+p('day');
+        }
+        function a215FechaHoy(){document.getElementById('a215Fecha').value=a215Hoy();a215RenderAdmin();}
+        function a215FechaTodas(){document.getElementById('a215Fecha').value='';a215RenderAdmin();}
+        function a215HoraAmPm(hora){
+            const m=String(hora||'').match(/^(\d{1,2}):(\d{2})/);
+            if(!m)return '—';
+            const h=Number(m[1]);return String(h%12||12)+':'+m[2]+(h>=12?' p. m.':' a. m.');
+        }
+        function a215EstadoRegistro(x){
+            if(x.salida)return Number(x.tarde||0)>0?'TARDE':'COMPLETO';
+            const hoy=a215Hoy(),fin=x.horaProgramadaFin||'';
+            if(x.fecha<hoy)return 'SIN_SALIDA';
+            if(x.fecha===hoy&&fin&&a196Minutos(a196HoraActual())>=a196Minutos(fin)+15)return 'SIN_SALIDA';
+            return 'EN_TURNO';
+        }
+        // v1.7.17: alerta prominente y privada con las salidas pendientes de hoy.
+        // Los datos se consultan con la clave de asistencia ya requerida por el panel.
+        function a217PendientesSalidaHoy(){
+            const hoy=a215Hoy();
+            return a196RegistrosAdmin.filter(x=>x.fecha===hoy&&!!x.entrada&&!x.salida&&
+                !!x.horaProgramadaFin&&a215EstadoRegistro(x)==='SIN_SALIDA');
+        }
+        function a217RenderAlertaSalida(){
+            const cont=document.getElementById('a217AdminSinSalida'),titulo=document.getElementById('a217AdminSinSalidaTitulo'),
+                lista=document.getElementById('a217AdminSinSalidaLista'),menu=document.getElementById('a217MenuAlertasSalida'),
+                menuTexto=document.getElementById('a217MenuAlertasSalidaTexto');
+            if(!cont||!titulo||!lista)return;
+            const pendientes=a217PendientesSalidaHoy();
+            cont.style.display=pendientes.length?'block':'none';
+            if(menu)menu.style.display=pendientes.length?'block':'none';
+            if(menuTexto&&pendientes.length)menuTexto.textContent='⚠️ '+pendientes.length+' salida(s) pendientes de hoy';
+            if(!pendientes.length){lista.replaceChildren();return;}
+            titulo.textContent='⚠️ '+pendientes.length+' colaborador'+(pendientes.length===1?' tiene':'es tienen')+' la salida pendiente de hoy';
+            lista.replaceChildren();
+            pendientes.slice(0,12).forEach(x=>{
+                const li=document.createElement('li');
+                li.textContent=x.empleado+' · '+x.sucursal+' · turno terminó a las '+a215HoraAmPm(x.horaProgramadaFin);
+                lista.appendChild(li);
+            });
+            if(pendientes.length>12){const li=document.createElement('li');li.textContent='Y '+(pendientes.length-12)+' más. Consulta el listado completo.';lista.appendChild(li);}
+        }
+        function a217VerPendientesSalida(){
+            const fecha=document.getElementById('a215Fecha'),estado=document.getElementById('a215Estado'),
+                suc=document.getElementById('a215Sucursal'),q=document.getElementById('a215Buscar');
+            if(fecha)fecha.value=a215Hoy();
+            if(estado)estado.value='SIN_SALIDA';
+            if(suc)suc.value='TODAS';
+            if(q)q.value='';
+            a215RenderAdmin();
+            document.getElementById('a196AdminLista')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+        function a215EtiquetasEstado(x){
+            const estado=a215EstadoRegistro(x);
+            return {SIN_SALIDA:['⚠️ Falta marcar salida','rojo'],EN_TURNO:['🟢 Turno abierto','verde'],
+                TARDE:['⏰ Llegó tarde','amarillo'],COMPLETO:['✅ Con salida','verde']}[estado];
+        }
+        function a215Tarjeta(x){
+            const card=document.createElement('div'),etiqueta=a215EtiquetasEstado(x);
+            card.className='a215-persona';
+            card.innerHTML='<div class="a215-persona-head"><div><strong>'+a196Esc(x.empleado)+'</strong><small>Turno: '+a196Esc(x.turno)+' · '+a196Esc(x.horaProgramadaInicio||'')+'–'+a196Esc(x.horaProgramadaFin||'')+'</small></div><span class="a215-badge '+etiqueta[1]+'">'+etiqueta[0]+'</span></div>'+
+                '<div class="a215-horas"><div class="a215-hora"><span>🟢 Entrada</span><b>'+a196Esc(a215HoraAmPm(x.entrada))+'</b></div><div class="a215-hora"><span>🔴 Salida</span><b>'+a196Esc(a215HoraAmPm(x.salida))+'</b></div></div>'+
+                '<div class="a215-detalle">⏰ Tardanza: <b>'+Number(x.tarde||0)+' min</b> · Extra registrado: <b>'+Number(x.extraReal||0)+' min</b> · Revisión: <b>'+a196Esc(x.revision?.decision||'PENDIENTE')+'</b></div>'+
+                (x.motivo?'<div class="a215-aviso" style="margin:9px 0 0">Motivo: '+a196Esc(x.motivo)+' — '+a196Esc(x.detalle)+'</div>':'')+
+                '<details class="a215-revision"><summary>📍 Ubicaciones y '+(x.salida?'revisión administrativa':'detalle de la marca')+'</summary><div class="a215-detalle">Entrada: '+a196Mapa(x.gpsEntrada)+'<div>Salida: '+a196Mapa(x.gpsSalida)+'</div><div>Jornada programada: '+Number(x.jornada||480)/60+' h · Almuerzo: '+Number(x.almuerzo||0)+' min</div></div></details>';
+            if(x.salida){
+                const detalles=card.querySelector('.a215-revision'),contenido=document.createElement('div');
+                const decision=document.createElement('select');
+                [['PENDIENTE','Pendiente de revisión'],['COMPLETA','Reconocer jornada completa (8 h)'],['EFECTIVA','Reconocer tiempo efectivo']].forEach(([v,t])=>decision.add(new Option(t,v)));
+                decision.value=x.revision?.decision||'PENDIENTE';
+                const extra=document.createElement('input');extra.type='number';extra.min='0';extra.max=String(x.extraReal||0);extra.step='1';extra.value=String(x.revision?.extra||0);
+                const comentario=document.createElement('textarea');comentario.rows=2;comentario.placeholder='Comentario del administrador (opcional)';comentario.value=x.revision?.comentario||'';
+                const boton=document.createElement('button');boton.textContent='🔐 Guardar revisión';boton.style.background='#155eaa';
+                const label1=document.createElement('label');label1.textContent='Decisión de jornada';
+                const label2=document.createElement('label');label2.textContent='Minutos extras autorizados (máximo '+Number(x.extraReal||0)+')';
+                contenido.append(label1,decision,label2,extra,comentario,boton);detalles.appendChild(contenido);
+                boton.onclick=async()=>{
+                    if(!confirm('¿Guardar esta decisión de asistencia y horas extras?'))return;
+                    boton.disabled=true;
+                    try{
+                        await a196PostAdmin('a196AdminResolver',{key:x.key,decision:decision.value,extra:extra.value,comentario:comentario.value});
+                        await a196CargarAdmin();
+                    }catch(e){alert(e.message);}finally{boton.disabled=false;}
+                };
+            }
+            return card;
+        }
+        function a215RenderAdmin(){
+            const lista=document.getElementById('a196AdminLista'),indicadores=document.getElementById('a215Indicadores');
+            if(!lista||!indicadores)return;
+            a217RenderAlertaSalida();
+            const fecha=document.getElementById('a215Fecha')?.value||'',sucursal=document.getElementById('a215Sucursal')?.value||'TODAS',
+                estado=document.getElementById('a215Estado')?.value||'TODOS',q=(document.getElementById('a215Buscar')?.value||'').trim().toUpperCase();
+            const visibles=a196RegistrosAdmin.filter(x=>
+                (!fecha||x.fecha===fecha)&&(sucursal==='TODAS'||x.sucursal===sucursal)&&
+                (!q||String(x.empleado||'').toUpperCase().includes(q))&&
+                (estado==='TODOS'||estado===a215EstadoRegistro(x)||(estado==='TARDE'&&Number(x.tarde)>0)||
+                 (estado==='REVISAR'&&!!x.salida&&(!x.revision||x.revision.decision==='PENDIENTE'))||
+                 (estado==='COMPLETO'&&!!x.salida)));
+            const sinSalida=visibles.filter(x=>a215EstadoRegistro(x)==='SIN_SALIDA').length,
+                tarde=visibles.filter(x=>Number(x.tarde)>0).length,
+                cerrados=visibles.filter(x=>!!x.salida).length,
+                revisar=visibles.filter(x=>x.salida&&(!x.revision||x.revision.decision==='PENDIENTE')).length;
+            const resumen=[['Marcas de entrada',visibles.length,''],['Con salida',cerrados,''],['Salidas sin cerrar',sinSalida,'a215-alerta'],['Llegadas tarde',tarde,'a215-alerta']];
+            indicadores.innerHTML=resumen.map(([txt,n,clase])=>'<div class="a215-kpi '+clase+'"><strong>'+n+'</strong><span>'+txt+'</span></div>').join('');
+            const info=document.getElementById('a196AdminEstado');
+            info.textContent=visibles.length+' jornada(s) en este filtro · '+revisar+' pendientes de revisión administrativa. Las ausencias sin entrada requieren turnos individuales programados.';
+            lista.replaceChildren();
+            if(!visibles.length){const empty=document.createElement('div');empty.className='a215-persona';empty.textContent='No hay asistencias registradas para estos filtros.';lista.appendChild(empty);return;}
+            const grupos=new Map();visibles.forEach(x=>{
+                if(!grupos.has(x.fecha))grupos.set(x.fecha,new Map());
+                const porSucursal=grupos.get(x.fecha);if(!porSucursal.has(x.sucursal))porSucursal.set(x.sucursal,[]);
+                porSucursal.get(x.sucursal).push(x);
+            });
+            [...grupos.entries()].sort((a,b)=>b[0].localeCompare(a[0])).forEach(([dia,areas],indice)=>{
+                const bloque=document.createElement('details');bloque.className='a215-fecha';bloque.open=indice===0;
+                const summary=document.createElement('summary'),total=[...areas.values()].reduce((n,r)=>n+r.length,0);
+                summary.textContent='📅 '+dia+' · '+total+' jornada(s)';bloque.appendChild(summary);
+                [...areas.entries()].sort((a,b)=>a[0].localeCompare(b[0])).forEach(([nombre,registros])=>{
+                    const titulo=document.createElement('div');titulo.className='a215-sucursal';titulo.textContent='🏪 '+nombre+' · '+registros.length;bloque.appendChild(titulo);
+                    registros.forEach(x=>bloque.appendChild(a215Tarjeta(x)));
+                });
+                lista.appendChild(bloque);
+            });
+        }
+        let a217CargaAsistenciaEnCurso=false;
+        async function a196CargarAdmin(silencioso=false){
+            if(a217CargaAsistenciaEnCurso)return;
+            a217CargaAsistenciaEnCurso=true;
+            const aviso=document.getElementById('a196AdminEstado');
+            if(!silencioso)aviso.textContent='Consultando historial privado…';
             try{
                 const data=await a196PostAdmin('a196AdminListar',{});
+                // No volver a exponer datos privados si cerraron Administración
+                // mientras la petición seguía en curso.
+                if(!a196ClaveAdmin||document.getElementById('supervisorSection')?.style.display==='none')return;
                 a196RegistrosAdmin=data.registros||[];
-                lista.replaceChildren();
-                if(!a196RegistrosAdmin.length){aviso.textContent='No hay registros todavía.';return;}
-                a196RegistrosAdmin.forEach((x,i)=>{
-                    const card=document.createElement('div');
-                    card.style.cssText='background:white;border:1px solid #dce6f1;border-radius:15px;padding:13px;margin:10px 0;font-size:13px;';
-                    card.innerHTML='<div style="font-weight:800;font-size:15px">'+a196Esc(x.empleado)+' <span style="color:#64748b;font-size:11px">'+a196Esc(x.sucursal)+'</span></div>'+
-                        '<div style="margin:5px 0">'+a196Esc(x.fecha)+' · '+a196Esc(x.turno)+'</div>'+
-                        '<div>🟢 Entrada: <b>'+a196Esc(x.entrada||'—')+'</b> '+a196Mapa(x.gpsEntrada)+'</div>'+
-                        '<div>🔴 Salida: <b>'+a196Esc(x.salida||'Pendiente')+'</b> '+a196Mapa(x.gpsSalida)+'</div>'+
-                        '<div>⏰ Tardanza: <b>'+Number(x.tarde||0)+' min</b> · Adicional registrado: '+Number(x.extraReal||0)+' min</div>'+
-                        (x.motivo?'<div style="padding:7px;background:#fff5e8;border-radius:9px;margin-top:5px">Motivo: '+a196Esc(x.motivo)+' — '+a196Esc(x.detalle)+'</div>':'')+
-                        '<div style="font-size:11px;color:#526277;margin-top:6px">Jornada: '+Number(x.jornada||480)/60+' h programadas. Revisión: '+a196Esc(x.revision?.decision||'PENDIENTE')+'</div>';
-                    if(x.salida){
-                        const div=document.createElement('div');div.style.cssText='margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px';
-                        const decision=document.createElement('select');
-                        [['PENDIENTE','Pendiente de revisión'],['COMPLETA','Reconocer jornada completa (8 h)'],['EFECTIVA','Reconocer tiempo efectivo']].forEach(([v,t])=>decision.add(new Option(t,v)));
-                        decision.value=x.revision?.decision||'PENDIENTE';decision.style.cssText='width:100%;margin-bottom:7px';
-                        const extra=document.createElement('input');extra.type='number';extra.min='0';extra.max=String(x.extraReal||0);extra.step='1';
-                        extra.value=String(x.revision?.extra||0);extra.placeholder='Minutos extras autorizados';extra.style.cssText='width:100%;margin-bottom:7px';
-                        const leyenda=document.createElement('label');leyenda.textContent='Minutos extras autorizados (máximo '+Number(x.extraReal||0)+')';leyenda.style.fontSize='12px';
-                        const comentario=document.createElement('textarea');comentario.rows=2;comentario.placeholder='Comentario del administrador (opcional)';
-                        comentario.value=x.revision?.comentario||'';comentario.style.cssText='width:100%;margin-bottom:7px';
-                        const boton=document.createElement('button');boton.textContent='🔐 Guardar revisión';boton.style.background='#155eaa';
-                        boton.onclick=async()=>{
-                            if(!confirm('¿Guardar esta decisión de asistencia y horas extras?'))return;
-                            boton.disabled=true;
-                            try{
-                                await a196PostAdmin('a196AdminResolver',{key:x.key,decision:decision.value,extra:extra.value,comentario:comentario.value});
-                                alert('Revisión guardada.');await a196CargarAdmin();
-                            }catch(e){alert(e.message);}finally{boton.disabled=false;}
-                        };
-                        div.append(decision,leyenda,extra,comentario,boton);card.appendChild(div);
-                    }
-                    lista.appendChild(card);
-                });
-                aviso.textContent=a196RegistrosAdmin.length+' registros recientes. Solo el administrador puede cambiar decisiones.';
+                const sel=document.getElementById('a215Sucursal'),previo=sel.value,
+                    sucursales=[...new Set(a196RegistrosAdmin.map(x=>String(x.sucursal||'')))].filter(Boolean).sort();
+                sel.innerHTML='<option value="TODAS">Todas las sucursales</option>'+sucursales.map(s=>'<option value="'+a196Esc(s)+'">'+a196Esc(s)+'</option>').join('');
+                if(sucursales.includes(previo))sel.value=previo;
+                a215RenderAdmin();
             }catch(e){aviso.textContent='Error: '+e.message;}
+            finally{a217CargaAsistenciaEnCurso=false;}
         }
+        // Mantener las alertas actualizadas en el menú y en Asistencia,
+        // solo después de validar la contraseña privada de asistencia.
+        setInterval(()=>{
+            const asistenciaVisible=document.getElementById('adminAsistencia')?.style.display==='block';
+            const menuVisible=document.getElementById('menuAdmin')?.style.display!=='none'&&
+                document.getElementById('supervisorSection')?.style.display==='block';
+            if((asistenciaVisible||menuVisible)&&a196ClaveAdmin)
+                a196CargarAdmin(true);
+        },60000);
 
 
         // v1.6.60 · Buscador tolerante a abreviaturas y palabras omitidas; no inventa productos.
@@ -6527,6 +6779,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "conteosAsignados") c42AbrirAdmin();
             if (modulo === "catalogoAkasia") c48Abrir();
             if (modulo === "logistica") m214Pestana('kardex');
+            if (modulo === "asistencia") a196CargarAdmin();
             if (modulo === "n188") n188AbrirAdmin();
             if (modulo === "mercaderia") {m200Tab='pedidos';m201AbrirMercaderia();}
             // v1.6.46: no dibujar miles de filas ocultas al ingresar al administrador.
@@ -6553,6 +6806,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         function ocultarLogin() { document.getElementById("loginModal").style.display = "none"; document.getElementById("adminPassword").value = ""; }
         function cerrarSupervisor() {
             c49SesionAdministrador = '';
+            a196ClaveAdmin='';
+            a196RegistrosAdmin=[];
+            const avisoSalida=document.getElementById('a217AdminSinSalida');
+            const avisoMenu=document.getElementById('a217MenuAlertasSalida');
+            if(avisoSalida)avisoSalida.style.display='none';
+            if(avisoMenu)avisoMenu.style.display='none';
             c58Datos=null;c58Ruta=null;
             m201TokenSupervisor='';
             m200Panel=null;
