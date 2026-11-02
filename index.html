@@ -1823,7 +1823,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.17 BETA · Alertas de salida en Administración</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.18 BETA · ADMIN sin clave de inicio</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1843,16 +1843,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         </select>
         
         <button onclick="iniciarSesion()" style="background-color: #007bff;">Entrar al Sistema</button>
-        <div id="a197LoginAdmin" style="display:none;margin:13px 0;padding:14px;border:1px solid #bed7f4;background:#eff6ff;border-radius:16px;">
-            <div style="font-size:13px;font-weight:800;color:#174876;margin-bottom:8px;">🔐 Verificación privada de ADMIN</div>
-            <p style="font-size:12px;color:#4e6883;margin:3px 0 10px;">ADMIN no necesita GPS ni registrar asistencia. Introduce tu contraseña administrativa para iniciar sesión.</p>
-            <input id="a197Password" type="password" placeholder="Contraseña administrativa" autocomplete="current-password" onkeydown="if(event.key==='Enter')a197ConfirmarLogin()">
-            <button id="a197ConfirmarBtn" onclick="a197ConfirmarLogin()" style="background:#087cff;margin-top:6px;">🔓 Entrar como ADMIN</button>
-            <p id="a197LoginEstado" role="status" style="font-size:12px;color:#b91c1c;margin:4px 0 0;"></p>
-        </div>
+        <p style="font-size:12px;color:#55708f;margin-top:9px">ADMIN puede entrar sin contraseña ni asistencia. La contraseña se mantiene para las funciones privadas de Administración.</p>
         
         <div style="margin-top: 15px;">
-            <button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 12px; padding: 8px;">🔒 Panel de Supervisor</button>
+            <button onclick="mostrarLogin()" style="background-color: #6c757d; font-size: 12px; padding: 8px;">🔒 Panel de Administración</button>
         </div>
     </div>
 
@@ -2287,7 +2281,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
     <!-- MODAL SUPERVISOR -->
     <div id="loginModal" class="login-box" style="display:none; position: fixed; top: 25%; left: 50%; transform: translateX(-50%); z-index: 1000;">
-        <h3>Clave de Supervisor</h3>
+        <h3>Clave de Administración</h3>
         <input type="password" id="adminPassword" placeholder="Contraseña">
         <button onclick="verificarPassword()" style="background-color: #007bff;">Ingresar</button>
         <button onclick="ocultarLogin()" style="background-color: #dc3545;">Cancelar</button>
@@ -3127,7 +3121,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             n189EnAsistencia=false;
             n189FechaVerificada='';
             if(normalizarEmpleado(localStorage.getItem('usuario'))==='admin'){
-                a197VerificarSesion();
+                // ADMIN puede navegar sin credenciales ni asistencia.
+                // No se concede ningún token ni permiso privado del servidor.
+                a197Autorizado=false;
+                n189Bloqueado=false;
+                n189FechaVerificada=n189Hoy();
+                n189PintarAviso();
                 return;
             }
             n189EstadoAviso('Verificando tu asistencia de hoy…',false);
@@ -3138,7 +3137,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const empleado=localStorage.getItem('usuario')||'';
             const sucursal=localStorage.getItem('sucursal')||'';
             if(!empleado||!sucursal)return;
-            if(normalizarEmpleado(empleado)==='admin')return a197VerificarSesion();
+            if(normalizarEmpleado(empleado)==='admin'){
+                n189Bloqueado=false;
+                n189FechaVerificada=n189Hoy();
+                n189PintarAviso();
+                return;
+            }
             const consulta=++n189ConsultaId;
             n189EstadoAviso('Consultando la Entrada registrada en Google Sheets…',false);
             try{
@@ -3173,7 +3177,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
         function n189DebeBloquear(nombre){
             if(!localStorage.getItem('usuario'))return false;
-            if(normalizarEmpleado(localStorage.getItem('usuario'))==='admin')return !a197Autorizado;
+            if(normalizarEmpleado(localStorage.getItem('usuario'))==='admin')return false;
             if(n189FechaVerificada&&n189FechaVerificada!==n189Hoy()){
                 n189Bloqueado=true;
                 n189FechaVerificada='';
@@ -3215,61 +3219,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const sucursal = document.getElementById("selectSucursal").value;
             const empleado = document.getElementById("nombreEmpleado").value;
             if (!sucursal || !empleado) return alert("Selecciona sucursal y nombre.");
-            if(normalizarEmpleado(empleado)==='admin'){
-                const caja=document.getElementById('a197LoginAdmin');
-                caja.style.display='block';
-                document.getElementById('a197LoginEstado').textContent='';
-                document.getElementById('a197Password').focus();
-                return;
-            }
+            // ADMIN entra sin contraseña aquí; el Panel de Supervisor mantiene
+            // su acceso independiente y la autorización privada de operaciones.
             sessionStorage.removeItem('a197TokenAdmin');
             localStorage.setItem("usuario", empleado);
             localStorage.setItem("sucursal", sucursal);
             location.reload();
         }
-        async function a197ConfirmarLogin(){
-            const sucursal=document.getElementById('selectSucursal').value;
-            const empleado=document.getElementById('nombreEmpleado').value;
-            const clave=document.getElementById('a197Password').value;
-            const msg=document.getElementById('a197LoginEstado'),btn=document.getElementById('a197ConfirmarBtn');
-            if(normalizarEmpleado(empleado)!=='admin'||!sucursal){msg.textContent='Selecciona la sucursal y ADMIN.';return;}
-            if(!clave){msg.textContent='Introduce tu contraseña administrativa.';return;}
-            btn.disabled=true;msg.textContent='Validando acceso seguro…';
-            try{
-                const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'a197AdminEntrar',empleado,sucursal,claveAdmin:clave}),cache:'no-store'});
-                const d=await r.json();
-                if(!r.ok||d.status!=='OK'||!d.token)throw Error(d.mensaje||'Acceso no autorizado. Actualiza el código de Apps Script.');
-                sessionStorage.setItem('a197TokenAdmin',d.token);
-                localStorage.setItem('usuario',empleado);
-                localStorage.setItem('sucursal',sucursal);
-                document.getElementById('a197Password').value='';
-                location.reload();
-            }catch(e){msg.textContent=e.message||'No se pudo verificar ADMIN.';}
-            finally{btn.disabled=false;}
-        }
-        async function a197VerificarSesion(){
-            if(normalizarEmpleado(localStorage.getItem('usuario'))!=='admin')return;
-            const token=sessionStorage.getItem('a197TokenAdmin')||'';
-            const sucursal=localStorage.getItem('sucursal')||'';
-            if(!token){
-                alert('La sesión de ADMIN requiere contraseña. Vuelve a iniciar sesión.');
-                await cerrarSesion();return;
-            }
-            try{
-                const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'a197AdminVerificar',token,empleado:'ADMIN',sucursal}),cache:'no-store'});
-                const d=await r.json();
-                if(!r.ok||d.status!=='OK'||d.autorizado!==true)throw Error(d.mensaje||'La sesión de ADMIN ya no está autorizada.');
-                a197Autorizado=true;
-                n189Bloqueado=false;
-                n189FechaVerificada=n189Hoy();
-                n189PintarAviso();
-            }catch(e){
-                a197Autorizado=false;n189Bloqueado=true;
-                alert('Acceso ADMIN: '+(e.message||'Error de verificación')+'. Inicia sesión nuevamente.');
-                await cerrarSesion();
-            }
-        }
-        setInterval(()=>{if(a197Autorizado&&normalizarEmpleado(localStorage.getItem('usuario'))==='admin')a197VerificarSesion();},600000);
 
         async function cerrarSesion() {
             // La sesion local se cierra de inmediato. El aviso de sucursal se
