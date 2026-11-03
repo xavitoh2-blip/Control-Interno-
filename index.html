@@ -1802,6 +1802,28 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .a215-original{margin-top:17px;border:1px solid #dce6f3;border-radius:14px;padding:12px;background:white;color:#536d8b}
 .a215-original summary{cursor:pointer;font-size:12px;font-weight:800}
 @media (max-width:670px){.a215-indicadores{grid-template-columns:repeat(2,minmax(0,1fr))}.a215-panel{padding:12px}.a215-cabecera h3{font-size:19px!important}}
+/* v1.7.21 · Selector independiente para trabajar varios Kardex. */
+.k221-selector{background:linear-gradient(130deg,#eaf4ff,#f9fcff);border:1px solid #b5d6fa;border-radius:20px;padding:15px;margin:14px 0 18px;box-shadow:0 6px 18px rgba(24,93,176,.06)}
+.k221-selector label{display:block!important;margin-bottom:9px!important;font-size:13px!important;font-weight:850!important;color:#1a4776!important}
+.k221-selector select{display:block!important;width:100%!important;max-width:none!important;min-height:54px!important;border-radius:14px!important;background:#fff!important;border:1px solid #96c6fc!important;color:#143451!important;font-size:16px!important;font-weight:800!important;padding:8px 13px!important;box-sizing:border-box!important}
+.k221-selector small{display:block;margin-top:9px;font-size:11px;line-height:1.4;color:#53718e}
+/* v1.7.22 · Crear otro Kardex desde Excel, sin tocar Pagina 1. */
+.k222-import{background:linear-gradient(140deg,#eef9f5,#f7fbff);border:1px solid #b6ddce;border-radius:21px;padding:15px;margin:14px 0;color:#254958}
+.k222-import h4{font-size:18px;margin:0 0 6px;color:#135b48}
+.k222-import p{font-size:12px;line-height:1.5;color:#456778;margin:6px 0 12px}
+.k222-import input[type=file],.k222-import select{width:100%!important;max-width:100%!important;min-height:49px!important;background:#fff!important;border:1px solid #bcd5cc!important;border-radius:13px!important;padding:10px!important;font-size:13px!important;color:#234456!important;box-sizing:border-box!important}
+.k222-import .k222-hoja{margin:11px 0 0}
+.k222-import .k222-hoja label{display:block;font-size:12px;font-weight:850;margin-bottom:5px;color:#31566a}
+.k222-import .k222-preview{font-size:12px;line-height:1.55;margin:11px 0;color:#28596b}
+.k222-import .k222-summary{background:#fff;border-radius:13px;border:1px solid #c5e5d6;padding:10px 12px;margin:9px 0}
+.k222-import .k222-list{max-height:240px;overflow-y:auto;background:#fff;border-radius:13px;border:1px solid #d5e4e1}
+.k222-import .k222-row{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:8px 11px;border-bottom:1px solid #edf2f4}
+.k222-import .k222-row:last-child{border:0}
+.k222-import .k222-row b{font-size:13px;color:#147357;white-space:nowrap}
+.k222-import #k222CrearBtn{background:linear-gradient(135deg,#11976b,#17b587)!important;margin:12px 0 0!important;min-height:51px!important}
+.k222-import #k222CrearBtn:disabled{background:#b8cfc7!important;opacity:.75;cursor:not-allowed}
+/* Crear nuevos Kardex es exclusivo de Bodega, no del Panel Administrativo. */
+#adminControlLogistico .k222-import,#adminControlLogistico #btnCrearRuta{display:none!important}
 </style>
 </head>
 <body>
@@ -1823,7 +1845,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.20</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.23</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2216,8 +2238,17 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
         <h3 style="text-align:center;">Kardex de despacho</h3>
         <p style="font-size:12px;color:#666;text-align:center;">Control visual de preparación y faltantes de la ruta.</p>
+        <div class="k221-selector"><label for="k221SelectBodega">📋 Kardex abierto que deseas trabajar</label><select id="k221SelectBodega" onchange="k221CambiarRuta(this.value)"><option value="">Consultando Kardex…</option></select><small id="k221CantidadBodega">Puedes iniciar otro sin finalizar los pendientes.</small></div>
         <div id="rutaResumen" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:9px;padding:10px;margin:10px 0;font-size:12px;text-align:center;">Cargando Kardex...</div>
-        <button id="btnCrearRuta" onclick="crearRutaDesdeKardex()" style="background:#007bff;">➕ Crear Kardex desde Pagina 1 (A:B)</button>
+        <div class="k222-import">
+          <h4>📂 Nuevo Kardex desde Excel</h4>
+          <p>Selecciona un archivo <b>.xlsx o .xls</b> con las columnas <b>Producto</b> y <b>Cantidad</b>. Revisa la lista antes de crear el Kardex; los anteriores quedarán intactos.</p>
+          <input type="file" id="k222Archivo" accept=".xlsx,.xls" onchange="k222LeerArchivo(this.files?.[0])" aria-label="Seleccionar archivo Excel para un nuevo Kardex">
+          <div id="k222HojaWrap" class="k222-hoja" style="display:none"><label for="k222Hoja">Hoja del archivo</label><select id="k222Hoja" onchange="k222PrevisualizarHoja()"></select></div>
+          <div id="k222Previa" class="k222-preview" aria-live="polite">Elige el Excel para ver los productos que se importarán.</div>
+          <button type="button" id="k222CrearBtn" onclick="k222CrearDesdeExcel()" disabled>➕ Crear Kardex con este Excel</button>
+        </div>
+        <button id="btnCrearRuta" onclick="crearRutaDesdeKardex()" style="background:#e7f0fb!important;color:#225784!important;">Método anterior: crear desde Pagina 1 (A:B)</button>
         <button onclick="cargarRutaActiva()" style="background:#6c757d;">🔄 Actualizar Kardex</button>
         <div id="rutaEtapas" class="c56-tabs" style="display:none;gap:7px;margin:10px 0;">
             <button id="btnEtapaResumen" onclick="mostrarEtapaRuta('resumen')">📊 Resumen</button>
@@ -2236,6 +2267,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
       <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
       <h3 style="text-align:center;">📦 Faltantes Kardex · Despacho</h3>
       <div class="fk-pill" style="margin:8px 0 12px;">Solo productos asignados a Despacho para buscar y preparar. No es la revisión de mercadería recibida.</div>
+      <div class="k221-selector"><label for="k221SelectPreparar">📋 Selecciona el Kardex</label><select id="k221SelectPreparar" onchange="k221CambiarRuta(this.value)"><option value="">Consultando Kardex…</option></select><small id="k221CantidadPreparar">Las preparaciones anteriores se conservan.</small></div>
       <button onclick="c52CargarPreparacionDespacho()" style="background:#087cff;">↻ Actualizar asignaciones</button>
       <div id="c52ListaPreparacionDespacho" style="margin-top:12px;"></div>
     </div>
@@ -2244,6 +2276,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     <div id="moduloFaltantesKardex" class="card modulo-pantalla" style="text-align:left;">
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
         <h3 id="c51TituloRevision" style="text-align:center;">📦 Faltantes Kardex</h3>
+        <div class="k221-selector"><label for="k221SelectFaltantes">📋 Selecciona el Kardex</label><select id="k221SelectFaltantes" onchange="k221CambiarRuta(this.value)"><option value="">Consultando Kardex…</option></select><small id="k221CantidadFaltantes">Pendientes por número de Kardex.</small></div>
         <div id="faltantesKardexSucursal" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:9px;padding:10px;margin:10px 0;font-size:12px;text-align:center;"></div>
         <button onclick="cargarFaltantesKardex()" style="background:#6c757d;">🔄 Actualizar faltantes</button>
         <div id="listaFaltantesKardex" style="margin-top:12px;"></div>
@@ -6952,6 +6985,185 @@ async function verificarPassword() {
         let etapaRutaActual = 'resumen';
         let c55RutaRevisionDespacho = false;
         let c55RutaFetchVersion = 0;
+        // v1.7.21: la selección vive por pestaña, no se comparte entre dispositivos.
+        let k221Rutas = [];
+        let k221IdRuta = sessionStorage.getItem('k221Ruta') || '';
+        let k221CargaVersion = 0;
+        let k223IdAsignable='';
+        let k223NumeroAsignable='';
+        function k223PuedeAsignar(){return !!k221IdRuta&&k221IdRuta===k223IdAsignable;}
+        function k223AvisoOrden(){
+          const actual=k221Rutas.find(x=>x.idRuta===k221IdRuta);
+          return actual&&!k223PuedeAsignar()
+            ?'🔒 Kardex #'+actual.numeroRuta+' en preparación de Bodega. Podrás asignar faltantes después de finalizar el Kardex #'+k223NumeroAsignable+'.'
+            :'✅ Este Kardex tiene habilitada la asignación de faltantes a sucursales.';
+        }
+        function k223ElegirKardexParaSucursales(){
+          // Bodega puede preparar cualquiera. Los demás módulos muestran solo
+          // el primer Kardex abierto, que es el único asignable.
+          if(k223IdAsignable&&!k223PuedeAsignar()){
+            k221IdRuta=k223IdAsignable;
+            sessionStorage.setItem('k221Ruta',k221IdRuta);
+            k221PintarSelectores();
+          }
+          return k221IdRuta;
+        }
+        const k221Selectores = [
+          ['k221SelectBodega','k221CantidadBodega'],
+          ['k221SelectPreparar','k221CantidadPreparar'],
+          ['k221SelectFaltantes','k221CantidadFaltantes']
+        ];
+        function k221PintarSelectores(){
+          k221Selectores.forEach(([nombre,ayuda])=>{
+            const el=document.getElementById(nombre),info=document.getElementById(ayuda);
+            const soloAsignable=nombre!=='k221SelectBodega';
+            const visibles=soloAsignable?k221Rutas.filter(x=>x.puedeAsignar):k221Rutas;
+            if(el){
+              el.innerHTML=visibles.length
+                ?visibles.map(x=>`<option value="${escaparHtmlPedido(x.idRuta)}">Kardex #${escaparHtmlPedido(x.numeroRuta)} · ${x.puedeAsignar?'Asignación habilitada':'Solo preparar Bodega'}</option>`).join('')
+                :'<option value="">No hay Kardex disponibles</option>';
+              el.value=visibles.some(x=>x.idRuta===k221IdRuta)?k221IdRuta:(visibles[0]?.idRuta||'');
+            }
+            if(info)info.textContent=!visibles.length?'Sin asignaciones disponibles por ahora.':
+              soloAsignable?'Solo se muestran asignaciones del Kardex #'+k223NumeroAsignable+'.':k223AvisoOrden();
+          });
+        }
+        async function k221CargarRutas(){
+          const solicitud=++k221CargaVersion;
+          const r=await fetch(URL_API+'?accion=k221ListarKardex&_='+Date.now(),{cache:'no-store'}),d=await r.json();
+          if(!r.ok||d.status!=='OK'||d.version!=='1.7.21'||d.regla!=='BODEGA_POR_ORDEN'||!Array.isArray(d.rutas))
+            throw Error('Publica Código.gs v1.7.23: preparación paralela, asignación de faltantes por orden.');
+          if(solicitud!==k221CargaVersion)return k221IdRuta;
+          k221Rutas=d.rutas;
+          k223IdAsignable=String(d.idRutaAsignable||'');
+          k223NumeroAsignable=String(d.numeroRutaAsignable||'');
+          if(!k221Rutas.some(x=>x.idRuta===k221IdRuta))
+            k221IdRuta=k221Rutas.length?k221Rutas[k221Rutas.length-1].idRuta:'';
+          if(k221IdRuta)sessionStorage.setItem('k221Ruta',k221IdRuta);
+          else sessionStorage.removeItem('k221Ruta');
+          k221PintarSelectores();
+          return k221IdRuta;
+        }
+        function k221CambiarRuta(nueva){
+          if(nueva===k221IdRuta||!k221Rutas.some(x=>x.idRuta===nueva))return;
+          k221IdRuta=nueva;sessionStorage.setItem('k221Ruta',nueva);k221PintarSelectores();
+          etapaRutaActual=k223PuedeAsignar()?'resumen':'bodega';
+          // Nunca arrastrar una selección de productos al Kardex siguiente.
+          c54SeleccionBodega={};c54RutaSeleccionada='';c53SeleccionSucursal={};c53SeleccionDespacho={};c51Marcados={};
+          rutaActiva=null;c56Seguimiento=null;faltantesKardexActuales=[];c52PreparacionDespacho=[];
+          if(document.getElementById('moduloRuta')?.style.display==='block')cargarRutaActiva();
+          if(document.getElementById('moduloPrepararDespacho')?.style.display==='block')c52CargarPreparacionDespacho();
+          if(document.getElementById('moduloFaltantesKardex')?.style.display==='block')cargarFaltantesKardex();
+          if(document.getElementById('adminControlLogistico')?.style.display==='block')c58Cargar();
+        }
+
+        // v1.7.22 · Crear Kardex sin copiar productos a Google Sheets.
+        // El Excel se lee localmente; solo se envía la lista confirmada.
+        let k222Libro=null,k222Productos=[],k222ArchivoNombre='',k222Ocupado=false;
+        function k222Texto(v){return String(v??'').trim().replace(/\s+/g,' ');}
+        function k222Clave(v){return k222Texto(v).toUpperCase();}
+        function k222Cabecera(v){return k222Clave(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');}
+        function k222Numero(v){
+          if(typeof v==='number')return v;
+          const s=String(v??'').trim();
+          if(!s||/[,\.]\d{3}$/.test(s))return NaN;
+          return Number(s.replace(',','.'));
+        }
+        function k222PintarMensaje(mensaje,error){
+          const box=document.getElementById('k222Previa');if(!box)return;
+          box.innerHTML='<div class="k222-summary" style="'+(error?'color:#9f3034;border-color:#e9b4b4;':'')+'">'+escaparHtmlPedido(mensaje)+'</div>';
+        }
+        async function k222LeerArchivo(file){
+          if(k222Ocupado)return;
+          k222Libro=null;k222Productos=[];k222ArchivoNombre='';
+          const btn=document.getElementById('k222CrearBtn'),wrap=document.getElementById('k222HojaWrap');
+          if(btn)btn.disabled=true;if(wrap)wrap.style.display='none';
+          if(!file){k222PintarMensaje('Elige un Excel para ver sus productos.',false);return;}
+          if(typeof XLSX==='undefined')return k222PintarMensaje('No se cargó el lector de Excel. Comprueba la conexión y actualiza Online Shop.',true);
+          if(!/\.xlsx?$/i.test(file.name))return k222PintarMensaje('Selecciona un archivo .xlsx o .xls.',true);
+          if(file.size>8*1024*1024)return k222PintarMensaje('El archivo excede 8 MB. Utiliza una lista de productos más pequeña.',true);
+          k222PintarMensaje('Leyendo el Excel…',false);
+          try{
+            const buffer=await file.arrayBuffer();
+            k222Libro=XLSX.read(buffer,{type:'array',cellDates:false});
+            if(!k222Libro.SheetNames?.length)throw Error('El archivo no contiene hojas.');
+            k222ArchivoNombre=file.name;
+            const selector=document.getElementById('k222Hoja');
+            selector.innerHTML=k222Libro.SheetNames.map((nombre,i)=>`<option value="${i}">${escaparHtmlPedido(nombre)}</option>`).join('');
+            const favorita=k222Libro.SheetNames.findIndex(nombre=>/^pagina\s*1$/i.test(nombre.trim()));
+            selector.value=String(favorita>=0?favorita:0);
+            if(wrap)wrap.style.display=k222Libro.SheetNames.length>1?'block':'none';
+            k222PrevisualizarHoja();
+          }catch(ex){k222Libro=null;k222Productos=[];k222PintarMensaje('No pude leer el Excel: '+ex.message,true);}
+        }
+        function k222PrevisualizarHoja(){
+          k222Productos=[];
+          const btn=document.getElementById('k222CrearBtn');if(btn)btn.disabled=true;
+          try{
+            if(!k222Libro)throw Error('Primero selecciona un Excel.');
+            const indice=Number(document.getElementById('k222Hoja')?.value||0);
+            const nombreHoja=k222Libro.SheetNames[indice],hoja=k222Libro.Sheets[nombreHoja];
+            if(!hoja)throw Error('Selecciona una hoja válida.');
+            const filas=XLSX.utils.sheet_to_json(hoja,{header:1,raw:true,defval:'',blankrows:false});
+            if(!filas.length)throw Error('La hoja está vacía.');
+            if(filas.length>2500)throw Error('El archivo tiene más de 2,500 filas; separa el pedido en varios Kardex.');
+            const esProducto=x=>['PRODUCTO','PRODUCTOS','NOMBRE','NOMBREPRODUCTO','NOMBREDELPRODUCTO','DESCRIPCION','DESCRIPCIONPRODUCTO','ARTICULO'].includes(x);
+            const esCantidad=x=>['CANTIDAD','CANT','UNIDADES','CANTIDADREQUERIDA','CANTIDADPEDIDA','REQUERIDO','PEDIDO','CANTPRODUCTO'].includes(x);
+            let colProducto=0,colCantidad=1,desde=0;
+            for(let i=0;i<Math.min(15,filas.length);i++){
+              const c=(filas[i]||[]).map(k222Cabecera),a=c.findIndex(esProducto),b=c.findIndex(esCantidad);
+              if(a>=0&&b>=0&&a!==b){colProducto=a;colCantidad=b;desde=i+1;break;}
+            }
+            const mapa=new Map();let unidades=0,sinCantidad=0,errores=[],duplicados=0,ceros=0;
+            for(let i=desde;i<filas.length;i++){
+              const row=filas[i]||[],producto=k222Texto(row[colProducto]),raw=row[colCantidad];
+              if(!producto&&String(raw??'').trim()==='')continue;
+              const cantidad=k222Numero(raw);
+              if(!producto||producto.length>180||/^[=+@-]/.test(producto)||/[\r\n\t]/.test(producto)){
+                errores.push('Fila '+(i+1)+': nombre de producto inválido.');continue;
+              }
+              if(cantidad===0){ceros++;continue;}
+              if(!Number.isInteger(cantidad)||cantidad<1||cantidad>100000){
+                errores.push('Fila '+(i+1)+' ('+producto+'): cantidad no válida.');sinCantidad++;continue;
+              }
+              const clave=k222Clave(producto);
+              if(mapa.has(clave)){mapa.get(clave).cantidad+=cantidad;duplicados++;}
+              else mapa.set(clave,{producto,cantidad});
+              unidades+=cantidad;
+            }
+            if(errores.length)throw Error('Hay '+errores.length+' fila(s) por corregir en Excel. '+errores.slice(0,4).join(' '));
+            const items=Array.from(mapa.values());
+            if(!items.length)throw Error('No se encontraron productos con cantidades positivas. Usa las columnas Producto y Cantidad.');
+            if(items.length>600)throw Error('Máximo 600 productos distintos por Kardex.');
+            if(unidades>200000||items.some(x=>x.cantidad>100000))throw Error('Las cantidades exceden el límite por Kardex.');
+            k222Productos=items;
+            const lista=items.map(x=>`<div class="k222-row"><span>${escaparHtmlPedido(x.producto)}</span><b>${x.cantidad}</b></div>`).join('');
+            document.getElementById('k222Previa').innerHTML=`<div class="k222-summary"><b>✅ Listo para crear</b><div>Archivo: ${escaparHtmlPedido(k222ArchivoNombre)}</div><div>Hoja: ${escaparHtmlPedido(nombreHoja)}</div><div><b>${items.length} productos</b> · <b>${unidades} unidades</b></div>${duplicados?`<div>${duplicados} productos repetidos agrupados.</div>`:''}${ceros?`<div>${ceros} filas con cantidad 0 omitidas.</div>`:''}</div><div class="k222-list">${lista}</div><p>Al confirmar se creará un Kardex nuevo. No se reemplazará ningún Kardex anterior.</p>`;
+            if(btn)btn.disabled=false;
+          }catch(ex){k222Productos=[];k222PintarMensaje(ex.message,true);}
+        }
+        async function k222CrearDesdeExcel(){
+          if(k222Ocupado||!k222Productos.length)return;
+          if(normalizarEmpleado(localStorage.getItem('sucursal'))!=='bodega'||m214Vista)return alert('Solo Bodega puede iniciar Kardex nuevos.');
+          const total=k222Productos.reduce((s,x)=>s+x.cantidad,0);
+          if(!confirm(`¿Crear un Kardex NUEVO con ${k222Productos.length} productos y ${total} unidades del archivo ${k222ArchivoNombre}?\n\nLos Kardex que ya están abiertos conservarán sus pendientes.`))return;
+          const btn=document.getElementById('k222CrearBtn'),archivo=document.getElementById('k222Archivo'),hoja=document.getElementById('k222Hoja');
+          k222Ocupado=true;btn.disabled=true;btn.textContent='Creando y guardando Kardex…';
+          if(archivo)archivo.disabled=true;if(hoja)hoja.disabled=true;
+          try{
+            const body=new URLSearchParams({accion:'CrearRutaDesdeExcel',sucursal:'Bodega',productos:JSON.stringify(k222Productos),empleado:localStorage.getItem('usuario')||''});
+            const r=await m214FetchKardex(body),d=await r.json();
+            if(!r.ok||d.status!=='OK'||d.version!=='1.7.22'||!d.idRuta)throw Error(d.mensaje||'Publica primero Código.gs v1.7.23 en Apps Script.');
+            k221IdRuta=String(d.idRuta);sessionStorage.setItem('k221Ruta',k221IdRuta);
+            alert(`✅ Kardex #${d.numeroRuta} creado con ${d.productos} productos. Los anteriores permanecen abiertos.`);
+            k222Libro=null;k222Productos=[];k222ArchivoNombre='';
+            if(archivo)archivo.value='';
+            const wrap=document.getElementById('k222HojaWrap');if(wrap)wrap.style.display='none';
+            k222PintarMensaje('Kardex creado. Puedes seleccionar otro Excel cuando lo necesites.',false);
+            await cargarRutaActiva();
+          }catch(ex){alert('No se pudo confirmar el nuevo Kardex: '+ex.message+'\n\nAntes de reintentar, actualiza la lista de Kardex por si ya se guardó.');}
+          finally{k222Ocupado=false;btn.disabled=!k222Productos.length;btn.textContent='➕ Crear Kardex con este Excel';if(archivo)archivo.disabled=false;if(hoja)hoja.disabled=false;}
+        }
 
         function claveBorradorRuta(){ return rutaActiva ? `ruteo_borrador_${rutaActiva.idRuta}` : ""; }
         function claveBorradorFaltantes(){ return rutaActiva ? `ruteo_faltantes_${rutaActiva.idRuta}` : ""; }
@@ -6995,15 +7207,24 @@ async function verificarPassword() {
             const ver=++c55RutaFetchVersion,cont=document.getElementById('listaRuta'),resumen=document.getElementById('rutaResumen'),btnCrear=document.getElementById('btnCrearRuta'),etapas=document.getElementById('rutaEtapas');
             cont.innerHTML='<p style="text-align:center;color:#64748b;">Actualizando Kardex y origen de los productos…</p>';
             try{
+                await k221CargarRutas();
+                if(ver!==c55RutaFetchVersion)return;
+                const elegida=k221IdRuta;
+                if(!elegida){
+                    rutaActiva=null;c56Seguimiento=null;
+                    resumen.innerHTML='No hay Kardex abierto. Puedes iniciar uno desde <b>Pagina 1 (A:B)</b>.';
+                    cont.innerHTML='<div class="kx-complete">✅ No hay Kardex por preparar.</div>';
+                    btnCrear.style.display='block';if(etapas)etapas.style.display='none';return;
+                }
                 // v1.6.73: tres consultas independientes en paralelo para reducir la espera.
                 const momento73=Date.now();
                 const [r,cr,sr]=await Promise.all([
-                    fetch(URL_API+'?accion=verRutaActiva&_='+momento73,{cache:'no-store'}),
-                    fetch(URL_API+'?accion=verResumenCierreKardex&_='+momento73,{cache:'no-store'}),
-                    fetch(URL_API+'?accion=verSeguimientoKardex&_='+momento73,{cache:'no-store'})
+                    fetch(URL_API+'?accion=verRutaActiva&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'}),
+                    fetch(URL_API+'?accion=verResumenCierreKardex&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'}),
+                    fetch(URL_API+'?accion=verSeguimientoKardex&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'})
                 ]);
                 const [data,cd,sd]=await Promise.all([r.json(),cr.json(),sr.json()]);
-                if(ver!==c55RutaFetchVersion)return;
+                if(ver!==c55RutaFetchVersion||elegida!==k221IdRuta)return;
                 if(!r.ok||data.status!=='OK')throw Error(data.mensaje||'No se pudo cargar la ruta.');
                 rutaActiva=data.ruta||null;c55RutaRevisionDespacho=false;
                 if(!rutaActiva){
@@ -7012,7 +7233,7 @@ async function verificarPassword() {
                     btnCrear.style.display='block';if(etapas)etapas.style.display='none';
                     c56Seguimiento=null;c54SeleccionBodega={};c54RutaSeleccionada='';return;
                 }
-                btnCrear.style.display='none';
+                btnCrear.style.display='block';
                 // Las tres respuestas ya se cargaron juntas arriba.
                 if(ver!==c55RutaFetchVersion)return;
                 if(!cr.ok||cd.status!=='OK'||cd.version!=='1.6.55'||!cd.ruta||String(cd.ruta.idRuta)!==String(rutaActiva.idRuta))
@@ -7039,9 +7260,10 @@ async function verificarPassword() {
             const data=c56Seguimiento?.productos||[],r=c56Seguimiento?.resumen||{},cont=document.getElementById('listaRuta');if(!cont)return;
             const resumen=[['Preparados completos',r.completos||0,'completos'],['Pendientes por asignar',r.pendientes||0,'faltantes'],['Asignados a sucursal',r.asignados||0,'asignados'],['Con revisión de Despacho',r.recibidos||0,'recibidos']];
             let html='<div class="c56-intro"><b>Seguimiento de Kardex</b><br>Ya no necesitas volver a llenar productos confirmados. Cada producto conserva las cantidades y la sucursal de donde salió.</div>';
+            if(!k223PuedeAsignar())html+='<div class="c56-intro" style="background:#fff6e4;border:1px solid #f0d39b;"><b>'+escaparHtmlPedido(k223AvisoOrden())+'</b><br>Los productos preparados aquí se guardan. Puedes volver al Kardex anterior sin perder nada.</div>';
             html+='<div class="c56-board">'+resumen.map(x=>`<div class="c56-stat"><b>${x[1]}</b><span>${x[0].toUpperCase()}</span></div>`).join('')+'</div>';
             if(r.porPrepararBodega>0)html+=`<button class="c56-cta" onclick="mostrarEtapaRuta('bodega')">📦 Revisar ${r.porPrepararBodega} producto(s) pendiente(s) en Bodega</button>`;
-            if(r.pendientes>0)html+=`<button class="c56-cta" onclick="mostrarEtapaRuta('faltantes')">🟠 Asignar ${r.pendientes} saldo(s) pendiente(s)</button>`;
+            if(r.pendientes>0&&k223PuedeAsignar())html+=`<button class="c56-cta" onclick="mostrarEtapaRuta('faltantes')">🟠 Asignar ${r.pendientes} saldo(s) pendiente(s)</button>`;
             if(r.asignados>0)html+=`<button class="c56-cta" onclick="mostrarEtapaRuta('asignados')">🏪 Ver productos asignados y sucursales</button>`;
             if(r.completos>0)html+=`<button class="c56-cta" onclick="mostrarEtapaRuta('completos')">✅ Ver productos completos</button>`;
             html+='<div class="c56-intro">Cuando una sucursal confirme lo que encontró, verás el resultado en Asignados o Completos. La recepción final se verifica únicamente en Despacho.</div>';
@@ -7186,6 +7408,7 @@ async function verificarPassword() {
         }
 
         async function c57LiberarConfirmado(i,j){
+            if(!k223PuedeAsignar())return alert(k223AvisoOrden());
             const p=c56Seguimiento?.productos?.[i],o=p?.origenes?.[j];if(!p||!o||!o.puedeLiberar)return;
             const cantidad=(Number(o.asignada)||0)-(Number(o.preparada)||0);
             if(cantidad<=0)return;
@@ -7246,16 +7469,20 @@ async function verificarPassword() {
               :`¿Confirmas que ${p.sucursal} terminó con ${cantidad} unidades ya preparadas de ${p.producto}? No se volverá a sumar.`;
             if(!confirm(mensaje))return;
             try{
-                const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:p.sucursal,empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify([{idRuta:id,producto:p.producto,cantidad:0}])});
+                const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',idRuta:id,sucursal:p.sucursal,empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify([{idRuta:id,producto:p.producto,cantidad:0}])});
                 const r=await m214FetchKardex(body),d=await r.json();
                 if(!r.ok||d.status!=='OK'||Number(d.actualizados)!==1)throw Error(d.mensaje||'No se confirmó en el servidor.');
                 await cargarRutaActiva();
             }catch(e){alert('No se pudo confirmar. No se cerró el Kardex: '+e.message);}
         }
         async function crearRutaDesdeKardex(){
-            if(!confirm("¿Crear una nueva ruta agrupando los productos de Pagina 1, columnas A:B?")) return;
+            if(normalizarEmpleado(localStorage.getItem('sucursal'))!=='bodega'||m214Vista)return alert('Solo Bodega puede iniciar Kardex nuevos.');
+            if(!confirm('¿Iniciar OTRO Kardex usando los productos actuales de Pagina 1 (A:B)?\n\nLos Kardex anteriores y sus pendientes permanecerán abiertos. Verifica que Pagina 1 ya tenga la lista del pedido nuevo; esta acción NO vacía esa hoja.')) return;
             const btn=document.getElementById("btnCrearRuta");btn.disabled=true;btn.innerText="Creando ruta...";
-            try{const p=new URLSearchParams({accion:"CrearRutaDesdePagina1",empleado:localStorage.getItem("usuario")||""});const r=await m214FetchKardex(p),data=await r.json();if(!r.ok||data.status!=="OK")throw new Error(data.mensaje||"No se pudo crear la ruta.");alert("Ruta "+data.numeroRuta+" creada con "+data.productos+" productos.");await cargarRutaActiva();}catch(e){alert("No se pudo crear la ruta: "+e.message)}finally{btn.disabled=false;btn.innerText="➕ Crear Kardex desde Pagina 1 (A:B)";}
+            try{const p=new URLSearchParams({accion:"CrearRutaDesdePagina1",sucursal:'Bodega',empleado:localStorage.getItem("usuario")||""});const r=await m214FetchKardex(p),data=await r.json();if(!r.ok||data.status!=="OK")throw new Error(data.mensaje||"No se pudo crear la ruta.");
+              k221IdRuta=String(data.idRuta||'');if(k221IdRuta)sessionStorage.setItem('k221Ruta',k221IdRuta);
+              alert("Kardex #"+data.numeroRuta+" creado con "+data.productos+" productos. Los pendientes de las otras rutas siguen guardados.");await cargarRutaActiva();}
+            catch(e){alert("No se pudo crear la ruta: "+e.message)}finally{btn.disabled=false;btn.innerText="➕ Iniciar otro Kardex desde Pagina 1 (A:B)";}
         }
         let mostrarCompletadosBodega = false;
         function alternarCompletadosBodega(){
@@ -7392,7 +7619,7 @@ async function verificarPassword() {
         }
         async function cargarResumenCierreKardex23(){
             const box=document.getElementById('resumenCierreKardex23');if(!box||!rutaActiva)return;
-            try{const r=await fetch(URL_API+'?accion=verResumenCierreKardex&_='+Date.now(),{cache:'no-store'}),d=await r.json();if(!r.ok||d.status!=='OK'||!d.ruta)return;const x=d.ruta;
+            try{const id=String(rutaActiva.idRuta),r=await fetch(URL_API+'?accion=verResumenCierreKardex&idRuta='+encodeURIComponent(id)+'&_='+Date.now(),{cache:'no-store'}),d=await r.json();if(!r.ok||d.status!=='OK'||!d.ruta||String(d.ruta.idRuta)!==id||String(k221IdRuta)!==id)return;const x=d.ruta;
               if(x.puedeFinalizar){
                 const falt=(x.faltantes||[]).slice().sort((a,b)=>String(a.producto||'').localeCompare(String(b.producto||''),'es',{sensitivity:'base'}));
                 const lista=document.getElementById('listaRuta');
@@ -7433,7 +7660,7 @@ async function verificarPassword() {
                 await cargarRutaActiva();
             }catch(e){alert('No se pudo terminar la preparación: '+e.message);}
         }
-        async function finalizarKardex23(){if(!rutaActiva)return;if(!confirm('¿Finalizar este Kardex? Después podrás crear el siguiente.'))return;try{const body=new URLSearchParams({accion:'FinalizarKardex',idRuta:rutaActiva.idRuta,empleado:localStorage.getItem('usuario')||''}),r=await m214FetchKardex(body),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error((d.mensaje||'No se pudo finalizar.')+(d.bloqueos?.length?'\n'+d.bloqueos.join('\n'):''));alert(d.estado==='COMPLETA'?'✅ Kardex finalizado completo. Ya puedes crear el siguiente.':'⚠️ Kardex finalizado con '+d.unidadesFaltantes+' unidad(es) faltante(s). Ya puedes crear el siguiente.');c54SeleccionBodega={};c54RutaSeleccionada='';c55UltimosPendientes=[];await cargarRutaActiva();}catch(e){alert('No se pudo finalizar: '+e.message);}}
+        async function finalizarKardex23(){if(!rutaActiva)return;if(!confirm('¿Finalizar este Kardex? Los demás Kardex abiertos permanecerán intactos.'))return;try{const body=new URLSearchParams({accion:'FinalizarKardex',idRuta:rutaActiva.idRuta,empleado:localStorage.getItem('usuario')||''}),r=await m214FetchKardex(body),d=await r.json();if(!r.ok||d.status!=='OK')throw new Error((d.mensaje||'No se pudo finalizar.')+(d.bloqueos?.length?'\n'+d.bloqueos.join('\n'):''));alert(d.estado==='COMPLETA'?'✅ Kardex finalizado. Los otros Kardex permanecen abiertos.':'⚠️ Kardex finalizado con '+d.unidadesFaltantes+' unidad(es) faltante(s). Los demás Kardex siguen abiertos.');c54SeleccionBodega={};c54RutaSeleccionada='';c55UltimosPendientes=[];await cargarRutaActiva();}catch(e){alert('No se pudo finalizar: '+e.message);}}
         function validarPrepRuta(i){if(!rutaActiva||!rutaActiva.productos[i])return;const p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,base=Math.max(0,Number(p.prepBodega)||0),faltanteReal=Math.max(0,-Number(p.diferencia||0)),max=Math.min(req,base+faltanteReal),el=document.getElementById('rutaPrep_'+i);let v=Number(el.value);if(!Number.isFinite(v))v=base;v=Math.min(max,Math.max(0,v));el.value=v;const agregado=Math.max(0,v-base),falta=Math.max(0,faltanteReal-agregado),card=document.getElementById('rutaCard_'+i),est=document.getElementById('rutaEstado_'+i);if(est){est.innerText=falta<=0?'✓ Completo':'Faltan '+falta;est.className='kx-status '+(falta<=0?'done':'pending');}guardarBorradorRuta();}
         function cambiarPrepRuta(i,d){const el=document.getElementById('rutaPrep_'+i),p=rutaActiva.productos[i],req=Number(p.cantidadRequerida)||0,base=Math.max(0,Number(p.prepBodega)||0),faltanteReal=Math.max(0,-Number(p.diferencia||0)),max=Math.min(req,base+faltanteReal);el.value=Math.min(max,Math.max(0,(Number(el.value)||0)+d));validarPrepRuta(i);}
         async function guardarTodoRuteo(){
@@ -7456,7 +7683,7 @@ async function verificarPassword() {
                 const body=new URLSearchParams({accion:'GuardarPreparacionRutaBodegaLote',idRuta:idRutaGuardando,productos:JSON.stringify(productos),empleado:localStorage.getItem('usuario')||''});
                 const r=await m214FetchKardex(body),data=await r.json();
                 if(!r.ok||data.status!=='OK')throw new Error(data.mensaje||'No se pudo guardar.');
-                const vr=await fetch(URL_API+'?accion=verRutaActiva&_sync='+Date.now(),{cache:'no-store'}),vd=await vr.json();
+                const vr=await fetch(URL_API+'?accion=verRutaActiva&idRuta='+encodeURIComponent(idRutaGuardando)+'&_sync='+Date.now(),{cache:'no-store'}),vd=await vr.json();
                 if(!vr.ok||vd.status!=='OK'||!vd.ruta||String(vd.ruta.idRuta)!==String(idRutaGuardando))throw new Error('Se guardó, pero no pude verificar la ruta en el servidor.');
                 const normal=x=>String(x||'').trim().replace(/\s+/g,' ').toUpperCase();
                 const mapaServidor=new Map((vd.ruta.productos||[]).map(x=>[normal(x.producto),Number(x.prepBodega)||0]));
@@ -7466,8 +7693,10 @@ async function verificarPassword() {
                 localStorage.removeItem(`ruteo_borrador_${idRutaGuardando}`);
                 localStorage.removeItem(`ruteo_borrador_dirty_${idRutaGuardando}`);
                 c54SeleccionBodega={};rutaActiva=vd.ruta;
-                alert('✅ Revisión de Bodega guardada y verificada. Los productos con faltantes se encuentran en Pendientes para asignar. Productos registrados: '+productos.length+'.');
-                etapaRutaActual='faltantes';
+                alert(k223PuedeAsignar()
+                  ?'✅ Preparación guardada. Los faltantes ya se pueden asignar. Productos registrados: '+productos.length+'.'
+                  :'✅ Preparación de Bodega guardada. Este Kardex esperará su turno para asignar faltantes. Productos registrados: '+productos.length+'.');
+                etapaRutaActual=k223PuedeAsignar()?'faltantes':'bodega';
                 await cargarRutaActiva();
             }catch(e){alert('No se pudo confirmar la sincronización: '+e.message+'\n\nLas selecciones permanecen en este dispositivo. Actualiza antes de reintentar por si el servidor ya las guardó.');}
             finally{const b=document.getElementById('btnGuardarTodoRuteo');if(b){b.disabled=false;b.innerText='✓ Confirmar preparación';}}
@@ -7491,6 +7720,11 @@ async function verificarPassword() {
         }
         async function renderRutaFaltantes(){
             if(!rutaActiva||!c56Seguimiento)return;
+            if(!k223PuedeAsignar()){
+              const box=document.getElementById('listaRuta');
+              if(box)box.innerHTML='<div class="c56-intro" style="background:#fff6e4;border:1px solid #f0d39b;padding:18px;border-radius:18px;"><b>'+escaparHtmlPedido(k223AvisoOrden())+'</b><br><br>Por ahora, prepara los productos de este Kardex en Bodega. Los saldos estarán listos para asignarse cuando termine el anterior.<br><button class="c56-cta" onclick="mostrarEtapaRuta(\'bodega\')">📦 Ir a preparación de Bodega</button></div>';
+              return;
+            }
             await cargarAsignacionesKardexRuta();
             const borrador=leerLocal(claveBorradorFaltantes());
             const pendientes=(rutaActiva.productos||[]).map((p,i)=>({p,i,t:c56Producto(p.producto)}))
@@ -7657,6 +7891,7 @@ async function verificarPassword() {
         }
         function cambiarFuenteRuta(i,k,d){const el=document.getElementById(`falt_${k}_${i}`);if(!el)return;el.value=Math.max(0,(Number(el.value)||0)+d);validarFuentesRuta(i,k);}
         async function guardarFaltantesRuta(){
+            if(!k223PuedeAsignar())return alert(k223AvisoOrden());
             const pendientes=(rutaActiva?.productos||[]).map((p,i)=>({p,i,t:c56Producto(p.producto)}))
                 .filter(x=>x.t&&x.t.bodegaRevisada&&x.t.pendienteAsignar>0);
             if(!pendientes.length)return;
@@ -7745,8 +7980,12 @@ async function verificarPassword() {
           }
           cont.innerHTML='<p class="c51-nota">Cargando productos asignados a Despacho...</p>';
           try{
-            const r=await fetch(URL_API+'?accion=verFaltantesKardex&sucursal='+encodeURIComponent('Despacho')+'&_='+Date.now(),{cache:'no-store'});
+            const elegida=await k221CargarRutas();
+            const turno=k223ElegirKardexParaSucursales();
+            if(!elegida){c52PreparacionDespacho=[];c52RenderPreparacionDespacho();return;}
+            const r=await fetch(URL_API+'?accion=verFaltantesKardex&idRuta='+encodeURIComponent(turno)+'&sucursal='+encodeURIComponent('Despacho')+'&_='+Date.now(),{cache:'no-store'});
             const d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudieron consultar los faltantes.');
+            if(turno!==k221IdRuta)return;
             c53SeleccionDespacho={};
             c52PreparacionDespacho=(Array.isArray(d.faltantes)?d.faltantes:[])
               .filter(x=>normalizarEmpleado(x.sucursal)==='despacho')
@@ -7766,12 +8005,13 @@ async function verificarPassword() {
         }
         async function c52ConfirmarPreparacionDespacho(){
           let items;try{items=c53ObtenerConfirmacion('despacho');}catch(e){alert(e.message);return;}
+          if(!k221IdRuta||items.some(x=>String(x.idRuta)!==k221IdRuta))return alert('Cambió el Kardex seleccionado. Actualiza y vuelve a marcar los productos.');
           const incompletos=Object.values(c53SeleccionDespacho).filter(x=>x.tipo==='INCOMPLETO').length;
           const parciales=Object.values(c53SeleccionDespacho).filter(x=>x.tipo==='PARCIAL').length;
           if(!confirm(`¿Confirmar ${items.length} producto(s) preparados?${incompletos?'\n✕ '+incompletos+' incompleto(s), sin unidades encontradas.':''}${parciales?'\n◐ '+parciales+' parcial(es), con algunas unidades.':''}\nLos no marcados seguirán pendientes.`))return;
           const btn=document.getElementById('c52GuardarPreparacion');if(btn){btn.disabled=true;btn.textContent='Guardando preparación...';}
           try{
-            const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:'Despacho',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
+            const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',idRuta:k221IdRuta,sucursal:'Despacho',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
             const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();
             if(!r.ok||d.status!=='OK'||Number(d.actualizados)!==items.length)throw new Error(d.mensaje||'No se confirmaron todos los productos. Actualiza y revisa.');
             const liberadas=Number(d.unidadesLiberadas)||0;
@@ -7792,9 +8032,13 @@ async function verificarPassword() {
             cab.innerHTML=esDespacho?'🚚 <b>Despacho</b> · Completo: llegó todo · Incompleto: no llegó nada · Parcial: llegó una parte.':`📍 <b>${escaparHtmlPedido(suc)}</b> · Confirma lo que realmente encontraste. Al confirmar, tu revisión queda terminada.`;
             cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando...</p>';
             try{
+                const elegida=await k221CargarRutas();
+                const turno=k223ElegirKardexParaSucursales();
+                if(!elegida){faltantesKardexActuales=[];esDespacho?renderRecepcionKardex():renderFaltantesKardex();return;}
                 const accion=esDespacho?'verRecepcionFaltantesKardex':'verFaltantesKardex';
-                const r=await fetch(URL_API+'?accion='+accion+(esDespacho?'':'&sucursal='+encodeURIComponent(suc))+'&_='+Date.now(),{cache:'no-store'}),d=await r.json();
+                const r=await fetch(URL_API+'?accion='+accion+'&idRuta='+encodeURIComponent(turno)+(esDespacho?'':'&sucursal='+encodeURIComponent(suc))+'&_='+Date.now(),{cache:'no-store'}),d=await r.json();
                 if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudieron cargar.');
+                if(turno!==k221IdRuta)return;
                 faltantesKardexActuales=(d.faltantes||[]).slice();
                 if(!esDespacho)c53SeleccionSucursal={};
                 esDespacho?renderRecepcionKardex():renderFaltantesKardex();
@@ -7895,12 +8139,13 @@ async function verificarPassword() {
             items.push({fila:x.fila,idRuta:x.idRuta,producto:x.producto,sucursal:x.sucursal,esperado:limite,tipo:faltante?'INCOMPLETO':'COMPLETO',faltante});
           }
           if(!items.length)return alert('Marca primero un producto como Completo, Incompleto o Parcial.');
+          if(!k221IdRuta||items.some(x=>String(x.idRuta)!==k221IdRuta))return alert('Cambió el Kardex seleccionado. Actualiza antes de confirmar.');
           const incompletos=items.filter(x=>x.tipo==='INCOMPLETO');
           const texto=`¿Confirmar ${items.length} producto(s)?${incompletos.length?'\n⚠️ '+incompletos.length+' con faltantes: se registrarán en el reporte de despacho.':''}`;
           if(!confirm(texto))return;
           const btn=document.getElementById('btnRecK');if(btn){btn.disabled=true;btn.textContent='Guardando revisión...';}
           try{
-            const body=new URLSearchParams({accion:'ConfirmarRevisionDespachoLote',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
+            const body=new URLSearchParams({accion:'ConfirmarRevisionDespachoLote',idRuta:k221IdRuta,empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
             const r=await m214FetchKardex(body),d=await r.json();
             if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudo guardar.');
             c51Marcados={};alert(`✓ Revisados ${d.actualizados} producto(s). Con faltantes: ${d.conFaltante}.`);
@@ -7924,11 +8169,12 @@ async function verificarPassword() {
         }
         async function confirmarFaltantesKardex(){
             let items;try{items=c53ObtenerConfirmacion('sucursal');}catch(e){alert(e.message);return;}
+            if(!k221IdRuta||items.some(x=>String(x.idRuta)!==k221IdRuta))return alert('Cambió el Kardex seleccionado. Actualiza y vuelve a marcar los productos.');
             const incompletos=Object.values(c53SeleccionSucursal).filter(x=>x.tipo==='INCOMPLETO').length;
             if(!confirm(`¿Confirmar ${items.length} producto(s) preparados?${incompletos?'\n⚠️ '+incompletos+' incompleto(s).':''}\nLos no marcados seguirán pendientes.`))return;
             const btn=document.getElementById('btnConfirmarFaltantesKardex');if(btn){btn.disabled=true;btn.innerText='Guardando preparación...';}
             try{
-              const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
+              const body=new URLSearchParams({accion:'ConfirmarFaltantesKardexLote',idRuta:k221IdRuta,sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||'',productos:JSON.stringify(items)});
               const r=await fetch(URL_API,{method:'POST',body,cache:'no-store'}),d=await r.json();
               if(!r.ok||d.status!=='OK'||Number(d.actualizados)!==items.length)throw new Error(d.mensaje||'No se confirmaron todos los productos.');
               const liberadas=Number(d.unidadesLiberadas)||0;
@@ -8772,13 +9018,15 @@ async function c58Cargar(mostrarError=true){
   if(c58Ocupado)return;
   const ver=++c58Peticion,btn=document.getElementById('c58BtnActualizar');c58Ocupado=true;if(btn){btn.disabled=true;btn.textContent='Consultando…';}
   try{
+    const elegida=await k221CargarRutas();
+    if(!elegida){c58Ruta=null;c58Datos=null;c58Render();return;}
     const [r,s]=await Promise.all([
-      fetch(URL_API+'?accion=verRutaActiva&_='+Date.now(),{cache:'no-store'}),
-      fetch(URL_API+'?accion=verSeguimientoKardex&_='+Date.now(),{cache:'no-store'})
+      fetch(URL_API+'?accion=verRutaActiva&idRuta='+encodeURIComponent(elegida)+'&_='+Date.now(),{cache:'no-store'}),
+      fetch(URL_API+'?accion=verSeguimientoKardex&idRuta='+encodeURIComponent(elegida)+'&_='+Date.now(),{cache:'no-store'})
     ]);
     if(!r.ok||!s.ok)throw Error('No se pudo conectar con el servidor.');
     const [dr,ds]=await Promise.all([r.json(),s.json()]);
-    if(ver!==c58Peticion)return;
+    if(ver!==c58Peticion||elegida!==k221IdRuta)return;
     if(dr.status!=='OK'||ds.status!=='OK'||ds.version!=='1.6.57')throw Error('Actualiza Código.gs de la versión BETA en Apps Script.');
     if(dr.ruta&&(!ds.seguimiento||String(dr.ruta.idRuta)!==String(ds.seguimiento.idRuta)))throw Error('La ruta cambió durante la consulta. Presiona Actualizar.');
     c58Ruta=dr.ruta||null;c58Datos=ds.seguimiento||null;
