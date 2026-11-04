@@ -1822,8 +1822,62 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .k222-import .k222-row b{font-size:13px;color:#147357;white-space:nowrap}
 .k222-import #k222CrearBtn{background:linear-gradient(135deg,#11976b,#17b587)!important;margin:12px 0 0!important;min-height:51px!important}
 .k222-import #k222CrearBtn:disabled{background:#b8cfc7!important;opacity:.75;cursor:not-allowed}
-/* Crear nuevos Kardex es exclusivo de Bodega, no del Panel Administrativo. */
-#adminControlLogistico .k222-import,#adminControlLogistico #btnCrearRuta{display:none!important}
+/* v1.7.24 · Zona de Kardex compacta: crear solo cuando se necesita. */
+#moduloRuta .k221-selector{padding:12px 14px;margin:10px 0 8px;border:1px solid #dbe6f1;background:#fff;box-shadow:0 4px 14px rgba(22,56,93,.04);border-radius:17px}
+#moduloRuta .k221-selector label{margin-bottom:6px!important;font-size:12px!important;color:#64748b!important}
+#moduloRuta .k221-selector select{min-height:47px!important;border:1px solid #d7e2ef!important;border-radius:12px!important;font-size:15px!important;padding:8px 11px!important}
+#moduloRuta .k221-selector small{margin-top:7px;font-size:11px}
+.k224-acciones{display:flex;align-items:flex-start;gap:9px;margin:0 0 12px;flex-wrap:wrap}
+.k224-crear{flex:1 1 210px;min-width:0;position:relative}
+.k224-crear>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;min-height:45px;padding:0 14px;border-radius:13px;border:1px solid #bdd7f7;background:#edf6ff;color:#135ea3;font-size:13px;font-weight:850;user-select:none;box-sizing:border-box}
+.k224-crear>summary::-webkit-details-marker{display:none}
+.k224-crear>summary:focus-visible,.k224-legacy>summary:focus-visible{outline:3px solid #6fb7ff;outline-offset:2px}
+.k224-crear[open]>summary{border-color:#89bdea;background:#deefff}
+.k224-acciones>.k224-actualizar{flex:0 0 auto;width:auto!important;min-height:45px!important;margin:0!important;padding:9px 14px!important;border-radius:13px!important;border:1px solid #dce5ee!important;background:#fff!important;color:#4b617b!important;box-shadow:none!important;font-size:13px!important}
+.k224-crear .k222-import{margin:9px 0 0;background:#f8fbff;border-color:#dbe8f4;border-radius:16px;padding:13px}
+.k224-crear .k222-import h4{font-size:15px;margin-bottom:7px;color:#163e66}
+.k224-crear .k222-import p{margin:5px 0 10px;font-size:11px}
+.k224-crear .k222-import input[type=file],.k224-crear .k222-import select{min-height:43px!important}
+.k224-crear .k222-import #k222CrearBtn{min-height:44px!important;font-size:13px!important}
+.k224-legacy{margin-top:13px;border-top:1px solid #dce7f1;padding-top:11px}
+.k224-legacy>summary{font-size:11px;font-weight:750;color:#60758b;cursor:pointer}
+.k224-legacy #btnCrearRuta{font-size:12px!important;min-height:43px!important;margin-top:9px!important;background:#edf2f8!important;color:#456080!important;box-shadow:none!important}
+/* Crear Kardex es exclusivo de Bodega, nunca dentro de la vista administrativa. */
+#adminControlLogistico .k224-crear{display:none!important}
+.k225-cliente-import{margin-top:12px;padding-top:11px;border-top:1px solid #dbe8f4}
+.k225-cliente-import label{display:block;font-size:12px;font-weight:800;color:#37546d;margin-bottom:6px}
+.k225-cliente-import small{display:block;color:#64748b;font-size:11px;margin:7px 0}
+.k225-clientes-resumen{padding:12px;border-radius:14px;background:#eaf4ff;border:1px solid #cbe0fa;margin:8px 0 14px;font-weight:700;color:#22517d}
+.k225-ticket{border:1px solid #dbe6f2;border-radius:16px;background:#fff;margin:12px 0;padding:14px;box-shadow:0 3px 10px rgba(30,60,100,.04)}
+.k225-ticket>header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.k225-ticket>header strong{font-size:14px;color:#183c60}
+.k225-ticket>header small{display:block;font-size:11px;color:#657b91;margin-top:3px}
+.k225-producto{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #edf1f6}
+.k225-producto span{font-size:12px;color:#273c56;overflow-wrap:anywhere}
+.k225-producto small{display:block;font-size:10px;color:#64748b}
+.k225-producto input{width:72px!important;min-height:41px!important;margin:0!important;text-align:center;border-radius:10px!important}
+.k225-ticket-acciones{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.k225-ticket-acciones button{flex:1 1 120px;font-size:12px!important;min-height:42px!important;margin:0!important}
+.k225-finanzas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}
+.k225-finanzas>div{padding:9px;background:#f0f6fe;border-radius:11px;font-size:11px;color:#44627e}
+.k225-finanzas b{display:block;font-size:15px;color:#173d62;margin-top:2px}
+.c226-panel{max-width:820px;margin:0 auto;text-align:left}
+.c226-resumen{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.c226-resumen>div{background:#edf6ff;border:1px solid #d1e4f7;padding:14px;border-radius:15px;color:#385b7b;font-size:12px}
+.c226-resumen b{display:block;font-size:22px;color:#163c65;margin-top:4px}
+.c226-cliente{padding:14px;margin:10px 0;background:#fff;border:1px solid #d5e3f3;border-radius:16px}
+.c226-cliente header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.c226-cliente header strong{font-size:15px;color:#1c385a}
+.c226-cliente header small{display:block;color:#637e98;margin-top:3px}
+.c226-cliente button{margin:8px 0 0!important}
+.c226-info{font-size:12px;color:#58728e;line-height:1.5}
+.c226-tabla{width:100%;font-size:12px;border-collapse:collapse;margin:12px 0}
+.c226-tabla td,.c226-tabla th{padding:9px 5px;border-bottom:1px solid #e4edf6;text-align:left}
+.c226-form{padding:14px;border-radius:16px;background:#f4f8fe;border:1px solid #d9e6f6;margin:12px 0}
+.c226-form input,.c226-form select{width:100%;min-height:44px;margin:5px 0 10px!important}
+.c226-form label{font-size:12px;font-weight:750;color:#315173}
+.c226-actions{display:flex;gap:8px;flex-wrap:wrap}.c226-actions button{flex:1 1 120px}
+@media(max-width:480px){.k224-acciones{gap:7px}.k224-crear{flex-basis:165px}.k224-acciones>.k224-actualizar{padding:9px 11px!important;font-size:12px!important}}
 </style>
 </head>
 <body>
@@ -1845,7 +1899,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.23</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.26</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -1913,6 +1967,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button id="btnMenuFaltantesKardex" class="menu-modulo" onclick="abrirModulo('faltantesKardex')"><span>📦</span><b>Faltantes Kardex</b></button>
                 <button id="btnMenuPrepararDespacho" class="menu-modulo" onclick="abrirModulo('prepararDespacho')" style="display:none;"><span>📦</span><b>Faltantes Kardex</b></button>
                 <button id="btnMenuCatalogoRuta" class="menu-modulo" onclick="abrirModulo('catalogoRuta')" style="display:none;"><span>📖</span><b>Catálogo</b></button>
+                <button id="btnMenuCuentasCobros" class="menu-modulo" onclick="abrirModulo('cuentasCobros')" style="display:none;"><span>💵</span><b>Clientes y Cobros</b></button>
                 <!-- ÚNICO botón adicional en el menú principal, v1.6.42 BETA -->
                 <button id="btnMenuConteosAsignados" class="menu-modulo" onclick="abrirModulo('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
                 <button id="m200MenuDirecto" class="menu-modulo" onclick="abrirModulo('m200Directa')" style="display:none"><span>📥</span><b>Recepción Directa</b></button>
@@ -1925,6 +1980,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <p id="c82EstadoPush" role="status">Preparando notificaciones…</p>
               <p style="font-size:10px;color:#63788a;margin:8px 0 0;">En iPhone, abre Online Shop desde el ícono de la pantalla de inicio.</p>
             </div>
+        </div>
+
+        <!-- v1.7.26 · Vista compartida por Vendedores y Despacho -->
+        <div id="moduloCuentasCobros" class="card modulo-pantalla" style="display:none;text-align:left">
+          <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
+          <h3>💵 Clientes y Cobros</h3>
+          <p class="c226-info">Consulta el saldo compartido. Cada abono se guarda con el nombre del colaborador que recibió el dinero.</p>
+          <div id="c226Panel" class="c226-panel"></div>
         </div>
 
         <div id="m200ModuloDirecta" class="card modulo-pantalla" style="display:none;text-align:left">
@@ -2238,18 +2301,28 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
         <h3 style="text-align:center;">Kardex de despacho</h3>
         <p style="font-size:12px;color:#666;text-align:center;">Control visual de preparación y faltantes de la ruta.</p>
-        <div class="k221-selector"><label for="k221SelectBodega">📋 Kardex abierto que deseas trabajar</label><select id="k221SelectBodega" onchange="k221CambiarRuta(this.value)"><option value="">Consultando Kardex…</option></select><small id="k221CantidadBodega">Puedes iniciar otro sin finalizar los pendientes.</small></div>
-        <div id="rutaResumen" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:9px;padding:10px;margin:10px 0;font-size:12px;text-align:center;">Cargando Kardex...</div>
-        <div class="k222-import">
-          <h4>📂 Nuevo Kardex desde Excel</h4>
-          <p>Selecciona un archivo <b>.xlsx o .xls</b> con las columnas <b>Producto</b> y <b>Cantidad</b>. Revisa la lista antes de crear el Kardex; los anteriores quedarán intactos.</p>
-          <input type="file" id="k222Archivo" accept=".xlsx,.xls" onchange="k222LeerArchivo(this.files?.[0])" aria-label="Seleccionar archivo Excel para un nuevo Kardex">
-          <div id="k222HojaWrap" class="k222-hoja" style="display:none"><label for="k222Hoja">Hoja del archivo</label><select id="k222Hoja" onchange="k222PrevisualizarHoja()"></select></div>
-          <div id="k222Previa" class="k222-preview" aria-live="polite">Elige el Excel para ver los productos que se importarán.</div>
-          <button type="button" id="k222CrearBtn" onclick="k222CrearDesdeExcel()" disabled>➕ Crear Kardex con este Excel</button>
+        <div class="k221-selector"><label for="k221SelectBodega">📋 Seleccionar Kardex</label><select id="k221SelectBodega" onchange="k221CambiarRuta(this.value)"><option value="">Consultando Kardex…</option></select><small id="k221CantidadBodega">Cargando estado…</small></div>
+        <div class="k224-acciones">
+          <details class="k224-crear" id="k224CrearPanel">
+            <summary>＋ Nuevo Kardex <span style="font-size:10px;font-weight:700;opacity:.72;">Excel</span></summary>
+            <div class="k222-import">
+              <h4>Importar productos</h4>
+              <p>Archivo <b>.xlsx o .xls</b> · columnas <b>Producto</b> y <b>Cantidad</b>.</p>
+              <input type="file" id="k222Archivo" accept=".xlsx,.xls" onchange="k222LeerArchivo(this.files?.[0])" aria-label="Seleccionar archivo Excel para un nuevo Kardex">
+              <div id="k222HojaWrap" class="k222-hoja" style="display:none"><label for="k222Hoja">Hoja del archivo</label><select id="k222Hoja" onchange="k222PrevisualizarHoja()"></select></div>
+              <div class="k225-cliente-import">
+                <label for="k225ArchivoClientes">👥 2. Excel de clientes y tickets de Akasia</label>
+                <input type="file" id="k225ArchivoClientes" accept=".xlsx,.xls" onchange="k225LeerClientes(this.files?.[0])">
+                <small id="k225EstadoClientes">Con esta lista se relacionan los productos con el cliente y se comprueban los totales.</small>
+              </div>
+              <div id="k222Previa" class="k222-preview" aria-live="polite">Selecciona un Excel para revisar los productos.</div>
+              <button type="button" id="k222CrearBtn" onclick="k222CrearDesdeExcel()" disabled>＋ Crear Kardex</button>
+              <details class="k224-legacy"><summary>Otras opciones de creación</summary><button type="button" id="btnCrearRuta" onclick="crearRutaDesdeKardex()">Crear desde Pagina 1 (A:B)</button></details>
+            </div>
+          </details>
+          <button type="button" class="k224-actualizar" onclick="cargarRutaActiva()" title="Actualizar Kardex">↻ Actualizar</button>
         </div>
-        <button id="btnCrearRuta" onclick="crearRutaDesdeKardex()" style="background:#e7f0fb!important;color:#225784!important;">Método anterior: crear desde Pagina 1 (A:B)</button>
-        <button onclick="cargarRutaActiva()" style="background:#6c757d;">🔄 Actualizar Kardex</button>
+        <div id="rutaResumen" style="background:#eaf4ff;border:1px solid #b8daff;border-radius:9px;padding:10px;margin:10px 0;font-size:12px;text-align:center;">Cargando Kardex...</div>
         <div id="rutaEtapas" class="c56-tabs" style="display:none;gap:7px;margin:10px 0;">
             <button id="btnEtapaResumen" onclick="mostrarEtapaRuta('resumen')">📊 Resumen</button>
             <button id="btnEtapaBodega" onclick="mostrarEtapaRuta('bodega')">📦 Preparar Bodega</button>
@@ -2258,6 +2331,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <button id="btnEtapaCompletos" onclick="mostrarEtapaRuta('completos')">✅ Completos</button>
             <button id="btnEtapaRecibidos" onclick="mostrarEtapaRuta('recibidos')">🚚 Recibidos</button>
             <button id="btnEtapaCierre" onclick="mostrarEtapaRuta('cierre')">📋 Cierre</button>
+            <button id="btnEtapaClientes" onclick="mostrarEtapaRuta('clientes')">👥 Clientes y carga</button>
         </div>
         <div id="listaRuta" style="margin-top:12px;"></div>
     </div>
@@ -2347,7 +2421,15 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoAkasia')"><span>🔄</span><b>Actualizar catálogo Akasia</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('logistica')"><span>🚚</span><b>Control Logístico</b></button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('creditos')"><span>💵</span><b>Clientes y Cobros</b></button>
             </div>
+        </div>
+
+        <div id="adminCreditos" class="admin-modulo" style="display:none;margin-top:18px;text-align:left">
+          <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al Panel Administrativo</button>
+          <h3>💵 Clientes y Cobros</h3>
+          <p class="c226-info">Control de saldos, tickets a crédito, cobros por colaborador y saldos anteriores.</p>
+          <div id="c226AdminPanel" class="c226-panel"></div>
         </div>
 
         <!-- v1.7.01: Control de Mercadería integrado en el Panel Administrativo central. -->
@@ -2808,6 +2890,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const miniTienda=['mini super','tienda online shop'].includes(normalizarEmpleado(sucursalActual));
             const btDirecta=document.getElementById('m200MenuDirecto');
             if(btDirecta)btDirecta.style.display=(!adm&&miniTienda)?'flex':'none';
+            const btCobros=document.getElementById('btnMenuCuentasCobros');
+            if(btCobros)btCobros.style.display=!adm&&['vendedor de ruta','despacho','tienda online shop','mini super'].includes(normalizarEmpleado(sucursalActual))?'flex':'none';
         }
 
         function cargarEmpleadosDesdeSheets() {
@@ -2847,10 +2931,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (n189DebeBloquear(nombre)) return;
             if(!['catalogoRuta','n188','m200Directa'].includes(nombre)) cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
             document.getElementById("menuPrincipalModulos").style.display = "none";
-            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados","m200ModuloAdmin","m200ModuloDirecta"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloCatalogoRuta","moduloConteosAsignados","moduloCuentasCobros","m200ModuloAdmin","m200ModuloDirecta"].forEach(id => document.getElementById(id).style.display = "none");
             if(nombre==='m200Directa'){
                 if(!['mini super','tienda online shop'].includes(normalizarEmpleado(localStorage.getItem('sucursal')))||normalizarEmpleado(localStorage.getItem('usuario'))==='admin')return volverMenuPrincipal();
                 document.getElementById('m200ModuloDirecta').style.display='block';m200IniciarDirecta();
+            }else if(nombre==='cuentasCobros'){
+                if(!['vendedor de ruta','despacho','tienda online shop','mini super'].includes(normalizarEmpleado(localStorage.getItem('sucursal')))||normalizarEmpleado(localStorage.getItem('usuario'))==='admin')return volverMenuPrincipal();
+                document.getElementById('moduloCuentasCobros').style.display='block';
+                c226Abrir(false);
             }else
             if (nombre === "conteosAsignados") {
                 document.getElementById("moduloConteosAsignados").style.display = "block";
@@ -2915,7 +3003,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
-            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados","m200ModuloAdmin","m200ModuloDirecta"].forEach(id => document.getElementById(id).style.display = "none");
+            ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados","moduloCuentasCobros","m200ModuloAdmin","m200ModuloDirecta"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             n189EnAsistencia = false;
             n189PintarAviso();
@@ -6756,7 +6844,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(typeof m214Restaurar==='function')m214Restaurar();
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -6766,6 +6854,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "conteosAsignados") c42AbrirAdmin();
             if (modulo === "catalogoAkasia") c48Abrir();
             if (modulo === "logistica") m214Pestana('kardex');
+            if (modulo === "creditos") c226Abrir(true);
             if (modulo === "asistencia") a196CargarAdmin();
             if (modulo === "n188") n188AbrirAdmin();
             if (modulo === "mercaderia") {m200Tab='pedidos';m201AbrirMercaderia();}
@@ -7020,12 +7109,12 @@ async function verificarPassword() {
             const visibles=soloAsignable?k221Rutas.filter(x=>x.puedeAsignar):k221Rutas;
             if(el){
               el.innerHTML=visibles.length
-                ?visibles.map(x=>`<option value="${escaparHtmlPedido(x.idRuta)}">Kardex #${escaparHtmlPedido(x.numeroRuta)} · ${x.puedeAsignar?'Asignación habilitada':'Solo preparar Bodega'}</option>`).join('')
+                ?visibles.map(x=>`<option value="${escaparHtmlPedido(x.idRuta)}">Kardex #${escaparHtmlPedido(x.numeroRuta)}${soloAsignable?'':x.puedeAsignar?' · En turno':' · Preparación'}</option>`).join('')
                 :'<option value="">No hay Kardex disponibles</option>';
               el.value=visibles.some(x=>x.idRuta===k221IdRuta)?k221IdRuta:(visibles[0]?.idRuta||'');
             }
-            if(info)info.textContent=!visibles.length?'Sin asignaciones disponibles por ahora.':
-              soloAsignable?'Solo se muestran asignaciones del Kardex #'+k223NumeroAsignable+'.':k223AvisoOrden();
+            if(info)info.textContent=!visibles.length?'No hay Kardex disponibles.':
+              soloAsignable?'Solo Kardex #'+k223NumeroAsignable+' está habilitado.':k223PuedeAsignar()?'✅ Asignación habilitada':'🔒 Solo preparar · espera el cierre del #'+k223NumeroAsignable;
           });
         }
         async function k221CargarRutas(){
@@ -7060,6 +7149,7 @@ async function verificarPassword() {
         // v1.7.22 · Crear Kardex sin copiar productos a Google Sheets.
         // El Excel se lee localmente; solo se envía la lista confirmada.
         let k222Libro=null,k222Productos=[],k222ArchivoNombre='',k222Ocupado=false;
+        let k225Lineas=[],k225Clientes=[],k225LibroClientes=null,k225ArchivoClientesNombre='';
         function k222Texto(v){return String(v??'').trim().replace(/\s+/g,' ');}
         function k222Clave(v){return k222Texto(v).toUpperCase();}
         function k222Cabecera(v){return k222Clave(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');}
@@ -7073,9 +7163,46 @@ async function verificarPassword() {
           const box=document.getElementById('k222Previa');if(!box)return;
           box.innerHTML='<div class="k222-summary" style="'+(error?'color:#9f3034;border-color:#e9b4b4;':'')+'">'+escaparHtmlPedido(mensaje)+'</div>';
         }
+        async function k225LeerClientes(file){
+          if(k222Ocupado)return;
+          k225LibroClientes=null;k225Clientes=[];k225ArchivoClientesNombre='';
+          const msg=document.getElementById('k225EstadoClientes'),btn=document.getElementById('k222CrearBtn');
+          if(!file){if(msg)msg.textContent='Archivo opcional: puedes añadir clientes antes de crear el Kardex.';if(k222Libro)k222PrevisualizarHoja();return;}
+          if(!/\.xlsx?$/i.test(file.name)||file.size>8*1024*1024){if(msg)msg.textContent='Selecciona un archivo Excel válido de hasta 8 MB.';if(btn)btn.disabled=true;return;}
+          try{
+            if(typeof XLSX==='undefined')throw Error('No está disponible el lector de Excel.');
+            k225LibroClientes=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});
+            const hoja=k225LibroClientes.Sheets[k225LibroClientes.SheetNames[0]];
+            if(!hoja)throw Error('El Excel de clientes no contiene hojas.');
+            const filas=XLSX.utils.sheet_to_json(hoja,{header:1,raw:true,defval:'',blankrows:false});
+            if(filas.length>2501)throw Error('Máximo 2,500 tickets por Kardex.');
+            const encabezados=(filas[0]||[]).map(k222Cabecera),iTicket=encabezados.indexOf('NTICKET'),iCliente=encabezados.indexOf('RAZONSOCIAL'),iTotal=encabezados.indexOf('TOTAL'),iDescuento=encabezados.indexOf('DESCUENTO'),iFecha=encabezados.indexOf('FALTA');
+            if(iTicket<0||iCliente<0||iTotal<0)throw Error('Faltan columnas n_ticket, razon_social o total.');
+            const vistos=new Set();
+            k225Clientes=filas.slice(1).filter(r=>r.some(v=>String(v??'').trim())).map((r,i)=>{
+              const ticket=String(r[iTicket]??'').trim(),cliente=k222Texto(r[iCliente]),total=k222Numero(r[iTotal]),descuento=iDescuento>=0?k222Numero(r[iDescuento]||0):0;
+              if(!/^\d{1,20}$/.test(ticket)||!cliente||cliente.length>180||/^[=+@-]/.test(cliente)||!Number.isFinite(total)||total<0||!Number.isFinite(descuento)||descuento<0||vistos.has(ticket))throw Error('Revisa el ticket de la fila '+(i+2)+'.');
+              vistos.add(ticket);return {ticket,cliente,total,descuento,fecha:iFecha>=0?String(r[iFecha]||''):''};
+            });
+            k225ArchivoClientesNombre=file.name;
+            if(msg)msg.textContent='✅ '+k225Clientes.length+' tickets identificados en '+file.name;
+            if(k222Libro)k222PrevisualizarHoja();
+          }catch(e){k225LibroClientes=null;k225Clientes=[];if(msg)msg.textContent='⚠️ '+e.message;if(btn)btn.disabled=true;}
+        }
+        function k225Conciliar(){
+          if(!k225Clientes.length)return {tickets:new Set(k225Lineas.map(x=>x.ticket)).size,clientes:0};
+          if(!k225Lineas.length)throw Error('El Excel de productos no incluye n_ticket, total, ganancia y precio_unitario.');
+          const totales=new Map();k225Lineas.forEach(x=>totales.set(x.ticket,(totales.get(x.ticket)||0)+x.total));
+          if(totales.size!==k225Clientes.length)throw Error('El número de tickets no coincide entre los Excel.');
+          for(const c of k225Clientes){
+            if(!totales.has(c.ticket))throw Error('No se encontró el ticket #'+c.ticket+' entre los productos.');
+            if(Math.abs(totales.get(c.ticket)-c.descuento-c.total)>.03)throw Error('El total del ticket #'+c.ticket+' no coincide.');
+          }
+          return {tickets:totales.size,clientes:new Set(k225Clientes.map(x=>k222Clave(x.cliente))).size};
+        }
         async function k222LeerArchivo(file){
           if(k222Ocupado)return;
-          k222Libro=null;k222Productos=[];k222ArchivoNombre='';
+          k222Libro=null;k222Productos=[];k222ArchivoNombre='';k225Lineas=[];
           const btn=document.getElementById('k222CrearBtn'),wrap=document.getElementById('k222HojaWrap');
           if(btn)btn.disabled=true;if(wrap)wrap.style.display='none';
           if(!file){k222PintarMensaje('Elige un Excel para ver sus productos.',false);return;}
@@ -7097,7 +7224,7 @@ async function verificarPassword() {
           }catch(ex){k222Libro=null;k222Productos=[];k222PintarMensaje('No pude leer el Excel: '+ex.message,true);}
         }
         function k222PrevisualizarHoja(){
-          k222Productos=[];
+          k222Productos=[];k225Lineas=[];
           const btn=document.getElementById('k222CrearBtn');if(btn)btn.disabled=true;
           try{
             if(!k222Libro)throw Error('Primero selecciona un Excel.');
@@ -7115,6 +7242,10 @@ async function verificarPassword() {
               if(a>=0&&b>=0&&a!==b){colProducto=a;colCantidad=b;desde=i+1;break;}
             }
             const mapa=new Map();let unidades=0,sinCantidad=0,errores=[],duplicados=0,ceros=0;
+            const hdr=desde?(filas[desde-1]||[]).map(k222Cabecera):[];
+            const iTicket=hdr.indexOf('NTICKET'),iPrecio=hdr.indexOf('PRECIOUNITARIO'),iTotal=hdr.indexOf('TOTAL'),iGanancia=hdr.indexOf('GANANCIA');
+            const conTickets=iTicket>=0;
+            if(conTickets&&(iPrecio<0||iTotal<0||iGanancia<0))throw Error('El archivo de Akasia debe incluir n_ticket, precio_unitario, total y ganancia.');
             for(let i=desde;i<filas.length;i++){
               const row=filas[i]||[],producto=k222Texto(row[colProducto]),raw=row[colCantidad];
               if(!producto&&String(raw??'').trim()==='')continue;
@@ -7130,15 +7261,21 @@ async function verificarPassword() {
               if(mapa.has(clave)){mapa.get(clave).cantidad+=cantidad;duplicados++;}
               else mapa.set(clave,{producto,cantidad});
               unidades+=cantidad;
+              if(conTickets){
+                const ticket=String(row[iTicket]??'').trim(),precio=k222Numero(row[iPrecio]),total=k222Numero(row[iTotal]),ganancia=k222Numero(row[iGanancia]);
+                if(!/^\d{1,20}$/.test(ticket)||![precio,total,ganancia].every(Number.isFinite)||precio<0||total<0){errores.push('Fila '+(i+1)+': información financiera del ticket inválida.');continue;}
+                k225Lineas.push({ticket,producto,cantidad,precio,total,ganancia});
+              }
             }
             if(errores.length)throw Error('Hay '+errores.length+' fila(s) por corregir en Excel. '+errores.slice(0,4).join(' '));
             const items=Array.from(mapa.values());
             if(!items.length)throw Error('No se encontraron productos con cantidades positivas. Usa las columnas Producto y Cantidad.');
             if(items.length>600)throw Error('Máximo 600 productos distintos por Kardex.');
             if(unidades>200000||items.some(x=>x.cantidad>100000))throw Error('Las cantidades exceden el límite por Kardex.');
+            const union=k225Conciliar();
             k222Productos=items;
             const lista=items.map(x=>`<div class="k222-row"><span>${escaparHtmlPedido(x.producto)}</span><b>${x.cantidad}</b></div>`).join('');
-            document.getElementById('k222Previa').innerHTML=`<div class="k222-summary"><b>✅ Listo para crear</b><div>Archivo: ${escaparHtmlPedido(k222ArchivoNombre)}</div><div>Hoja: ${escaparHtmlPedido(nombreHoja)}</div><div><b>${items.length} productos</b> · <b>${unidades} unidades</b></div>${duplicados?`<div>${duplicados} productos repetidos agrupados.</div>`:''}${ceros?`<div>${ceros} filas con cantidad 0 omitidas.</div>`:''}</div><div class="k222-list">${lista}</div><p>Al confirmar se creará un Kardex nuevo. No se reemplazará ningún Kardex anterior.</p>`;
+            document.getElementById('k222Previa').innerHTML=`<div class="k222-summary"><b>✅ Listo para crear</b><div>Productos: ${escaparHtmlPedido(k222ArchivoNombre)}</div><div>Hoja: ${escaparHtmlPedido(nombreHoja)}</div><div><b>${items.length} productos</b> · <b>${unidades} unidades</b></div>${union.tickets?`<div><b>${union.tickets} tickets</b> · ${union.clientes?union.clientes+' clientes identificados':'sin nombres de clientes todavía'}</div>`:''}${duplicados?`<div>${duplicados} productos repetidos agrupados.</div>`:''}${ceros?`<div>${ceros} filas con cantidad 0 omitidas.</div>`:''}</div><div class="k222-list">${lista}</div><p>Al confirmar se creará un Kardex nuevo. No se reemplazará ningún Kardex anterior.</p>`;
             if(btn)btn.disabled=false;
           }catch(ex){k222Productos=[];k222PintarMensaje(ex.message,true);}
         }
@@ -7151,18 +7288,201 @@ async function verificarPassword() {
           k222Ocupado=true;btn.disabled=true;btn.textContent='Creando y guardando Kardex…';
           if(archivo)archivo.disabled=true;if(hoja)hoja.disabled=true;
           try{
-            const body=new URLSearchParams({accion:'CrearRutaDesdeExcel',sucursal:'Bodega',productos:JSON.stringify(k222Productos),empleado:localStorage.getItem('usuario')||''});
+            const body=new URLSearchParams({accion:'CrearRutaDesdeExcel',sucursal:'Bodega',productos:JSON.stringify(k222Productos),lineasTicket:JSON.stringify(k225Lineas),clientesTicket:JSON.stringify(k225Clientes),empleado:localStorage.getItem('usuario')||''});
             const r=await m214FetchKardex(body),d=await r.json();
-            if(!r.ok||d.status!=='OK'||d.version!=='1.7.22'||!d.idRuta)throw Error(d.mensaje||'Publica primero Código.gs v1.7.23 en Apps Script.');
+            if(!r.ok||d.status!=='OK'||d.version!=='1.7.25'||!d.idRuta)throw Error(d.mensaje||'Publica primero Código.gs v1.7.25 en Apps Script.');
             k221IdRuta=String(d.idRuta);sessionStorage.setItem('k221Ruta',k221IdRuta);
             alert(`✅ Kardex #${d.numeroRuta} creado con ${d.productos} productos. Los anteriores permanecen abiertos.`);
-            k222Libro=null;k222Productos=[];k222ArchivoNombre='';
+            k222Libro=null;k222Productos=[];k222ArchivoNombre='';k225Lineas=[];k225Clientes=[];k225LibroClientes=null;k225ArchivoClientesNombre='';
             if(archivo)archivo.value='';
+            const archivoClientes=document.getElementById('k225ArchivoClientes');if(archivoClientes)archivoClientes.value='';
+            const estadoClientes=document.getElementById('k225EstadoClientes');if(estadoClientes)estadoClientes.textContent='Selecciona el próximo Excel de clientes cuando lo necesites.';
             const wrap=document.getElementById('k222HojaWrap');if(wrap)wrap.style.display='none';
             k222PintarMensaje('Kardex creado. Puedes seleccionar otro Excel cuando lo necesites.',false);
             await cargarRutaActiva();
+            const panel=document.getElementById('k224CrearPanel');if(panel)panel.open=false;
           }catch(ex){alert('No se pudo confirmar el nuevo Kardex: '+ex.message+'\n\nAntes de reintentar, actualiza la lista de Kardex por si ya se guardó.');}
           finally{k222Ocupado=false;btn.disabled=!k222Productos.length;btn.textContent='➕ Crear Kardex con este Excel';if(archivo)archivo.disabled=false;if(hoja)hoja.disabled=false;}
+        }
+
+        // v1.7.25 · Buscar por cliente/producto y confirmar carga por ticket.
+        // Bodega ve nombres/cantidades; las finanzas solo se consultan desde Admin.
+        let k225DatosUI=null,k225VistaVersion=0,k225Buscador='';
+        function k225Dinero(n){return '$'+(Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+        async function k225CargarDetalleClientes(){
+          const cont=document.getElementById('listaRuta'),id=k221IdRuta,ver=++k225VistaVersion;if(!cont||!id)return;
+          cont.innerHTML='<p style="text-align:center;color:#64748b">Consultando clientes y tickets de este Kardex…</p>';
+          try{
+            const admin=!!m214Vista,body=admin?new URLSearchParams({accion:'k225Finanzas',idRuta:id,...m200CredencialesAdmin()}):null;
+            const r=admin?await fetch(URL_API,{method:'POST',body,cache:'no-store'}):await fetch(URL_API+'?accion=k225VerTickets&idRuta='+encodeURIComponent(id)+'&_='+Date.now(),{cache:'no-store'});
+            const d=await r.json();
+            if(ver!==k225VistaVersion||id!==k221IdRuta||etapaRutaActual!=='clientes')return;
+            if(!r.ok||d.status!=='OK'||d.version!=='1.7.25')throw Error(d.mensaje||'Actualiza Código.gs a v1.7.25.');
+            k225DatosUI=d;k225RenderDetalleClientes();
+          }catch(e){if(ver===k225VistaVersion)cont.innerHTML='<div class="c56-intro" style="color:#b42318">'+escaparHtmlPedido(e.message)+'</div>';}
+        }
+        function k225RenderDetalleClientes(){
+          const box=document.getElementById('listaRuta'),d=k225DatosUI;if(!box||!d)return;
+          if(!d.lineas.length){box.innerHTML='<div class="c56-intro">Este Kardex no tiene tickets importados. Los Kardex anteriores siguen funcionando con el control por producto.</div>';return;}
+          const finanzas=!!m214Vista,orden=[],grupos=new Map(),q=k222Clave(k225Buscador);
+          d.lineas.forEach((l,i)=>{if(!grupos.has(l.ticket)){grupos.set(l.ticket,{cab:d.clientes.find(x=>x.ticket===l.ticket)||{ticket:l.ticket,cliente:l.cliente},indices:[]});orden.push(l.ticket);}grupos.get(l.ticket).indices.push(i);});
+          let listo=0,pendiente=0,faltantes=0;d.lineas.forEach(l=>{if(l.cargado==='')pendiente++;else{listo++;faltantes+=Math.max(0,l.cantidad-l.cargado);}});
+          let html='<div class="k225-clientes-resumen">👥 '+orden.length+' tickets · '+listo+' productos revisados · '+pendiente+' por confirmar'+(faltantes?' · '+faltantes+' unidades faltantes':'')+'</div>';
+          if(finanzas){
+            const total=d.clientes.reduce((n,c)=>n+(Number(c.total)||0),0),ganancia=d.lineas.reduce((n,l)=>n+(Number(l.ganancia)||0),0);
+            html+='<div class="k225-finanzas"><div>Valor Akasia<b>'+k225Dinero(total)+'</b></div><div>Ganancia Akasia<b>'+k225Dinero(ganancia)+'</b></div><div>Margen<b>'+(total?((ganancia/total)*100).toFixed(2):'0.00')+'%</b></div></div>';
+          }
+          html+='<input type="search" id="k225BuscarTicket" placeholder="Buscar cliente, ticket o producto" value="'+escaparHtmlPedido(k225Buscador)+'" oninput="k225Filtrar(this.value)" style="margin:8px 0 12px">';
+          for(const t of orden){
+            const g=grupos.get(t),c=g.cab,registros=g.indices.map(i=>d.lineas[i]);
+            if(q&&!k222Clave(c.cliente+' '+t+' '+registros.map(x=>x.producto).join(' ')).includes(q))continue;
+            const falt=registros.reduce((n,x)=>n+(x.cargado===''?0:Math.max(0,x.cantidad-x.cargado)),0),sin=registros.filter(x=>x.cargado==='').length;
+            html+='<section class="k225-ticket" data-ticket="'+escaparHtmlPedido(t)+'"><header><div><strong>'+escaparHtmlPedido(c.cliente||'Cliente sin identificar')+'</strong><small>Ticket #'+escaparHtmlPedido(t)+(sin?' · '+sin+' sin revisar':falt?' · '+falt+' faltantes':' · Revisión completa')+'</small></div>'+(finanzas?'<b>'+k225Dinero(c.total)+'</b>':'')+'</header>';
+            if(finanzas){const gan=registros.reduce((n,l)=>n+(Number(l.ganancia)||0),0);html+='<div style="font-size:12px;color:#426486;margin-bottom:6px">Ganancia: <b>'+k225Dinero(gan)+'</b></div>';}
+            for(const i of g.indices){const x=d.lineas[i];html+='<div class="k225-producto"><div><span>'+escaparHtmlPedido(x.producto)+'</span><small>Solicitado: '+x.cantidad+(x.cargado===''?' · Pendiente':x.cargado<x.cantidad?' · Faltante: '+(x.cantidad-x.cargado):' · Completo')+'</small></div><input type="number" inputmode="numeric" min="0" max="'+x.cantidad+'" step="1" data-idx="'+i+'" value="'+(x.cargado===''?'':x.cargado)+'" aria-label="Cantidad cargada de '+escaparHtmlPedido(x.producto)+'"></div>';}
+            html+='<div class="k225-ticket-acciones"><button type="button" style="background:#e5f7eb;color:#16643b" onclick="k225MarcarTodo(\''+t+'\')">✓ Todo cargado</button><button type="button" onclick="k225GuardarTicket(\''+t+'\')">Guardar verificación</button></div></section>';
+          }
+          box.innerHTML=html;
+        }
+        function k225Filtrar(valor){
+          k225Buscador=String(valor||'');const busca=k222Clave(k225Buscador);
+          document.querySelectorAll('#listaRuta .k225-ticket').forEach(card=>{card.style.display=!busca||k222Clave(card.textContent).includes(busca)?'':'none';});
+        }
+        function k225MarcarTodo(ticket){document.querySelectorAll('.k225-ticket[data-ticket="'+ticket+'"] input[data-idx]').forEach(el=>{el.value=String(k225DatosUI.lineas[Number(el.dataset.idx)].cantidad);});}
+        async function k225GuardarTicket(ticket){
+          if(!k225DatosUI||!rutaActiva||!k223PuedeAsignar())return alert(k223AvisoOrden());
+          const card=document.querySelector('.k225-ticket[data-ticket="'+ticket+'"]');if(!card)return;
+          const campos=Array.from(card.querySelectorAll('input[data-idx]'));
+          const productos=campos.map(el=>({producto:k225DatosUI.lineas[Number(el.dataset.idx)].producto,cargado:el.value.trim()===''?null:Number(el.value)}));
+          if(productos.some((x,i)=>x.cargado===null||!Number.isInteger(x.cargado)||x.cargado<0||x.cargado>k225DatosUI.lineas[Number(campos[i].dataset.idx)].cantidad))return alert('Revisa la cantidad cargada de todos los productos. Usa 0 cuando no se cargó.');
+          const resumen=productos.reduce((s,x)=>s+(x.cargado||0),0);
+          if(!confirm('¿Confirmar '+resumen+' unidades cargadas para el ticket #'+ticket+'? Lo no cargado quedará como faltante.'))return;
+          const btn=card.querySelector('.k225-ticket-acciones button:last-child');if(btn)btn.disabled=true;
+          try{
+            const p={accion:'k225GuardarCarga',idRuta:rutaActiva.idRuta,ticket,productos:JSON.stringify(productos),sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};
+            if(m214Vista)Object.assign(p,m200CredencialesAdmin());
+            const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams(p),cache:'no-store'}),d=await r.json();
+            if(!r.ok||d.status!=='OK')throw Error(d.mensaje||'No se pudo confirmar la carga.');
+            await cargarRutaActiva();
+          }catch(e){alert('No se guardó la verificación: '+e.message);if(btn)btn.disabled=false;}
+        }
+
+        // v1.7.26 · Una sola cuenta por cliente: Despacho, Vendedores y Admin.
+        let c226Datos=null,c226Admin=false,c226Seleccionado='',c226Ocupado=false;
+        function c226Dinero(n){return '$'+(Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+        function c226Panel(){return document.getElementById(c226Admin?'c226AdminPanel':'c226Panel');}
+        function c226IdOperacion(){return (typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2,12);}
+        function c226DatosAcceso(){return c226Admin?m200CredencialesAdmin():{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
+        async function c226Post(accion,extra){
+          const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion,...c226DatosAcceso(),...(extra||{})}),cache:'no-store'});
+          const d=await r.json();if(!r.ok||d.status!=='OK'||d.version!=='1.7.26')throw Error(d.mensaje||'Actualiza Código.gs a la versión 1.7.26.');
+          return d;
+        }
+        function c226Abrir(admin){
+          c226Admin=!!admin;c226Seleccionado='';c226Datos=null;
+          c226Cargar();
+        }
+        async function c226Cargar(){
+          const panel=c226Panel();if(!panel)return;
+          panel.innerHTML='<p class="c226-info">↻ Actualizando saldos y abonos compartidos…</p>';
+          try{c226Datos=await c226Post('c226Listar');c226Render();}
+          catch(e){panel.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p><button type="button" onclick="c226Cargar()">↻ Reintentar</button>';}
+        }
+        function c226Render(){
+          const panel=c226Panel(),d=c226Datos;if(!panel||!d)return;
+          const clientes=(d.clientes||[]).slice().sort((a,b)=>b.saldo-a.saldo),hoy=d.cobradoHoy||{},saldo=clientes.reduce((x,c)=>x+(Number(c.saldo)||0),0);
+          let html='<div class="c226-actions"><button type="button" onclick="c226Cargar()" style="background:#eaf4ff;color:#175995">↻ Actualizar saldos</button></div>';
+          html+='<div class="c226-resumen"><div>Saldo pendiente total<b>'+c226Dinero(saldo)+'</b></div><div>Recaudado hoy'+(c226Admin?' · Todo el equipo':' · Mi usuario')+'<b>'+c226Dinero((hoy.efectivo||0)+(hoy.transferencia||0))+'</b></div><div>Efectivo cobrado hoy<b>'+c226Dinero(hoy.efectivo)+'</b></div><div>Transferencias hoy<b>'+c226Dinero(hoy.transferencia)+'</b></div></div>';
+          html+='<p class="c226-info">Los saldos se comparten entre Ruta y vendedores. El dinero de hoy se calcula a partir de los abonos confirmados en esta aplicación.</p>';
+          html+='<label for="c226BuscarCliente" style="font-weight:750;font-size:12px">🔎 Buscar cliente o ticket</label><input id="c226BuscarCliente" type="search" placeholder="Escribe el nombre o número de ticket" oninput="c226Buscar(this.value)">';
+          const abiertos=clientes;
+          html+='<div id="c226ResultadosClientes">';
+          for(const c of abiertos){
+            const key=encodeURIComponent(c.clave).replace(/'/g,'%27'),nombre=escaparHtmlPedido(c.cliente),ticketText=(c.tickets||[]).map(t=>t.ticket).join(' '),abierto=c226Seleccionado===c.clave;
+            html+='<section class="c226-cliente" data-busca="'+escaparHtmlPedido((c.cliente+' '+ticketText).toUpperCase())+'"><header><div><strong>'+nombre+'</strong><small>'+(c.saldo>0?c.tickets.filter(t=>t.saldo>0).length+' ticket(s) pendientes':'✅ Cuenta al día')+'</small></div><b>'+c226Dinero(c.saldo)+'</b></header>';
+            html+='<button type="button" style="background:#edf5ff;color:#155a98" onclick="c226ElegirCliente(\''+key+'\')">'+(abierto?'Ocultar detalle':'Ver deuda y registrar abono')+'</button>';
+            if(abierto){
+              html+='<table class="c226-tabla"><tr><th>Ticket</th><th>Original</th><th>Debe</th></tr>';
+              c.tickets.forEach(t=>{html+='<tr><td>'+escaparHtmlPedido(t.ticket)+'</td><td>'+c226Dinero(t.original)+'</td><td><b>'+c226Dinero(t.saldo)+'</b></td></tr>';});
+              html+='</table>';
+              if(c.saldo>0){html+='<div class="c226-form"><b>💵 Registrar abono</b><p class="c226-info">El pago se aplicará a los tickets más antiguos pendientes de este cliente.</p>';
+              html+='<label for="c226Monto">Monto recibido ($)</label><input id="c226Monto" type="number" min="0.01" max="'+c.saldo.toFixed(2)+'" step="0.01" inputmode="decimal" placeholder="0.00">';
+              html+='<label for="c226Medio">Forma de pago</label><select id="c226Medio"><option value="EFECTIVO">💵 Efectivo</option><option value="TRANSFERENCIA">🏦 Transferencia</option></select>';
+              html+='<label for="c226Nota">Referencia (opcional)</label><input id="c226Nota" placeholder="Ej. abono en visita o referencia bancaria" maxlength="180">';
+              html+='<button type="button" onclick="c226GuardarAbono()" id="c226GuardarAbono">✓ Confirmar abono</button></div>';}
+              const mov=d.movimientos.filter(m=>m.clienteClave===c.clave).slice(0,8);
+              if(mov.length){
+                const anulados=new Set(d.movimientos.filter(x=>x.tipo==='REVERSO_ABONO').map(x=>x.anula));
+                html+='<div class="c226-info"><b>Últimos movimientos</b></div><table class="c226-tabla"><tr><th>Fecha</th><th>Registro</th><th>Monto</th></tr>';
+                mov.forEach(m=>{
+                  const etiqueta=m.tipo==='ABONO'?'Abono':m.tipo==='REVERSO_ABONO'?'Anulación':'Crédito';
+                  html+='<tr><td>'+escaparHtmlPedido(m.fecha.slice(0,16))+'</td><td>'+escaparHtmlPedido(etiqueta+' · '+m.empleado);
+                  if(c226Admin&&m.tipo==='ABONO'&&!anulados.has(m.operacion))html+='<button type="button" style="font-size:10px;background:#fff0f0;color:#a52a2a;margin:4px 0;padding:5px 8px" onclick="c226Anular(\''+encodeURIComponent(m.operacion).replace(/'/g,'%27')+'\')">Anular</button>';
+                  html+='</td><td>'+c226Dinero(Math.abs(m.monto))+'</td></tr>';
+                });html+='</table>';
+              }
+            }
+            html+='</section>';
+          }
+          html+=abiertos.length?'':'<p class="c226-info">Todavía no hay cuentas registradas.</p>';
+          html+='</div>';
+          if(c226Admin||normalizarEmpleado(localStorage.getItem('sucursal'))==='despacho'){
+            const pendientes=d.pendientes||[];
+            html+='<details class="c226-form"><summary style="font-weight:800;cursor:pointer">📋 Registrar ticket entregado a crédito</summary>';
+            html+='<p class="c226-info">Solo selecciona aquí tickets que realmente quedaron pendientes de pago. El importe proviene del Excel de Akasia; no crea deuda al importar.</p>';
+            html+='<label for="c226TicketCredito">Ticket del Kardex</label><select id="c226TicketCredito"><option value="">-- Selecciona un ticket pendiente --</option>';
+            pendientes.forEach((t,i)=>{html+='<option value="'+i+'">#'+escaparHtmlPedido(t.ticket)+' · '+escaparHtmlPedido(t.cliente)+' · '+c226Dinero(t.total)+'</option>';});
+            html+='</select><button type="button" onclick="c226GuardarCredito()">Registrar como crédito</button></details>';
+          }
+          if(c226Admin){
+            html+='<details class="c226-form"><summary style="font-weight:800;cursor:pointer">🗂️ Registrar saldo anterior al sistema (solo Admin)</summary>';
+            html+='<p class="c226-info">Úsalo una sola vez por deuda antigua que no aparezca ya como crédito. Esto no modifica los tickets ni los datos de Akasia.</p>';
+            const nombres=Array.from(new Set([...(d.clientes||[]).map(x=>x.cliente),...(d.pendientes||[]).map(x=>x.cliente)])).filter(Boolean).sort();
+            html+='<label for="c226InicialNombre">Nombre exacto del cliente</label><input id="c226InicialNombre" list="c226NombresExistentes" placeholder="Nombre como aparece en Akasia"><datalist id="c226NombresExistentes">'+nombres.map(x=>'<option value="'+escaparHtmlPedido(x)+'"></option>').join('')+'</datalist>';
+            html+='<label for="c226InicialMonto">Saldo anterior ($)</label><input id="c226InicialMonto" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00">';
+            html+='<label for="c226InicialNota">Referencia</label><input id="c226InicialNota" placeholder="Ej. saldo manual al inicio" maxlength="180">';
+            html+='<button type="button" onclick="c226GuardarInicial()">Guardar saldo inicial</button></details>';
+          }
+          panel.innerHTML=html;
+        }
+        function c226Buscar(valor){
+          const buscar=k222Clave(valor);document.querySelectorAll('#c226ResultadosClientes .c226-cliente').forEach(x=>x.style.display=k222Clave(x.dataset.busca).includes(buscar)?'':'none');
+        }
+        function c226ElegirCliente(key){
+          const clave=decodeURIComponent(key),buscar=document.getElementById('c226BuscarCliente')?.value||'';
+          c226Seleccionado=c226Seleccionado===clave?'':clave;c226Render();
+          const input=document.getElementById('c226BuscarCliente');if(input){input.value=buscar;c226Buscar(buscar);}
+        }
+        async function c226GuardarMovimiento(accion,pregunta,datos){
+          if(c226Ocupado||!confirm(pregunta))return;
+          c226Ocupado=true;
+          try{
+            await c226Post(accion,{...datos,operacion:c226IdOperacion()});
+            alert('✅ Movimiento guardado. El saldo quedará actualizado para Ruta y vendedores.');
+            await c226Cargar();
+          }catch(e){alert('No se confirmó el cobro: '+e.message+'\nActualiza los saldos antes de volver a intentar, por si el servidor ya lo guardó.');}
+          finally{c226Ocupado=false;}
+        }
+        async function c226GuardarAbono(){
+          const c=c226Datos?.clientes?.find(x=>x.clave===c226Seleccionado),valor=Number(document.getElementById('c226Monto')?.value),medio=document.getElementById('c226Medio')?.value;
+          if(!c||!Number.isFinite(valor)||valor<=0||Math.round(valor*100)>Math.round(c.saldo*100)||Math.abs(valor*100-Math.round(valor*100))>0.00001)return alert('Introduce un abono válido, sin superar el saldo pendiente.');
+          await c226GuardarMovimiento('c226Abono','¿Confirmar que recibiste '+c226Dinero(valor)+' de '+c.cliente+'?\nEl movimiento se guardará a tu nombre.',{clienteClave:c.clave,monto:valor.toFixed(2),medio,nota:document.getElementById('c226Nota')?.value||''});
+        }
+        async function c226GuardarCredito(){
+          const idx=Number(document.getElementById('c226TicketCredito')?.value),t=c226Datos?.pendientes?.[idx];
+          if(!t||document.getElementById('c226TicketCredito').value==='')return alert('Selecciona el ticket que realmente quedó a crédito.');
+          await c226GuardarMovimiento('c226CrearCredito','¿Registrar el ticket #'+t.ticket+' de '+t.cliente+' como deuda pendiente de '+c226Dinero(t.total)+'?\nNo lo hagas si el cliente ya pagó.',{idRuta:t.idRuta,ticket:t.ticket});
+        }
+        async function c226GuardarInicial(){
+          const cliente=document.getElementById('c226InicialNombre')?.value?.trim()||'',monto=Number(document.getElementById('c226InicialMonto')?.value),nota=document.getElementById('c226InicialNota')?.value||'';
+          if(!cliente||!Number.isFinite(monto)||monto<=0)return alert('Indica el cliente y su saldo anterior.');
+          await c226GuardarMovimiento('c226SaldoInicial','¿Registrar saldo anterior de '+c226Dinero(monto)+' para '+cliente+'?\nComprueba que no exista ya para evitar duplicar la deuda.',{cliente,monto:monto.toFixed(2),nota});
+        }
+        async function c226Anular(encoded){
+          if(!c226Admin)return;
+          const original=decodeURIComponent(encoded),motivo=prompt('Indica el motivo de la anulación de este abono (mínimo 5 caracteres):');
+          if(motivo===null)return;if(motivo.trim().length<5)return alert('Escribe un motivo de al menos 5 caracteres.');
+          await c226GuardarMovimiento('c226AnularAbono','¿Anular este cobro?\nSe conservará el registro original y el saldo volverá a aumentar.',{original,motivo:motivo.trim()});
         }
 
         function claveBorradorRuta(){ return rutaActiva ? `ruteo_borrador_${rutaActiva.idRuta}` : ""; }
@@ -7189,7 +7509,7 @@ async function verificarPassword() {
         }
         function c56PintarTab(etapa){
             etapaRutaActual=etapa;
-            const ids={resumen:'btnEtapaResumen',bodega:'btnEtapaBodega',faltantes:'btnEtapaFaltantes',asignados:'btnEtapaAsignados',completos:'btnEtapaCompletos',recibidos:'btnEtapaRecibidos',cierre:'btnEtapaCierre'};
+            const ids={resumen:'btnEtapaResumen',bodega:'btnEtapaBodega',faltantes:'btnEtapaFaltantes',asignados:'btnEtapaAsignados',completos:'btnEtapaCompletos',recibidos:'btnEtapaRecibidos',cierre:'btnEtapaCierre',clientes:'btnEtapaClientes'};
             Object.keys(ids).forEach(k=>document.getElementById(ids[k])?.classList.toggle('c56-active',k===etapa));
         }
         function mostrarEtapaRuta(etapa){
@@ -7200,6 +7520,7 @@ async function verificarPassword() {
                 if(c55RutaRevisionDespacho){document.getElementById('listaRuta').innerHTML='<div class="c56-intro">La recepción de Despacho ya comenzó. La preparación de Bodega queda en consulta para no repetir cantidades. Revisa Completos, Asignados o Cierre.</div>';return;}
                 renderRutaBodega();
             } else if(etapa==='faltantes')renderRutaFaltantes();
+            else if(etapa==='clientes')k225CargarDetalleClientes();
             else if(etapa==='cierre')cargarRutaActiva(true);
             else c56RenderSeguimiento(etapa);
         }
@@ -7212,7 +7533,7 @@ async function verificarPassword() {
                 const elegida=k221IdRuta;
                 if(!elegida){
                     rutaActiva=null;c56Seguimiento=null;
-                    resumen.innerHTML='No hay Kardex abierto. Puedes iniciar uno desde <b>Pagina 1 (A:B)</b>.';
+                    resumen.innerHTML='No hay Kardex abierto. Pulsa <b>Nuevo Kardex</b> para importar un Excel.';
                     cont.innerHTML='<div class="kx-complete">✅ No hay Kardex por preparar.</div>';
                     btnCrear.style.display='block';if(etapas)etapas.style.display='none';return;
                 }
@@ -7228,7 +7549,7 @@ async function verificarPassword() {
                 if(!r.ok||data.status!=='OK')throw Error(data.mensaje||'No se pudo cargar la ruta.');
                 rutaActiva=data.ruta||null;c55RutaRevisionDespacho=false;
                 if(!rutaActiva){
-                    resumen.innerHTML='No hay Kardex activo. Ya puedes crear una nueva ruta desde <b>Pagina 1 (A:B)</b>.';
+                    resumen.innerHTML='No hay Kardex activo. Pulsa <b>Nuevo Kardex</b> para importar un Excel.';
                     cont.innerHTML='<div class="kx-complete">✅ No hay una ruta pendiente de cierre.</div>';
                     btnCrear.style.display='block';if(etapas)etapas.style.display='none';
                     c56Seguimiento=null;c54SeleccionBodega={};c54RutaSeleccionada='';return;
@@ -7249,6 +7570,7 @@ async function verificarPassword() {
                 else if(etapaRutaActual==='cierre')c55RenderResumenCierre(cd.ruta);
                 else if(etapaRutaActual==='bodega')renderRutaBodega();
                 else if(etapaRutaActual==='faltantes')renderRutaFaltantes();
+                else if(etapaRutaActual==='clientes')k225CargarDetalleClientes();
                 else c56RenderSeguimiento(etapaRutaActual);
             }catch(e){
                 resumen.innerHTML='<span style="color:#b42318;font-weight:700;">'+escaparHtmlPedido(e.message)+'</span>';
