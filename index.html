@@ -711,6 +711,13 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
 .kx-final-icon{width:66px;height:66px;margin:2px auto 10px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:32px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 28px rgba(31,113,205,.15)}
 .kx-final-title{text-align:center;font-size:22px;font-weight:900;color:#17233a;letter-spacing:-.5px}.kx-final-sub{text-align:center;color:#748196;font-size:12px;font-weight:650;margin:5px 0 16px}.kx-final-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 16px}.kx-final-stat{padding:13px 5px;border-radius:20px;text-align:center;background:rgba(255,255,255,.72);border:1px solid rgba(213,225,240,.9);box-shadow:0 7px 20px rgba(44,82,130,.06)}.kx-final-stat strong{display:block;font-size:23px;color:#17233a}.kx-final-stat span{display:block;margin-top:3px;font-size:9px;font-weight:850;color:#7a8799;text-transform:uppercase}.kx-final-stat.warn strong{color:#c15d16}
 .kx-final-label{font-size:11px;font-weight:850;color:#657184;margin:14px 2px 8px}.kx-final-missing{display:flex;align-items:center;gap:11px;padding:12px;margin:8px 0;border-radius:18px;background:rgba(255,248,239,.78);border:1px solid rgba(244,207,170,.72)}.kx-final-missing .ico{width:38px;height:38px;flex:0 0 38px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.8);font-size:18px}.kx-final-missing .name{font-size:12px;font-weight:850;color:#1c2940;line-height:1.25}.kx-final-missing .meta{font-size:10px;color:#7a8799;margin-top:3px}.kx-final-missing .qty{margin-left:auto;min-width:42px;text-align:center;font-size:18px;font-weight:900;color:#bd5813}.kx-final-btn{margin:16px 0 0!important;min-height:56px!important;border-radius:19px!important;font-size:15px!important;font-weight:850!important;background:linear-gradient(135deg,#087cff,#369bff)!important;box-shadow:0 12px 26px rgba(8,124,255,.25)!important}.kx-final-note{text-align:center;font-size:10px;color:#8490a0;margin-top:10px}
+/* v1.7.43 · Explicación del cierre Kardex, sin cambios en asistencia. */
+.c243-cierre-aviso{margin:12px 0 17px;padding:14px 15px;border:1px solid #e7cfab;border-radius:18px;background:rgba(255,248,234,.9);color:#704c24}
+.c243-cierre-aviso>strong{display:block;font-size:13px;font-weight:850;color:#78491c}
+.c243-cierre-aviso p{font-size:11px;line-height:1.55;margin:7px 0;color:#84623a}
+.c243-cierre-aviso details{border-top:1px solid #ead7bc;margin-top:9px;padding-top:8px;font-size:11px}
+.c243-cierre-aviso summary{cursor:pointer;font-weight:800;color:#8e5a22}
+.c243-cierre-aviso ul{list-style:disc;margin:8px 0 0 17px;padding:0;color:#6b5b4c;line-height:1.55;overflow-wrap:anywhere}
 
 
 /* ===== v1.6.25 · AJUSTE RESPONSIVE PARA iPAD ===== */
@@ -1947,6 +1954,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #c227ListaClientes .c240-producto-leido strong{display:block;color:#294a6d;font-size:12px;overflow-wrap:anywhere}
 #c227ListaClientes .c240-producto-leido small{display:block;color:#71849a;font-size:11px;margin-top:4px}
 #c227ListaClientes .c240-producto-leido>b{white-space:nowrap;color:#214870;font-size:13px}
+/* v1.7.41 · Impresión de recibos para rollo térmico de 58 mm. */
+#c227ListaClientes .c241-imprimir{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;gap:6px!important;margin:11px 0 3px!important;padding:10px 14px!important;min-height:40px!important;border-radius:13px!important;background:#e4f1ff!important;border:1px solid #b5d9fb!important;color:#1765a6!important;font-size:12px!important;font-weight:800!important;box-shadow:none!important}
+#c227ListaClientes .c241-ultimo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 13px;padding:10px 12px;border:1px solid #c7e4d6;background:rgba(239,251,244,.88);border-radius:14px;color:#27684d;font-size:12px;font-weight:750}
+#c227ListaClientes .c241-ultimo>span{flex:1 1 125px;min-width:0}
+#c227ListaClientes .c241-ultimo .c241-imprimir{margin:0!important;min-height:36px!important;padding:7px 11px!important}
+#c227ListaClientes .c241-ultimo .c241-cerrar{width:28px!important;min-height:28px!important;margin:0!important;padding:0!important;background:transparent!important;color:#5a8874!important;box-shadow:none!important;font-size:19px!important}
 @media(max-width:420px){#c227ListaClientes .c240-filtros{gap:5px}#c227ListaClientes .c240-filtros button{font-size:10px!important;padding:7px 2px!important}#c227ListaClientes .c240-filtros button b{font-size:17px}#c227ListaClientes .c240-cliente-item button{padding:11px!important;gap:8px!important}#c227ListaClientes .c240-cliente-item strong{font-size:12px}}
 .c238-barra{border:1px solid #d5e4f5;background:#f8fbff;border-radius:19px;padding:12px;margin:9px 0 17px;box-shadow:0 4px 16px rgba(24,64,109,.05)}
 .c238-barra .c238-inicio{width:auto!important;min-height:35px!important;margin:0 0 11px!important;background:transparent!important;color:#32648e!important;padding:3px 7px!important;font-size:12px!important;font-weight:750!important}
@@ -2022,7 +2035,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.40</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.43</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3114,7 +3127,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(barra){barra.style.display='none';document.body.appendChild(barra);}
         }
         function c238AbrirEtapa(etapa){
-            const primera={preparacion:'revision',entregas:'tickets',caja:'resumen'};
+            const primera={preparacion:'asignados',entregas:'tickets',caja:'resumen'};
             if(primera[etapa])c238AbrirSeccion(primera[etapa]);
         }
         function c238AbrirSeccion(seccion){
@@ -3133,7 +3146,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(!cont||cont.style.display!=='block'||!barra)return;
             const etapas=[['preparacion','📦 Preparación'],['entregas','🚚 Entregas'],['caja','💵 Caja y cobros']];
             const opciones={
-                preparacion:[['revision','Revisar Kardex'],['asignados','Productos asignados']],
+                preparacion:[['asignados','📦 Faltantes Kardex'],['revision','✅ Revisar despacho']],
                 entregas:[['tickets','Tickets de clientes'],['historial','Historial de entregas']],
                 caja:[['resumen','Resumen de Ruta'],['cobros','Clientes y abonos']]
             };
@@ -7375,6 +7388,7 @@ async function verificarPassword() {
           if(document.getElementById('moduloPrepararDespacho')?.style.display==='block')c52CargarPreparacionDespacho();
           c229Editor=Object.create(null);
           c240ClienteActivo=null;c240FiltroEstado='pendientes';
+          c241UltimoTicketConfirmado=null;
           if(document.getElementById('moduloFaltantesKardex')?.style.display==='block'){
             if(c227Vista==='clientes')c227Cargar();else cargarFaltantesKardex();
           }
@@ -7574,6 +7588,8 @@ async function verificarPassword() {
         // La entrega se confirma primero; su pago se registra a continuación
         // con la operación contable ya existente, sin crear deudas duplicadas.
         let c229Editor=Object.create(null);
+        // Mantiene visible el acceso a impresión luego de volver a la lista.
+        let c241UltimoTicketConfirmado=null;
         // Solo un producto muestra las opciones de entrega en cada ticket.
         let c236ProductoAbierto=Object.create(null);
         // Los botones de elección reaparecen solo si el encargado pulsa Cambiar.
@@ -7693,7 +7709,7 @@ async function verificarPassword() {
           let pago;try{pago=c233ValidarPago(ticket,entregadas,faltan);}catch(e){return alert(e.message);}
           if(!confirm('Ticket #'+ticket+' · '+cab.cliente+'\n¿Confirmas '+(pago.tipo==='EFECTIVO'?'el efectivo recibido':'la venta a crédito')+' por '+c226Dinero(pago.monto)+'?'))return;
           c233Guardando=true;
-          try{await c233RegistrarPago(ticket,pago,k221IdRuta);delete c233PagoSolo[ticket];delete c233Pagos[ticket];await c227Cargar();}
+          try{await c233RegistrarPago(ticket,pago,k221IdRuta);delete c233PagoSolo[ticket];delete c233Pagos[ticket];c241UltimoTicketConfirmado=ticket;await c227Cargar();}
           catch(e){alert('No se confirmó el pago: '+e.message+'\nActualiza antes de repetir para evitar cobros duplicados.');await c227Cargar();}
           finally{c233Guardando=false;}
         }
@@ -7718,6 +7734,77 @@ async function verificarPassword() {
           if(ticket){delete c229Editor[ticket];delete c236ProductoAbierto[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);}
           c227Render();
         }
+        // v1.7.41 · Comprobante para impresora térmica de 58 mm.
+        // Solo usa datos de entregas y cobros YA CONFIRMADOS por el servidor.
+        function c241ComprobanteHtml(ticket){
+          const d=c227DatosUI,cab=c233Cliente(ticket);
+          const lineas=(d?.lineas||[]).filter(x=>x.ticket===ticket);
+          if(!cab||!lineas.length||lineas.some(x=>x.entregado===''))
+            throw Error('Primero confirma la entrega de este cliente.');
+          let entregadas=0,descuentoCalculado=0;
+          const productos=[],faltantes=[];
+          for(const x of lineas){
+            const cant=Number(x.cantidad),ent=Number(x.entregado),venta=Number(x.totalVenta);
+            if(!Number.isInteger(cant)||cant<1||!Number.isInteger(ent)||ent<0||ent>cant||!Number.isFinite(venta)||venta<0)
+              throw Error('Faltan cantidades o precios de venta válidos para imprimir este ticket.');
+            const unit=venta/cant,sub=c234Redondear(unit*ent),faltan=cant-ent;
+            entregadas+=ent;descuentoCalculado+=unit*faltan;
+            if(ent>0)productos.push({nombre:x.producto,cant:ent,unit,sub});
+            if(faltan>0)faltantes.push({nombre:x.producto,cant:faltan});
+          }
+          const estado=String(cab.pagoEstado||'');
+          if(entregadas>0&&!['EFECTIVO','CREDITO'].includes(estado))
+            throw Error('Este ticket no tiene el pago o crédito confirmado. Regístralo antes de imprimir.');
+          const original=c233ImporteAkasia(ticket);
+          const cobro=entregadas===0?0:Number(cab.pagoMonto);
+          if(!Number.isFinite(original)||original<0||!Number.isFinite(cobro)||cobro<0||cobro>original+0.01)
+            throw Error('No hay un total de cobro válido. Actualiza los datos antes de imprimir.');
+          const descuento=c234Redondear(Math.max(0,original-cobro));
+          const dif= Math.abs(descuento-c234Redondear(descuentoCalculado));
+          const ajustar=dif>0.02;
+          const seguro=v=>escaparHtmlPedido(String(v??''));
+          const cliente=seguro(cab.cliente||lineas[0].cliente||'Cliente');
+          const fecha=seguro(lineas[0].fechaEntrega||new Date().toLocaleString('es-SV'));
+          const renglones=productos.map(x=>
+            '<div class="item"><div class="nombre">'+seguro(x.nombre)+'</div><div class="datos"><span>'+x.cant+' x '+c226Dinero(x.unit)+'</span><b>'+c226Dinero(x.sub)+'</b></div></div>'
+          ).join('');
+          const avisos=faltantes.map(x=>
+            '<div class="nota-item">'+x.cant+' x '+seguro(x.nombre)+'</div>'
+          ).join('');
+          const pago=entregadas===0?'SIN COBRO':estado==='EFECTIVO'?'PAGADO EN EFECTIVO':'VENTA A CRÉDITO';
+          const altura=Math.max(95,65+productos.length*9+faltantes.length*7);
+          return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+            '<title>Ticket #'+seguro(ticket)+'</title><style>'+
+            '@page{size:58mm '+altura+'mm;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#000}'+
+            'body{font:10px/1.35 "Courier New",monospace;width:54mm;max-width:54mm;padding:3mm}h1{font-size:14px;text-align:center;margin:0 0 2mm}'+
+            '.centro{text-align:center}.separador{border:0;border-top:1px dashed #333;margin:3mm 0}.item{margin:0 0 2.5mm;page-break-inside:avoid}'+
+            '.nombre{font-weight:bold;overflow-wrap:anywhere}.datos,.total{display:flex;justify-content:space-between;gap:2mm}.datos b,.total b{white-space:nowrap}'+
+            '.total{font-size:13px;font-weight:bold;margin-top:2mm}.nota-item{margin:1mm 0;overflow-wrap:anywhere}.pequeno{font-size:9px}'+
+            '.boton{display:block;margin:12px auto;padding:12px 18px;border:0;border-radius:10px;background:#147eff;color:#fff;font:600 15px sans-serif;cursor:pointer}'+
+            '@media screen{body{margin:0 auto;border:1px solid #ddd;min-height:100vh}.boton{width:100%}}'+
+            '@media print{.boton{display:none!important}body{border:0!important;min-height:0!important;-webkit-print-color-adjust:exact}}'+
+            '</style></head><body>'+
+            '<h1>ONLINE SHOP</h1><div class="centro">COMPROBANTE DE ENTREGA</div>'+
+            '<div class="separador"></div><div><b>Ticket #'+seguro(ticket)+'</b></div><div>'+cliente+'</div>'+
+            '<div class="pequeno">'+fecha+'</div><div class="separador"></div>'+
+            (renglones||'<div>No se entregó mercancía.</div>')+
+            '<div class="separador"></div><div class="datos"><span>Total original</span><b>'+c226Dinero(original)+'</b></div>'+
+            (descuento>0?'<div class="datos"><span>'+(ajustar?'Descuento / ajuste':'Productos no entregados')+'</span><b>-'+c226Dinero(descuento)+'</b></div>':'')+
+            '<div class="total"><span>TOTAL</span><b>'+c226Dinero(cobro)+'</b></div>'+
+            '<div class="centro" style="margin-top:3mm"><b>'+pago+'</b></div>'+
+            (faltantes.length?'<div class="separador"></div><div><b>NO ENTREGADOS (NO COBRADOS)</b></div>'+avisos:'')+
+            '<div class="separador"></div><div class="centro pequeno">Comprobante de control interno.<br>No sustituye documento fiscal.</div>'+
+            '<button class="boton" type="button" onclick="window.print()">Imprimir / Guardar PDF</button></body></html>';
+        }
+        function c241Imprimir(ticket){
+          let contenido;
+          try{contenido=c241ComprobanteHtml(ticket);}catch(e){alert(e.message);return;}
+          // Abrir dentro del clic evita el bloqueo habitual de ventanas emergentes.
+          const vista=window.open('','_blank','width=380,height=720,scrollbars=yes');
+          if(!vista){alert('El navegador bloqueó la vista del ticket. Permite ventanas emergentes para imprimir.');return;}
+          vista.document.open();vista.document.write(contenido);vista.document.close();
+          vista.focus();
+        }
         function c227Render(){
           const box=document.getElementById('c227ListaClientes'),d=c227DatosUI;if(!box||!d)return;
           if(!d.lineas.length){box.innerHTML='<div class="c56-intro">Este Kardex no tiene tickets importados desde los dos Excel de Akasia.</div>';return;}
@@ -7732,6 +7819,10 @@ async function verificarPassword() {
             const filtros=[['pendientes','Pendientes',pendientes],['parciales','Parciales',parciales],['completos','Completos',completos],['todos','Todos',orden.length]];
             html+='<div class="c240-filtros" role="group" aria-label="Filtrar tickets">'+filtros.map(([estado,nombre,cantidad])=>'<button type="button" aria-pressed="'+(c240FiltroEstado===estado)+'" onclick="c240CambiarFiltro(\''+estado+'\')"><b>'+cantidad+'</b>'+nombre+'</button>').join('')+'</div>';
             html+='<input type="search" id="c227Buscar" placeholder="🔎 Buscar cliente o ticket" value="'+escaparHtmlPedido(c227Buscador)+'" oninput="c227Filtrar(this.value)" style="margin:8px 0 12px">';
+            if(c241UltimoTicketConfirmado&&d.lineas.some(x=>x.ticket===c241UltimoTicketConfirmado)){
+              const imprimir=escaparHtmlPedido(JSON.stringify(c241UltimoTicketConfirmado));
+              html+='<div class="c241-ultimo"><span>✓ Ticket #'+escaparHtmlPedido(c241UltimoTicketConfirmado)+' guardado</span><button type="button" class="c241-imprimir" onclick="c241Imprimir('+imprimir+')">🧾 Imprimir</button><button type="button" aria-label="Cerrar aviso" class="c241-cerrar" onclick="c241UltimoTicketConfirmado=null;c227Render()">×</button></div>';
+            }
           }
           for(const t of orden){
             const g=grupos.get(t),cab=g.cab,lineas=g.indices.map(i=>d.lineas[i]),confirmado=lineas.every(x=>x.entregado!==''),completo=confirmado&&lineas.every(x=>x.entregado===x.cantidad),sinEntregar=confirmado&&lineas.every(x=>x.entregado===0),editable=!confirmado||finanzas;
@@ -7757,6 +7848,8 @@ async function verificarPassword() {
               }
               if(sinEntregar)html+='<div class="c226-info">🔴 Sin cobro: no se entregaron unidades.</div>';
               else if(cab.pagoEstado==='EFECTIVO'||cab.pagoEstado==='CREDITO')html+='<div class="c226-info">'+(cab.pagoEstado==='EFECTIVO'?'💵 Pagó en efectivo':'📝 Venta a crédito')+' · '+c226Dinero(cab.pagoMonto||0)+' · '+escaparHtmlPedido(cab.cobradoPor||'')+'</div>';
+              if(sinEntregar||cab.pagoEstado==='EFECTIVO'||cab.pagoEstado==='CREDITO')
+                html+='<button type="button" class="c241-imprimir" onclick="c241Imprimir('+escaparHtmlPedido(JSON.stringify(t))+')">🧾 Imprimir ticket</button>';
               else if(k223PuedeAsignar()){
                 if(c233PagoSolo[t]){
                   html+=c233OpcionesPago(t,!completo,false);
@@ -7878,6 +7971,7 @@ async function verificarPassword() {
             entregaGuardada=true;
             if(pago)await c233RegistrarPago(ticket,pago,idRuta);
             delete c229Editor[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];
+            c241UltimoTicketConfirmado=ticket;
             c240ClienteActivo=null;
             await c227Cargar();
           }catch(e){
@@ -8295,6 +8389,25 @@ async function verificarPassword() {
             const p=c56Seguimiento?.productos||rutaActiva?.productos||[],completos=p.filter(x=>x.estado==='COMPLETO'||(x.estado===undefined&&Number(x.diferencia)>=0)).length;
             document.getElementById('rutaResumen').innerHTML=`<b>Ruta #${escaparHtmlPedido(rutaActiva.numeroRuta)}</b> · ${fechaRutaBonita(rutaActiva.fecha)}<br>✅ ${completos} preparados · ⏳ ${p.length-completos} sin completar · Total ${p.length}`;
         }
+        function c243MotivosCierre(x){
+            if(x?.puedeFinalizar)return '';
+            const motivos=Array.isArray(x?.bloqueos)?x.bloqueos.map(String):[];
+            const categorias=[
+              ['Falta confirmar preparación:','Preparaciones de mercadería sin confirmar'],
+              ['Pendiente de revisar en Despacho:','Productos que Despacho debe revisar'],
+              ['Falta confirmar entrega','Entregas de clientes sin confirmar'],
+              ['Pendiente de preparar o asignar en Kardex:','Productos por preparar o asignar'],
+              ['Las cantidades del ticket no coinciden:','Diferencias entre cantidades del Kardex y tickets'],
+              ['Se confirmó más entrega de la preparada:','Entregas superiores a lo preparado']
+            ];
+            const pendientes=categorias.filter(([prefijo])=>motivos.some(m=>m.startsWith(prefijo))).map(([,titulo])=>titulo);
+            const resumen=pendientes.length?pendientes.join(' · '):'Hay verificaciones sin completar';
+            return '<div class="c243-cierre-aviso" role="status"><strong>🔒 El Kardex todavía no se puede finalizar</strong>'+
+              '<p>'+escaparHtmlPedido(resumen)+'. Para finalizar hay que completar las revisiones pendientes, aunque queden unidades físicamente faltantes.</p>'+
+              (motivos.length?'<details><summary>Ver motivos exactos ('+motivos.length+' reportados)</summary><ul>'+
+                motivos.map(m=>'<li>'+escaparHtmlPedido(m)+'</li>').join('')+'</ul></details>':'')+
+              '</div>';
+        }
         function c55RenderResumenCierre(x){
             const cont=document.getElementById('listaRuta'),sum=document.getElementById('rutaResumen');
             if(!cont||!sum||!rutaActiva||String(rutaActiva.idRuta)!==String(x.idRuta))return;
@@ -8326,8 +8439,12 @@ async function verificarPassword() {
             }else if(!pendientes.length&&!recibir.length&&(x.bloqueos||[]).length&&x.bloqueos.every(t=>t.startsWith('Pendiente de preparar o asignar en Kardex:'))){
                 s+='<button type="button" class="kx-final-btn" onclick="terminarPreparacionBodega33()">Terminar revisión de Bodega y habilitar el cierre</button>';
                 s+='<div class="kx-final-note">Solo úsalo si Bodega ya terminó de buscar la mercadería que faltaba.</div>';
-            }else s+='<div class="kx-final-note">Para finalizar la ruta, confirma los pendientes que se muestran arriba. No hay que repetir los productos ya revisados.</div>';
+            }else s+='<div class="kx-final-note">Al terminar las revisiones pendientes se habilitará «Finalizar Kardex».</div>';
             cont.innerHTML=s+'</div>';
+            if(!x.puedeFinalizar){
+                const estadisticas=cont.querySelector('.kx-final-stats');
+                if(estadisticas)estadisticas.insertAdjacentHTML('afterend',c243MotivosCierre(x));
+            }
             c55UltimosPendientes=pendientes;
         }
         let c55UltimosPendientes=[];
@@ -8904,7 +9021,7 @@ async function verificarPassword() {
             }
             if(revision)revision.style.display='block';if(clientes)clientes.style.display='none';
             await cargarImagenesProductosGlobal();
-            const titulo=document.getElementById('c51TituloRevision'); if(titulo)titulo.textContent=esDespacho?'🚚 Despacho y entregas a clientes':'📦 Faltantes Kardex';
+            const titulo=document.getElementById('c51TituloRevision'); if(titulo)titulo.textContent=esDespacho?'✅ Revisar despacho':'📦 Faltantes Kardex';
             if(esDespacho)c51Marcados={};
             cab.innerHTML=esDespacho?'🚚 <b>Despacho</b> · Completo: llegó todo · Incompleto: no llegó nada · Parcial: llegó una parte.':`📍 <b>${escaparHtmlPedido(suc)}</b> · Confirma lo que realmente encontraste. Al confirmar, tu revisión queda terminada.`;
             cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando...</p>';
