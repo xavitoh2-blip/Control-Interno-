@@ -1878,6 +1878,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c236-producto-toggle .c236-precio-venta b{font-weight:850;font-size:14px;color:#173d62}
 .c236-producto-toggle .c236-estado{font-size:11px;font-weight:750;color:#9f4b24;text-align:right;white-space:nowrap}
 .c236-producto-panel{margin-top:8px;padding-top:9px;border-top:1px solid #dce7f5}
+.c238-barra{border:1px solid #d5e4f5;background:#f8fbff;border-radius:19px;padding:12px;margin:9px 0 17px;box-shadow:0 4px 16px rgba(24,64,109,.05)}
+.c238-barra .c238-inicio{width:auto!important;min-height:35px!important;margin:0 0 11px!important;background:transparent!important;color:#32648e!important;padding:3px 7px!important;font-size:12px!important;font-weight:750!important}
+.c238-barra .c238-etapas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.c238-barra .c238-etapas button{margin:0!important;min-height:53px!important;padding:7px 5px!important;border-radius:12px!important;font-size:12px!important;font-weight:800!important;background:#eaf2fb!important;color:#325879!important}
+.c238-barra .c238-etapas button[aria-selected="true"]{background:#087cff!important;color:#fff!important}
+.c238-barra .c238-secciones{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.c238-barra .c238-secciones button{flex:1 1 105px;margin:0!important;min-height:38px!important;padding:6px 8px!important;font-size:11px!important;background:white!important;color:#42627b!important;border:1px solid #dce6f1!important}
+.c238-barra .c238-secciones button[aria-selected="true"]{background:#def0ff!important;color:#0b63ab!important;border-color:#7abaf0!important}
 .c229-filtro{margin:10px 0!important;background:#fff!important}
 .c229-avisos{background:#fff6e8;color:#8c541d;border:1px solid #eed2a5;border-radius:12px;padding:11px;margin:10px 0;font-size:12px}
 .c229-marcado{font-size:11px;color:#a14b18;font-weight:800;margin-top:7px}
@@ -1944,7 +1952,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.37</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.38</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2009,6 +2017,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button id="btnMenuCompras" class="menu-modulo" onclick="abrirModulo('compras')" style="display:none;"><span>📝</span><b>Solicitar Compra</b></button>
                 <button id="btnMenuFaltantesDia" class="menu-modulo" onclick="abrirModulo('faltantesDia')" style="display:none;"><span>🟠</span><b>Faltantes del día</b></button>
                 <button id="btnMenuRuta" class="menu-modulo" onclick="abrirModulo('ruta')" style="display:none;"><span>📋</span><b>Kardex</b></button>
+                <button id="btnMenuControlDespacho" class="menu-modulo" onclick="c238AbrirSeccion('revision')" style="display:none;"><span>🚚</span><b>Control de Despacho</b></button>
                 <button id="btnMenuFaltantesKardex" class="menu-modulo" onclick="abrirModulo('faltantesKardex')"><span>📦</span><b>Faltantes Kardex</b></button>
                 <button id="btnMenuPrepararDespacho" class="menu-modulo" onclick="abrirModulo('prepararDespacho')" style="display:none;"><span>📦</span><b>Faltantes Kardex</b></button>
                 <button id="btnMenuTicketsRuta" class="menu-modulo" onclick="abrirModulo('ticketsRuta')" style="display:none;"><span>👥</span><b>Tickets de clientes</b></button>
@@ -2029,6 +2038,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <p style="font-size:10px;color:#63788a;margin:8px 0 0;">En iPhone, abre Online Shop desde el ícono de la pantalla de inicio.</p>
             </div>
         </div>
+
+        <!-- v1.7.38 · Barra común para preparar, entregar y rendir la ruta.
+             Se mueve entre pantallas existentes, sin duplicar datos ni IDs. -->
+        <div id="c238BarraDespacho" class="c238-barra" style="display:none"></div>
 
         <!-- v1.7.26 · Vista compartida por Vendedores y Despacho -->
         <div id="moduloCuentasCobros" class="card modulo-pantalla" style="display:none;text-align:left">
@@ -2977,6 +2990,13 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const btCobros=document.getElementById('btnMenuCuentasCobros');
             if(btCobros)btCobros.style.display=!adm&&['vendedor de ruta','despacho','tienda online shop','mini super'].includes(normalizarEmpleado(sucursalActual))?'flex':'none';
             if(btCobros){const txt=btCobros.querySelector('b');if(txt)txt.textContent=esVendedorRuta?'Clientes y Deudas':'Clientes y Cobros';}
+            // v1.7.38: en Despacho, un acceso reúne las seis pantallas de ruta.
+            // Se conservan los módulos originales para Administración y otras áreas.
+            const controlDespacho=document.getElementById('btnMenuControlDespacho');
+            if(controlDespacho)controlDespacho.style.display=esDespacho?'flex':'none';
+            if(esDespacho)['btnMenuFaltantesKardex','btnMenuPrepararDespacho','btnMenuTicketsRuta','btnMenuResumenRuta','btnMenuHistorialRuta','btnMenuCuentasCobros'].forEach(id=>{
+                const boton=document.getElementById(id);if(boton)boton.style.display='none';
+            });
         }
 
         function cargarEmpleadosDesdeSheets() {
@@ -3011,7 +3031,53 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             return String(texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
         }
 
+        // v1.7.38 · Un solo acceso en Despacho, conservando todos los flujos
+        // existentes: recepción del Kardex, preparación, tickets, historial,
+        // deudas/abonos y caja. No crea copias de los datos ni nuevas hojas.
+        let c238ModuloAnterior=null;
+        function c238DesactivarBarra(){
+            const barra=document.getElementById('c238BarraDespacho');
+            if(c238ModuloAnterior){
+                const volver=c238ModuloAnterior.querySelector(':scope > .btn-volver');
+                if(volver)volver.style.display='';
+            }
+            c238ModuloAnterior=null;
+            if(barra){barra.style.display='none';document.body.appendChild(barra);}
+        }
+        function c238AbrirEtapa(etapa){
+            const primera={preparacion:'revision',entregas:'tickets',caja:'resumen'};
+            if(primera[etapa])c238AbrirSeccion(primera[etapa]);
+        }
+        function c238AbrirSeccion(seccion){
+            if(normalizarEmpleado(localStorage.getItem('sucursal'))!=='despacho')return;
+            const pantallas={
+                revision:{nombre:'faltantesKardex',id:'moduloFaltantesKardex',etapa:'preparacion'},
+                asignados:{nombre:'prepararDespacho',id:'moduloPrepararDespacho',etapa:'preparacion'},
+                tickets:{nombre:'ticketsRuta',id:'moduloFaltantesKardex',etapa:'entregas'},
+                historial:{nombre:'historialRuta',id:'moduloCajaRuta230',etapa:'entregas'},
+                resumen:{nombre:'resumenRuta',id:'moduloCajaRuta230',etapa:'caja'},
+                cobros:{nombre:'cuentasCobros',id:'moduloCuentasCobros',etapa:'caja'}
+            };
+            const actual=pantallas[seccion];if(!actual)return;
+            abrirModulo(actual.nombre);
+            const cont=document.getElementById(actual.id),barra=document.getElementById('c238BarraDespacho');
+            if(!cont||cont.style.display!=='block'||!barra)return;
+            const etapas=[['preparacion','📦 Preparación'],['entregas','🚚 Entregas'],['caja','💵 Caja y cobros']];
+            const opciones={
+                preparacion:[['revision','Revisar Kardex'],['asignados','Productos asignados']],
+                entregas:[['tickets','Tickets de clientes'],['historial','Historial de entregas']],
+                caja:[['resumen','Resumen de Ruta'],['cobros','Clientes y abonos']]
+            };
+            barra.innerHTML='<button type="button" class="c238-inicio" onclick="volverMenuPrincipal()">← Menú principal</button>'+
+                '<div class="c238-etapas">'+etapas.map(([v,t])=>'<button type="button" aria-selected="'+(v===actual.etapa)+'" onclick="c238AbrirEtapa(\''+v+'\')">'+t+'</button>').join('')+'</div>'+
+                '<div class="c238-secciones">'+opciones[actual.etapa].map(([v,t])=>'<button type="button" aria-selected="'+(v===seccion)+'" onclick="c238AbrirSeccion(\''+v+'\')">'+t+'</button>').join('')+'</div>';
+            const volver=cont.querySelector(':scope > .btn-volver');
+            if(volver){volver.style.display='none';cont.insertBefore(barra,volver.nextSibling);}else cont.insertBefore(barra,cont.firstChild);
+            barra.style.display='block';c238ModuloAnterior=cont;
+            window.scrollTo(0,0);
+        }
         function abrirModulo(nombre) {
+            c238DesactivarBarra();
             if(nombre==='m200Admin'){alert('Control de Mercadería ahora está dentro del Panel Administrativo.');return;}
             if (n189DebeBloquear(nombre)) return;
             if(!['catalogoRuta','n188','m200Directa'].includes(nombre)) cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
@@ -3097,6 +3163,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         }
 
         function volverMenuPrincipal() {
+            c238DesactivarBarra();
             ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados","moduloCuentasCobros","moduloCajaRuta230","m200ModuloAdmin","m200ModuloDirecta"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             n189EnAsistencia = false;
