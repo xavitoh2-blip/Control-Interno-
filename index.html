@@ -1935,7 +1935,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.31</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.32</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3012,7 +3012,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 if(!['mini super','tienda online shop'].includes(normalizarEmpleado(localStorage.getItem('sucursal')))||normalizarEmpleado(localStorage.getItem('usuario'))==='admin')return volverMenuPrincipal();
                 document.getElementById('m200ModuloDirecta').style.display='block';m200IniciarDirecta();
             }else if(nombre==='cuentasCobros'){
-                if(!['vendedor de ruta','despacho','tienda online shop','mini super'].includes(normalizarEmpleado(localStorage.getItem('sucursal')))||normalizarEmpleado(localStorage.getItem('usuario'))==='admin')return volverMenuPrincipal();
+                if(!['vendedor de ruta','despacho','tienda online shop','mini super'].includes(normalizarEmpleado(localStorage.getItem('sucursal'))))return volverMenuPrincipal();
                 document.getElementById('moduloCuentasCobros').style.display='block';
                 c226Abrir(false);
             }else if(nombre==='ticketsRuta'){
@@ -7396,7 +7396,9 @@ async function verificarPassword() {
 
         // v1.7.27 · Despacho confirma lo ENTREGADO AL CLIENTE, no la carga de Bodega.
         let c227Vista='revision',c227DatosUI=null,c227Peticion=0,c227Buscador='';
-        function c227EsAdminLogistica(){return (m214Vista==='despacho'&&document.getElementById('adminControlLogistico')?.style.display==='block')||normalizarEmpleado(localStorage.getItem('usuario'))==='admin';}
+        // En Despacho, incluso la cuenta ADMIN opera con permisos ordinarios.
+        // Solo el Panel Administrativo utiliza los privilegios de supervisor.
+        function c227EsAdminLogistica(){return m214Vista==='despacho'&&document.getElementById('adminControlLogistico')?.style.display==='block';}
         function c227CambiarVista(vista){
           c227Vista=vista==='clientes'?'clientes':'revision';
           const tabs=document.getElementById('c227Tabs'),revision=document.getElementById('c227RevisionPanel'),clientes=document.getElementById('c227ClientesPanel');
@@ -7410,7 +7412,6 @@ async function verificarPassword() {
           const cont=document.getElementById('c227ListaClientes'),ver=++c227Peticion;if(!cont)return;
           cont.innerHTML='<p class="c226-info">Consultando clientes del Kardex…</p>';
           try{
-            await c231AsegurarAdmin();
             await k221CargarRutas();k223ElegirKardexParaSucursales();
             const id=k221IdRuta;
             if(!id){cont.innerHTML='<p class="c226-info">No hay Kardex abierto para entregar.</p>';return;}
@@ -7517,7 +7518,6 @@ async function verificarPassword() {
           if(!confirm(pregunta))return;
           const btn=card.querySelector('.c229-continuar')||card.querySelector('.c229-acciones button:first-child');if(btn)btn.disabled=true;
           try{
-            await c231AsegurarAdmin();
             const p={accion:'c227GuardarEntrega',idRuta:k221IdRuta,ticket,productos:JSON.stringify(productos),operacion:c226IdOperacion(),sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};
             if(c227EsAdminLogistica())Object.assign(p,m200CredencialesAdmin());
             const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams(p),cache:'no-store'}),d=await r.json();
@@ -7555,33 +7555,12 @@ async function verificarPassword() {
 
         // v1.7.26 · Una sola cuenta por cliente: Despacho, Vendedores y Admin.
         let c226Datos=null,c226Admin=false,c226Seleccionado='',c226Ocupado=false,c226RutaCobro='';
-        // ADMIN puede abrir las vistas de Despacho, pero el servidor exige
-        // su contraseña privada una sola vez por sesión para datos y cobros.
-        async function c231AsegurarAdmin(){
-          if(normalizarEmpleado(localStorage.getItem('usuario'))!=='admin')return true;
-          if(a197Autorizado&&sessionStorage.getItem('a197TokenAdmin'))return true;
-          const sucursal=localStorage.getItem('sucursal')||'';
-          const anterior=sessionStorage.getItem('a197TokenAdmin');
-          if(anterior){
-            try{
-              const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'a197AdminVerificar',empleado:'ADMIN',sucursal,token:anterior}),cache:'no-store'});
-              const d=await r.json();
-              if(r.ok&&d.status==='OK'&&d.autorizado===true){a197Autorizado=true;return true;}
-            }catch(_){/* Una sesión vencida puede renovarse abajo. */}
-            sessionStorage.removeItem('a197TokenAdmin');
-          }
-          const clave=prompt('🔐 ADMIN: introduce tu contraseña administrativa para consultar y confirmar tickets, cobros y entregas.');
-          if(!clave)throw Error('La consulta necesita autorización ADMIN. Pulsa Reintentar para identificarte.');
-          const res=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'a197AdminEntrar',empleado:'ADMIN',sucursal,claveAdmin:clave}),cache:'no-store'});
-          const d=await res.json();
-          if(!res.ok||d.status!=='OK'||!/^[a-fA-F0-9]{64}$/.test(String(d.token||'')))throw Error(d.mensaje||'No se pudo autorizar la sesión ADMIN.');
-          sessionStorage.setItem('a197TokenAdmin',d.token);a197Autorizado=true;
-          return true;
-        }
+        // v1.7.32: las credenciales de supervisor solo se envían dentro
+        // del Panel Administrativo, no desde las pantallas de Despacho.
         function c226Dinero(n){return '$'+(Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
         function c226Panel(){return document.getElementById(c226Admin?'c226AdminPanel':'c226Panel');}
         function c226IdOperacion(){return (typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2,12);}
-        function c226DatosAcceso(){return c226Admin||normalizarEmpleado(localStorage.getItem('usuario'))==='admin'?m200CredencialesAdmin():{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
+        function c226DatosAcceso(){return c226Admin?m200CredencialesAdmin():{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
         async function c226Post(accion,extra){
           const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion,...c226DatosAcceso(),...(extra||{})}),cache:'no-store'});
           const d=await r.json();if(!r.ok||d.status!=='OK'||d.version!=='1.7.26')throw Error(d.mensaje||'Actualiza Código.gs a la versión 1.7.26.');
@@ -7594,7 +7573,7 @@ async function verificarPassword() {
         async function c226Cargar(){
           const panel=c226Panel();if(!panel)return;
           panel.innerHTML='<p class="c226-info">↻ Actualizando saldos y abonos compartidos…</p>';
-          try{await c231AsegurarAdmin();c226Datos=await c226Post('c226Listar');c226Render();}
+          try{c226Datos=await c226Post('c226Listar');c226Render();}
           catch(e){panel.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p><button type="button" onclick="c226Cargar()">↻ Reintentar</button>';}
         }
         function c226Render(){
@@ -10498,10 +10477,10 @@ setInterval(()=>{
 
 </script>
 <script>
-// v1.7.31 · Tickets accionables para ADMIN y autorización privada en Despacho.
+// v1.7.32 · Tickets accionables para Despacho sin clave adicional.
 let c230Admin=false,c230Ruta='',c230Rutas=[],c230Datos=null,c230Vista='tickets',c230Buscar='',c230Ocupado=false,c230Carga=0;
 function c230Panel(){return document.getElementById(c230Admin?'c230PanelAdmin':'c230PanelRuta');}
-function c230Acceso(){return c230Admin||normalizarEmpleado(localStorage.getItem('usuario'))==='admin'?m200CredencialesAdmin():{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
+function c230Acceso(){return c230Admin?m200CredencialesAdmin():{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
 async function c230Post(accion,extra){
   const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion,...c230Acceso(),...(extra||{})}),cache:'no-store'});
   const d=await r.json();if(!r.ok||d.status!=='OK'||d.version!=='1.7.30')throw Error(d.mensaje||'Publica Código.gs versión 1.7.30.');
@@ -10512,7 +10491,6 @@ async function c230Cargar(ruta){
   const box=c230Panel(),peticion=++c230Carga;if(!box)return;
   box.innerHTML='<p class="c226-info">↻ Consultando tickets y cobros…</p>';
   try{
-    await c231AsegurarAdmin();
     const id=String(ruta||c230Ruta||'');
     let d=await c230Post('c230ListarRuta',{idRuta:id});if(peticion!==c230Carga)return;
     c230Rutas=Array.isArray(d.rutas)?d.rutas:[];
