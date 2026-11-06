@@ -1935,7 +1935,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.33</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.35</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -7430,55 +7430,107 @@ async function verificarPassword() {
         let c233Pagos=Object.create(null),c233PagoSolo=Object.create(null),c233Guardando=false;
         function c233Cliente(ticket){return (c227DatosUI?.clientes||[]).find(x=>x.ticket===ticket)||null;}
         function c233ImporteAkasia(ticket){const x=c233Cliente(ticket);return x?.totalAkasia===null||x?.totalAkasia===undefined?Number(x?.total):Number(x.totalAkasia);}
+        function c234Moneda(n){return Number.isFinite(n)?c226Dinero(n):'No disponible';}
+        function c234Redondear(n){return Math.round((n+Number.EPSILON)*100)/100;}
+        function c234AjusteSugerido(ticket){
+          const d=c227DatosUI,importe=c233ImporteAkasia(ticket),editor=c229Editor[ticket];
+          if(!d||!Number.isFinite(importe))return null;
+          let valorFaltante=0,unidadesFaltantes=0,hayLineas=false;
+          const detalle=[];
+          for(let i=0;i<d.lineas.length;i++){
+            const x=d.lineas[i];if(x.ticket!==ticket)continue;
+            hayLineas=true;
+            const totalLinea=x.totalVenta===null||x.totalVenta===undefined?NaN:Number(x.totalVenta);
+            if(!Number.isFinite(totalLinea)||!Number.isInteger(x.cantidad)||x.cantidad<1)return null;
+            const editando=editor?.modo==='faltantes';
+            const entregado=editando?(Object.prototype.hasOwnProperty.call(editor.excepciones||{},i)?Number(editor.excepciones[i]):x.cantidad):(x.entregado!==''?Number(x.entregado):x.cantidad);
+            if(!Number.isFinite(entregado)||entregado<0||entregado>x.cantidad)return null;
+            const faltan=x.cantidad-entregado;
+            if(faltan){
+              const precioUnidad=totalLinea/x.cantidad;
+              const descuentoLinea=precioUnidad*faltan;
+              valorFaltante+=descuentoLinea;
+              unidadesFaltantes+=faltan;
+              detalle.push({producto:x.producto,unidades:faltan,precioUnidad,descuento:descuentoLinea});
+            }
+          }
+          if(!hayLineas)return null;
+          // El total de la línea es el precio REAL de venta importado de
+          // Akasia, incluido Precio 2. Restar UNIDADES faltantes directamente
+          // al total neto del ticket, sin prorratear otros descuentos.
+          // Si el descuento supera el ticket, requiere revisión manual.
+          const descuento=c234Redondear(valorFaltante);
+          if(descuento>importe)return null;
+          return {faltantes:unidadesFaltantes,descuento,total:c234Redondear(importe-descuento),detalle};
+        }
         function c233AbrirCompleto(ticket){
           c229Editor[ticket]={modo:'completo',excepciones:Object.create(null)};
           c227Render();
         }
         function c233ElegirTipo(ticket,tipo){
-          if(!['EFECTIVO','CREDITO','PENDIENTE'].includes(tipo))return;
+          if(!['EFECTIVO','CREDITO'].includes(tipo))return;
           if(!c233Pagos[ticket])c233Pagos[ticket]={tipo:'',monto:''};
           c233Pagos[ticket].tipo=tipo;c227Render();
         }
         function c233EditarMonto(ticket,valor){
           if(!c233Pagos[ticket])c233Pagos[ticket]={tipo:'',monto:''};
-          c233Pagos[ticket].monto=String(valor||'');
+          c233Pagos[ticket].monto=String(valor??'');
+          const max=c233ImporteAkasia(ticket),sugerido=c234AjusteSugerido(ticket),personalizado=String(valor??'').trim()!=='';
+          const monto=personalizado?Number(valor):sugerido?.total;
+          const valido=Number.isFinite(max)&&Number.isFinite(monto)&&monto>0&&monto<=max;
+          const total=document.getElementById('c234TotalCobro_'+ticket),descuento=document.getElementById('c234DescuentoCobro_'+ticket);
+          if(total)total.textContent=valido?c226Dinero(monto):'Por confirmar';
+          if(descuento)descuento.textContent=valido?'-'+c226Dinero(c234Redondear(max-monto)):'Por confirmar';
         }
-        function c233OpcionesPago(ticket,parcial,sinEntrega,permitirPendiente){
+        function c235RestaurarAutomatico(ticket){c233EditarMonto(ticket,'');c227Render();}
+        function c235LimpiarCorreccion(ticket){if(c233Pagos[ticket])c233Pagos[ticket].monto='';}
+        function c233OpcionesPago(ticket,parcial,sinEntrega){
           const eleccion=c233Pagos[ticket]||{},tipo=eleccion.tipo||'',importe=c233ImporteAkasia(ticket);
           if(sinEntrega)return '<div class="c229-avisos">🔴 No se entregó ningún producto: el ticket quedará sin cobro.</div>';
           let h='<div class="c229-avisos"><b>💳 ¿Cómo quedó el pago de este cliente?</b><div class="c229-acciones" style="margin-top:9px">';
-          for(const op of [['EFECTIVO','💵 Pagó en efectivo','#dff7e7','#175c3a'],['CREDITO','📝 Quedó a crédito','#e7edff','#2b478c'],...(permitirPendiente?[['PENDIENTE','⏳ Registrar después','#f1f4f8','#4e5969']]:[])]){
+          for(const op of [['EFECTIVO','💵 Pagó en efectivo','#dff7e7','#175c3a'],['CREDITO','📝 Quedó a crédito','#e7edff','#2b478c']]){
             const elegido=tipo===op[0];
             h+='<button type="button" style="background:'+(elegido?op[3]:op[2])+';color:'+(elegido?'white':op[3])+';border:'+(elegido?'2px solid '+op[3]:'1px solid #d7e0ec')+'" onclick="c233ElegirTipo(\''+ticket+'\',\''+op[0]+'\')">'+op[1]+(elegido?' ✓':'')+'</button>';
           }
           h+='</div>';
-          if(parcial&&tipo&&tipo!=='PENDIENTE'){
-            h+='<label style="display:block;font-size:12px;font-weight:750;margin-top:10px">Importe REAL de los productos entregados ($)</label>';
-            h+='<input type="number" inputmode="decimal" min="0.01" max="'+(Number.isFinite(importe)?importe.toFixed(2):'')+'" step="0.01" value="'+escaparHtmlPedido(eleccion.monto||'')+'" placeholder="Verifica el total ajustado en Akasia" oninput="c233EditarMonto(\''+ticket+'\',this.value)">';
-            h+='<small>Si hay faltantes, revisa en Akasia los descuentos y Precio 2 antes de registrar el cobro.</small>';
-          }else if(!parcial&&tipo&&tipo!=='PENDIENTE'){
-            h+='<p style="margin:8px 0 0;font-size:12px">Total real de Akasia: <b>'+(Number.isFinite(importe)?c226Dinero(importe):'No disponible')+'</b>.</p>';
-          }else if(tipo==='PENDIENTE'){
-            h+='<p style="margin:8px 0 0;font-size:12px">La entrega quedará confirmada y el cobro podrá registrarse después desde este mismo ticket.</p>';
+          if(parcial){
+            const sugerido=c234AjusteSugerido(ticket),personalizado=String(eleccion.monto??'').trim()!=='',monto=personalizado?Number(eleccion.monto):sugerido?.total;
+            const valido=Number.isFinite(importe)&&Number.isFinite(monto)&&monto>0&&monto<=importe;
+            h+='<div style="margin-top:11px;padding:11px;border-radius:12px;background:white;border:1px solid #d7e4f2"><div style="display:flex;justify-content:space-between;gap:10px"><span>Total del ticket Akasia</span><b>'+c234Moneda(importe)+'</b></div>';
+            if(sugerido){
+              for(const x of sugerido.detalle){
+                h+='<div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:12px"><span>'+escaparHtmlPedido(x.producto)+' · '+x.unidades+' unidad(es) faltantes <small>(precio de venta aprox. '+c226Dinero(x.precioUnidad)+'/u.)</small></span><b>-'+c226Dinero(c234Redondear(x.descuento))+'</b></div>';
+              }
+              h+='<div style="display:flex;justify-content:space-between;gap:10px;margin-top:8px;color:#9b4d25"><b>Descuento por productos no entregados</b><b>-'+c226Dinero(sugerido.descuento)+'</b></div>';
+            }else h+='<p style="color:#b42318;font-size:12px">No se pudo calcular el descuento con los precios importados. Comprueba el importe con Akasia y escríbelo abajo.</p>';
+            h+='<div style="display:flex;justify-content:space-between;margin-top:10px;gap:10px"><span>Ajuste final del ticket</span><b id="c234DescuentoCobro_'+ticket+'">'+(valido?'-'+c226Dinero(c234Redondear(importe-monto)):'Por confirmar')+'</b></div>';
+            h+='<div style="display:flex;justify-content:space-between;margin-top:7px;gap:10px;font-size:16px"><b>TOTAL A COBRAR</b><b id="c234TotalCobro_'+ticket+'">'+(valido?c226Dinero(monto):'Por confirmar')+'</b></div></div>';
+            h+='<label style="display:block;font-size:12px;font-weight:750;margin-top:10px">Corregir el importe solo si es necesario ($)</label>';
+            h+='<input type="number" inputmode="decimal" min="0.01" max="'+(Number.isFinite(importe)?importe.toFixed(2):'')+'" step="0.01" value="'+escaparHtmlPedido(eleccion.monto??'')+'" placeholder="'+(sugerido?'Cálculo automático: '+c226Dinero(sugerido.total):'Ingresa el monto de Akasia')+'" oninput="c233EditarMonto(\''+ticket+'\',this.value)">';
+            if(personalizado)h+='<button type="button" style="margin-top:7px!important;background:#eaf4ff;color:#175c92" onclick="c235RestaurarAutomatico(\''+ticket+'\')">↺ Restaurar total automático</button>';
+            h+='<small>Se resta directamente el precio de venta de las unidades no entregadas. Si hubo distintos precios para el mismo producto o promociones especiales de Akasia, comprueba el importe antes de confirmar.</small>';
+          }else{
+            h+='<p style="margin:8px 0 0;font-size:12px">TOTAL A COBRAR: <b>'+c234Moneda(importe)+'</b>.</p>';
           }
           return h+'</div>';
         }
-        function c233ValidarPago(ticket,unidadesEntregadas,unidadesFaltantes,permitirPendiente){
+        function c233ValidarPago(ticket,unidadesEntregadas,unidadesFaltantes){
           if(unidadesEntregadas===0)return {tipo:'SIN_COBRO',monto:0};
           const e=c233Pagos[ticket]||{},tipo=e.tipo;
-          if(!tipo||(!permitirPendiente&&tipo==='PENDIENTE'))throw Error('Elige si pagó en efectivo'+(permitirPendiente?', quedó a crédito o registrarás el cobro después.':' o quedó a crédito.'));
-          if(tipo==='PENDIENTE')return {tipo:'PENDIENTE',monto:0};
+          if(!tipo)throw Error('Elige si el cliente pagó en efectivo o quedó a crédito.');
           if(!['EFECTIVO','CREDITO'].includes(tipo))throw Error('Selecciona una forma de pago válida.');
           const max=c233ImporteAkasia(ticket),parcial=unidadesFaltantes>0;
-          if(!Number.isFinite(max)||max<=0)throw Error('No se encontró el total real de Akasia. Actualiza Código.gs a la versión 1.7.33.');
-          const bruto=parcial?String(e.monto||'').trim():String(max),monto=Number(bruto);
+          if(!Number.isFinite(max)||max<=0)throw Error('No se encontró el total real de Akasia. Actualiza Código.gs a la versión 1.7.35.');
+          const manual=String(e.monto??'').trim(),automatico=parcial&&!manual?c234AjusteSugerido(ticket):null;
+          const bruto=parcial?(manual||String(automatico?.total??'')):String(max),monto=Number(bruto);
           if(!bruto||!Number.isFinite(monto)||monto<=0||monto>max||Math.abs(monto*100-Math.round(monto*100))>0.00001)
-            throw Error(parcial?'Introduce el importe real de lo entregado, con máximo dos decimales y sin superar el total original.':'El total de Akasia no es válido.');
-          return {tipo,monto:Math.round(monto*100)/100};
+            throw Error(parcial?'No se pudo calcular el total a cobrar. Comprueba el precio de los productos faltantes o introduce un importe válido.':'El total de Akasia no es válido.');
+          return {tipo,monto:c234Redondear(monto),descuento:parcial?c234Redondear(max-monto):0};
         }
         async function c233RegistrarPago(ticket,pago,idRuta){
           if(!pago||!['EFECTIVO','CREDITO'].includes(pago.tipo))return;
           const params={accion:'c230RegistrarPago',idRuta:idRuta||k221IdRuta,ticket,tipo:pago.tipo,monto:pago.monto.toFixed(2),operacion:c226IdOperacion(),empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};
+          if(pago.descuento>0)params.nota='DESCUENTO_POR_FALTANTES:'+pago.descuento.toFixed(2);
           if(c227EsAdminLogistica())Object.assign(params,m200CredencialesAdmin());
           const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams(params),cache:'no-store'}),d=await r.json();
           if(!r.ok||d.status!=='OK'||d.version!=='1.7.30')throw Error(d.mensaje||'El pago no se pudo registrar. Comprueba Código.gs.');
@@ -7492,7 +7544,7 @@ async function verificarPassword() {
           const lineas=c227DatosUI.lineas.filter(x=>x.ticket===ticket),cab=c233Cliente(ticket);
           if(!lineas.length||lineas.some(x=>x.entregado==='')||!cab||cab.pagoEstado!=='SIN_REGISTRAR')return alert('Actualiza el ticket antes de registrar el cobro.');
           const entregadas=lineas.reduce((n,x)=>n+Number(x.entregado),0),faltan=lineas.reduce((n,x)=>n+x.cantidad-Number(x.entregado),0);
-          let pago;try{pago=c233ValidarPago(ticket,entregadas,faltan,false);}catch(e){return alert(e.message);}
+          let pago;try{pago=c233ValidarPago(ticket,entregadas,faltan);}catch(e){return alert(e.message);}
           if(!confirm('Ticket #'+ticket+' · '+cab.cliente+'\n¿Confirmas '+(pago.tipo==='EFECTIVO'?'el efectivo recibido':'la venta a crédito')+' por '+c226Dinero(pago.monto)+'?'))return;
           c233Guardando=true;
           try{await c233RegistrarPago(ticket,pago,k221IdRuta);delete c233PagoSolo[ticket];delete c233Pagos[ticket];await c227Cargar();}
@@ -7518,7 +7570,11 @@ async function verificarPassword() {
             const g=grupos.get(t),cab=g.cab,lineas=g.indices.map(i=>d.lineas[i]),confirmado=lineas.every(x=>x.entregado!==''),completo=confirmado&&lineas.every(x=>x.entregado===x.cantidad),sinEntregar=confirmado&&lineas.every(x=>x.entregado===0),editable=!confirmado||finanzas;
             const riesgos=lineas.filter(x=>x.advertencia?.tipo==='POSIBLE_FALTANTE');
             const editor=c229Editor[t],editando=editor?.modo==='faltantes',confirmandoCompleto=editor?.modo==='completo',excepciones=editor?.excepciones||{};
-            html+='<section class="k225-ticket" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'" data-ticket="'+escaparHtmlPedido(t)+'"><header><div><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><small>Ticket #'+escaparHtmlPedido(t)+' · '+(confirmado?(completo?'✅ Entregado completo':sinEntregar?'🔴 No entregado':'🟡 Entrega parcial'):riesgos.length?'⚠️ Posible faltante':'⏳ Pendiente de entrega')+'</small></div>'+(finanzas?'<b>'+c226Dinero(cab.total||0)+'</b>':'')+'</header>';
+            html+='<section class="k225-ticket" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'" data-ticket="'+escaparHtmlPedido(t)+'"><header><div><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><small>Ticket #'+escaparHtmlPedido(t)+' · '+(confirmado?(completo?'✅ Entregado completo':sinEntregar?'🔴 No entregado':'🟡 Entrega parcial'):riesgos.length?'⚠️ Posible faltante':'⏳ Pendiente de entrega')+'</small></div><b>'+c234Moneda(c233ImporteAkasia(t))+'</b></header>';
+            const importeTicket=c233ImporteAkasia(t),rebajaCabecera=Number(cab.descuentoAkasia)||0;
+            html+='<div class="c226-info" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px"><span>Descuento Akasia: -'+c226Dinero(rebajaCabecera)+' <small>(incluido en el precio)</small></span><strong>Total del ticket: '+c234Moneda(importeTicket)+'</strong></div>';
+            if(confirmado&&cab.pagoEstado!=='SIN_REGISTRAR'&&Number.isFinite(importeTicket)&&Number(cab.pagoMonto)<importeTicket)
+              html+='<div class="c226-info" style="color:#a04c20">🏷️ Descuento por faltantes registrado: -'+c226Dinero(c234Redondear(importeTicket-Number(cab.pagoMonto)))+' · Total registrado: '+c226Dinero(cab.pagoMonto)+'</div>';
             if(confirmado)html+='<p class="c226-info">Confirmado por '+escaparHtmlPedido(lineas[0].confirmadoPor||'Despacho')+' · '+escaparHtmlPedido(lineas[0].fechaEntrega||'')+'</p>';
             if(!confirmado&&riesgos.length)html+='<div class="c228-alerta">⚠️ <b>Revisar antes de salir:</b> '+riesgos.map(x=>escaparHtmlPedido(x.producto)).join(', ')+'. Aún no hay suficientes unidades para todos los tickets que comparten estos productos.</div>';
             if(confirmado&&!editando&&!confirmandoCompleto){
@@ -7528,7 +7584,7 @@ async function verificarPassword() {
               else if(cab.pagoEstado==='EFECTIVO'||cab.pagoEstado==='CREDITO')html+='<div class="c226-info">'+(cab.pagoEstado==='EFECTIVO'?'💵 Pagó en efectivo':'📝 Venta a crédito')+' · '+c226Dinero(cab.pagoMonto||0)+' · '+escaparHtmlPedido(cab.cobradoPor||'')+'</div>';
               else if(k223PuedeAsignar()){
                 if(c233PagoSolo[t]){
-                  html+=c233OpcionesPago(t,!completo,false,false);
+                  html+=c233OpcionesPago(t,!completo,false);
                   html+='<button type="button" style="background:#087cff;color:white" onclick="c233GuardarSoloPago(\''+t+'\')">✓ Confirmar pago del cliente</button>';
                   html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c233AbrirSoloPago(\''+t+'\')">Volver</button>';
                 }else html+='<button type="button" style="background:#eaf4ff;color:#1a5b94" onclick="c233AbrirSoloPago(\''+t+'\')">💳 Registrar pago o crédito pendiente</button>';
@@ -7539,7 +7595,7 @@ async function verificarPassword() {
               html+='<p class="c226-info">Elige el resultado de entrega y registra el pago en esta misma ficha.</p>';
             }else if(confirmandoCompleto){
               html+='<div class="c229-avisos">✅ Se marcarán completos los '+g.indices.length+' producto(s) de este ticket.</div>';
-              html+=c233OpcionesPago(t,false,false,!confirmado);
+              html+=c233OpcionesPago(t,false,false);
               html+='<button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',true)">✓ Confirmar entrega y forma de pago</button>';
               html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c229Cerrar(\''+t+'\')">Volver</button>';
             }else{
@@ -7548,7 +7604,7 @@ async function verificarPassword() {
               for(const i of g.indices){
                 const x=d.lineas[i],a=x.advertencia,seleccionado=Object.prototype.hasOwnProperty.call(excepciones,i),q=seleccionado?excepciones[i]:x.cantidad;
                 const aviso=a?.tipo==='POSIBLE_FALTANTE'?'<small class="c228-faltante">⚠️ Kardex: '+Number(a.porCubrir)+' unidad(es) por cubrir entre clientes pendientes.</small>':a?.tipo==='EN_PREPARACION'?'<small class="c228-espera">⏳ Producto en preparación.</small>':'';
-                html+='<div class="c229-excepcion" data-buscaproducto="'+escaparHtmlPedido(x.producto.toUpperCase())+'" data-ticket="'+t+'"><div class="c229-nombre"><span>'+escaparHtmlPedido(x.producto)+'</span><small>Solicitado: '+x.cantidad+'</small></div>'+aviso;
+                html+='<div class="c229-excepcion" data-buscaproducto="'+escaparHtmlPedido(x.producto.toUpperCase())+'" data-ticket="'+t+'"><div class="c229-nombre"><span>'+escaparHtmlPedido(x.producto)+'</span><small>Solicitado: '+x.cantidad+(x.totalVenta!==null&&x.totalVenta!==undefined?' · Valor de venta: '+c226Dinero(x.totalVenta):'')+'</small></div>'+aviso;
                 html+='<div class="c229-acciones"><button type="button" style="background:'+(seleccionado&&q===0?'#b93044':'#fce5e8')+';color:'+(seleccionado&&q===0?'white':'#9c3144')+'" onclick="c229Marcar(\''+t+'\','+i+',\'no\')">No entregado</button><button type="button" '+(x.cantidad===1?'disabled':'')+' style="background:'+(seleccionado&&q>0?'#c78b13':'#fff3d8')+';color:'+(seleccionado&&q>0?'white':'#845c14')+'" onclick="c229Marcar(\''+t+'\','+i+',\'parcial\')">Parcial</button></div>';
                 if(seleccionado){
                   if(q>0)html+='<label style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px">Unidades que sí lleva <input type="number" min="0" max="'+(x.cantidad-1)+'" step="1" value="'+q+'" style="width:90px!important;margin:0!important" onchange="c229Cantidad(\''+t+'\','+i+',this.value)"></label>';
@@ -7560,7 +7616,7 @@ async function verificarPassword() {
               html+='<div class="c229-avisos">🟡 '+n+' producto(s) marcados · '+total+' unidad(es) faltantes</div>';
               if(!confirmado){
                 const unidadesEntregadas=g.indices.reduce((sum,i)=>sum+(Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):c227DatosUI.lineas[i].cantidad),0);
-                html+=c233OpcionesPago(t,total>0,unidadesEntregadas===0,true);
+                html+=c233OpcionesPago(t,total>0,unidadesEntregadas===0);
               }
               html+='<button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',false)">'+(confirmado?'Guardar corrección (Admin)':'✓ Confirmar entrega y forma de pago')+'</button>';
               html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c229Cerrar(\''+t+'\')">Volver</button>';
@@ -7576,20 +7632,20 @@ async function verificarPassword() {
         function c229Abrir(ticket){
           const excepciones=Object.create(null);
           if(c227DatosUI){c227DatosUI.lineas.forEach((x,i)=>{if(x.ticket===ticket&&x.entregado!==''&&x.entregado<x.cantidad)excepciones[i]=Number(x.entregado);});}
-          c229Editor[ticket]={modo:'faltantes',excepciones};c227Render();
+          c229Editor[ticket]={modo:'faltantes',excepciones};c235LimpiarCorreccion(ticket);c227Render();
         }
         function c229Cerrar(ticket){delete c229Editor[ticket];delete c233Pagos[ticket];c227Render();}
         function c229Marcar(ticket,i,tipo){
           const e=c229Editor[ticket],x=c227DatosUI?.lineas?.[i];if(!e||!x||x.ticket!==ticket)return;
           if(tipo==='parcial'&&x.cantidad<=1)return;
-          e.excepciones[i]=tipo==='no'?0:Math.max(1,x.cantidad-1);c227Render();
+          e.excepciones[i]=tipo==='no'?0:Math.max(1,x.cantidad-1);c235LimpiarCorreccion(ticket);c227Render();
         }
         function c229Cantidad(ticket,i,valor){
           const e=c229Editor[ticket],x=c227DatosUI?.lineas?.[i],n=Number(valor);
           if(!e||!x||x.ticket!==ticket||!Number.isInteger(n)||n<0||n>=x.cantidad){alert('Indica una cantidad entre 0 y '+(x?.cantidad-1)+'.');c227Render();return;}
-          e.excepciones[i]=n;c227Render();
+          e.excepciones[i]=n;c235LimpiarCorreccion(ticket);c227Render();
         }
-        function c229Restablecer(ticket,i){const e=c229Editor[ticket];if(e)delete e.excepciones[i];c227Render();}
+        function c229Restablecer(ticket,i){const e=c229Editor[ticket];if(e){delete e.excepciones[i];c235LimpiarCorreccion(ticket);}c227Render();}
         function c229FiltrarProductos(ticket,valor){
           const key=k222Clave(valor);
           document.querySelectorAll('#c227ListaClientes .c229-excepcion[data-ticket="'+ticket+'"]').forEach(el=>{el.style.display=k222Clave(el.dataset.buscaproducto).includes(key)?'':'none';});
@@ -7607,9 +7663,9 @@ async function verificarPassword() {
           if(productos.some((p,j)=>!Number.isInteger(p.entregado)||p.entregado<0||p.entregado>c227DatosUI.lineas[indices[j]].cantidad))return alert('Una de las cantidades no es válida. Revísala antes de confirmar.');
           const total=productos.reduce((n,x)=>n+x.entregado,0),faltan=indices.reduce((n,i,j)=>n+c227DatosUI.lineas[i].cantidad-productos[j].entregado,0);
           let pago=null;
-          if(!confirmadoAntes){try{pago=c233ValidarPago(ticket,total,faltan,true);}catch(e){return alert(e.message);}}
+          if(!confirmadoAntes){try{pago=c233ValidarPago(ticket,total,faltan);}catch(e){return alert(e.message);}}
           const riesgo=todoCompleto&&indices.some(i=>c227DatosUI.lineas[i].advertencia?.tipo==='POSIBLE_FALTANTE');
-          const infoPago=pago?(pago.tipo==='EFECTIVO'?'\n💵 Recibió efectivo: '+c226Dinero(pago.monto):pago.tipo==='CREDITO'?'\n📝 Quedó a crédito: '+c226Dinero(pago.monto):pago.tipo==='PENDIENTE'?'\n⏳ El cobro quedará pendiente de registrar.':'\n🔴 Sin cobro: no se entregó mercancía.'):'\nSe guardará la corrección administrativa.';
+          const infoPago=pago?(pago.tipo==='EFECTIVO'?'\n💵 Recibió efectivo: '+c226Dinero(pago.monto):pago.tipo==='CREDITO'?'\n📝 Quedó a crédito: '+c226Dinero(pago.monto):'\n🔴 Sin cobro: no se entregó mercancía.')+(pago.descuento>0?'\n🏷️ Descuento por faltantes: '+c226Dinero(pago.descuento):''):'\nSe guardará la corrección administrativa.';
           const pregunta='Ticket #'+ticket+': ¿confirmas que el cliente recibió '+total+' unidades?'+(faltan?'\n'+faltan+' unidad(es) quedarán registradas como faltantes para su seguimiento.':'\nTodos los productos quedarán entregados completos.')+infoPago+(riesgo?'\n\n⚠️ El Kardex tiene advertencias de falta de stock. Confirma solo si comprobaste físicamente toda la entrega.':'');
           if(!confirm(pregunta))return;
           const btn=card.querySelector('.c229-continuar')||card.querySelector('.c229-acciones button:first-child');if(btn)btn.disabled=true;
