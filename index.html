@@ -1935,7 +1935,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.32</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.33</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -7423,9 +7423,82 @@ async function verificarPassword() {
             c227DatosUI=d;c227Render();
           }catch(e){if(ver===c227Peticion)cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';}
         }
-        // v1.7.29: una confirmación por ticket; solo se abren los productos
-        // que el repartidor decide marcar No entregado o Parcial.
+        // v1.7.33: revisión y forma de pago en una sola ficha de cliente.
+        // La entrega se confirma primero; su pago se registra a continuación
+        // con la operación contable ya existente, sin crear deudas duplicadas.
         let c229Editor=Object.create(null);
+        let c233Pagos=Object.create(null),c233PagoSolo=Object.create(null),c233Guardando=false;
+        function c233Cliente(ticket){return (c227DatosUI?.clientes||[]).find(x=>x.ticket===ticket)||null;}
+        function c233ImporteAkasia(ticket){const x=c233Cliente(ticket);return x?.totalAkasia===null||x?.totalAkasia===undefined?Number(x?.total):Number(x.totalAkasia);}
+        function c233AbrirCompleto(ticket){
+          c229Editor[ticket]={modo:'completo',excepciones:Object.create(null)};
+          c227Render();
+        }
+        function c233ElegirTipo(ticket,tipo){
+          if(!['EFECTIVO','CREDITO','PENDIENTE'].includes(tipo))return;
+          if(!c233Pagos[ticket])c233Pagos[ticket]={tipo:'',monto:''};
+          c233Pagos[ticket].tipo=tipo;c227Render();
+        }
+        function c233EditarMonto(ticket,valor){
+          if(!c233Pagos[ticket])c233Pagos[ticket]={tipo:'',monto:''};
+          c233Pagos[ticket].monto=String(valor||'');
+        }
+        function c233OpcionesPago(ticket,parcial,sinEntrega,permitirPendiente){
+          const eleccion=c233Pagos[ticket]||{},tipo=eleccion.tipo||'',importe=c233ImporteAkasia(ticket);
+          if(sinEntrega)return '<div class="c229-avisos">🔴 No se entregó ningún producto: el ticket quedará sin cobro.</div>';
+          let h='<div class="c229-avisos"><b>💳 ¿Cómo quedó el pago de este cliente?</b><div class="c229-acciones" style="margin-top:9px">';
+          for(const op of [['EFECTIVO','💵 Pagó en efectivo','#dff7e7','#175c3a'],['CREDITO','📝 Quedó a crédito','#e7edff','#2b478c'],...(permitirPendiente?[['PENDIENTE','⏳ Registrar después','#f1f4f8','#4e5969']]:[])]){
+            const elegido=tipo===op[0];
+            h+='<button type="button" style="background:'+(elegido?op[3]:op[2])+';color:'+(elegido?'white':op[3])+';border:'+(elegido?'2px solid '+op[3]:'1px solid #d7e0ec')+'" onclick="c233ElegirTipo(\''+ticket+'\',\''+op[0]+'\')">'+op[1]+(elegido?' ✓':'')+'</button>';
+          }
+          h+='</div>';
+          if(parcial&&tipo&&tipo!=='PENDIENTE'){
+            h+='<label style="display:block;font-size:12px;font-weight:750;margin-top:10px">Importe REAL de los productos entregados ($)</label>';
+            h+='<input type="number" inputmode="decimal" min="0.01" max="'+(Number.isFinite(importe)?importe.toFixed(2):'')+'" step="0.01" value="'+escaparHtmlPedido(eleccion.monto||'')+'" placeholder="Verifica el total ajustado en Akasia" oninput="c233EditarMonto(\''+ticket+'\',this.value)">';
+            h+='<small>Si hay faltantes, revisa en Akasia los descuentos y Precio 2 antes de registrar el cobro.</small>';
+          }else if(!parcial&&tipo&&tipo!=='PENDIENTE'){
+            h+='<p style="margin:8px 0 0;font-size:12px">Total real de Akasia: <b>'+(Number.isFinite(importe)?c226Dinero(importe):'No disponible')+'</b>.</p>';
+          }else if(tipo==='PENDIENTE'){
+            h+='<p style="margin:8px 0 0;font-size:12px">La entrega quedará confirmada y el cobro podrá registrarse después desde este mismo ticket.</p>';
+          }
+          return h+'</div>';
+        }
+        function c233ValidarPago(ticket,unidadesEntregadas,unidadesFaltantes,permitirPendiente){
+          if(unidadesEntregadas===0)return {tipo:'SIN_COBRO',monto:0};
+          const e=c233Pagos[ticket]||{},tipo=e.tipo;
+          if(!tipo||(!permitirPendiente&&tipo==='PENDIENTE'))throw Error('Elige si pagó en efectivo'+(permitirPendiente?', quedó a crédito o registrarás el cobro después.':' o quedó a crédito.'));
+          if(tipo==='PENDIENTE')return {tipo:'PENDIENTE',monto:0};
+          if(!['EFECTIVO','CREDITO'].includes(tipo))throw Error('Selecciona una forma de pago válida.');
+          const max=c233ImporteAkasia(ticket),parcial=unidadesFaltantes>0;
+          if(!Number.isFinite(max)||max<=0)throw Error('No se encontró el total real de Akasia. Actualiza Código.gs a la versión 1.7.33.');
+          const bruto=parcial?String(e.monto||'').trim():String(max),monto=Number(bruto);
+          if(!bruto||!Number.isFinite(monto)||monto<=0||monto>max||Math.abs(monto*100-Math.round(monto*100))>0.00001)
+            throw Error(parcial?'Introduce el importe real de lo entregado, con máximo dos decimales y sin superar el total original.':'El total de Akasia no es válido.');
+          return {tipo,monto:Math.round(monto*100)/100};
+        }
+        async function c233RegistrarPago(ticket,pago,idRuta){
+          if(!pago||!['EFECTIVO','CREDITO'].includes(pago.tipo))return;
+          const params={accion:'c230RegistrarPago',idRuta:idRuta||k221IdRuta,ticket,tipo:pago.tipo,monto:pago.monto.toFixed(2),operacion:c226IdOperacion(),empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};
+          if(c227EsAdminLogistica())Object.assign(params,m200CredencialesAdmin());
+          const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams(params),cache:'no-store'}),d=await r.json();
+          if(!r.ok||d.status!=='OK'||d.version!=='1.7.30')throw Error(d.mensaje||'El pago no se pudo registrar. Comprueba Código.gs.');
+          return d;
+        }
+        function c233AbrirSoloPago(ticket){
+          c233PagoSolo[ticket]=!c233PagoSolo[ticket];c227Render();
+        }
+        async function c233GuardarSoloPago(ticket){
+          if(c233Guardando||!c227DatosUI||!k223PuedeAsignar())return;
+          const lineas=c227DatosUI.lineas.filter(x=>x.ticket===ticket),cab=c233Cliente(ticket);
+          if(!lineas.length||lineas.some(x=>x.entregado==='')||!cab||cab.pagoEstado!=='SIN_REGISTRAR')return alert('Actualiza el ticket antes de registrar el cobro.');
+          const entregadas=lineas.reduce((n,x)=>n+Number(x.entregado),0),faltan=lineas.reduce((n,x)=>n+x.cantidad-Number(x.entregado),0);
+          let pago;try{pago=c233ValidarPago(ticket,entregadas,faltan,false);}catch(e){return alert(e.message);}
+          if(!confirm('Ticket #'+ticket+' · '+cab.cliente+'\n¿Confirmas '+(pago.tipo==='EFECTIVO'?'el efectivo recibido':'la venta a crédito')+' por '+c226Dinero(pago.monto)+'?'))return;
+          c233Guardando=true;
+          try{await c233RegistrarPago(ticket,pago,k221IdRuta);delete c233PagoSolo[ticket];delete c233Pagos[ticket];await c227Cargar();}
+          catch(e){alert('No se confirmó el pago: '+e.message+'\nActualiza antes de repetir para evitar cobros duplicados.');await c227Cargar();}
+          finally{c233Guardando=false;}
+        }
         function c227Render(){
           const box=document.getElementById('c227ListaClientes'),d=c227DatosUI;if(!box||!d)return;
           if(!d.lineas.length){box.innerHTML='<div class="c56-intro">Este Kardex no tiene tickets importados desde los dos Excel de Akasia.</div>';return;}
@@ -7444,17 +7517,31 @@ async function verificarPassword() {
           for(const t of orden){
             const g=grupos.get(t),cab=g.cab,lineas=g.indices.map(i=>d.lineas[i]),confirmado=lineas.every(x=>x.entregado!==''),completo=confirmado&&lineas.every(x=>x.entregado===x.cantidad),sinEntregar=confirmado&&lineas.every(x=>x.entregado===0),editable=!confirmado||finanzas;
             const riesgos=lineas.filter(x=>x.advertencia?.tipo==='POSIBLE_FALTANTE');
-            const editor=c229Editor[t],editando=editor?.modo==='faltantes',excepciones=editor?.excepciones||{};
+            const editor=c229Editor[t],editando=editor?.modo==='faltantes',confirmandoCompleto=editor?.modo==='completo',excepciones=editor?.excepciones||{};
             html+='<section class="k225-ticket" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'" data-ticket="'+escaparHtmlPedido(t)+'"><header><div><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><small>Ticket #'+escaparHtmlPedido(t)+' · '+(confirmado?(completo?'✅ Entregado completo':sinEntregar?'🔴 No entregado':'🟡 Entrega parcial'):riesgos.length?'⚠️ Posible faltante':'⏳ Pendiente de entrega')+'</small></div>'+(finanzas?'<b>'+c226Dinero(cab.total||0)+'</b>':'')+'</header>';
             if(confirmado)html+='<p class="c226-info">Confirmado por '+escaparHtmlPedido(lineas[0].confirmadoPor||'Despacho')+' · '+escaparHtmlPedido(lineas[0].fechaEntrega||'')+'</p>';
             if(!confirmado&&riesgos.length)html+='<div class="c228-alerta">⚠️ <b>Revisar antes de salir:</b> '+riesgos.map(x=>escaparHtmlPedido(x.producto)).join(', ')+'. Aún no hay suficientes unidades para todos los tickets que comparten estos productos.</div>';
-            if(confirmado&&!editando){
+            if(confirmado&&!editando&&!confirmandoCompleto){
               const faltantes=lineas.filter(x=>x.entregado<x.cantidad);
               html+='<div class="c226-info">'+(faltantes.length?'🟡 '+faltantes.length+' producto(s) con faltantes: '+faltantes.map(x=>escaparHtmlPedido(x.producto)+' ('+(x.cantidad-x.entregado)+')').join(', '):'✅ Todos los productos de este ticket fueron entregados.')+'</div>';
+              if(sinEntregar)html+='<div class="c226-info">🔴 Sin cobro: no se entregaron unidades.</div>';
+              else if(cab.pagoEstado==='EFECTIVO'||cab.pagoEstado==='CREDITO')html+='<div class="c226-info">'+(cab.pagoEstado==='EFECTIVO'?'💵 Pagó en efectivo':'📝 Venta a crédito')+' · '+c226Dinero(cab.pagoMonto||0)+' · '+escaparHtmlPedido(cab.cobradoPor||'')+'</div>';
+              else if(k223PuedeAsignar()){
+                if(c233PagoSolo[t]){
+                  html+=c233OpcionesPago(t,!completo,false,false);
+                  html+='<button type="button" style="background:#087cff;color:white" onclick="c233GuardarSoloPago(\''+t+'\')">✓ Confirmar pago del cliente</button>';
+                  html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c233AbrirSoloPago(\''+t+'\')">Volver</button>';
+                }else html+='<button type="button" style="background:#eaf4ff;color:#1a5b94" onclick="c233AbrirSoloPago(\''+t+'\')">💳 Registrar pago o crédito pendiente</button>';
+              }else html+='<p class="c226-info">El cobro sigue sin registrar. Revisa el Kardex activo antes de cobrar.</p>';
               if(finanzas)html+='<button type="button" onclick="c229Abrir(\''+t+'\')" style="background:#edf5ff;color:#175a91">✎ Corregir entrega (Admin)</button>';
-            }else if(!editando){
-              html+='<div class="c229-acciones"><button type="button" style="background:#e2f7e9;color:#17623d" onclick="c227Guardar(\''+t+'\',true)">✓ Todo completo</button><button type="button" style="background:#fff1e7;color:#a04c20" onclick="c229Abrir(\''+t+'\')">⚠️ Hay productos faltantes</button></div>';
-              html+='<p class="c226-info">Si no falta ningún producto, basta con confirmar una sola vez. Solo abre la revisión cuando haya excepciones.</p>';
+            }else if(!editando&&!confirmandoCompleto){
+              html+='<div class="c229-acciones"><button type="button" style="background:#e2f7e9;color:#17623d" onclick="c233AbrirCompleto(\''+t+'\')">✓ Todo completo</button><button type="button" style="background:#fff1e7;color:#a04c20" onclick="c229Abrir(\''+t+'\')">⚠️ Hay productos faltantes</button></div>';
+              html+='<p class="c226-info">Elige el resultado de entrega y registra el pago en esta misma ficha.</p>';
+            }else if(confirmandoCompleto){
+              html+='<div class="c229-avisos">✅ Se marcarán completos los '+g.indices.length+' producto(s) de este ticket.</div>';
+              html+=c233OpcionesPago(t,false,false,!confirmado);
+              html+='<button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',true)">✓ Confirmar entrega y forma de pago</button>';
+              html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c229Cerrar(\''+t+'\')">Volver</button>';
             }else{
               html+='<div class="c229-avisos"><b>Marca únicamente los productos con problemas.</b> Los que no marques se considerarán entregados completos al confirmar.</div>';
               html+='<input class="c229-filtro" type="search" placeholder="🔎 Buscar producto de este ticket" oninput="c229FiltrarProductos(\''+t+'\',this.value)">';
@@ -7471,7 +7558,11 @@ async function verificarPassword() {
               }
               const n=Object.keys(excepciones).length,total=g.indices.reduce((sum,i)=>sum+(c227DatosUI.lineas[i].cantidad-(Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):c227DatosUI.lineas[i].cantidad)),0);
               html+='<div class="c229-avisos">🟡 '+n+' producto(s) marcados · '+total+' unidad(es) faltantes</div>';
-              html+='<button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',false)">'+(confirmado?'Guardar corrección (Admin)':'✓ Confirmar pedido con faltantes')+'</button>';
+              if(!confirmado){
+                const unidadesEntregadas=g.indices.reduce((sum,i)=>sum+(Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):c227DatosUI.lineas[i].cantidad),0);
+                html+=c233OpcionesPago(t,total>0,unidadesEntregadas===0,true);
+              }
+              html+='<button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',false)">'+(confirmado?'Guardar corrección (Admin)':'✓ Confirmar entrega y forma de pago')+'</button>';
               html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c229Cerrar(\''+t+'\')">Volver</button>';
             }
             html+='</section>';
@@ -7487,7 +7578,7 @@ async function verificarPassword() {
           if(c227DatosUI){c227DatosUI.lineas.forEach((x,i)=>{if(x.ticket===ticket&&x.entregado!==''&&x.entregado<x.cantidad)excepciones[i]=Number(x.entregado);});}
           c229Editor[ticket]={modo:'faltantes',excepciones};c227Render();
         }
-        function c229Cerrar(ticket){delete c229Editor[ticket];c227Render();}
+        function c229Cerrar(ticket){delete c229Editor[ticket];delete c233Pagos[ticket];c227Render();}
         function c229Marcar(ticket,i,tipo){
           const e=c229Editor[ticket],x=c227DatosUI?.lineas?.[i];if(!e||!x||x.ticket!==ticket)return;
           if(tipo==='parcial'&&x.cantidad<=1)return;
@@ -7504,27 +7595,42 @@ async function verificarPassword() {
           document.querySelectorAll('#c227ListaClientes .c229-excepcion[data-ticket="'+ticket+'"]').forEach(el=>{el.style.display=k222Clave(el.dataset.buscaproducto).includes(key)?'':'none';});
         }
         async function c227Guardar(ticket,todoCompleto){
+          if(c233Guardando)return;
           if(!c227DatosUI||!k223PuedeAsignar())return alert(k223AvisoOrden());
           const card=document.querySelector('#c227ListaClientes .k225-ticket[data-ticket="'+ticket+'"]');if(!card)return;
           const editor=c229Editor[ticket],excepciones=editor?.excepciones||{},indices=[];
           c227DatosUI.lineas.forEach((x,i)=>{if(x.ticket===ticket)indices.push(i);});
           if(!indices.length)return alert('Este ticket no tiene productos. Actualiza el Kardex.');
           if(!todoCompleto&&(!editor||editor.modo!=='faltantes'||!Object.keys(excepciones).length))return alert('Selecciona No entregado o Parcial para los productos que falten. Si el pedido va completo, utiliza Todo completo.');
+          const confirmadoAntes=indices.every(i=>c227DatosUI.lineas[i].entregado!=='');
           const productos=indices.map(i=>{const x=c227DatosUI.lineas[i];return {producto:x.producto,entregado:todoCompleto?x.cantidad:Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):x.cantidad};});
           if(productos.some((p,j)=>!Number.isInteger(p.entregado)||p.entregado<0||p.entregado>c227DatosUI.lineas[indices[j]].cantidad))return alert('Una de las cantidades no es válida. Revísala antes de confirmar.');
           const total=productos.reduce((n,x)=>n+x.entregado,0),faltan=indices.reduce((n,i,j)=>n+c227DatosUI.lineas[i].cantidad-productos[j].entregado,0);
+          let pago=null;
+          if(!confirmadoAntes){try{pago=c233ValidarPago(ticket,total,faltan,true);}catch(e){return alert(e.message);}}
           const riesgo=todoCompleto&&indices.some(i=>c227DatosUI.lineas[i].advertencia?.tipo==='POSIBLE_FALTANTE');
-          const pregunta='Ticket #'+ticket+': ¿confirmas que el cliente recibió '+total+' unidades?'+(faltan?'\n'+faltan+' unidad(es) quedarán registradas como faltantes para su seguimiento.':'\nTodos los productos quedarán entregados completos.')+(riesgo?'\n\n⚠️ El Kardex tiene advertencias de falta de stock. Confirma solo si comprobaste físicamente toda la entrega.':'');
+          const infoPago=pago?(pago.tipo==='EFECTIVO'?'\n💵 Recibió efectivo: '+c226Dinero(pago.monto):pago.tipo==='CREDITO'?'\n📝 Quedó a crédito: '+c226Dinero(pago.monto):pago.tipo==='PENDIENTE'?'\n⏳ El cobro quedará pendiente de registrar.':'\n🔴 Sin cobro: no se entregó mercancía.'):'\nSe guardará la corrección administrativa.';
+          const pregunta='Ticket #'+ticket+': ¿confirmas que el cliente recibió '+total+' unidades?'+(faltan?'\n'+faltan+' unidad(es) quedarán registradas como faltantes para su seguimiento.':'\nTodos los productos quedarán entregados completos.')+infoPago+(riesgo?'\n\n⚠️ El Kardex tiene advertencias de falta de stock. Confirma solo si comprobaste físicamente toda la entrega.':'');
           if(!confirm(pregunta))return;
           const btn=card.querySelector('.c229-continuar')||card.querySelector('.c229-acciones button:first-child');if(btn)btn.disabled=true;
+          const idRuta=k221IdRuta;let entregaGuardada=false;c233Guardando=true;
           try{
-            const p={accion:'c227GuardarEntrega',idRuta:k221IdRuta,ticket,productos:JSON.stringify(productos),operacion:c226IdOperacion(),sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};
+            const p={accion:'c227GuardarEntrega',idRuta,ticket,productos:JSON.stringify(productos),operacion:c226IdOperacion(),sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};
             if(c227EsAdminLogistica())Object.assign(p,m200CredencialesAdmin());
             const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams(p),cache:'no-store'}),d=await r.json();
             if(!r.ok||d.status!=='OK'||d.version!=='1.7.29')throw Error(d.mensaje||'No se confirmó la entrega. Actualiza Código.gs a v1.7.29.');
-            delete c229Editor[ticket];
+            entregaGuardada=true;
+            if(pago)await c233RegistrarPago(ticket,pago,idRuta);
+            delete c229Editor[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];
             await c227Cargar();
-          }catch(e){alert('No se guardó la entrega: '+e.message+'\nActualiza antes de reintentar por si el servidor ya la guardó.');if(btn)btn.disabled=false;}
+          }catch(e){
+            if(entregaGuardada){
+              delete c229Editor[ticket];delete c233PagoSolo[ticket];
+              alert('⚠️ La ENTREGA sí se guardó, pero no se pudo verificar el registro del pago: '+e.message+'\nActualiza el ticket antes de intentar cobrar de nuevo.');
+              await c227Cargar();
+            }else alert('No se pudo confirmar la entrega: '+e.message+'\nActualiza antes de reintentar por si el servidor ya la guardó.');
+            if(btn)btn.disabled=false;
+          }finally{c233Guardando=false;}
         }
 
         // v1.7.29 · Reporte de excepciones de entrega por cliente/ticket.
