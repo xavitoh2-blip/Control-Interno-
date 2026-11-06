@@ -1878,6 +1878,51 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c236-producto-toggle .c236-precio-venta b{font-weight:850;font-size:14px;color:#173d62}
 .c236-producto-toggle .c236-estado{font-size:11px;font-weight:750;color:#9f4b24;text-align:right;white-space:nowrap}
 .c236-producto-panel{margin-top:8px;padding-top:9px;border-top:1px solid #dce7f5}
+/* v1.7.39 · Ticket de clientes: interfaz compacta Liquid Glass. */
+#c227ListaClientes .k225-ticket{border-radius:21px;background:rgba(255,255,255,.87);border:1px solid rgba(194,211,231,.8);box-shadow:0 12px 32px rgba(26,64,111,.06);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}
+#c227ListaClientes .c229-excepcion{padding:9px 12px;border-radius:16px;background:rgba(249,252,255,.78);border:1px solid #e4ebf3;transition:border-color .15s,background .15s}
+#c227ListaClientes .c229-excepcion.c236-seleccionado{background:#f7faff;border-color:#baceef}
+#c227ListaClientes .c236-producto-toggle{min-height:46px!important;padding:2px 0!important}
+#c227ListaClientes .c236-producto-toggle .c236-estado{display:inline-flex;align-items:center;gap:5px;color:#6f839e;font-size:11px;font-weight:700}
+#c227ListaClientes .c236-producto-toggle .c236-estado.c239-estado-no{color:#bb5762}
+#c227ListaClientes .c236-producto-toggle .c236-estado.c239-estado-parcial{color:#486ed2}
+#c227ListaClientes .c236-producto-panel{padding:11px 0 2px;margin-top:5px;border-top:1px solid #e5edf7}
+#c227ListaClientes .c239-modos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:4px 0 8px}
+#c227ListaClientes .c239-modos button{min-height:44px!important;margin:0!important;border-radius:13px!important;font-size:13px!important;font-weight:750!important;box-shadow:none!important;border:1px solid transparent!important}
+#c227ListaClientes .c239-modos .c239-no{background:rgba(255,232,234,.88)!important;color:#ae4551!important;border-color:#f6cdd0!important}
+#c227ListaClientes .c239-modos .c239-parcial{background:rgba(230,238,255,.92)!important;color:#355ec5!important;border-color:#cfddff!important}
+#c227ListaClientes .c239-modos button:disabled{opacity:.35!important;cursor:not-allowed}
+#c227ListaClientes .c239-seleccion{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:1px 0 12px}
+#c227ListaClientes .c239-estado-etiqueta{display:inline-block;padding:7px 11px;border-radius:999px;background:#eaf1ff;color:#3b62bf;font-weight:750;font-size:12px}
+#c227ListaClientes .c239-estado-etiqueta.c239-es-no{background:#fff0f1;color:#aa4856}
+#c227ListaClientes .c239-texto-btn{margin:0!important;padding:5px 7px!important;width:auto!important;min-height:30px!important;font-size:12px!important;font-weight:750!important;color:#5983b7!important;background:transparent!important;box-shadow:none!important;border:0!important}
+#c227ListaClientes .c239-cant-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 10px;color:#42617e;font-size:12px;font-weight:700}
+#c227ListaClientes .c239-stepper{display:flex;align-items:center;justify-content:space-between;gap:3px;border:1px solid #d4e1f3;border-radius:14px;padding:3px;background:#fff;min-width:125px}
+#c227ListaClientes .c239-stepper button{width:35px!important;height:35px!important;min-height:35px!important;margin:0!important;padding:0!important;border-radius:10px!important;background:#eef5ff!important;color:#2169b4!important;box-shadow:none!important;font-size:21px!important;font-weight:600!important;border:0!important}
+#c227ListaClientes .c239-stepper button:disabled{color:#a8b9c9!important;background:#f3f6fa!important;opacity:.65}
+#c227ListaClientes .c239-stepper output{min-width:26px;text-align:center;color:#203c60;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+#c227ListaClientes .c239-pendiente{display:inline-flex;align-items:center;gap:6px;margin:2px 0 3px;padding:5px 9px;border-radius:999px;background:#edf3fc;color:#49698c;font-size:11px;font-weight:700}
+#c227ListaClientes .c239-pendientes-resumen{margin:12px 0 4px;color:#617a98;font-size:12px;font-weight:700}
+#c227ListaClientes .c239-pago{padding:12px 0 0;margin-top:8px;border-top:1px solid #e8eef6}
+#c227ListaClientes .c239-formas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#c227ListaClientes .c239-formas button{margin:0!important;min-height:48px!important;padding:8px 9px!important;border:1px solid #dae5f1!important;border-radius:15px!important;background:rgba(241,246,253,.92)!important;color:#315c89!important;font-size:13px!important;font-weight:800!important;box-shadow:none!important;transition:background .16s,color .16s,border-color .16s}
+#c227ListaClientes .c239-formas .c239-pago-efectivo[aria-pressed="true"]{color:#12624a!important;background:#ddf7e9!important;border-color:#91dbb8!important;box-shadow:inset 0 0 0 1px #91dbb8!important}
+#c227ListaClientes .c239-formas .c239-pago-credito[aria-pressed="true"]{color:#215cb5!important;background:#e0edff!important;border-color:#a4c9fc!important;box-shadow:inset 0 0 0 1px #a4c9fc!important}
+#c227ListaClientes .c239-cobro{background:rgba(246,249,255,.86);border:1px solid #dfe9f6;border-radius:15px;padding:13px;margin-top:11px}
+#c227ListaClientes .c239-linea{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#59718e;font-size:12px;margin:4px 0}
+#c227ListaClientes .c239-linea b{color:#284b72;white-space:nowrap}
+#c227ListaClientes .c239-linea.c239-descuento{color:#547da9}
+#c227ListaClientes .c239-linea.c239-descuento b{color:#547da9}
+#c227ListaClientes .c239-total{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;padding-top:10px;border-top:1px solid #dfe9f4;color:#183b64;font-size:14px;font-weight:800}
+#c227ListaClientes .c239-total b{font-size:22px;font-variant-numeric:tabular-nums;color:#126dc7}
+#c227ListaClientes .c239-ajuste{margin-top:10px;border:0;background:transparent}
+#c227ListaClientes .c239-ajuste summary{display:inline-block;color:#7589a1;cursor:pointer;font-size:11px;font-weight:700}
+#c227ListaClientes .c239-ajuste input{margin:7px 0 0!important;min-height:41px!important}
+#c227ListaClientes .c239-ajuste small{display:block;color:#71849b;font-size:11px;margin-top:5px}
+#c227ListaClientes .c239-final{display:flex;align-items:center;gap:9px;margin-top:13px}
+#c227ListaClientes .c239-final .c229-continuar{flex:1;min-width:0;min-height:46px!important;margin:0!important;border-radius:14px!important;font-size:13px!important}
+#c227ListaClientes .c239-final .c239-cancelar{width:auto!important;flex:0 0 auto;margin:0!important;min-height:42px!important;background:transparent!important;color:#6985a5!important;padding:7px 8px!important;font-size:12px!important;font-weight:750!important;box-shadow:none!important}
+@media(max-width:420px){#c227ListaClientes .c239-formas button{font-size:12px!important}#c227ListaClientes .c239-total b{font-size:20px}#c227ListaClientes .c239-cant-row{gap:6px}}
 .c238-barra{border:1px solid #d5e4f5;background:#f8fbff;border-radius:19px;padding:12px;margin:9px 0 17px;box-shadow:0 4px 16px rgba(24,64,109,.05)}
 .c238-barra .c238-inicio{width:auto!important;min-height:35px!important;margin:0 0 11px!important;background:transparent!important;color:#32648e!important;padding:3px 7px!important;font-size:12px!important;font-weight:750!important}
 .c238-barra .c238-etapas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -1952,7 +1997,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.38</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.39</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -7505,6 +7550,8 @@ async function verificarPassword() {
         let c229Editor=Object.create(null);
         // Solo un producto muestra las opciones de entrega en cada ticket.
         let c236ProductoAbierto=Object.create(null);
+        // Los botones de elección reaparecen solo si el encargado pulsa Cambiar.
+        let c239OpcionesAbiertas=Object.create(null);
         let c233Pagos=Object.create(null),c233PagoSolo=Object.create(null),c233Guardando=false;
         function c233Cliente(ticket){return (c227DatosUI?.clientes||[]).find(x=>x.ticket===ticket)||null;}
         function c233ImporteAkasia(ticket){const x=c233Cliente(ticket);return x?.totalAkasia===null||x?.totalAkasia===undefined?Number(x?.total):Number(x.totalAkasia);}
@@ -7564,30 +7611,26 @@ async function verificarPassword() {
         function c235LimpiarCorreccion(ticket){if(c233Pagos[ticket])c233Pagos[ticket].monto='';}
         function c233OpcionesPago(ticket,parcial,sinEntrega){
           const eleccion=c233Pagos[ticket]||{},tipo=eleccion.tipo||'',importe=c233ImporteAkasia(ticket);
-          if(sinEntrega)return '<div class="c229-avisos">🔴 No se entregó ningún producto: el ticket quedará sin cobro.</div>';
-          let h='<div class="c229-avisos"><b>💳 ¿Cómo quedó el pago de este cliente?</b><div class="c229-acciones" style="margin-top:9px">';
-          for(const op of [['EFECTIVO','💵 Pagó en efectivo','#dff7e7','#175c3a'],['CREDITO','📝 Quedó a crédito','#e7edff','#2b478c']]){
+          if(sinEntrega)return '<div class="c239-pendientes-resumen">No hubo entrega · Sin cobro</div>';
+          let h='<div class="c239-pago"><div class="c239-formas" role="group" aria-label="Forma de pago">';
+          for(const op of [['EFECTIVO','💵 Efectivo','c239-pago-efectivo'],['CREDITO','🧾 Crédito','c239-pago-credito']]){
             const elegido=tipo===op[0];
-            h+='<button type="button" style="background:'+(elegido?op[3]:op[2])+';color:'+(elegido?'white':op[3])+';border:'+(elegido?'2px solid '+op[3]:'1px solid #d7e0ec')+'" onclick="c233ElegirTipo(\''+ticket+'\',\''+op[0]+'\')">'+op[1]+(elegido?' ✓':'')+'</button>';
+            h+='<button type="button" class="'+op[2]+'" aria-pressed="'+elegido+'" onclick="c233ElegirTipo(\''+ticket+'\',\''+op[0]+'\')">'+op[1]+(elegido?' ✓':'')+'</button>';
           }
           h+='</div>';
           if(parcial){
             const sugerido=c234AjusteSugerido(ticket),personalizado=String(eleccion.monto??'').trim()!=='',monto=personalizado?Number(eleccion.monto):sugerido?.total;
             const valido=Number.isFinite(importe)&&Number.isFinite(monto)&&monto>0&&monto<=importe;
-            h+='<div style="margin-top:11px;padding:11px;border-radius:12px;background:white;border:1px solid #d7e4f2"><div style="display:flex;justify-content:space-between;gap:10px"><span>Total del ticket</span><b>'+c234Moneda(importe)+'</b></div>';
-            if(sugerido){
-              for(const x of sugerido.detalle){
-                h+='<div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:12px"><span>'+escaparHtmlPedido(x.producto)+' · '+x.unidades+' unidad(es) faltantes</span><b>-'+c226Dinero(c234Redondear(x.descuento))+'</b></div>';
-              }
-            }else h+='<p style="color:#b42318;font-size:12px">No se pudo calcular el descuento con los precios importados. Comprueba el importe con Akasia y escríbelo abajo.</p>';
-            h+='<div style="display:flex;justify-content:space-between;margin-top:10px;gap:10px;color:#9b4d25"><b>Descuento por productos no entregados</b><b id="c234DescuentoCobro_'+ticket+'">'+(valido?'-'+c226Dinero(c234Redondear(importe-monto)):'Por confirmar')+'</b></div>';
-            h+='<div style="display:flex;justify-content:space-between;margin-top:7px;gap:10px;font-size:16px"><b>NUEVO TOTAL A COBRAR</b><b id="c234TotalCobro_'+ticket+'">'+(valido?c226Dinero(monto):'Por confirmar')+'</b></div></div>';
-            h+='<label style="display:block;font-size:12px;font-weight:750;margin-top:10px">Corregir el importe solo si es necesario ($)</label>';
-            h+='<input type="number" inputmode="decimal" min="0.01" max="'+(Number.isFinite(importe)?importe.toFixed(2):'')+'" step="0.01" value="'+escaparHtmlPedido(eleccion.monto??'')+'" placeholder="'+(sugerido?'Cálculo automático: '+c226Dinero(sugerido.total):'Ingresa el monto de Akasia')+'" oninput="c233EditarMonto(\''+ticket+'\',this.value)">';
-            if(personalizado)h+='<button type="button" style="margin-top:7px!important;background:#eaf4ff;color:#175c92" onclick="c235RestaurarAutomatico(\''+ticket+'\')">↺ Restaurar total automático</button>';
-            h+='<small>Se resta directamente el precio de venta de las unidades no entregadas. Si hubo distintos precios para el mismo producto o promociones especiales de Akasia, comprueba el importe antes de confirmar.</small>';
+            h+='<div class="c239-cobro"><div class="c239-linea"><span>Ticket</span><b>'+c234Moneda(importe)+'</b></div>';
+            h+='<div class="c239-linea c239-descuento"><span>Productos no entregados</span><b id="c234DescuentoCobro_'+ticket+'">'+(valido?'-'+c226Dinero(c234Redondear(importe-monto)):'Por confirmar')+'</b></div>';
+            h+='<div class="c239-total"><span>Total a cobrar</span><b id="c234TotalCobro_'+ticket+'">'+(valido?c226Dinero(monto):'Por confirmar')+'</b></div></div>';
+            h+='<details class="c239-ajuste"'+(personalizado?' open':'')+'><summary>Ajustar importe</summary>';
+            if(!sugerido)h+='<small>Falta un precio de venta. Verifica el total antes de confirmar.</small>';
+            h+='<input aria-label="Importe corregido" type="number" inputmode="decimal" min="0.01" max="'+(Number.isFinite(importe)?importe.toFixed(2):'')+'" step="0.01" value="'+escaparHtmlPedido(eleccion.monto??'')+'" placeholder="'+(sugerido?'Automático: '+c226Dinero(sugerido.total):'Ingresa el importe')+'" oninput="c233EditarMonto(\''+ticket+'\',this.value)">';
+            if(personalizado)h+='<button type="button" class="c239-texto-btn" onclick="c235RestaurarAutomatico(\''+ticket+'\')">Usar cálculo automático</button>';
+            h+='</details>';
           }else{
-            h+='<p style="margin:8px 0 0;font-size:12px">TOTAL A COBRAR: <b>'+c234Moneda(importe)+'</b>.</p>';
+            h+='<div class="c239-cobro"><div class="c239-total" style="border-top:0;margin-top:0;padding-top:0"><span>Total a cobrar</span><b>'+c234Moneda(importe)+'</b></div></div>';
           }
           return h+'</div>';
         }
@@ -7649,7 +7692,6 @@ async function verificarPassword() {
             const editor=c229Editor[t],editando=editor?.modo==='faltantes',confirmandoCompleto=editor?.modo==='completo',excepciones=editor?.excepciones||{};
             html+='<section class="k225-ticket" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'" data-ticket="'+escaparHtmlPedido(t)+'"><header><div><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><small>Ticket #'+escaparHtmlPedido(t)+' · '+(confirmado?(completo?'✅ Entregado completo':sinEntregar?'🔴 No entregado':'🟡 Entrega parcial'):riesgos.length?'⚠️ Posible faltante':'⏳ Pendiente de entrega')+'</small></div><b>'+c234Moneda(c233ImporteAkasia(t))+'</b></header>';
             const importeTicket=c233ImporteAkasia(t);
-            html+='<div class="c226-info" style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px"><strong>Total del ticket: '+c234Moneda(importeTicket)+'</strong></div>';
             if(confirmado&&cab.pagoEstado!=='SIN_REGISTRAR'&&Number.isFinite(importeTicket)&&Number(cab.pagoMonto)<importeTicket)
               html+='<div class="c226-info" style="color:#a04c20">🏷️ Descuento por faltantes registrado: -'+c226Dinero(c234Redondear(importeTicket-Number(cab.pagoMonto)))+' · Total registrado: '+c226Dinero(cab.pagoMonto)+'</div>';
             if(confirmado)html+='<p class="c226-info">Confirmado por '+escaparHtmlPedido(lineas[0].confirmadoPor||'Despacho')+' · '+escaparHtmlPedido(lineas[0].fechaEntrega||'')+'</p>';
@@ -7662,47 +7704,44 @@ async function verificarPassword() {
               else if(k223PuedeAsignar()){
                 if(c233PagoSolo[t]){
                   html+=c233OpcionesPago(t,!completo,false);
-                  html+='<button type="button" style="background:#087cff;color:white" onclick="c233GuardarSoloPago(\''+t+'\')">✓ Confirmar pago del cliente</button>';
-                  html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c233AbrirSoloPago(\''+t+'\')">Volver</button>';
+                  html+='<div class="c239-final"><button type="button" class="c229-continuar" onclick="c233GuardarSoloPago(\''+t+'\')">✓ Confirmar pago</button><button type="button" class="c239-cancelar" onclick="c233AbrirSoloPago(\''+t+'\')">Cancelar</button></div>';
                 }else html+='<button type="button" style="background:#eaf4ff;color:#1a5b94" onclick="c233AbrirSoloPago(\''+t+'\')">💳 Registrar pago o crédito pendiente</button>';
               }else html+='<p class="c226-info">El cobro sigue sin registrar. Revisa el Kardex activo antes de cobrar.</p>';
               if(finanzas)html+='<button type="button" onclick="c229Abrir(\''+t+'\')" style="background:#edf5ff;color:#175a91">✎ Corregir entrega (Admin)</button>';
             }else if(!editando&&!confirmandoCompleto){
-              html+='<div class="c229-acciones"><button type="button" style="background:#e2f7e9;color:#17623d" onclick="c233AbrirCompleto(\''+t+'\')">✓ Todo completo</button><button type="button" style="background:#fff1e7;color:#a04c20" onclick="c229Abrir(\''+t+'\')">⚠️ Hay productos faltantes</button></div>';
-              html+='<p class="c226-info">Elige el resultado de entrega y registra el pago en esta misma ficha.</p>';
+              html+='<div class="c239-modos"><button type="button" class="c239-parcial" onclick="c233AbrirCompleto(\''+t+'\')">✓ Todo completo</button><button type="button" class="c239-no" onclick="c229Abrir(\''+t+'\')">Con faltantes</button></div>';
             }else if(confirmandoCompleto){
-              html+='<div class="c229-avisos">✅ Se marcarán completos los '+g.indices.length+' producto(s) de este ticket.</div>';
               html+=c233OpcionesPago(t,false,false);
-              html+='<button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',true)">✓ Confirmar entrega y forma de pago</button>';
-              html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c229Cerrar(\''+t+'\')">Volver</button>';
+              html+='<div class="c239-final"><button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',true)">✓ Confirmar ticket</button><button type="button" class="c239-cancelar" onclick="c229Cerrar(\''+t+'\')">Cancelar</button></div>';
             }else{
-              html+='<div class="c229-avisos"><b>Marca únicamente los productos con problemas.</b> Los que no marques se considerarán entregados completos al confirmar.</div>';
-              html+='<input class="c229-filtro" type="search" placeholder="🔎 Buscar producto de este ticket" oninput="c229FiltrarProductos(\''+t+'\',this.value)">';
+              if(g.indices.length>8)html+='<input class="c229-filtro" type="search" placeholder="🔎 Buscar producto" oninput="c229FiltrarProductos(\''+t+'\',this.value)">';
               for(const i of g.indices){
                 const x=d.lineas[i],a=x.advertencia,seleccionado=Object.prototype.hasOwnProperty.call(excepciones,i),q=seleccionado?excepciones[i]:x.cantidad;
                 const abierto=c236ProductoAbierto[t]===i,importeLinea=x.totalVenta===null||x.totalVenta===undefined?NaN:Number(x.totalVenta),precioUnidad=Number.isFinite(importeLinea)&&x.cantidad>0?importeLinea/x.cantidad:NaN;
-                const estadoProducto=seleccionado?(q===0?'No entregado':'Parcial: '+q+'/'+x.cantidad):'';
+                const estadoProducto=seleccionado?(q===0?'No entregado':'Parcial '+q+'/'+x.cantidad):'';
                 const aviso=a?.tipo==='POSIBLE_FALTANTE'?'<small class="c228-faltante">⚠️ Kardex: '+Number(a.porCubrir)+' unidad(es) por cubrir entre clientes pendientes.</small>':a?.tipo==='EN_PREPARACION'?'<small class="c228-espera">⏳ Producto en preparación.</small>':'';
-                html+='<div class="c229-excepcion'+(seleccionado?' c236-seleccionado':'')+'" data-buscaproducto="'+escaparHtmlPedido(x.producto.toUpperCase())+'" data-ticket="'+t+'"><button type="button" class="c236-producto-toggle" aria-expanded="'+abierto+'" onclick="c236AlternarProducto(\''+t+'\','+i+')"><span class="c236-detalle-venta"><span>'+escaparHtmlPedido(x.producto)+'</span><small>Cant. '+x.cantidad+' · '+(Number.isFinite(precioUnidad)?c226Dinero(precioUnidad)+' c/u':'Precio no disponible')+'</small></span><span class="c236-precio-venta"><b>'+(Number.isFinite(importeLinea)?c226Dinero(importeLinea):'—')+'</b><small class="c236-estado">'+(estadoProducto?escaparHtmlPedido(estadoProducto):abierto?'Cerrar opciones':'Cambiar ▾')+'</small></span></button>';
+                html+='<div class="c229-excepcion'+(seleccionado?' c236-seleccionado':'')+'" data-buscaproducto="'+escaparHtmlPedido(x.producto.toUpperCase())+'" data-ticket="'+t+'"><button type="button" class="c236-producto-toggle" aria-expanded="'+abierto+'" onclick="c236AlternarProducto(\''+t+'\','+i+')"><span class="c236-detalle-venta"><span>'+escaparHtmlPedido(x.producto)+'</span><small>'+x.cantidad+' und. · '+(Number.isFinite(precioUnidad)?c226Dinero(precioUnidad)+' c/u':'Sin precio')+'</small></span><span class="c236-precio-venta"><b>'+(Number.isFinite(importeLinea)?c226Dinero(importeLinea):'—')+'</b><small class="c236-estado'+(seleccionado?(q===0?' c239-estado-no':' c239-estado-parcial'):'')+'">'+(estadoProducto?escaparHtmlPedido(estadoProducto)+' · ':'')+(abierto?'⌃':'⌄')+'</small></span></button>';
                 if(abierto){
                   html+='<div class="c236-producto-panel">'+aviso;
-                  html+='<div class="c229-acciones"><button type="button" style="background:'+(seleccionado&&q===0?'#b93044':'#fce5e8')+';color:'+(seleccionado&&q===0?'white':'#9c3144')+'" onclick="c229Marcar(\''+t+'\','+i+',\'no\')">No entregado</button><button type="button" '+(x.cantidad===1?'disabled':'')+' style="background:'+(seleccionado&&q>0?'#c78b13':'#fff3d8')+';color:'+(seleccionado&&q>0?'white':'#845c14')+'" onclick="c229Marcar(\''+t+'\','+i+',\'parcial\')">Parcial</button></div>';
+                  const mostrarModos=!seleccionado||c239OpcionesAbiertas[t+':'+i];
+                  if(mostrarModos){
+                    html+='<div class="c239-modos"><button type="button" class="c239-no" onclick="c229Marcar(\''+t+'\','+i+',\'no\')">No entregado</button><button type="button" class="c239-parcial" '+(x.cantidad===1?'disabled':'')+' onclick="c229Marcar(\''+t+'\','+i+',\'parcial\')">Parcial</button></div>';
+                    if(seleccionado)html+='<button type="button" class="c239-texto-btn" onclick="c229Restablecer(\''+t+'\','+i+')">✓ Entregado completo</button>';
+                  }else html+='<div class="c239-seleccion"><span class="c239-estado-etiqueta'+(q===0?' c239-es-no':'')+'">'+(q===0?'No entregado':'Parcial')+'</span><button type="button" class="c239-texto-btn" onclick="c239CambiarOpcion(\''+t+'\','+i+')">Cambiar</button></div>';
                   if(seleccionado){
-                    if(q>0)html+='<label style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px">Unidades que sí lleva <input type="number" min="0" max="'+(x.cantidad-1)+'" step="1" value="'+q+'" style="width:90px!important;margin:0!important" onchange="c229Cantidad(\''+t+'\','+i+',this.value)"></label>';
-                    html+='<div class="c229-marcado">⚠️ '+(x.cantidad-q)+' unidad(es) quedarán como faltantes. <button type="button" style="font-size:11px!important;background:transparent!important;color:#326ca4!important;padding:4px!important" onclick="c229Restablecer(\''+t+'\','+i+')">Restablecer</button></div>';
+                    if(q>0)html+='<div class="c239-cant-row"><span>Unidades entregadas</span><div class="c239-stepper"><button type="button" aria-label="Restar unidad" '+(q<=1?'disabled':'')+' onclick="c239AjustarCantidad(\''+t+'\','+i+',-1)">−</button><output aria-live="polite">'+q+'</output><button type="button" aria-label="Sumar unidad" '+(q>=x.cantidad-1?'disabled':'')+' onclick="c239AjustarCantidad(\''+t+'\','+i+',1)">+</button></div></div>';
+                    html+='<div class="c239-pendiente">'+(x.cantidad-q)+' '+(x.cantidad-q===1?'unidad pendiente':'unidades pendientes')+'</div>';
                   }
                   html+='</div>';
                 }
                 html+='</div>';
               }
-              const n=Object.keys(excepciones).length,total=g.indices.reduce((sum,i)=>sum+(c227DatosUI.lineas[i].cantidad-(Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):c227DatosUI.lineas[i].cantidad)),0);
-              html+='<div class="c229-avisos">🟡 '+n+' producto(s) marcados · '+total+' unidad(es) faltantes</div>';
+              const total=g.indices.reduce((sum,i)=>sum+(c227DatosUI.lineas[i].cantidad-(Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):c227DatosUI.lineas[i].cantidad)),0);
               if(!confirmado){
                 const unidadesEntregadas=g.indices.reduce((sum,i)=>sum+(Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):c227DatosUI.lineas[i].cantidad),0);
                 html+=c233OpcionesPago(t,total>0,unidadesEntregadas===0);
               }
-              html+='<button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',false)">'+(confirmado?'Guardar corrección (Admin)':'✓ Confirmar entrega y forma de pago')+'</button>';
-              html+='<button type="button" style="background:#e9f0f7;color:#355c7b;margin-top:7px!important" onclick="c229Cerrar(\''+t+'\')">Volver</button>';
+              html+='<div class="c239-final"><button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',false)">'+(confirmado?'Guardar corrección':'✓ Confirmar ticket')+'</button><button type="button" class="c239-cancelar" onclick="c229Cerrar(\''+t+'\')">Cancelar</button></div>';
             }
             html+='</section>';
           }
@@ -7715,25 +7754,37 @@ async function verificarPassword() {
         function c229Abrir(ticket){
           const excepciones=Object.create(null);
           if(c227DatosUI){c227DatosUI.lineas.forEach((x,i)=>{if(x.ticket===ticket&&x.entregado!==''&&x.entregado<x.cantidad)excepciones[i]=Number(x.entregado);});}
-          c229Editor[ticket]={modo:'faltantes',excepciones};delete c236ProductoAbierto[ticket];c235LimpiarCorreccion(ticket);c227Render();
+          c229Editor[ticket]={modo:'faltantes',excepciones};delete c236ProductoAbierto[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);c235LimpiarCorreccion(ticket);c227Render();
         }
-        function c229Cerrar(ticket){delete c229Editor[ticket];delete c236ProductoAbierto[ticket];delete c233Pagos[ticket];c227Render();}
+        function c229Cerrar(ticket){delete c229Editor[ticket];delete c236ProductoAbierto[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);delete c233Pagos[ticket];c227Render();}
         function c236AlternarProducto(ticket,i){
           if(!c229Editor[ticket]||c229Editor[ticket].modo!=='faltantes'||c227DatosUI?.lineas?.[i]?.ticket!==ticket)return;
           c236ProductoAbierto[ticket]=c236ProductoAbierto[ticket]===i?null:i;
           c227Render();
         }
+        function c239CambiarOpcion(ticket,i){
+          if(!c229Editor[ticket]||c227DatosUI?.lineas?.[i]?.ticket!==ticket)return;
+          c239OpcionesAbiertas[ticket+':'+i]=!c239OpcionesAbiertas[ticket+':'+i];c227Render();
+        }
+        function c239AjustarCantidad(ticket,i,cambio){
+          const x=c227DatosUI?.lineas?.[i],e=c229Editor[ticket];
+          if(!e||!x||x.ticket!==ticket||x.cantidad<=1)return;
+          const actual=Number(e.excepciones[i]);
+          if(!Number.isInteger(actual)||actual<1||actual>=x.cantidad)return;
+          const siguiente=Math.min(x.cantidad-1,Math.max(1,actual+Number(cambio)));
+          if(siguiente!==actual)c229Cantidad(ticket,i,siguiente);
+        }
         function c229Marcar(ticket,i,tipo){
           const e=c229Editor[ticket],x=c227DatosUI?.lineas?.[i];if(!e||!x||x.ticket!==ticket)return;
           if(tipo==='parcial'&&x.cantidad<=1)return;
-          e.excepciones[i]=tipo==='no'?0:Math.max(1,x.cantidad-1);c235LimpiarCorreccion(ticket);c227Render();
+          e.excepciones[i]=tipo==='no'?0:Math.max(1,x.cantidad-1);delete c239OpcionesAbiertas[ticket+':'+i];c235LimpiarCorreccion(ticket);c227Render();
         }
         function c229Cantidad(ticket,i,valor){
           const e=c229Editor[ticket],x=c227DatosUI?.lineas?.[i],n=Number(valor);
           if(!e||!x||x.ticket!==ticket||!Number.isInteger(n)||n<0||n>=x.cantidad){alert('Indica una cantidad entre 0 y '+(x?.cantidad-1)+'.');c227Render();return;}
           e.excepciones[i]=n;c235LimpiarCorreccion(ticket);c227Render();
         }
-        function c229Restablecer(ticket,i){const e=c229Editor[ticket];if(e){delete e.excepciones[i];c235LimpiarCorreccion(ticket);}c227Render();}
+        function c229Restablecer(ticket,i){const e=c229Editor[ticket];if(e){delete e.excepciones[i];delete c239OpcionesAbiertas[ticket+':'+i];c235LimpiarCorreccion(ticket);}c227Render();}
         function c229FiltrarProductos(ticket,valor){
           const key=k222Clave(valor);
           document.querySelectorAll('#c227ListaClientes .c229-excepcion[data-ticket="'+ticket+'"]').forEach(el=>{el.style.display=k222Clave(el.dataset.buscaproducto).includes(key)?'':'none';});
