@@ -1923,6 +1923,31 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #c227ListaClientes .c239-final .c229-continuar{flex:1;min-width:0;min-height:46px!important;margin:0!important;border-radius:14px!important;font-size:13px!important}
 #c227ListaClientes .c239-final .c239-cancelar{width:auto!important;flex:0 0 auto;margin:0!important;min-height:42px!important;background:transparent!important;color:#6985a5!important;padding:7px 8px!important;font-size:12px!important;font-weight:750!important;box-shadow:none!important}
 @media(max-width:420px){#c227ListaClientes .c239-formas button{font-size:12px!important}#c227ListaClientes .c239-total b{font-size:20px}#c227ListaClientes .c239-cant-row{gap:6px}}
+/* v1.7.40: lista de clientes por estado y ficha exclusiva por ticket. */
+#c227ListaClientes .c240-filtros{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:8px 0 12px}
+#c227ListaClientes .c240-filtros button{margin:0!important;min-height:53px!important;padding:8px 4px!important;border:1px solid #dfe9f5!important;border-radius:14px!important;background:rgba(249,252,255,.84)!important;color:#637e9d!important;box-shadow:none!important;font-size:11px!important;font-weight:750!important}
+#c227ListaClientes .c240-filtros button b{display:block;font-size:18px;margin-bottom:1px;font-variant-numeric:tabular-nums;color:#385d87}
+#c227ListaClientes .c240-filtros button[aria-pressed="true"]{background:#e2f0ff!important;border-color:#97c7fa!important;color:#0e64af!important;box-shadow:inset 0 0 0 1px #a9d1ff!important}
+#c227ListaClientes .c240-filtros button[aria-pressed="true"] b{color:#1169b8}
+#c227ListaClientes .c240-cliente-item{border:1px solid #dfe9f4;background:rgba(255,255,255,.89);border-radius:17px;margin:8px 0;box-shadow:0 5px 20px rgba(28,67,107,.045);overflow:hidden}
+#c227ListaClientes .c240-cliente-item button{display:flex!important;align-items:center!important;width:100%!important;text-align:left!important;gap:12px!important;margin:0!important;padding:14px 15px!important;min-height:64px!important;background:transparent!important;border:0!important;color:#1e4168!important;box-shadow:none!important}
+#c227ListaClientes .c240-cliente-item strong{flex:1;min-width:0;overflow-wrap:anywhere;font-size:13px;font-weight:850;line-height:1.35}
+#c227ListaClientes .c240-cliente-item b{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap;color:#16446f}
+#c227ListaClientes .c240-cliente-item .c240-chevron{font-size:23px;color:#91afcf;font-weight:300;line-height:1}
+#c227ListaClientes .c240-regresar{display:inline-flex!important;align-items:center!important;gap:5px!important;width:auto!important;min-height:34px!important;margin:3px 0 11px!important;padding:5px 9px!important;border-radius:11px!important;background:#eaf3ff!important;color:#21649d!important;box-shadow:none!important;font-size:12px!important;font-weight:750!important}
+#c227ListaClientes .c240-vacio{text-align:center;color:#617d99;background:#f3f8ff;border:1px dashed #c9dbee;border-radius:15px;padding:20px 13px;font-size:13px;margin-top:14px}
+#c227ListaClientes .c240-producto-riesgo{background:#fff6e9!important;border:1px solid #e7b76f!important;box-shadow:inset 3px 0 0 #df994c}
+#c227ListaClientes .c240-producto-riesgo .c236-producto-toggle .c236-detalle-venta>span{color:#875219}
+#c227ListaClientes .c240-producto-riesgo .c236-producto-toggle .c236-detalle-venta>small{color:#896e4a}
+#c227ListaClientes .c240-producto-espera{background:#edf5ff!important;border-color:#b4d4f8!important}
+#c227ListaClientes .c240-producto-etiqueta{display:inline-block;margin-top:3px;font-weight:800;font-size:10px;color:#a36424}
+#c227ListaClientes .c240-producto-espera .c240-producto-etiqueta{color:#346eaa}
+#c227ListaClientes .c240-producto-leido{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:7px 0;border:1px solid #e2ebf6;background:#fbfdff;border-radius:13px;padding:11px}
+#c227ListaClientes .c240-producto-leido>div{min-width:0;flex:1}
+#c227ListaClientes .c240-producto-leido strong{display:block;color:#294a6d;font-size:12px;overflow-wrap:anywhere}
+#c227ListaClientes .c240-producto-leido small{display:block;color:#71849a;font-size:11px;margin-top:4px}
+#c227ListaClientes .c240-producto-leido>b{white-space:nowrap;color:#214870;font-size:13px}
+@media(max-width:420px){#c227ListaClientes .c240-filtros{gap:5px}#c227ListaClientes .c240-filtros button{font-size:10px!important;padding:7px 2px!important}#c227ListaClientes .c240-filtros button b{font-size:17px}#c227ListaClientes .c240-cliente-item button{padding:11px!important;gap:8px!important}#c227ListaClientes .c240-cliente-item strong{font-size:12px}}
 .c238-barra{border:1px solid #d5e4f5;background:#f8fbff;border-radius:19px;padding:12px;margin:9px 0 17px;box-shadow:0 4px 16px rgba(24,64,109,.05)}
 .c238-barra .c238-inicio{width:auto!important;min-height:35px!important;margin:0 0 11px!important;background:transparent!important;color:#32648e!important;padding:3px 7px!important;font-size:12px!important;font-weight:750!important}
 .c238-barra .c238-etapas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -1997,7 +2022,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.39</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.40</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2478,7 +2503,6 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           <div id="listaFaltantesKardex" style="margin-top:12px;"></div>
         </div>
         <div id="c227ClientesPanel" style="display:none">
-          <p class="c226-info">Busca al cliente, verifica los productos recibidos y confirma la entrega. Las entregas confirmadas quedan en el historial.</p>
           <div id="c227ListaClientes"></div>
         </div>
     </div>
@@ -7350,6 +7374,7 @@ async function verificarPassword() {
           if(document.getElementById('moduloRuta')?.style.display==='block')cargarRutaActiva();
           if(document.getElementById('moduloPrepararDespacho')?.style.display==='block')c52CargarPreparacionDespacho();
           c229Editor=Object.create(null);
+          c240ClienteActivo=null;c240FiltroEstado='pendientes';
           if(document.getElementById('moduloFaltantesKardex')?.style.display==='block'){
             if(c227Vista==='clientes')c227Cargar();else cargarFaltantesKardex();
           }
@@ -7517,6 +7542,7 @@ async function verificarPassword() {
 
         // v1.7.27 · Despacho confirma lo ENTREGADO AL CLIENTE, no la carga de Bodega.
         let c227Vista='revision',c227DatosUI=null,c227Peticion=0,c227Buscador='';
+        let c240FiltroEstado='pendientes',c240ClienteActivo=null;
         // En Despacho, incluso la cuenta ADMIN opera con permisos ordinarios.
         // Solo el Panel Administrativo utiliza los privilegios de supervisor.
         function c227EsAdminLogistica(){return m214Vista==='despacho'&&document.getElementById('adminControlLogistico')?.style.display==='block';}
@@ -7671,34 +7697,64 @@ async function verificarPassword() {
           catch(e){alert('No se confirmó el pago: '+e.message+'\nActualiza antes de repetir para evitar cobros duplicados.');await c227Cargar();}
           finally{c233Guardando=false;}
         }
+        function c240EstadoTicket(lineas){
+          if(lineas.some(x=>x.entregado===''))return 'pendientes';
+          if(lineas.every(x=>Number(x.entregado)===Number(x.cantidad)))return 'completos';
+          return 'parciales';
+        }
+        function c240CambiarFiltro(estado){
+          if(!['todos','pendientes','parciales','completos'].includes(estado))return;
+          c240FiltroEstado=estado;c240ClienteActivo=null;c227Render();
+        }
+        function c240AbrirCliente(ticket){
+          const lineas=(c227DatosUI?.lineas||[]).filter(x=>x.ticket===ticket);
+          if(!lineas.length)return;
+          c240ClienteActivo=ticket;
+          if(c240EstadoTicket(lineas)==='pendientes')c229Abrir(ticket);
+          else c227Render();
+        }
+        function c240VolverClientes(){
+          const ticket=c240ClienteActivo;c240ClienteActivo=null;
+          if(ticket){delete c229Editor[ticket];delete c236ProductoAbierto[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);}
+          c227Render();
+        }
         function c227Render(){
           const box=document.getElementById('c227ListaClientes'),d=c227DatosUI;if(!box||!d)return;
           if(!d.lineas.length){box.innerHTML='<div class="c56-intro">Este Kardex no tiene tickets importados desde los dos Excel de Akasia.</div>';return;}
           const finanzas=c227EsAdminLogistica(),grupos=new Map(),orden=[];
           d.lineas.forEach((l,i)=>{if(!grupos.has(l.ticket)){grupos.set(l.ticket,{cab:d.clientes.find(x=>x.ticket===l.ticket)||{cliente:l.cliente,ticket:l.ticket},indices:[]});orden.push(l.ticket);}grupos.get(l.ticket).indices.push(i);});
           let completos=0,parciales=0,pendientes=0;
-          for(const t of orden){const v=grupos.get(t).indices.map(i=>d.lineas[i]);if(v.some(x=>x.entregado===''))pendientes++;else if(v.every(x=>x.entregado===x.cantidad))completos++;else parciales++;}
-          let html='<div class="k225-clientes-resumen">👥 '+orden.length+' clientes/tickets · ✅ '+completos+' completos · 🟡 '+parciales+' parciales · ⏳ '+pendientes+' pendientes</div>';
-          const ticketsRiesgo=orden.filter(t=>grupos.get(t).indices.some(i=>d.lineas[i].advertencia?.tipo==='POSIBLE_FALTANTE')).length;
-          if(ticketsRiesgo)html+='<div class="c228-alerta"><b>⚠️ '+ticketsRiesgo+' ticket(s) requieren revisión</b><div>Hay productos incompletos en el Kardex. La advertencia aparece en todos los tickets que comparten esos productos hasta confirmar quién recibió cada unidad.</div></div>';
-          if(finanzas){
-            const total=d.clientes.reduce((a,c)=>a+(Number(c.total)||0),0),ganancia=d.lineas.reduce((a,l)=>a+(Number(l.ganancia)||0),0);
-            html+='<div class="k225-finanzas"><div>Valor Akasia<b>'+c226Dinero(total)+'</b></div><div>Ganancia Akasia<b>'+c226Dinero(ganancia)+'</b></div><div>Margen<b>'+(total?((ganancia/total)*100).toFixed(2):'0.00')+'%</b></div></div>';
+          for(const t of orden){const v=grupos.get(t).indices.map(i=>d.lineas[i]),estado=c240EstadoTicket(v);if(estado==='pendientes')pendientes++;else if(estado==='completos')completos++;else parciales++;}
+          let html='';
+          if(c240ClienteActivo){
+            html+='<button type="button" class="c240-regresar" onclick="c240VolverClientes()">← Clientes</button>';
+          }else{
+            const filtros=[['pendientes','Pendientes',pendientes],['parciales','Parciales',parciales],['completos','Completos',completos],['todos','Todos',orden.length]];
+            html+='<div class="c240-filtros" role="group" aria-label="Filtrar tickets">'+filtros.map(([estado,nombre,cantidad])=>'<button type="button" aria-pressed="'+(c240FiltroEstado===estado)+'" onclick="c240CambiarFiltro(\''+estado+'\')"><b>'+cantidad+'</b>'+nombre+'</button>').join('')+'</div>';
+            html+='<input type="search" id="c227Buscar" placeholder="🔎 Buscar cliente o ticket" value="'+escaparHtmlPedido(c227Buscador)+'" oninput="c227Filtrar(this.value)" style="margin:8px 0 12px">';
           }
-          html+='<input type="search" id="c227Buscar" placeholder="🔎 Buscar cliente, ticket o producto" value="'+escaparHtmlPedido(c227Buscador)+'" oninput="c227Filtrar(this.value)" style="margin:8px 0 12px">';
           for(const t of orden){
             const g=grupos.get(t),cab=g.cab,lineas=g.indices.map(i=>d.lineas[i]),confirmado=lineas.every(x=>x.entregado!==''),completo=confirmado&&lineas.every(x=>x.entregado===x.cantidad),sinEntregar=confirmado&&lineas.every(x=>x.entregado===0),editable=!confirmado||finanzas;
             const riesgos=lineas.filter(x=>x.advertencia?.tipo==='POSIBLE_FALTANTE');
+            if(c240ClienteActivo===t&&!confirmado&&!c229Editor[t])c229Editor[t]={modo:'faltantes',excepciones:Object.create(null)};
             const editor=c229Editor[t],editando=editor?.modo==='faltantes',confirmandoCompleto=editor?.modo==='completo',excepciones=editor?.excepciones||{};
+            if(!c240ClienteActivo){
+              html+='<div class="c240-cliente-item" data-estado="'+c240EstadoTicket(lineas)+'" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'"><button type="button" onclick="c240AbrirCliente(\''+t+'\')"><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><b>'+c234Moneda(c233ImporteAkasia(t))+'</b><span class="c240-chevron" aria-hidden="true">›</span></button></div>';
+              continue;
+            }
+            if(c240ClienteActivo!==t)continue;
             html+='<section class="k225-ticket" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'" data-ticket="'+escaparHtmlPedido(t)+'"><header><div><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><small>Ticket #'+escaparHtmlPedido(t)+' · '+(confirmado?(completo?'✅ Entregado completo':sinEntregar?'🔴 No entregado':'🟡 Entrega parcial'):riesgos.length?'⚠️ Posible faltante':'⏳ Pendiente de entrega')+'</small></div><b>'+c234Moneda(c233ImporteAkasia(t))+'</b></header>';
             const importeTicket=c233ImporteAkasia(t);
             if(confirmado&&cab.pagoEstado!=='SIN_REGISTRAR'&&Number.isFinite(importeTicket)&&Number(cab.pagoMonto)<importeTicket)
               html+='<div class="c226-info" style="color:#a04c20">🏷️ Descuento por faltantes registrado: -'+c226Dinero(c234Redondear(importeTicket-Number(cab.pagoMonto)))+' · Total registrado: '+c226Dinero(cab.pagoMonto)+'</div>';
             if(confirmado)html+='<p class="c226-info">Confirmado por '+escaparHtmlPedido(lineas[0].confirmadoPor||'Despacho')+' · '+escaparHtmlPedido(lineas[0].fechaEntrega||'')+'</p>';
-            if(!confirmado&&riesgos.length)html+='<div class="c228-alerta">⚠️ <b>Revisar antes de salir:</b> '+riesgos.map(x=>escaparHtmlPedido(x.producto)).join(', ')+'. Aún no hay suficientes unidades para todos los tickets que comparten estos productos.</div>';
+            if(!confirmado&&riesgos.length)html+='<div class="c228-alerta">⚠️ <b>Posibles faltantes:</b> revisa los productos resaltados antes de confirmar.</div>';
             if(confirmado&&!editando&&!confirmandoCompleto){
               const faltantes=lineas.filter(x=>x.entregado<x.cantidad);
-              html+='<div class="c226-info">'+(faltantes.length?'🟡 '+faltantes.length+' producto(s) con faltantes: '+faltantes.map(x=>escaparHtmlPedido(x.producto)+' ('+(x.cantidad-x.entregado)+')').join(', '):'✅ Todos los productos de este ticket fueron entregados.')+'</div>';
+              for(const x of lineas){
+                const q=Number(x.entregado),falta=Number(x.cantidad)-q,sub=Number(x.totalVenta),riesgo=x.advertencia?.tipo==='POSIBLE_FALTANTE',espera=x.advertencia?.tipo==='EN_PREPARACION';
+                html+='<div class="c240-producto-leido'+(riesgo?' c240-producto-riesgo':espera?' c240-producto-espera':'')+'"><div><strong>'+escaparHtmlPedido(x.producto)+'</strong><small>'+(falta?('Entregado '+q+'/'+x.cantidad+' · '+falta+' pendiente'+(falta===1?'':'s')):('Entregado '+q+'/'+x.cantidad))+'</small></div><b>'+(Number.isFinite(sub)?c226Dinero(sub):'—')+'</b></div>';
+              }
               if(sinEntregar)html+='<div class="c226-info">🔴 Sin cobro: no se entregaron unidades.</div>';
               else if(cab.pagoEstado==='EFECTIVO'||cab.pagoEstado==='CREDITO')html+='<div class="c226-info">'+(cab.pagoEstado==='EFECTIVO'?'💵 Pagó en efectivo':'📝 Venta a crédito')+' · '+c226Dinero(cab.pagoMonto||0)+' · '+escaparHtmlPedido(cab.cobradoPor||'')+'</div>';
               else if(k223PuedeAsignar()){
@@ -7708,8 +7764,6 @@ async function verificarPassword() {
                 }else html+='<button type="button" style="background:#eaf4ff;color:#1a5b94" onclick="c233AbrirSoloPago(\''+t+'\')">💳 Registrar pago o crédito pendiente</button>';
               }else html+='<p class="c226-info">El cobro sigue sin registrar. Revisa el Kardex activo antes de cobrar.</p>';
               if(finanzas)html+='<button type="button" onclick="c229Abrir(\''+t+'\')" style="background:#edf5ff;color:#175a91">✎ Corregir entrega (Admin)</button>';
-            }else if(!editando&&!confirmandoCompleto){
-              html+='<div class="c239-modos"><button type="button" class="c239-parcial" onclick="c233AbrirCompleto(\''+t+'\')">✓ Todo completo</button><button type="button" class="c239-no" onclick="c229Abrir(\''+t+'\')">Con faltantes</button></div>';
             }else if(confirmandoCompleto){
               html+=c233OpcionesPago(t,false,false);
               html+='<div class="c239-final"><button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',true)">✓ Confirmar ticket</button><button type="button" class="c239-cancelar" onclick="c229Cerrar(\''+t+'\')">Cancelar</button></div>';
@@ -7720,7 +7774,7 @@ async function verificarPassword() {
                 const abierto=c236ProductoAbierto[t]===i,importeLinea=x.totalVenta===null||x.totalVenta===undefined?NaN:Number(x.totalVenta),precioUnidad=Number.isFinite(importeLinea)&&x.cantidad>0?importeLinea/x.cantidad:NaN;
                 const estadoProducto=seleccionado?(q===0?'No entregado':'Parcial '+q+'/'+x.cantidad):'';
                 const aviso=a?.tipo==='POSIBLE_FALTANTE'?'<small class="c228-faltante">⚠️ Kardex: '+Number(a.porCubrir)+' unidad(es) por cubrir entre clientes pendientes.</small>':a?.tipo==='EN_PREPARACION'?'<small class="c228-espera">⏳ Producto en preparación.</small>':'';
-                html+='<div class="c229-excepcion'+(seleccionado?' c236-seleccionado':'')+'" data-buscaproducto="'+escaparHtmlPedido(x.producto.toUpperCase())+'" data-ticket="'+t+'"><button type="button" class="c236-producto-toggle" aria-expanded="'+abierto+'" onclick="c236AlternarProducto(\''+t+'\','+i+')"><span class="c236-detalle-venta"><span>'+escaparHtmlPedido(x.producto)+'</span><small>'+x.cantidad+' und. · '+(Number.isFinite(precioUnidad)?c226Dinero(precioUnidad)+' c/u':'Sin precio')+'</small></span><span class="c236-precio-venta"><b>'+(Number.isFinite(importeLinea)?c226Dinero(importeLinea):'—')+'</b><small class="c236-estado'+(seleccionado?(q===0?' c239-estado-no':' c239-estado-parcial'):'')+'">'+(estadoProducto?escaparHtmlPedido(estadoProducto)+' · ':'')+(abierto?'⌃':'⌄')+'</small></span></button>';
+                html+='<div class="c229-excepcion'+(seleccionado?' c236-seleccionado':'')+(a?.tipo==='POSIBLE_FALTANTE'?' c240-producto-riesgo':a?.tipo==='EN_PREPARACION'?' c240-producto-espera':'')+'" data-buscaproducto="'+escaparHtmlPedido(x.producto.toUpperCase())+'" data-ticket="'+t+'"><button type="button" class="c236-producto-toggle" aria-expanded="'+abierto+'" onclick="c236AlternarProducto(\''+t+'\','+i+')"><span class="c236-detalle-venta"><span>'+escaparHtmlPedido(x.producto)+'</span><small>'+x.cantidad+' und. · '+(Number.isFinite(precioUnidad)?c226Dinero(precioUnidad)+' c/u':'Sin precio')+'</small>'+(a?.tipo==='POSIBLE_FALTANTE'?'<span class="c240-producto-etiqueta">⚠️ Posible faltante</span>':a?.tipo==='EN_PREPARACION'?'<span class="c240-producto-etiqueta">⏳ En preparación</span>':'')+'</span><span class="c236-precio-venta"><b>'+(Number.isFinite(importeLinea)?c226Dinero(importeLinea):'—')+'</b><small class="c236-estado'+(seleccionado?(q===0?' c239-estado-no':' c239-estado-parcial'):'')+'">'+(estadoProducto?escaparHtmlPedido(estadoProducto)+' · ':'')+(abierto?'⌃':'⌄')+'</small></span></button>';
                 if(abierto){
                   html+='<div class="c236-producto-panel">'+aviso;
                   const mostrarModos=!seleccionado||c239OpcionesAbiertas[t+':'+i];
@@ -7745,18 +7799,25 @@ async function verificarPassword() {
             }
             html+='</section>';
           }
+          if(!c240ClienteActivo)html+='<div id="c240Vacio" class="c240-vacio" style="display:none">No hay tickets en esta selección.</div>';
           box.innerHTML=html;c227Filtrar(c227Buscador);
         }
         function c227Filtrar(valor){
           c227Buscador=String(valor||'');const busca=k222Clave(c227Buscador);
-          document.querySelectorAll('#c227ListaClientes .k225-ticket').forEach(card=>{card.style.display=k222Clave(card.dataset.busca).includes(busca)?'':'none';});
+          let visibles=0;
+          document.querySelectorAll('#c227ListaClientes .c240-cliente-item').forEach(card=>{
+            const coincide=k222Clave(card.dataset.busca).includes(busca);
+            const estado=!busca&&(c240FiltroEstado!=='todos')?card.dataset.estado===c240FiltroEstado:true;
+            card.style.display=coincide&&estado?'':'none';if(coincide&&estado)visibles++;
+          });
+          const vacio=document.getElementById('c240Vacio');if(vacio)vacio.style.display=visibles?'none':'block';
         }
         function c229Abrir(ticket){
           const excepciones=Object.create(null);
           if(c227DatosUI){c227DatosUI.lineas.forEach((x,i)=>{if(x.ticket===ticket&&x.entregado!==''&&x.entregado<x.cantidad)excepciones[i]=Number(x.entregado);});}
           c229Editor[ticket]={modo:'faltantes',excepciones};delete c236ProductoAbierto[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);c235LimpiarCorreccion(ticket);c227Render();
         }
-        function c229Cerrar(ticket){delete c229Editor[ticket];delete c236ProductoAbierto[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);delete c233Pagos[ticket];c227Render();}
+        function c229Cerrar(ticket){delete c229Editor[ticket];delete c236ProductoAbierto[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);delete c233Pagos[ticket];delete c233PagoSolo[ticket];if(c240ClienteActivo===ticket)c240ClienteActivo=null;c227Render();}
         function c236AlternarProducto(ticket,i){
           if(!c229Editor[ticket]||c229Editor[ticket].modo!=='faltantes'||c227DatosUI?.lineas?.[i]?.ticket!==ticket)return;
           c236ProductoAbierto[ticket]=c236ProductoAbierto[ticket]===i?null:i;
@@ -7796,14 +7857,14 @@ async function verificarPassword() {
           const editor=c229Editor[ticket],excepciones=editor?.excepciones||{},indices=[];
           c227DatosUI.lineas.forEach((x,i)=>{if(x.ticket===ticket)indices.push(i);});
           if(!indices.length)return alert('Este ticket no tiene productos. Actualiza el Kardex.');
-          if(!todoCompleto&&(!editor||editor.modo!=='faltantes'||!Object.keys(excepciones).length))return alert('Selecciona No entregado o Parcial para los productos que falten. Si el pedido va completo, utiliza Todo completo.');
+          if(!todoCompleto&&(!editor||editor.modo!=='faltantes'))return alert('Abre el ticket del cliente para revisar su entrega.');
           const confirmadoAntes=indices.every(i=>c227DatosUI.lineas[i].entregado!=='');
           const productos=indices.map(i=>{const x=c227DatosUI.lineas[i];return {producto:x.producto,entregado:todoCompleto?x.cantidad:Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):x.cantidad};});
           if(productos.some((p,j)=>!Number.isInteger(p.entregado)||p.entregado<0||p.entregado>c227DatosUI.lineas[indices[j]].cantidad))return alert('Una de las cantidades no es válida. Revísala antes de confirmar.');
           const total=productos.reduce((n,x)=>n+x.entregado,0),faltan=indices.reduce((n,i,j)=>n+c227DatosUI.lineas[i].cantidad-productos[j].entregado,0);
           let pago=null;
           if(!confirmadoAntes){try{pago=c233ValidarPago(ticket,total,faltan);}catch(e){return alert(e.message);}}
-          const riesgo=todoCompleto&&indices.some(i=>c227DatosUI.lineas[i].advertencia?.tipo==='POSIBLE_FALTANTE');
+          const riesgo=faltan===0&&indices.some(i=>c227DatosUI.lineas[i].advertencia?.tipo==='POSIBLE_FALTANTE');
           const infoPago=pago?(pago.tipo==='EFECTIVO'?'\n💵 Recibió efectivo: '+c226Dinero(pago.monto):pago.tipo==='CREDITO'?'\n📝 Quedó a crédito: '+c226Dinero(pago.monto):'\n🔴 Sin cobro: no se entregó mercancía.')+(pago.descuento>0?'\n🏷️ Descuento por faltantes: '+c226Dinero(pago.descuento):''):'\nSe guardará la corrección administrativa.';
           const pregunta='Ticket #'+ticket+': ¿confirmas que el cliente recibió '+total+' unidades?'+(faltan?'\n'+faltan+' unidad(es) quedarán registradas como faltantes para su seguimiento.':'\nTodos los productos quedarán entregados completos.')+infoPago+(riesgo?'\n\n⚠️ El Kardex tiene advertencias de falta de stock. Confirma solo si comprobaste físicamente toda la entrega.':'');
           if(!confirm(pregunta))return;
@@ -7817,6 +7878,7 @@ async function verificarPassword() {
             entregaGuardada=true;
             if(pago)await c233RegistrarPago(ticket,pago,idRuta);
             delete c229Editor[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];
+            c240ClienteActivo=null;
             await c227Cargar();
           }catch(e){
             if(entregaGuardada){
