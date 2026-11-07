@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">	
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Operativo - Online Shop</title>
 
     <meta name="theme-color" content="#007bff">
@@ -7790,23 +7790,35 @@ async function verificarPassword() {
           if(ticket){delete c229Editor[ticket];delete c236ProductoAbierto[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);}
           c227Render();
         }
-        // v1.7.41 · Comprobante para impresora térmica de 58 mm.
-        // Solo usa datos de entregas y cobros YA CONFIRMADOS por el servidor.
+        // v1.7.48 · Ticket 58 mm: cada faltante aparece debajo del producto,
+        // con su resta; conserva las cantidades y el cobro ya confirmados.
+        function c241FechaCorta(valor){
+          if(!valor)return '';
+          const texto=String(valor).trim();
+          const simple=texto.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+          if(simple)return simple[3]+'/'+simple[2]+'/'+simple[1]+' · '+simple[4]+':'+simple[5];
+          const fecha=new Date(valor);
+          if(Number.isNaN(fecha.getTime()))return texto;
+          try{return new Intl.DateTimeFormat('es-SV',{timeZone:'America/El_Salvador',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(fecha);}
+          catch(_){return texto;}
+        }
         function c241ComprobanteHtml(ticket){
           const d=c227DatosUI,cab=c233Cliente(ticket);
           const lineas=(d?.lineas||[]).filter(x=>x.ticket===ticket);
           if(!cab||!lineas.length||lineas.some(x=>x.entregado===''))
             throw Error('Primero confirma la entrega de este cliente.');
-          let entregadas=0,descuentoCalculado=0;
-          const productos=[],faltantes=[];
+          let entregadas=0,pedidas=0;
+          const productos=[];
           for(const x of lineas){
             const cant=Number(x.cantidad),ent=Number(x.entregado),venta=Number(x.totalVenta);
             if(!Number.isInteger(cant)||cant<1||!Number.isInteger(ent)||ent<0||ent>cant||!Number.isFinite(venta)||venta<0)
               throw Error('Faltan cantidades o precios de venta válidos para imprimir este ticket.');
-            const unit=venta/cant,sub=c234Redondear(unit*ent),faltan=cant-ent;
-            entregadas+=ent;descuentoCalculado+=unit*faltan;
-            if(ent>0)productos.push({nombre:x.producto,cant:ent,unit,sub});
-            if(faltan>0)faltantes.push({nombre:x.producto,cant:faltan});
+            const unit=venta/cant,faltan=cant-ent;
+            entregadas+=ent;pedidas+=cant;
+            // Mantener todas las líneas originales (también las no entregadas).
+            productos.push({nombre:x.producto,pedidas:cant,entregadas:ent,
+              unit,totalOriginal:c234Redondear(venta),faltan,
+              rebaja:c234Redondear(unit*faltan)});
           }
           const estado=String(cab.pagoEstado||'');
           if(entregadas>0&&!['EFECTIVO','CREDITO'].includes(estado))
@@ -7816,40 +7828,63 @@ async function verificarPassword() {
           if(!Number.isFinite(original)||original<0||!Number.isFinite(cobro)||cobro<0||cobro>original+0.01)
             throw Error('No hay un total de cobro válido. Actualiza los datos antes de imprimir.');
           const descuento=c234Redondear(Math.max(0,original-cobro));
-          const dif= Math.abs(descuento-c234Redondear(descuentoCalculado));
-          const ajustar=dif>0.02;
+          const rebajasProductos=c234Redondear(productos.reduce((s,x)=>s+x.rebaja,0));
+          // La diferencia puede provenir de distintos precios/promociones Akasia.
+          // Nunca sustituimos el total de cobro que ya confirmó el servidor.
+          const ajuste=c234Redondear(descuento-rebajasProductos);
+          const faltantesUnidades=pedidas-entregadas;
+          const faltantesProductos=productos.filter(x=>x.faltan>0).length;
           const seguro=v=>escaparHtmlPedido(String(v??''));
           const cliente=seguro(cab.cliente||lineas[0].cliente||'Cliente');
-          const fecha=seguro(lineas[0].fechaEntrega||new Date().toLocaleString('es-SV'));
-          const renglones=productos.map(x=>
-            '<div class="item"><div class="nombre">'+seguro(x.nombre)+'</div><div class="datos"><span>'+x.cant+' x '+c226Dinero(x.unit)+'</span><b>'+c226Dinero(x.sub)+'</b></div></div>'
-          ).join('');
-          const avisos=faltantes.map(x=>
-            '<div class="nota-item">'+x.cant+' x '+seguro(x.nombre)+'</div>'
-          ).join('');
+          const fecha=seguro(c241FechaCorta(lineas[0].fechaEntrega||new Date()));
+          const fechaVenta=cab.fecha?seguro(c241FechaCorta(cab.fecha)):'';
+          const recibidoPor=seguro(lineas[0].confirmadoPor||'');
+          const cobradoPor=seguro(cab.cobradoPor||'');
+          const ruta=c244RutasClientes.find(x=>String(x.idRuta)===String(c244RutaClientes));
+          const kardex=ruta&&ruta.numeroRuta?'Kardex #'+seguro(ruta.numeroRuta):'';
+          const renglones=productos.map(x=>{
+            let h='<div class="item"><div class="nombre">'+seguro(x.nombre)+'</div>'+
+              '<div class="datos"><span>'+x.pedidas+' × '+c226Dinero(x.unit)+'</span><b>'+c226Dinero(x.totalOriginal)+'</b></div>';
+            if(x.faltan>0){
+              h+='<div class="datos resta"><span>− '+x.faltan+' no entregada'+(x.faltan===1?'':'s')+'</span><b>−'+c226Dinero(x.rebaja)+'</b></div>';
+              if(x.entregadas>0)h+='<div class="detalle-item">Entregadas: '+x.entregadas+' de '+x.pedidas+'</div>';
+            }
+            return h+'</div>';
+          }).join('');
           const pago=entregadas===0?'SIN COBRO':estado==='EFECTIVO'?'PAGADO EN EFECTIVO':'VENTA A CRÉDITO';
-          const altura=Math.max(95,65+productos.length*9+faltantes.length*7);
+          const nombreFilas=productos.reduce((n,x)=>n+Math.max(0,Math.ceil(String(x.nombre||'').length/29)-1),0);
+          const clienteFilas=Math.max(0,Math.ceil(String(cab.cliente||'').length/29)-1);
+          const altura=Math.min(1500,Math.max(125,78+productos.length*9+faltantesProductos*6+nombreFilas*4+
+            clienteFilas*4+(fechaVenta?5:0)+(Math.abs(ajuste)>=0.01?6:0)));
           return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
             '<title>Ticket #'+seguro(ticket)+'</title><style>'+
             '@page{size:58mm '+altura+'mm;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#000}'+
-            'body{font:10px/1.35 "Courier New",monospace;width:54mm;max-width:54mm;padding:3mm}h1{font-size:14px;text-align:center;margin:0 0 2mm}'+
-            '.centro{text-align:center}.separador{border:0;border-top:1px dashed #333;margin:3mm 0}.item{margin:0 0 2.5mm;page-break-inside:avoid}'+
-            '.nombre{font-weight:bold;overflow-wrap:anywhere}.datos,.total{display:flex;justify-content:space-between;gap:2mm}.datos b,.total b{white-space:nowrap}'+
-            '.total{font-size:13px;font-weight:bold;margin-top:2mm}.nota-item{margin:1mm 0;overflow-wrap:anywhere}.pequeno{font-size:9px}'+
+            'body{font:10px/1.38 "Courier New",monospace;width:54mm;max-width:54mm;padding:2.5mm}h1{font-size:15px;text-align:center;margin:0 0 1mm}'+
+            '.centro{text-align:center}.subtitulo{font-weight:bold;font-size:10px;letter-spacing:.2px}.separador{border:0;border-top:1px dashed #333;margin:2.5mm 0}.item{margin:0 0 2.7mm;break-inside:avoid;page-break-inside:avoid}'+
+            '.nombre{font-weight:bold;overflow-wrap:anywhere;margin-bottom:.5mm}.datos,.total{display:flex;justify-content:space-between;gap:1.8mm}.datos b,.total b{white-space:nowrap}'+
+            '.resta{margin-top:.6mm;font-weight:bold}.resta b{font-weight:bold}.detalle-item{font-size:9px;margin-top:.2mm}.total{font-size:13px;font-weight:bold;margin-top:2mm}.pequeno{font-size:9px}.meta{margin:1mm 0}'+
             '.boton{display:block;margin:12px auto;padding:12px 18px;border:0;border-radius:10px;background:#147eff;color:#fff;font:600 15px sans-serif;cursor:pointer}'+
             '@media screen{body{margin:0 auto;border:1px solid #ddd;min-height:100vh}.boton{width:100%}}'+
             '@media print{.boton{display:none!important}body{border:0!important;min-height:0!important;-webkit-print-color-adjust:exact}}'+
             '</style></head><body>'+
-            '<h1>ONLINE SHOP</h1><div class="centro">COMPROBANTE DE ENTREGA</div>'+
-            '<div class="separador"></div><div><b>Ticket #'+seguro(ticket)+'</b></div><div>'+cliente+'</div>'+
-            '<div class="pequeno">'+fecha+'</div><div class="separador"></div>'+
-            (renglones||'<div>No se entregó mercancía.</div>')+
+            '<h1>ONLINE SHOP</h1><div class="centro subtitulo">COMPROBANTE DE ENTREGA</div>'+
+            '<div class="separador"></div><div><b>Ticket #'+seguro(ticket)+'</b></div>'+
+            (kardex?'<div class="meta">'+kardex+'</div>':'')+
+            '<div class="meta"><b>Cliente:</b> '+cliente+'</div>'+
+            '<div class="pequeno">Entrega: '+fecha+'</div>'+
+            (fechaVenta?'<div class="pequeno">Venta: '+fechaVenta+'</div>':'')+
+            '<div class="meta">Pedido: '+pedidas+' ud. · Entregado: '+entregadas+' ud.</div>'+
+            '<div class="separador"></div>'+
+            renglones+
             '<div class="separador"></div><div class="datos"><span>Total original</span><b>'+c226Dinero(original)+'</b></div>'+
-            (descuento>0?'<div class="datos"><span>'+(ajustar?'Descuento / ajuste':'Productos no entregados')+'</span><b>-'+c226Dinero(descuento)+'</b></div>':'')+
-            '<div class="total"><span>TOTAL</span><b>'+c226Dinero(cobro)+'</b></div>'+
+            (faltantesUnidades>0?'<div class="datos"><span>− Faltantes ('+faltantesUnidades+' ud.)</span><b>−'+c226Dinero(rebajasProductos)+'</b></div>':'')+
+            (Math.abs(ajuste)>=0.01?'<div class="datos"><span>Ajuste del ticket</span><b>'+(ajuste>0?'−':'+')+c226Dinero(Math.abs(ajuste))+'</b></div>':'')+
+            '<div class="total"><span>TOTAL A COBRAR</span><b>'+c226Dinero(cobro)+'</b></div>'+
             '<div class="centro" style="margin-top:3mm"><b>'+pago+'</b></div>'+
-            (faltantes.length?'<div class="separador"></div><div><b>NO ENTREGADOS (NO COBRADOS)</b></div>'+avisos:'')+
-            '<div class="separador"></div><div class="centro pequeno">Comprobante de control interno.<br>No sustituye documento fiscal.</div>'+
+            (recibidoPor?'<div class="pequeno">Entrega confirmada por: '+recibidoPor+'</div>':'')+
+            (cobradoPor?'<div class="pequeno">Cobro registrado por: '+cobradoPor+'</div>':'')+
+            '<div class="separador"></div><div class="centro pequeno"><b>Pedidos y consultas</b><br>WhatsApp: 74184366</div>'+
+            '<div class="centro pequeno" style="margin-top:2mm">Comprobante de control interno. No sustituye documento fiscal.</div>'+
             '<button class="boton" type="button" onclick="window.print()">Imprimir / Guardar PDF</button></body></html>';
         }
         function c241Imprimir(ticket){
