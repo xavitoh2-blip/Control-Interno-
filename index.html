@@ -731,6 +731,10 @@ body:has(#pantallaLogin[style*="display: none"]) #versionSistema{
 #listaFaltantesKardex .c75-batchcount{font-size:12px;font-weight:850;color:#436588;white-space:nowrap}
 #listaFaltantesKardex .c75-batchbar button{flex:1;margin:0!important;min-height:46px!important;border-radius:14px!important;background:#087cff!important;color:#fff!important;font-size:13px!important;box-shadow:none!important}
 #listaFaltantesKardex .c75-batchbar button:disabled{opacity:.43!important}
+/* v1.7.47 · Borradores recuperables y error de conexión sin falso cero. */
+#listaFaltantesKardex .c75-loaderror{margin:12px 0;padding:15px;border-radius:17px;border:1px solid #f0cf9d;background:#fff7e9;color:#86571e;font-size:12px;line-height:1.5}
+#listaFaltantesKardex .c75-loaderror button{margin:10px 0 0!important;background:#e8eff9!important;color:#245b92!important;border-radius:12px!important;font-size:12px!important;min-height:38px!important}
+#listaFaltantesKardex .c75-batchbar.c75-offline button{background:#879ab1!important}
 .kx-final-shell{margin:14px 0 24px;padding:18px;border:1px solid rgba(255,255,255,.78);border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(239,248,255,.68));box-shadow:0 18px 45px rgba(30,92,155,.14),inset 0 1px 0 rgba(255,255,255,.95);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
 .kx-final-icon{width:66px;height:66px;margin:2px auto 10px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:32px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 28px rgba(31,113,205,.15)}
 .kx-final-title{text-align:center;font-size:22px;font-weight:900;color:#17233a;letter-spacing:-.5px}.kx-final-sub{text-align:center;color:#748196;font-size:12px;font-weight:650;margin:5px 0 16px}.kx-final-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 16px}.kx-final-stat{padding:13px 5px;border-radius:20px;text-align:center;background:rgba(255,255,255,.72);border:1px solid rgba(213,225,240,.9);box-shadow:0 7px 20px rgba(44,82,130,.06)}.kx-final-stat strong{display:block;font-size:23px;color:#17233a}.kx-final-stat span{display:block;margin-top:3px;font-size:9px;font-weight:850;color:#7a8799;text-transform:uppercase}.kx-final-stat.warn strong{color:#c15d16}
@@ -9059,8 +9063,50 @@ async function verificarPassword() {
 
         let faltantesKardexActuales=[];
         let filtroRecepcionK='todos';
-        // v1.7.46: saldos libres y decisiones múltiples, una sola confirmación.
+        // v1.7.47: decisiones múltiples con borrador por Kardex en este dispositivo.
         let c75SeguimientoDespacho=null,c75Marcas=Object.create(null),c75ErrorConsulta='',c75Guardando=false;
+        function c75Clave(tipo){
+          const ruta=String(k221IdRuta||'').trim(),empleado=String(localStorage.getItem('usuario')||'DESPACHO').trim();
+          return 'OS-DESPACHO-'+tipo+'-'+encodeURIComponent(ruta)+'-'+encodeURIComponent(empleado);
+        }
+        function c75GuardarBorrador(){
+          if(!k221IdRuta)return;
+          try{
+            const items=Object.values(c75Marcas).map(x=>({producto:x.producto,modo:x.modo,cantidad:x.cantidad,destino:x.destino}));
+            if(items.length)localStorage.setItem(c75Clave('BORRADOR'),JSON.stringify({idRuta:String(k221IdRuta),items,fecha:Date.now()}));
+            else localStorage.removeItem(c75Clave('BORRADOR'));
+          }catch(_){/* La app sigue funcionando aunque el almacenamiento esté bloqueado. */}
+        }
+        function c75RecuperarBorrador(){
+          if(!k221IdRuta||!c75SeguimientoDespacho||Object.keys(c75Marcas).length)return;
+          try{
+            const guardado=JSON.parse(localStorage.getItem(c75Clave('BORRADOR'))||'null');
+            if(!guardado||String(guardado.idRuta)!==String(k221IdRuta)||!Array.isArray(guardado.items))return;
+            const disponibles=new Set((c75SeguimientoDespacho.productos||[])
+              .filter(x=>x.bodegaRevisada&&Number(x.pendienteAsignar)>0).map(x=>x.producto));
+            guardado.items.forEach(x=>{
+              if(!x||!disponibles.has(x.producto)||!['REASIGNAR','ENCONTRADO'].includes(x.modo))return;
+              c75Marcas[x.producto]={producto:x.producto,modo:x.modo,cantidad:x.cantidad,
+                destino:String(x.destino||'')};
+            });
+            if(!c75ErrorConsulta)c75GuardarBorrador();
+          }catch(_){/* No usar un borrador dañado. */}
+        }
+        function c75GuardarSeguimiento(){
+          if(!k221IdRuta||!c75SeguimientoDespacho)return;
+          try{localStorage.setItem(c75Clave('SEGUIMIENTO'),JSON.stringify({
+            idRuta:String(k221IdRuta),fecha:Date.now(),datos:c75SeguimientoDespacho
+          }));}catch(_){/* Puede superar el espacio del navegador. */}
+        }
+        function c75LeerSeguimiento(){
+          try{
+            const viejo=JSON.parse(localStorage.getItem(c75Clave('SEGUIMIENTO'))||'null');
+            if(viejo&&String(viejo.idRuta)===String(k221IdRuta)&&
+                Date.now()-Number(viejo.fecha||0)<48*60*60*1000&&Array.isArray(viejo.datos?.productos))
+              return viejo.datos;
+          }catch(_){}
+          return null;
+        }
         async function cargarFaltantesKardex(){
             const suc=c227EsAdminLogistica()?'Despacho':(localStorage.getItem('sucursal')||''),cont=document.getElementById('listaFaltantesKardex'),cab=document.getElementById('faltantesKardexSucursal');
             const esDespacho=normalizarEmpleado(suc)==='despacho';
@@ -9085,6 +9131,8 @@ async function verificarPassword() {
                 if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudieron cargar.');
                 if(turno!==k221IdRuta)return;
                 faltantesKardexActuales=(d.faltantes||[]).slice();
+                const seguimientoAnterior=c75SeguimientoDespacho&&String(c75SeguimientoDespacho.idRuta)===turno
+                  ?c75SeguimientoDespacho:null;
                 c75SeguimientoDespacho=null;c75ErrorConsulta='';
                 if(esDespacho){
                   try{
@@ -9092,7 +9140,12 @@ async function verificarPassword() {
                     const sd=await sr.json();
                     if(!sr.ok||sd.status!=='OK'||String(sd.seguimiento?.idRuta||'')!==turno)throw Error(sd.mensaje||'No se pudo consultar el seguimiento.');
                     c75SeguimientoDespacho=sd.seguimiento;
-                  }catch(error75){c75ErrorConsulta=String(error75.message||error75);}
+                    c75GuardarSeguimiento();
+                  }catch(error75){
+                    c75ErrorConsulta=String(error75.message||error75);
+                    c75SeguimientoDespacho=seguimientoAnterior||c75LeerSeguimiento();
+                  }
+                  c75RecuperarBorrador();
                 }
                 if(!esDespacho)c53SeleccionSucursal={};
                 esDespacho?renderRecepcionKardex():renderFaltantesKardex();
@@ -9129,6 +9182,7 @@ async function verificarPassword() {
           if(c75Marcas[producto]?.modo===modo)delete c75Marcas[producto];
           else c75Marcas[producto]={producto,modo,cantidad:c75Marcas[producto]?.cantidad||1,
             destino:c75Marcas[producto]?.destino||c75Opciones(p)[0]?.[0]||''};
+          c75GuardarBorrador();
           const posicion=window.scrollY;
           renderRecepcionKardex();
           window.scrollTo(0,posicion);
@@ -9138,11 +9192,27 @@ async function verificarPassword() {
           if(!ed||!p)return;
           ed.cantidad=Math.max(1,Math.min(Number(p.pendienteAsignar)||1,(Number(ed.cantidad)||0)+paso));
           const entrada=boton?.parentElement?.querySelector('input');if(entrada)entrada.value=ed.cantidad;
+          c75GuardarBorrador();
+        }
+        function c75CambiarCantidad(producto,valor){
+          if(!c75Marcas[producto])return;
+          c75Marcas[producto].cantidad=valor;
+          c75GuardarBorrador();
+        }
+        function c75CambiarDestino(producto,valor){
+          if(!c75Marcas[producto])return;
+          c75Marcas[producto].destino=valor;
+          c75GuardarBorrador();
         }
         function c75ListaHtml(){
-          if(c75ErrorConsulta)return '<div class="fk-empty">No se pudo cargar la lista: '+escaparHtmlPedido(c75ErrorConsulta)+'<br>Actualiza para intentarlo de nuevo.</div>';
+          const aviso=c75ErrorConsulta?'<div class="c75-loaderror"><strong>⚠ No se pudo actualizar el Kardex.</strong><br>'+(
+            c75SeguimientoDespacho?'Ves la última lista guardada en este dispositivo. Puedes mantener tu selección, pero debes actualizar antes de enviarla.':
+            'No hay datos recientes para mostrar. Las selecciones que hiciste siguen guardadas en este dispositivo.')+
+            '<br><small>Detalle: '+escaparHtmlPedido(c75ErrorConsulta)+'</small>'+
+            '<button type="button" onclick="cargarFaltantesKardex()">↻ Reintentar carga</button></div>':'';
+          if(c75ErrorConsulta&&!c75SeguimientoDespacho)return aviso;
           const saldos=c75Libres();
-          if(!saldos.length)return '<div class="fk-empty">✓ No hay unidades pendientes de asignar en este Kardex.</div>';
+          if(!saldos.length)return aviso+'<div class="fk-empty">✓ No hay unidades pendientes de asignar en este Kardex.</div>';
           const grupos={};
           saldos.forEach(p=>{const origen=c75Origen(p);(grupos[origen]||(grupos[origen]=[])).push(p);});
           const listado=Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'es')).map(origen=>{
@@ -9157,20 +9227,21 @@ async function verificarPassword() {
                 '<div class="c75-actions"><button type="button" class="c75-reassign'+(esReasignar?' c75-active':'')+'" onclick="c75Editar('+clave+',\'REASIGNAR\')">↔ Reasignar'+(esReasignar?' ✓':'')+'</button>'+
                 '<button type="button" class="c75-found'+(abierto&&!esReasignar?' c75-active':'')+'" onclick="c75Editar('+clave+',\'ENCONTRADO\')">✓ Encontrado'+(abierto&&!esReasignar?' ✓':'')+'</button></div>'+
                 (abierto?'<div class="c75-edit">'+(esReasignar?
-                  '<label>Nueva sucursal</label><select onchange="c75Marcas['+clave+'].destino=this.value">'+opcionesHtml+'</select>':
+                  '<label>Nueva sucursal</label><select onchange="c75CambiarDestino('+clave+',this.value)">'+opcionesHtml+'</select>':
                   '<div class="c75-meta">Unidades encontradas físicamente en Despacho</div>')+
-                  '<div class="c75-counter"><button type="button" onclick="c75Cantidad('+clave+',-1,this)">−</button><input type="number" min="1" max="'+libre+'" value="'+escaparHtmlPedido(ed.cantidad)+'" oninput="c75Marcas['+clave+'].cantidad=this.value"><button type="button" onclick="c75Cantidad('+clave+',1,this)">+</button></div>'+
+                  '<div class="c75-counter"><button type="button" onclick="c75Cantidad('+clave+',-1,this)">−</button><input type="number" min="1" max="'+libre+'" value="'+escaparHtmlPedido(ed.cantidad)+'" oninput="c75CambiarCantidad('+clave+',this.value)"><button type="button" onclick="c75Cantidad('+clave+',1,this)">+</button></div>'+
                   (esReasignar&&!opciones.length?'<div class="c75-meta">No hay otra sucursal disponible para este producto.</div>':'')+'</div>':'')+
                 '</div>';
             }).join('');return html;
           }).join('');
           const total=Object.keys(c75Marcas).length;
-          return listado+'<div class="c75-batchbar"><span class="c75-batchcount">'+total+' seleccionado'+(total===1?'':'s')+'</span>'+
-            '<button type="button" id="c75GuardarTodos" onclick="c75GuardarTodos()" '+(!total||c75Guardando?'disabled':'')+'>'+(
+          return aviso+listado+'<div class="c75-batchbar'+(c75ErrorConsulta?' c75-offline':'')+'"><span class="c75-batchcount">'+total+' seleccionado'+(total===1?'':'s')+'</span>'+
+            '<button type="button" id="c75GuardarTodos" onclick="c75GuardarTodos()" '+(!total||c75Guardando||c75ErrorConsulta?'disabled':'')+'>'+(
               c75Guardando?'Guardando…':'✓ Guardar todos ('+total+')')+'</button></div>';
         }
         async function c75GuardarTodos(){
           if(c75Guardando||!k221IdRuta)return;
+          if(c75ErrorConsulta)return alert('No se pudo actualizar el Kardex. Reintenta la carga antes de guardar. Tu selección sigue guardada.');
           const seleccion=Object.values(c75Marcas);
           if(!seleccion.length)return;
           if(seleccion.length>120)return alert('Guarda hasta 120 productos a la vez.');
@@ -9193,7 +9264,8 @@ async function verificarPassword() {
               productos:JSON.stringify(pendientes),empleado:localStorage.getItem('usuario')||''});
             const r=await m214FetchKardex(body),d=await r.json();
             if(!r.ok||d.status!=='OK')throw Error(d.mensaje||'No se pudo registrar.');
-            c75Marcas=Object.create(null);alert('✓ '+d.actualizados+' producto(s) guardados.');
+            c75Marcas=Object.create(null);c75GuardarBorrador();
+            alert('✓ '+d.actualizados+' producto(s) guardados.');
             await cargarFaltantesKardex();
           }catch(e){alert('No se guardó el lote: '+e.message+' Actualiza antes de reintentar.');}
           finally{c75Guardando=false;if(btn){btn.disabled=false;btn.textContent='✓ Guardar todos ('+Object.keys(c75Marcas).length+')';}}
@@ -9238,7 +9310,8 @@ async function verificarPassword() {
           const visibles=todos.map((x,i)=>({...x,i})).filter(x=>c51FiltroRecepcion==='todos'||(c51FiltroRecepcion==='pendientes'&&!['RECIBIDO','FALTANTE_DESPACHO','NO_DISPONIBLE'].includes(x.estadoRecepcion))||(c51FiltroRecepcion==='resueltos'&&['RECIBIDO','FALTANTE_DESPACHO','NO_DISPONIBLE'].includes(x.estadoRecepcion)))
             .sort((a,b)=>(ordenSuc[normalizarEmpleado(a.sucursal).toUpperCase()]||99)-(ordenSuc[normalizarEmpleado(b.sucursal).toUpperCase()]||99)||String(a.producto||'').localeCompare(String(b.producto||''),'es',{sensitivity:'base'}));
           const pct=todos.length?Math.round((revisados/todos.length)*100):100;
-          let html=`<div class="rx-dashboard"><div class="rx-stats"><div class="rx-stat"><strong>${todos.length}</strong><span>PRODUCTOS</span></div><div class="rx-stat"><strong>${revisados}</strong><span>REVISADOS</span></div><div class="rx-stat"><strong>${pendientes}</strong><span>PENDIENTES</span></div></div><div class="rx-progress-label"><span>Progreso de revisión</span><span>${pct}%</span></div><div class="rx-progress"><div style="width:${pct}%"></div></div></div><input id="c51Buscar" class="rx23-search" placeholder="🔎 Buscar producto..." value="${escaparHtmlPedido(c51Buscador)}" oninput="c51BuscarFiltrar(this.value)"><div class="rx23-tabs"><button class="${c51FiltroRecepcion==='todos'?'active':''}" onclick="c51Filtro('todos')">Todos</button><button class="${c51FiltroRecepcion==='pendientes'?'active':''}" onclick="c51Filtro('pendientes')">Por recibir</button><button class="${c51FiltroRecepcion==='resueltos'?'active':''}" onclick="c51Filtro('resueltos')">Revisados</button><button class="${c51FiltroRecepcion==='faltantes'?'active':''}" onclick="c51Filtro('faltantes')">Faltantes (${c75Libres().length})</button></div>`;
+          const cuentaFaltantes=c75ErrorConsulta&&!c75SeguimientoDespacho?'—':String(c75Libres().length)+(c75ErrorConsulta?'*':'');
+          let html=`<div class="rx-dashboard"><div class="rx-stats"><div class="rx-stat"><strong>${todos.length}</strong><span>PRODUCTOS</span></div><div class="rx-stat"><strong>${revisados}</strong><span>REVISADOS</span></div><div class="rx-stat"><strong>${pendientes}</strong><span>PENDIENTES</span></div></div><div class="rx-progress-label"><span>Progreso de revisión</span><span>${pct}%</span></div><div class="rx-progress"><div style="width:${pct}%"></div></div></div><input id="c51Buscar" class="rx23-search" placeholder="🔎 Buscar producto..." value="${escaparHtmlPedido(c51Buscador)}" oninput="c51BuscarFiltrar(this.value)"><div class="rx23-tabs"><button class="${c51FiltroRecepcion==='todos'?'active':''}" onclick="c51Filtro('todos')">Todos</button><button class="${c51FiltroRecepcion==='pendientes'?'active':''}" onclick="c51Filtro('pendientes')">Por recibir</button><button class="${c51FiltroRecepcion==='resueltos'?'active':''}" onclick="c51Filtro('resueltos')">Revisados</button><button class="${c51FiltroRecepcion==='faltantes'?'active':''}" onclick="c51Filtro('faltantes')">Faltantes (${cuentaFaltantes})</button></div>`;
           if(c51FiltroRecepcion==='faltantes'){
             // No mezclar unidades nunca encontradas con las que sí llegaron a Despacho.
             cont.innerHTML=html+c75ListaHtml();
