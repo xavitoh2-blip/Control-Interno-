@@ -2063,7 +2063,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.44</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.52</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2612,6 +2612,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoRuta')"><span>📖</span>Catálogo de Ruta</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('cuadreMatriz')"><span>📊</span><b>Cuadre de inventario Matriz</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoAkasia')"><span>🔄</span><b>Actualizar catálogo Akasia</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('logistica')"><span>🚚</span><b>Control Logístico</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('creditos')"><span>💵</span><b>Clientes y Cobros</b></button>
@@ -2953,6 +2954,44 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <div id="c50ResumenResultados"></div>
               <div class="c42-estado">La comparación con existencias actuales y la exportación a Akasia se agregarán después de conectar el puente. Esta versión no modifica Akasia ni genera archivos de ajuste.</div>
             </div>
+        </div>
+
+        <!-- v1.7.51: módulo independiente de cuadre de Matriz, sin tocar Akasia -->
+        <div id="adminCuadreMatriz" class="admin-modulo" style="display:none;margin-top:18px;text-align:left;">
+          <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+          <h3>📊 Cuadre de inventario · Matriz</h3>
+          <p style="font-size:13px;color:#5b6980;line-height:1.6;">Suma <b>conteo en Tienda + conteo en Bodega + mercadería nueva</b>. Mini Súper lleva otro inventario y no se incluye aquí. Los productos recibidos deben mantenerse separados del conteo inicial para no duplicarlos.</p>
+          <div style="background:#fff;border:1px solid #dce5f1;border-radius:16px;padding:14px;margin:12px 0;">
+            <h4 style="margin:0 0 9px;">1. Importar existencias de Akasia</h4>
+            <p style="font-size:12px;color:#667085;">Sube el Excel original de <b>Sucursal Matriz</b> con sus 57 columnas. Se guarda en Google Sheets; no cambia existencias en Akasia ni enlaces de imágenes.</p>
+            <input id="c58ArchivoMatriz" type="file" accept=".xlsx,.xls" style="background:white;" aria-label="Excel original de Akasia Matriz">
+            <button type="button" style="background:#087cff;" onclick="c58ImportarExcel()">📥 Importar Excel Matriz</button>
+            <div id="c58ImportEstado" style="font-size:12px;color:#315b87;margin:8px 0;">Puedes reutilizar el Excel de Matriz que ya importaste desde Administrador.</div>
+          </div>
+          <div style="background:#fff;border:1px solid #dce5f1;border-radius:16px;padding:14px;margin:12px 0;">
+            <h4 style="margin:0 0 9px;">2. Recepción de mercadería nueva</h4>
+            <label style="font-size:12px;font-weight:800;">Nombre del producto</label>
+            <input id="c58BuscarProducto" type="search" autocomplete="off" placeholder="Buscar producto del Excel de Matriz..." oninput="c58BuscarProductos()">
+            <div id="c58Sugerencias" style="max-height:200px;overflow:auto;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+              <div><label style="font-size:12px;font-weight:800;">Unidades recibidas</label><input id="c58Unidades" type="number" min="1" step="1" inputmode="numeric" placeholder="Ej. 12"></div>
+              <div><label style="font-size:12px;font-weight:800;">Proveedor (opcional)</label><input id="c58Proveedor" type="text" maxlength="100" placeholder="Proveedor"></div>
+            </div>
+            <button id="c58GuardarRecepcion" type="button" onclick="c58RegistrarRecepcion()" style="background:#198754;">＋ Guardar recepción</button>
+            <div id="c58RecepcionEstado" style="font-size:12px;color:#315b87;margin:8px 0;"></div>
+            <div id="c58UltimasRecepciones" style="font-size:12px;margin-top:10px;"></div>
+          </div>
+          <div style="background:#fff;border:1px solid #dce5f1;border-radius:16px;padding:14px;margin:12px 0;">
+            <h4 style="margin:0 0 9px;">3. Unir conteos y preparar Excel</h4>
+            <button type="button" onclick="c58CargarEstado()" style="background:#697a8d;">↻ Actualizar conteos asignados</button>
+            <div id="c58Resumen" style="font-size:12px;color:#345679;margin:10px 0;">Consultando conteos…</div>
+            <input id="c58Filtrar" type="search" placeholder="Filtrar productos trabajados..." oninput="c58RenderProductos()">
+            <div id="c58Productos" style="max-height:430px;overflow:auto;"></div>
+            <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:12px;color:#555;line-height:1.5;"><input type="checkbox" id="c58CorteConfirmado" style="width:20px;min-width:20px;height:20px;min-height:20px;margin:0;"> Confirmo que las recepciones nuevas no se incluyeron en los conteos físicos y que no hubo ventas, salidas o traslados posteriores sin descontar. Si hubo, debo reconciliarlos antes de exportar.</label>
+            <button id="c58DescargarBtn" type="button" onclick="c58DescargarExcel()" style="background:#087cff;">📤 Generar Excel solo con seleccionados</button>
+            <div id="c58ExcelEstado" style="font-size:12px;color:#355a7a;margin:10px 0;">Solo se exportan los productos con ambos conteos y sin actualización previa confirmada. Se conservan las 57 columnas originales. <b>PRUEBA:</b> verifica primero qué formato acepta Akasia para actualizar existencias; no importes directamente en producción sin esa comprobación.</div>
+            <button id="c58ConfirmarAkasiaBtn" type="button" onclick="c58ConfirmarActualizacion()" disabled style="background:#198754;">✅ Ya importé y verifiqué este Excel en Akasia</button>
+          </div>
         </div>
 
         <div id="adminCatalogoRuta" class="admin-modulo" style="display:none;margin-top:18px;">
@@ -7116,7 +7155,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(typeof m214Restaurar==='function')m214Restaurar();
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos",rutacaja:"adminRutaCaja230"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",cuadreMatriz:"adminCuadreMatriz",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos",rutacaja:"adminRutaCaja230"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -7124,6 +7163,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "imagenes") iniciarAdminImagenes();
             if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
             if (modulo === "conteosAsignados") c42AbrirAdmin();
+            if (modulo === "cuadreMatriz") c58CargarEstado();
             if (modulo === "catalogoAkasia") c48Abrir();
             if (modulo === "logistica") m214Pestana('kardex');
             if (modulo === "creditos") c226Abrir(true);
@@ -7201,9 +7241,9 @@ async function verificarPassword() {
                 const d=await r.json();
                 if(!r.ok||d.status!=='OK'||!d.token)throw Error(d.mensaje||'No se pudo validar el acceso administrativo.');
                 if(document.getElementById('loginModal')?.style.display==='none')return;
-                // Compatibilidad con módulos antiguos que comprueban el
-                // indicador interno de panel; el acceso real ya está validado.
-                c49SesionAdministrador = 'admin123';
+                // Solo es una bandera visual del panel. Nunca se envía como
+                // autorización: el servidor valida el token de sesión.
+                c49SesionAdministrador = 'SESION_ACTIVA';
                 m201TokenSupervisor=d.token;
                 a196ClaveAdmin=pass;
                 n188ClaveAdmin=pass;
@@ -9976,7 +10016,7 @@ async function c42CrearAsignacion(){
  const b=document.getElementById('c42CrearBtn');b.disabled=true;
  c42Aviso('c42EstadoAdmin','Asignando '+c42Seleccionados.length+' productos a '+asignaciones.length+' sucursal(es)…');
  try{
-   const d=await c42Post('c45CrearAsignacionesLote',{asignaciones:JSON.stringify(asignaciones),creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
+   const d=await c42Post('c45CrearAsignacionesLote',{...c48CredencialesAdmin(),asignaciones:JSON.stringify(asignaciones),creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
    c42Aviso('c42EstadoAdmin','✅ '+d.productos+' productos por sucursal, '+d.sucursales+' sucursal(es), '+d.lotes+' tareas creadas.');
    c42Seleccionados.forEach(n=>c47EnviadosSesion.add(n));
    c42Seleccionados=[];c42RenderSeleccionados();c47CambiarCategoria();await c42RevisarAsignaciones();c50CargarEstados().catch(()=>{});
@@ -9987,7 +10027,7 @@ async function c42RevisarAsignaciones(){
  const box=document.getElementById('c42RevisionAdmin');
  box.innerHTML='<p class="c42-meta">Consultando asignaciones…</p>';
  try{
-  const d=await c42Post('c42RevisarAdmin',{});c47RevisionAsignaciones=d.asignaciones||[];
+  const d=await c42Post('c42RevisarAdmin',c48CredencialesAdmin());c47RevisionAsignaciones=d.asignaciones||[];
   box.innerHTML=c47RevisionAsignaciones.map((a,i)=>`<div class="c42-item"><b>${c42Esc(a.empleado)}</b><div class="c42-meta">${c42Esc(a.sucursal)} · ${c42Esc(a.estado)} · ${a.contados}/${a.total} productos · ${c42Esc(a.fecha)}</div><button type="button" onclick="c47VerRevisionDetalle(${i})">👁 Ver los productos contados</button><div id="c47RevisionDetalle${i}"></div></div>`).join('')||'<p class="c42-meta">Todavía no hay conteos.</p>';
  }catch(e){box.innerHTML='';c42Aviso('c42EstadoAdmin',e.message,true);}
 }
@@ -10028,7 +10068,7 @@ async function c50CargarEstados(){
  el.textContent='Consultando los conteos guardados…';
  try{
   if(!c49SesionAdministrador){c50Productos=[];c50Indice={};el.textContent='Inicia sesión como Administrador para consultar los conteos.';return;}
-  const d=await c42Post('c50ConsultarEstados',{autorizacionAdmin:c49SesionAdministrador,desde:document.getElementById('c50Desde').value,hasta:document.getElementById('c50Hasta').value});
+  const d=await c42Post('c50ConsultarEstados',{...c48CredencialesAdmin(),desde:document.getElementById('c50Desde').value,hasta:document.getElementById('c50Hasta').value});
   if(numero!==c50Solicitud)return;
   c50Productos=d.productos||[];c50Indice={};
   c50Productos.forEach(p=>{c50Indice[c50ClaveProducto(p.sucursal,p.nombre)]=p;});
@@ -10128,6 +10168,161 @@ window.addEventListener('load',()=>setTimeout(c42ArrancarPrueba,0));
 // SheetJS se carga como biblioteca de análisis .xlsx desde cdnjs.
 // ========================================================================
 const c48Cabeceras='cbarras|nombre_producto|descripcion_producto|existencia|caducidad|lote|dInvMin|dInvMax|puntos_lealtad|precio_compra|impuesto_incluido|precio_venta|dCantMinPP2|precio_venta2|dCantMinPP3|precio_venta3|dCantMinPP4|precio_venta4|dCantMinPP5|precio_venta5|dCantMinPP6|precio_venta6|dCantMinPP7|precio_venta7|dCantMinPP8|precio_venta8|dCantMinPP9|precio_venta9|dCantMinPP10|precio_venta10|tipo_factor_iva|tasa_cuota_iva|tipo_factor_ieps|tasa_cuota_ieps|codigo_sat|clave_unidad|nombre_unidad|nombre_dep|nombre_categoria|vNombreSubCategoria|marca|modelo|color|tamano|proveedor|is_active|is_kit|iPeriodicidad|is_inventory|isCaducidadLote|is_granel|pedir_cedula|pedir_info_adicional|bIsPromocion|bIsInsumo|uuid_producto_sucursal|uuid_producto'.split('|');
+
+// v1.7.51: cuadres por SKU en Matriz. Las recepciones nuevas se anotan por
+// separado; nunca se suman las existencias viejas de Akasia al conteo físico.
+let c58Filas=[],c58Seleccionados=new Set(),c58Sugeridos=[],c58ProductoElegido='',c58BusquedaTimer=null,c58Importando=false;
+const c58UltimoKey='c58_excel_matriz_pendiente';
+function c58Aviso(id,m,error){const e=document.getElementById(id);if(e){e.textContent=m;e.style.color=error?'#b42334':'#315b87';}}
+async function c58Post(accion,datos={}){
+ if(!c49SesionAdministrador)throw Error('Entra al panel Administrador antes de usar Cuadre Matriz.');
+ return c48Post(accion,datos);
+}
+async function c58CargarEstado(){
+ c58Aviso('c58Resumen','Consultando conteos de Tienda, Bodega y recepciones…');
+ try{
+  const d=await c58Post('c58EstadoMatriz');c58Filas=d.productos||[];
+  c58Seleccionados=new Set([...c58Seleccionados].filter(n=>c58Filas.some(x=>x.nombre===n&&x.listo)));
+  const listos=c58Filas.filter(x=>x.listo).length,recep=c58Filas.filter(x=>x.recepcion>0).length;
+  c58Aviso('c58Resumen',`${d.totalCatalogo} productos en Excel Matriz · ${c58Filas.length} trabajados · ${listos} listos para exportar · ${recep} con recepción pendiente.`);
+  c58RenderProductos();
+  c58RenderRecepciones(d.recepciones||[]);
+  const pendiente=JSON.parse(localStorage.getItem(c58UltimoKey)||'null');
+  document.getElementById('c58ConfirmarAkasiaBtn').disabled=!(pendiente&&pendiente.length);
+ }catch(e){c58Filas=[];c58RenderProductos();c58RenderRecepciones([]);c58Aviso('c58Resumen',e.message,true);}
+}
+let c58RecepcionesActuales=[];
+function c58RenderRecepciones(items){
+ c58RecepcionesActuales=items;const box=document.getElementById('c58UltimasRecepciones');if(!box)return;
+ if(!items.length){box.innerHTML='<p style="color:#667085;">Sin recepciones registradas todavía.</p>';return;}
+ box.innerHTML='<b>Últimas recepciones</b>'+items.slice(0,12).map((x,i)=>`<div style="display:flex;gap:7px;align-items:center;justify-content:space-between;padding:8px 3px;border-bottom:1px solid #edf1f7;">
+ <span style="flex:1;font-size:11px;"><b>${c42Esc(x.producto)}</b><br>${x.cantidad} ud. · ${c42Esc(x.estado)} · ${c42Esc(x.fecha)}</span>
+ ${x.estado==='PENDIENTE'?`<button style="margin:0;background:#fff0f0;color:#9c3444;min-height:31px;width:75px;font-size:11px;" onclick="c58AnularRecepcion(${i})">Anular</button>`:''}</div>`).join('');
+}
+async function c58AnularRecepcion(i){
+ const x=c58RecepcionesActuales[i];if(!x||x.estado!=='PENDIENTE')return;
+ if(!confirm(`¿Anular recepción de ${x.cantidad} unidades de ${x.producto}? Quedará registrada como anulada.`))return;
+ try{await c58Post('c58AnularRecepcionMatriz',{id:x.id});c58Aviso('c58RecepcionEstado','Recepción anulada correctamente.');await c58CargarEstado();}
+ catch(e){c58Aviso('c58RecepcionEstado',e.message,true);}
+}
+function c58Seleccionar(i,marcado){const x=c58Filas[i];if(!x||!x.listo)return;if(marcado)c58Seleccionados.add(x.nombre);else c58Seleccionados.delete(x.nombre);c58ContarMarcados();}
+function c58TodosListos(){c58Filas.filter(x=>x.listo).slice(0,150).forEach(x=>c58Seleccionados.add(x.nombre));c58RenderProductos();}
+function c58ContarMarcados(){const n=c58Seleccionados.size,b=document.getElementById('c58DescargarBtn');if(b)b.textContent=`📤 Generar Excel solo con seleccionados (${n})`;}
+function c58RenderProductos(){
+ const q=c42Norm(document.getElementById('c58Filtrar')?.value||''),box=document.getElementById('c58Productos');if(!box)return;
+ const visibles=c58Filas.map((x,i)=>({...x,i})).filter(x=>!q||c42Norm(x.nombre).includes(q));
+ let html=`<button type="button" onclick="c58TodosListos()" style="background:#e8f2ff;color:#1c5fa6;min-height:36px;font-size:12px;margin-bottom:7px;">✓ Seleccionar hasta 150 productos listos</button>`;
+ html+=visibles.slice(0,250).map(x=>{
+  const m=x.confirmado?'✅ Cuadrado en Akasia':x.ambiguo?'⚠️ Nombre duplicado en Akasia':x.listo?'🟢 Listo para exportar':'🟡 Falta conteo inicial';
+  const t=x.tienda===null?'Sin contar':x.tienda+' ud.',b=x.bodega===null?'Sin contar':x.bodega+' ud.';
+  return `<div style="padding:11px;margin:6px 0;border-radius:12px;background:#f8fbff;border:1px solid #dce7f4;">
+   <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
+    <b style="font-size:12px;overflow-wrap:anywhere;">${c42Esc(x.nombre)}</b><span style="font-size:11px;color:#52647d;white-space:nowrap;">${m}</span>
+   </div>
+   <div style="font-size:11px;color:#5c6b83;line-height:1.6;margin:7px 0;">Tienda: <b>${t}</b> · Bodega: <b>${b}</b> · Mercadería nueva: <b>${x.recepcion} ud.</b>${x.total!==null?`<br>Inventario final: <b>${x.total} ud.</b> · Akasia anterior: ${x.sistema} ud.`:''}</div>
+   ${x.listo?`<label style="font-size:12px;display:flex;align-items:center;gap:8px;"><input type="checkbox" style="width:20px;height:20px;min-height:20px;margin:0;" ${c58Seleccionados.has(x.nombre)?'checked':''} onchange="c58Seleccionar(${x.i},this.checked)">Incluir en Excel</label>`:''}
+   ${!x.listo&&!x.confirmado&&!x.ambiguo?`<button style="background:#e6efff;color:#215da5;min-height:34px;font-size:12px;" onclick="c58IrAAsignar(${x.i})">🧮 Asignar conteo faltante</button>`:''}
+   ${x.confirmado&&x.recepcion>0?`<div style="font-size:11px;color:#9c5b19;margin-top:5px;">Nueva recepción: debes registrarla en Akasia. No se repetirá el ajuste inicial.</div><button style="background:#ddf5e6;color:#17623e;min-height:34px;font-size:12px;" onclick="c58ConfirmarRecepcion(${x.i})">✓ Ya ingresé esta recepción en Akasia</button>`:''}
+  </div>`;
+ }).join('');
+ if(!visibles.length)html+='<p style="font-size:12px;color:#6b7b90;padding:12px;">Todavía no hay productos trabajados o no coinciden con la búsqueda.</p>';
+ if(visibles.length>250)html+=`<p style="font-size:11px;color:#667085;">Se muestran 250 de ${visibles.length}. Usa el buscador para ver los demás.</p>`;
+ box.innerHTML=html;c58ContarMarcados();
+}
+function c58IrAAsignar(i){
+ const x=c58Filas[i];if(!x)return;
+ if(!c42Seleccionados.includes(x.nombre)&&c42Seleccionados.length<300)c42Seleccionados.push(x.nombre);
+ abrirModuloAdmin('conteosAsignados');c42RenderSeleccionados();
+ alert('Se agregó '+x.nombre+' a los productos seleccionados. Marca Tienda y/o Bodega, elige sus colaboradores y pulsa Asignar productos.');
+}
+function c58BuscarProductos(){
+ const q=document.getElementById('c58BuscarProducto').value.trim();c58ProductoElegido='';c58Sugeridos=[];
+ document.getElementById('c58Sugerencias').innerHTML='';clearTimeout(c58BusquedaTimer);
+ if(q.length<2)return;
+ c58BusquedaTimer=setTimeout(async()=>{
+  try{
+   const d=await c58Post('c58BuscarMatriz',{buscar:q});
+   if(document.getElementById('c58BuscarProducto').value.trim()!==q)return;
+   c58Sugeridos=d.productos||[];
+   document.getElementById('c58Sugerencias').innerHTML=c58Sugeridos.map((x,i)=>`<button type="button" style="background:#f0f6ff;color:#244f7e;text-align:left;min-height:33px;font-size:12px;margin:2px 0;" ${x.ambiguo?'disabled':''} onclick="c58ElegirProducto(${i})">${c42Esc(x.nombre)}${x.ambiguo?' (nombre duplicado)':''}</button>`).join('')||'<span style="font-size:12px;color:#666;">No encontrado en Akasia Matriz.</span>';
+  }catch(e){c58Aviso('c58RecepcionEstado',e.message,true);}
+ },280);
+}
+function c58ElegirProducto(i){const p=c58Sugeridos[i];if(!p||p.ambiguo)return;c58ProductoElegido=p.nombre;document.getElementById('c58BuscarProducto').value=p.nombre;document.getElementById('c58Sugerencias').innerHTML='';}
+async function c58RegistrarRecepcion(){
+ const qty=Number(document.getElementById('c58Unidades').value),p=c58ProductoElegido;
+ if(!p)return c58Aviso('c58RecepcionEstado','Selecciona primero un producto de los resultados del buscador.',true);
+ if(!Number.isInteger(qty)||qty<1)return c58Aviso('c58RecepcionEstado','Indica una cantidad entera mayor que cero.',true);
+ const b=document.getElementById('c58GuardarRecepcion');b.disabled=true;
+ try{
+  const d=await c58Post('c58RecibirMatriz',{producto:p,cantidad:qty,proveedor:document.getElementById('c58Proveedor').value,usuario:localStorage.getItem('usuario')||'ADMIN'});
+  c58Aviso('c58RecepcionEstado',`✅ Registradas ${d.cantidad} unidades de ${d.producto}. Estas unidades no deben volver a incluirse en el conteo físico.`);
+  document.getElementById('c58Unidades').value='';document.getElementById('c58BuscarProducto').value='';c58ProductoElegido='';await c58CargarEstado();
+ }catch(e){c58Aviso('c58RecepcionEstado',e.message,true);}finally{b.disabled=false;}
+}
+async function c58ImportarExcel(){
+ if(c58Importando)return;
+ const f=document.getElementById('c58ArchivoMatriz').files?.[0];if(!f)return c58Aviso('c58ImportEstado','Selecciona el Excel original de Matriz.',true);
+ if(typeof XLSX==='undefined')return c58Aviso('c58ImportEstado','No se cargó el lector de Excel.',true);
+ if(f.size>25*1024*1024)return c58Aviso('c58ImportEstado','El archivo supera el límite de 25 MB.',true);
+ c58Importando=true;
+ try{
+  const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:false}),hoja=wb.Sheets[wb.SheetNames[0]],filas=XLSX.utils.sheet_to_json(hoja,{header:1,raw:true,defval:'',blankrows:false});
+  const cab=(filas[0]||[]).map(x=>String(x??'').trim());
+  if(cab.length!==57||!c48Cabeceras.every((x,i)=>x===cab[i]))throw Error('El archivo debe contener las 57 columnas originales de Akasia, sin cambiar su orden.');
+  const datos=[];
+  for(let i=1;i<filas.length;i++){
+   if(!filas[i]?.some(x=>String(x??'').trim()))continue;
+   const r=Array.from({length:57},(_,j)=>filas[i][j]??'');
+   if(!String(r[1]).trim())throw Error('Hay un producto sin nombre en la fila '+(i+1));
+   const cb=hoja[XLSX.utils.encode_cell({r:i,c:0})];if(cb?.w)r[0]=String(cb.w).trim();
+   r[55]=String(r[55]||'');r[56]=String(r[56]||'');datos.push(r);
+  }
+  if(!datos.length||datos.length>10000)throw Error('El archivo debe tener entre 1 y 10,000 productos.');
+  if(!confirm(`¿Importar ${datos.length} productos de Matriz a Google Sheets? Se guardarán sus 57 campos y NO se cambiará Akasia.`))return;
+  c58Aviso('c58ImportEstado','Iniciando importación…');
+  const ini=await c58Post('c48Iniciar',{sucursal:'MATRIZ',total:datos.length,cabeceras:JSON.stringify(cab)});
+  for(let i=0;i<datos.length;i+=200){
+   await c58Post('c48CargarBloque',{sucursal:'MATRIZ',id:ini.id,desde:i,filas:JSON.stringify(datos.slice(i,i+200))});
+   c58Aviso('c58ImportEstado',`Importando ${Math.min(i+200,datos.length)} / ${datos.length} productos…`);
+  }
+  await c58Post('c48Finalizar',{sucursal:'MATRIZ',id:ini.id});
+  c58Aviso('c58ImportEstado',`✅ ${datos.length} productos de Matriz importados. Puedes revisar los conteos.`);
+  document.getElementById('c58ArchivoMatriz').value='';await c58CargarEstado();
+ }catch(e){c58Aviso('c58ImportEstado',e.message,true);}finally{c58Importando=false;}
+}
+async function c58DescargarExcel(){
+ if(typeof XLSX==='undefined')return c58Aviso('c58ExcelEstado','No está disponible el generador Excel.',true);
+ if(!document.getElementById('c58CorteConfirmado').checked)return c58Aviso('c58ExcelEstado','Antes de exportar, confirma que las recepciones no se duplican y que las salidas posteriores están conciliadas.',true);
+ const elegidos=[...c58Seleccionados];if(!elegidos.length)return c58Aviso('c58ExcelEstado','Selecciona al menos un producto con ambos conteos.',true);
+ if(elegidos.length>150)return c58Aviso('c58ExcelEstado','Elige un máximo de 150 productos por archivo.',true);
+ const b=document.getElementById('c58DescargarBtn');b.disabled=true;
+ try{
+  const d=await c58Post('c58ExcelMatriz',{productos:JSON.stringify(elegidos)});
+  const h=XLSX.utils.aoa_to_sheet([d.cabeceras,...d.filas]),w=XLSX.utils.book_new();XLSX.utils.book_append_sheet(w,h,'Productos');
+  XLSX.writeFile(w,'PRUEBA_Akasia_Matriz_Cuadre_'+new Date().toISOString().slice(0,10)+'.xlsx',{bookType:'xlsx'});
+  localStorage.setItem(c58UltimoKey,JSON.stringify(d.resumen.map(x=>({producto:x.producto,existencia:x.existencia}))));
+  document.getElementById('c58ConfirmarAkasiaBtn').disabled=false;
+  c58Aviso('c58ExcelEstado',`✅ Excel generado: ${d.filas.length} productos, 57 columnas. Comprueba que Akasia acepta este formato. Después de importarlo y verificarlo, confirma abajo.`);
+ }catch(e){c58Aviso('c58ExcelEstado',e.message,true);}finally{b.disabled=false;}
+}
+async function c58ConfirmarRecepcion(i){
+ const x=c58Filas[i];if(!x||!x.confirmado||x.recepcion<=0)return;
+ if(!confirm(`¿Ya registraste en Akasia la entrada de ${x.recepcion} unidades de ${x.nombre}?`))return;
+ try{
+  const d=await c58Post('c58ConfirmarRecepcionMatriz',{producto:x.nombre,usuario:localStorage.getItem('usuario')||'ADMIN'});
+  c58Aviso('c58RecepcionEstado',`✅ Recepción de ${d.unidades} unidades marcada como registrada en Akasia.`);await c58CargarEstado();
+ }catch(e){c58Aviso('c58RecepcionEstado',e.message,true);}
+}
+async function c58ConfirmarActualizacion(){
+ const lista=JSON.parse(localStorage.getItem(c58UltimoKey)||'null');if(!lista?.length)return;
+ if(!confirm(`¿Ya IMPORTASTE en Akasia y VERIFICASTE las existencias de estos ${lista.length} productos? Esto los marcará como cuadrados en nuestra app.`))return;
+ const b=document.getElementById('c58ConfirmarAkasiaBtn');b.disabled=true;
+ try{
+  const d=await c58Post('c58ConfirmarMatriz',{items:JSON.stringify(lista),usuario:localStorage.getItem('usuario')||'ADMIN'});
+  localStorage.removeItem(c58UltimoKey);c58Seleccionados.clear();c58Aviso('c58ExcelEstado',`✅ ${d.confirmados} productos marcados como actualizados en Akasia.`);await c58CargarEstado();
+ }catch(e){c58Aviso('c58ExcelEstado',e.message,true);b.disabled=false;}
+}
 let c48Cargas={},c48EstadoActual={nombres:[],sucursales:{}},c48Ocupado=false;
 function c48Mensaje(m,err){const e=document.getElementById('c48Estado');if(e){e.textContent=m;e.style.color=err?'#be273f':'#28608b';}}
 async function c48GetEstado(){
@@ -10135,9 +10330,15 @@ async function c48GetEstado(){
  if(!r.ok)throw Error('Error de conexión al consultar los catálogos.');
  const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No se pudo consultar el catálogo.');return d;
 }
-async function c48Post(accion,datos){
+function c48CredencialesAdmin(){
+ if(!c49SesionAdministrador||!m201TokenSupervisor)
+   throw Error('La sesión de Administración venció. Sal del panel y vuelve a ingresar con tu clave.');
+ return {empleado:'SUPERVISOR',token:m201TokenSupervisor};
+}
+async function c48Post(accion,datos={}){
  const body=new URLSearchParams();body.set('accion',accion);
- Object.entries(datos).forEach(([k,v])=>body.set(k,String(v)));
+ // El token prevalece sobre los datos de cualquier formulario.
+ Object.entries({...datos,...c48CredencialesAdmin()}).forEach(([k,v])=>body.set(k,String(v)));
  const r=await fetch(URL_API,{method:'POST',body});
  if(!r.ok)throw Error('No se pudo comunicar con Apps Script (HTTP '+r.status+').');
  const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'Error desconocido de sincronización.');return d;
@@ -10208,13 +10409,13 @@ async function c48ConfirmarActualizacion(){
  try{
    for(const suc of sucursales){
      const d=c48Cargas[suc];c48Mensaje('Iniciando '+suc+' · '+d.filas.length+' productos…');
-     const ini=await c48Post('c48Iniciar',{autorizacionAdmin:c49SesionAdministrador,sucursal:suc,total:d.filas.length,cabeceras:JSON.stringify(d.cabeceras)});
+     const ini=await c48Post('c48Iniciar',{sucursal:suc,total:d.filas.length,cabeceras:JSON.stringify(d.cabeceras)});
      for(let i=0;i<d.filas.length;i+=250){
-       await c48Post('c48CargarBloque',{autorizacionAdmin:c49SesionAdministrador,sucursal:suc,id:ini.id,desde:i,filas:JSON.stringify(d.filas.slice(i,i+250))});
+       await c48Post('c48CargarBloque',{sucursal:suc,id:ini.id,desde:i,filas:JSON.stringify(d.filas.slice(i,i+250))});
        c48Mensaje(suc+': '+Math.min(d.filas.length,i+250)+' de '+d.filas.length+' productos recibidos…');
        await new Promise(resolve=>setTimeout(resolve,0));
      }
-     const fin=await c48Post('c48Finalizar',{autorizacionAdmin:c49SesionAdministrador,sucursal:suc,id:ini.id});
+     const fin=await c48Post('c48Finalizar',{sucursal:suc,id:ini.id});
      terminadas.push({sucursal:suc,filas:fin.filas,nuevos:fin.maestro?.nuevos||0,revision:fin.maestro?.enRevision||0});
    }
    const texto=terminadas.map(x=>`${x.sucursal}: ${x.filas} importados · ${x.nuevos} agregados · ${x.revision} por revisar`).join(' | ');
