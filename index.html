@@ -2063,7 +2063,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.52</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.53</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2982,14 +2982,19 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div id="c58UltimasRecepciones" style="font-size:12px;margin-top:10px;"></div>
           </div>
           <div style="background:#fff;border:1px solid #dce5f1;border-radius:16px;padding:14px;margin:12px 0;">
-            <h4 style="margin:0 0 9px;">3. Unir conteos y preparar Excel</h4>
+            <h4 style="margin:0 0 9px;">3. Revisar negativos con un Excel nuevo de Akasia</h4>
+            <p style="font-size:12px;color:#667085;line-height:1.6;">Cuando tengas los conteos, exporta otra vez el Excel completo desde Akasia y súbelo aquí. La app detectará los productos con existencia negativa y restará esas unidades de los conteos que vas a actualizar. <b>La resta solo es correcta si esas ventas ocurrieron después del conteo físico.</b></p>
+            <input id="c59ArchivoActual" type="file" accept=".xlsx,.xls" style="background:white;" aria-label="Excel actualizado de Akasia Matriz para revisar negativos">
+            <button type="button" onclick="c58ImportarExcel('c59ArchivoActual','c59ImportEstado')" style="background:#0a72b8;">🔄 Importar Excel actualizado y revisar negativos</button>
+            <div id="c59ImportEstado" style="font-size:12px;color:#315b87;margin:8px 0;">No modifica Akasia: actualiza la copia de sus existencias en Google Sheets para calcular el Excel final.</div>
+            <h4 style="margin:16px 0 9px;">4. Unir conteos y preparar Excel</h4>
             <button type="button" onclick="c58CargarEstado()" style="background:#697a8d;">↻ Actualizar conteos asignados</button>
             <div id="c58Resumen" style="font-size:12px;color:#345679;margin:10px 0;">Consultando conteos…</div>
             <input id="c58Filtrar" type="search" placeholder="Filtrar productos trabajados..." oninput="c58RenderProductos()">
             <div id="c58Productos" style="max-height:430px;overflow:auto;"></div>
-            <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:12px;color:#555;line-height:1.5;"><input type="checkbox" id="c58CorteConfirmado" style="width:20px;min-width:20px;height:20px;min-height:20px;margin:0;"> Confirmo que las recepciones nuevas no se incluyeron en los conteos físicos y que no hubo ventas, salidas o traslados posteriores sin descontar. Si hubo, debo reconciliarlos antes de exportar.</label>
+            <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:12px;color:#555;line-height:1.5;"><input type="checkbox" id="c58CorteConfirmado" style="width:20px;min-width:20px;height:20px;min-height:20px;margin:0;"> Confirmo que los negativos del último Excel de Akasia corresponden a ventas hechas después de los conteos y que la mercadería nueva no se contó dos veces. Si hubo ventas anteriores a los conteos u otros movimientos, debo revisarlos antes de exportar.</label>
             <button id="c58DescargarBtn" type="button" onclick="c58DescargarExcel()" style="background:#087cff;">📤 Generar Excel solo con seleccionados</button>
-            <div id="c58ExcelEstado" style="font-size:12px;color:#355a7a;margin:10px 0;">Solo se exportan los productos con ambos conteos y sin actualización previa confirmada. Se conservan las 57 columnas originales. <b>PRUEBA:</b> verifica primero qué formato acepta Akasia para actualizar existencias; no importes directamente en producción sin esa comprobación.</div>
+            <div id="c58ExcelEstado" style="font-size:12px;color:#355a7a;margin:10px 0;">Solo se exportan productos con ambos conteos, descontando existencias negativas del último Excel de Akasia. Se conservan las 57 columnas originales. <b>PRUEBA:</b> verifica primero qué formato acepta Akasia para actualizar existencias; no importes directamente en producción sin esa comprobación.</div>
             <button id="c58ConfirmarAkasiaBtn" type="button" onclick="c58ConfirmarActualizacion()" disabled style="background:#198754;">✅ Ya importé y verifiqué este Excel en Akasia</button>
           </div>
         </div>
@@ -10183,8 +10188,8 @@ async function c58CargarEstado(){
  try{
   const d=await c58Post('c58EstadoMatriz');c58Filas=d.productos||[];
   c58Seleccionados=new Set([...c58Seleccionados].filter(n=>c58Filas.some(x=>x.nombre===n&&x.listo)));
-  const listos=c58Filas.filter(x=>x.listo).length,recep=c58Filas.filter(x=>x.recepcion>0).length;
-  c58Aviso('c58Resumen',`${d.totalCatalogo} productos en Excel Matriz · ${c58Filas.length} trabajados · ${listos} listos para exportar · ${recep} con recepción pendiente.`);
+  const listos=c58Filas.filter(x=>x.listo).length,recep=c58Filas.filter(x=>x.recepcion>0).length,negativos=c58Filas.filter(x=>x.negativoAkasia>0&&!x.confirmado).length;
+  c58Aviso('c58Resumen',`${d.totalCatalogo} productos en Excel Matriz · ${c58Filas.length} trabajados · ${listos} listos para exportar · ${negativos} con ventas negativas detectadas · ${recep} con recepción pendiente.`);
   c58RenderProductos();
   c58RenderRecepciones(d.recepciones||[]);
   const pendiente=JSON.parse(localStorage.getItem(c58UltimoKey)||'null');
@@ -10213,15 +10218,16 @@ function c58RenderProductos(){
  const visibles=c58Filas.map((x,i)=>({...x,i})).filter(x=>!q||c42Norm(x.nombre).includes(q));
  let html=`<button type="button" onclick="c58TodosListos()" style="background:#e8f2ff;color:#1c5fa6;min-height:36px;font-size:12px;margin-bottom:7px;">✓ Seleccionar hasta 150 productos listos</button>`;
  html+=visibles.slice(0,250).map(x=>{
-  const m=x.confirmado?'✅ Cuadrado en Akasia':x.ambiguo?'⚠️ Nombre duplicado en Akasia':x.listo?'🟢 Listo para exportar':'🟡 Falta conteo inicial';
+  const m=x.confirmado?'✅ Cuadrado en Akasia':x.ambiguo?'⚠️ Nombre duplicado en Akasia':x.negativoExcede?'⚠️ Negativo supera el conteo':x.listo?'🟢 Listo para exportar':'🟡 Falta conteo inicial';
   const t=x.tienda===null?'Sin contar':x.tienda+' ud.',b=x.bodega===null?'Sin contar':x.bodega+' ud.';
   return `<div style="padding:11px;margin:6px 0;border-radius:12px;background:#f8fbff;border:1px solid #dce7f4;">
    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
     <b style="font-size:12px;overflow-wrap:anywhere;">${c42Esc(x.nombre)}</b><span style="font-size:11px;color:#52647d;white-space:nowrap;">${m}</span>
    </div>
-   <div style="font-size:11px;color:#5c6b83;line-height:1.6;margin:7px 0;">Tienda: <b>${t}</b> · Bodega: <b>${b}</b> · Mercadería nueva: <b>${x.recepcion} ud.</b>${x.total!==null?`<br>Inventario final: <b>${x.total} ud.</b> · Akasia anterior: ${x.sistema} ud.`:''}</div>
+   <div style="font-size:11px;color:#5c6b83;line-height:1.6;margin:7px 0;">Tienda: <b>${t}</b> · Bodega: <b>${b}</b> · Mercadería nueva: <b>${x.recepcion} ud.</b>${x.total!==null?`<br>Conteo total: <b>${x.total} ud.</b> · Último Excel Akasia: <b>${x.sistema} ud.</b>${x.negativoAkasia>0?`<br><span style="color:#aa5724;">Ventas negativas a descontar: −${x.negativoAkasia} ud.</span>`:''}<br><span style="color:${x.negativoExcede?'#b42334':'#17623e'};font-weight:800;">Total para exportar: ${x.totalExportar} ud.</span>`:''}</div>
    ${x.listo?`<label style="font-size:12px;display:flex;align-items:center;gap:8px;"><input type="checkbox" style="width:20px;height:20px;min-height:20px;margin:0;" ${c58Seleccionados.has(x.nombre)?'checked':''} onchange="c58Seleccionar(${x.i},this.checked)">Incluir en Excel</label>`:''}
-   ${!x.listo&&!x.confirmado&&!x.ambiguo?`<button style="background:#e6efff;color:#215da5;min-height:34px;font-size:12px;" onclick="c58IrAAsignar(${x.i})">🧮 Asignar conteo faltante</button>`:''}
+   ${x.negativoExcede?`<div style="font-size:11px;color:#b42334;margin-top:5px;">El último Excel de Akasia tiene más unidades negativas que las contadas. Revisa el conteo y las ventas antes de exportar.</div>`:''}
+   ${!x.listo&&!x.confirmado&&!x.ambiguo&&!x.negativoExcede?`<button style="background:#e6efff;color:#215da5;min-height:34px;font-size:12px;" onclick="c58IrAAsignar(${x.i})">🧮 Asignar conteo faltante</button>`:''}
    ${x.confirmado&&x.recepcion>0?`<div style="font-size:11px;color:#9c5b19;margin-top:5px;">Nueva recepción: debes registrarla en Akasia. No se repetirá el ajuste inicial.</div><button style="background:#ddf5e6;color:#17623e;min-height:34px;font-size:12px;" onclick="c58ConfirmarRecepcion(${x.i})">✓ Ya ingresé esta recepción en Akasia</button>`:''}
   </div>`;
  }).join('');
@@ -10260,11 +10266,12 @@ async function c58RegistrarRecepcion(){
   document.getElementById('c58Unidades').value='';document.getElementById('c58BuscarProducto').value='';c58ProductoElegido='';await c58CargarEstado();
  }catch(e){c58Aviso('c58RecepcionEstado',e.message,true);}finally{b.disabled=false;}
 }
-async function c58ImportarExcel(){
+async function c58ImportarExcel(inputId='c58ArchivoMatriz',estadoId='c58ImportEstado'){
  if(c58Importando)return;
- const f=document.getElementById('c58ArchivoMatriz').files?.[0];if(!f)return c58Aviso('c58ImportEstado','Selecciona el Excel original de Matriz.',true);
- if(typeof XLSX==='undefined')return c58Aviso('c58ImportEstado','No se cargó el lector de Excel.',true);
- if(f.size>25*1024*1024)return c58Aviso('c58ImportEstado','El archivo supera el límite de 25 MB.',true);
+ const segundaCarga=inputId==='c59ArchivoActual',aviso=(mensaje,error=false)=>c58Aviso(estadoId,mensaje,error);
+ const f=document.getElementById(inputId)?.files?.[0];if(!f)return aviso('Selecciona el Excel de Matriz.',true);
+ if(typeof XLSX==='undefined')return aviso('No se cargó el lector de Excel.',true);
+ if(f.size>25*1024*1024)return aviso('El archivo supera el límite de 25 MB.',true);
  c58Importando=true;
  try{
   const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:false}),hoja=wb.Sheets[wb.SheetNames[0]],filas=XLSX.utils.sheet_to_json(hoja,{header:1,raw:true,defval:'',blankrows:false});
@@ -10279,21 +10286,25 @@ async function c58ImportarExcel(){
    r[55]=String(r[55]||'');r[56]=String(r[56]||'');datos.push(r);
   }
   if(!datos.length||datos.length>10000)throw Error('El archivo debe tener entre 1 y 10,000 productos.');
-  if(!confirm(`¿Importar ${datos.length} productos de Matriz a Google Sheets? Se guardarán sus 57 campos y NO se cambiará Akasia.`))return;
-  c58Aviso('c58ImportEstado','Iniciando importación…');
+  const negativos=datos.filter(r=>Number(r[3])<0).length;
+  if(!confirm(`¿Importar ${datos.length} productos de Matriz a Google Sheets? ${segundaCarga?`Se detectaron ${negativos} productos con existencia negativa. `:''}Se guardarán sus 57 campos y NO se cambiará Akasia.`))return;
+  aviso('Iniciando importación…');
   const ini=await c58Post('c48Iniciar',{sucursal:'MATRIZ',total:datos.length,cabeceras:JSON.stringify(cab)});
   for(let i=0;i<datos.length;i+=200){
    await c58Post('c48CargarBloque',{sucursal:'MATRIZ',id:ini.id,desde:i,filas:JSON.stringify(datos.slice(i,i+200))});
-   c58Aviso('c58ImportEstado',`Importando ${Math.min(i+200,datos.length)} / ${datos.length} productos…`);
+   aviso(`Importando ${Math.min(i+200,datos.length)} / ${datos.length} productos…`);
   }
   await c58Post('c48Finalizar',{sucursal:'MATRIZ',id:ini.id});
-  c58Aviso('c58ImportEstado',`✅ ${datos.length} productos de Matriz importados. Puedes revisar los conteos.`);
-  document.getElementById('c58ArchivoMatriz').value='';await c58CargarEstado();
- }catch(e){c58Aviso('c58ImportEstado',e.message,true);}finally{c58Importando=false;}
+  // El Excel anterior deja de ser válido si cambian las existencias de Akasia.
+  localStorage.removeItem(c58UltimoKey);c58Seleccionados.clear();
+  const verificacion=document.getElementById('c58CorteConfirmado');if(verificacion)verificacion.checked=false;
+  aviso(`✅ ${datos.length} productos de Matriz importados. ${segundaCarga?`${negativos} con saldo negativo en Akasia. Revisa la resta antes de exportar.`:'Puedes revisar los conteos.'}`);
+  document.getElementById(inputId).value='';await c58CargarEstado();
+ }catch(e){aviso(e.message,true);}finally{c58Importando=false;}
 }
 async function c58DescargarExcel(){
  if(typeof XLSX==='undefined')return c58Aviso('c58ExcelEstado','No está disponible el generador Excel.',true);
- if(!document.getElementById('c58CorteConfirmado').checked)return c58Aviso('c58ExcelEstado','Antes de exportar, confirma que las recepciones no se duplican y que las salidas posteriores están conciliadas.',true);
+ if(!document.getElementById('c58CorteConfirmado').checked)return c58Aviso('c58ExcelEstado','Antes de exportar, confirma que los negativos de Akasia son posteriores al conteo y que las recepciones no se duplicaron.',true);
  const elegidos=[...c58Seleccionados];if(!elegidos.length)return c58Aviso('c58ExcelEstado','Selecciona al menos un producto con ambos conteos.',true);
  if(elegidos.length>150)return c58Aviso('c58ExcelEstado','Elige un máximo de 150 productos por archivo.',true);
  const b=document.getElementById('c58DescargarBtn');b.disabled=true;
@@ -10303,7 +10314,8 @@ async function c58DescargarExcel(){
   XLSX.writeFile(w,'PRUEBA_Akasia_Matriz_Cuadre_'+new Date().toISOString().slice(0,10)+'.xlsx',{bookType:'xlsx'});
   localStorage.setItem(c58UltimoKey,JSON.stringify(d.resumen.map(x=>({producto:x.producto,existencia:x.existencia}))));
   document.getElementById('c58ConfirmarAkasiaBtn').disabled=false;
-  c58Aviso('c58ExcelEstado',`✅ Excel generado: ${d.filas.length} productos, 57 columnas. Comprueba que Akasia acepta este formato. Después de importarlo y verificarlo, confirma abajo.`);
+  const conNegativos=d.resumen.filter(x=>x.ventasNegativas>0),restadas=conNegativos.reduce((n,x)=>n+x.ventasNegativas,0);
+  c58Aviso('c58ExcelEstado',`✅ Excel generado: ${d.filas.length} productos, 57 columnas. Se restaron ${restadas} unidades negativas en ${conNegativos.length} productos. Comprueba que Akasia acepta este formato. Después de importarlo y verificarlo, confirma abajo.`);
  }catch(e){c58Aviso('c58ExcelEstado',e.message,true);}finally{b.disabled=false;}
 }
 async function c58ConfirmarRecepcion(i){
