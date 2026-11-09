@@ -2063,7 +2063,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.57</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.59</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -9343,7 +9343,7 @@ async function verificarPassword() {
         function c75GuardarBorrador(){
           if(!k221IdRuta)return;
           try{
-            const items=Object.values(c75Marcas).map(x=>({producto:x.producto,modo:x.modo,cantidad:x.cantidad,destino:x.destino}));
+            const items=Object.values(c75Marcas).map(x=>({producto:x.producto,modo:x.modo,cantidad:x.cantidad,destino:x.destino,estadoPrevio:x.estadoPrevio}));
             if(items.length)localStorage.setItem(c75Clave('BORRADOR'),JSON.stringify({idRuta:String(k221IdRuta),items,fecha:Date.now()}));
             else localStorage.removeItem(c75Clave('BORRADOR'));
           }catch(_){/* La app sigue funcionando aunque el almacenamiento esté bloqueado. */}
@@ -9357,8 +9357,11 @@ async function verificarPassword() {
               .filter(x=>x.bodegaRevisada&&Number(x.pendienteAsignar)>0).map(x=>x.producto));
             guardado.items.forEach(x=>{
               if(!x||!disponibles.has(x.producto)||!['REASIGNAR','ENCONTRADO'].includes(x.modo))return;
+              const productoActual=(c75SeguimientoDespacho.productos||[]).find(p=>p.producto===x.producto);
+              const sucursalDestino=x.modo==='ENCONTRADO'?'DESPACHO':String(x.destino||'');
               c75Marcas[x.producto]={producto:x.producto,modo:x.modo,cantidad:x.cantidad,
-                destino:String(x.destino||'')};
+                destino:String(x.destino||''),
+                estadoPrevio:x.estadoPrevio||c75EstadoPrevio(productoActual,sucursalDestino)};
             });
             if(!c75ErrorConsulta)c75GuardarBorrador();
           }catch(_){/* No usar un borrador dañado. */}
@@ -9442,6 +9445,11 @@ async function verificarPassword() {
           return h.length?String(h[h.length-1].origen||'Sucursal'):'Bodega';
         }
         function c75Normal(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();}
+        function c75EstadoPrevio(p,destino){
+          const o=(p?.origenes||[]).find(x=>c75Normal(x.sucursal)===c75Normal(destino));
+          return {asignada:Number(o?.asignada)||0,preparada:Number(o?.preparada)||0,
+            recibida:Number(o?.recibida)||0,faltante:Number(o?.faltanteDespacho)||0};
+        }
         function c75Opciones(p){
           const intentados=new Set((p.historialLiberaciones||[]).map(h=>c75Normal(h.origen)));
           for(const o of p.origenes||[])if(o.confirmada||Number(o.asignada)>0)intentados.add(c75Normal(o.sucursal));
@@ -9451,8 +9459,11 @@ async function verificarPassword() {
           const p=c75Libres().find(x=>x.producto===producto);
           if(!p||!['REASIGNAR','ENCONTRADO'].includes(modo))return;
           if(c75Marcas[producto]?.modo===modo)delete c75Marcas[producto];
-          else c75Marcas[producto]={producto,modo,cantidad:c75Marcas[producto]?.cantidad||1,
-            destino:c75Marcas[producto]?.destino||c75Opciones(p)[0]?.[0]||''};
+          else{
+            const destino=modo==='ENCONTRADO'?'DESPACHO':(c75Marcas[producto]?.destino||c75Opciones(p)[0]?.[0]||'');
+            c75Marcas[producto]={producto,modo,cantidad:c75Marcas[producto]?.cantidad||1,
+              destino,estadoPrevio:c75EstadoPrevio(p,destino)};
+          }
           c75GuardarBorrador();
           const posicion=window.scrollY;
           renderRecepcionKardex();
@@ -9473,6 +9484,8 @@ async function verificarPassword() {
         function c75CambiarDestino(producto,valor){
           if(!c75Marcas[producto])return;
           c75Marcas[producto].destino=valor;
+          const p=c75Libres().find(x=>x.producto===producto);
+          c75Marcas[producto].estadoPrevio=c75EstadoPrevio(p,valor);
           c75GuardarBorrador();
         }
         function c75ListaHtml(){
@@ -9499,7 +9512,7 @@ async function verificarPassword() {
                 '<button type="button" class="c75-found'+(abierto&&!esReasignar?' c75-active':'')+'" onclick="c75Editar('+clave+',\'ENCONTRADO\')">✓ Encontrado'+(abierto&&!esReasignar?' ✓':'')+'</button></div>'+
                 (abierto?'<div class="c75-edit">'+(esReasignar?
                   '<label>Nueva sucursal</label><select onchange="c75CambiarDestino('+clave+',this.value)">'+opcionesHtml+'</select>':
-                  '<div class="c75-meta">Unidades encontradas físicamente en Despacho</div>')+
+                  '<div class="c75-meta">Unidades adicionales encontradas en Despacho. Se suman a las ya recibidas, sin reemplazarlas.</div>')+
                   '<div class="c75-counter"><button type="button" onclick="c75Cantidad('+clave+',-1,this)">−</button><input type="number" min="1" max="'+libre+'" value="'+escaparHtmlPedido(ed.cantidad)+'" oninput="c75CambiarCantidad('+clave+',this.value)"><button type="button" onclick="c75Cantidad('+clave+',1,this)">+</button></div>'+
                   (esReasignar&&!opciones.length?'<div class="c75-meta">No hay otra sucursal disponible para este producto.</div>':'')+'</div>':'')+
                 '</div>';
@@ -9525,7 +9538,8 @@ async function verificarPassword() {
               return alert('Revisa '+ed.producto+': indica entre 1 y '+max+' unidades.');
             if(ed.modo==='REASIGNAR'&&!c75Opciones(p).some(x=>x[0]===ed.destino))
               return alert('Elige otra sucursal para '+ed.producto+'.');
-            pendientes.push({producto:ed.producto,modo:ed.modo,destino:ed.destino,cantidad});
+            pendientes.push({producto:ed.producto,modo:ed.modo,destino:ed.destino,cantidad,
+              estadoPrevio:ed.estadoPrevio||c75EstadoPrevio(p,ed.modo==='ENCONTRADO'?'DESPACHO':ed.destino)});
           }
           if(!confirm('¿Guardar las decisiones de '+pendientes.length+' producto(s) del Kardex?'))return;
           c75Guardando=true;
@@ -10000,16 +10014,17 @@ let c47CategoriasCuenta={};
 let c47PaginaConteo=0;
 let c47MaxPagina=25;
 let c42Seleccionados = [];
+let c45ErroresProductos=[];
 let c42AsignacionActiva = null;
 let c42Contando = [];
 let c42Bloqueando = false;
 function c42Esc(v){return String(v==null?'':v).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));}
 function c42Norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();}
-function c42Aviso(id,mensaje,error){const el=document.getElementById(id);if(!el)return;el.textContent=mensaje;el.style.background=error?'#fff0ef':'#eaf4ff';el.style.color=error?'#aa2424':'#21466e';}
+function c42Aviso(id,mensaje,error){const el=document.getElementById(id);if(!el)return;el.textContent=mensaje;el.style.background=error?'#fff0ef':'#eaf4ff';el.style.color=error?'#aa2424':'#21466e';if(id==='c42EstadoAdmin'){el.style.whiteSpace='pre-line';el.style.lineHeight='1.7';}}
 function c42EjecutarPrivado(accion,params){
  return new Promise((resolve,reject)=>{
   google.script.run.withSuccessHandler(d=>{
-    if(!d||d.status!=='OK')reject(Error(d&&d.mensaje||'No se pudo completar.'));else resolve(d);
+    if(!d||d.status!=='OK'){const e=Error(d&&d.mensaje||'No se pudo completar.');if(d&&Array.isArray(d.erroresProductos))e.erroresProductos=d.erroresProductos;reject(e);}else resolve(d);
   }).withFailureHandler(e=>reject(Error(e&&e.message||String(e)))).c42Rpc(accion,params);
  });
 }
@@ -10029,7 +10044,7 @@ async function c42Post(accion,params={}){
  const p=new URLSearchParams({accion,...params});
  const r=await fetch(URL_API,{method:'POST',body:p});
  if(!r.ok)throw Error('HTTP '+r.status);
- const d=await r.json();if(d.status!=='OK')throw Error(d.mensaje||'No se pudo guardar.');return d;
+ const d=await r.json();if(d.status!=='OK'){const e=Error(d.mensaje||'No se pudo guardar.');if(Array.isArray(d.erroresProductos))e.erroresProductos=d.erroresProductos;throw e;}return d;
 }
 async function c42CargarMisConteos(){
  c42CerrarDetalle();const el=document.getElementById('c42MisLista');
@@ -10101,6 +10116,7 @@ async function c42Guardar(finalizar){
  finally{c42Bloqueando=false;}
 }
 async function c42AbrirAdmin(){
+ c45ErroresProductos=[];
  c42LlenarEmpleados();c42RenderSeleccionados();
  c42Aviso('c42EstadoAdmin','Cargando productos y categorías…');
  c50Abrir();
@@ -10183,12 +10199,13 @@ function c42FiltrarCatalogo(){
  }
  box.innerHTML=arr.map(x=>`<button type="button" onclick="c42Agregar(${x.i})" ${c42Seleccionados.includes(x.n)||c42Seleccionados.length>=300?'disabled':''}>＋ ${c42Esc(x.n)}<div style="margin-top:4px">${c50PillsParaProducto(x.n)}</div></button>`).join('')||'<p class="c42-meta">No se encontraron productos.</p>';
 }
-function c42Agregar(i){const n=c42Catalogo[i];if(n&&!c42Seleccionados.includes(n)&&c42Seleccionados.length<300)c42Seleccionados.push(n);c42RenderSeleccionados();c42FiltrarCatalogo();}
-function c42Quitar(i){c42Seleccionados.splice(i,1);c42RenderSeleccionados();c42FiltrarCatalogo();}
+function c45LimpiarErroresConteo(){if(c45ErroresProductos.length){c45ErroresProductos=[];c42Aviso('c42EstadoAdmin','Lista corregida. Pulsa «Asignar productos» para comprobarla de nuevo.');}}
+function c42Agregar(i){const n=c42Catalogo[i];if(n&&!c42Seleccionados.includes(n)&&c42Seleccionados.length<300){c42Seleccionados.push(n);c45LimpiarErroresConteo();}c42RenderSeleccionados();c42FiltrarCatalogo();}
+function c42Quitar(i){c42Seleccionados.splice(i,1);c45LimpiarErroresConteo();c42RenderSeleccionados();c42FiltrarCatalogo();}
 function c42RenderSeleccionados(){
  document.getElementById('c42SeleccionadosTotal').textContent=c42Seleccionados.length;
  const visibles=c42Seleccionados.slice(0,40);
- document.getElementById('c42SeleccionadosAdmin').innerHTML=visibles.map((n,i)=>`<div class="c42-item c42-row"><b style="font-size:12px">${i+1}. ${c42Esc(n)}</b><button type="button" onclick="c42Quitar(${i})" style="width:65px;min-height:35px;background:#7a858e;margin:0;">Quitar</button></div>`).join('')||'<p class="c42-meta">Ningún producto seleccionado.</p>';
+ document.getElementById('c42SeleccionadosAdmin').innerHTML=visibles.map((n,i)=>{const error=c45ErroresProductos.find(x=>Number(x.indice)===i);return `<div class="c42-item c42-row" style="${error?'border:2px solid #f3a1a1;background:#fff3f2;':''}"><div><b style="font-size:12px">${i+1}. ${c42Esc(n)}</b>${error?`<div style="font-size:11px;color:#a32938;margin-top:5px;font-weight:800">${error.tipo==='REPETIDO'?'🟠 Repetido':'🔴 No encontrado'} · ${c42Esc(error.detalle||'Revisar artículo')}</div>`:''}</div><button type="button" onclick="c42Quitar(${i})" style="width:65px;min-height:35px;background:#7a858e;margin:0;">Quitar</button></div>`;}).join('')||'<p class="c42-meta">Ningún producto seleccionado.</p>';
  document.getElementById('c47SeleccionResumen').textContent=c42Seleccionados.length>40?`Se muestran 40 productos de ${c42Seleccionados.length}. Puedes quitar toda una categoría usando el botón superior.`:'';
 }
 async function c42CrearAsignacion(){
@@ -10206,8 +10223,8 @@ async function c42CrearAsignacion(){
    const d=await c42Post('c45CrearAsignacionesLote',{...c48CredencialesAdmin(),asignaciones:JSON.stringify(asignaciones),creadoPor:'Administrador',productos:JSON.stringify(c42Seleccionados)});
    c42Aviso('c42EstadoAdmin','✅ '+d.productos+' productos por sucursal, '+d.sucursales+' sucursal(es), '+d.lotes+' tareas creadas.');
    c42Seleccionados.forEach(n=>c47EnviadosSesion.add(n));
-   c42Seleccionados=[];c42RenderSeleccionados();c47CambiarCategoria();await c42RevisarAsignaciones();c50CargarEstados().catch(()=>{});
- }catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}finally{b.disabled=false;}
+   c42Seleccionados=[];c45ErroresProductos=[];c42RenderSeleccionados();c47CambiarCategoria();await c42RevisarAsignaciones();c50CargarEstados().catch(()=>{});
+ }catch(e){c45ErroresProductos=Array.isArray(e.erroresProductos)?e.erroresProductos:[];c42RenderSeleccionados();c42Aviso('c42EstadoAdmin',e.message,true);}finally{b.disabled=false;}
 }
 let c47RevisionAsignaciones=[];
 async function c42RevisarAsignaciones(){
@@ -10476,6 +10493,7 @@ function c56EnviarConteos(){
  if(elegidos.length>300)return alert('Divide la lista en grupos de hasta 300 productos.');
  if(c42Seleccionados.length&&!confirm(`Ya tienes ${c42Seleccionados.length} productos preparados en Conteos asignados. ¿Reemplazarlos por estos ${elegidos.length}?`))return;
  c42Seleccionados=elegidos.map(x=>x.nombre);
+ c45ErroresProductos=[];
  const soloTienda=elegidos.every(x=>x.tienda===null&&x.bodega!==null);
  const soloBodega=elegidos.every(x=>x.bodega===null&&x.tienda!==null);
  const todas=document.getElementById('c45TodasSucursales');if(todas)todas.checked=false;
@@ -10654,6 +10672,7 @@ function cm55EnviarConteos(){
  const nombres=[...new Set([...c42Seleccionados,...cm55Lista.map(x=>x.nombre)])];
  if(nombres.length>300)return cm55Estado('La selección supera 300 productos. Divide la lista antes de asignarla.',true);
  c42Seleccionados=nombres;
+ c45ErroresProductos=[];
  const todas=document.getElementById('c45TodasSucursales');if(todas)todas.checked=false;
  document.querySelectorAll('#adminConteosAsignados .c45-sucursal').forEach(c=>{c.checked=['TIENDA ONLINE SHOP','BODEGA'].includes(c42Norm(c.value));});
  abrirModuloAdmin('conteosAsignados');
