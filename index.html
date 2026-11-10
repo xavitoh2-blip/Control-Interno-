@@ -2931,6 +2931,22 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <h4>Seleccionados (<span id="c42SeleccionadosTotal">0</span>/300)</h4>
             <div id="c42SeleccionadosAdmin"></div>
             <p id="c47SeleccionResumen" class="c42-meta"></p>
+            <section class="c42-item" style="margin:14px 0;padding:14px;background:#f5f9ff;border:1px solid #d7e6f8;border-radius:15px;">
+              <h4 style="margin:0 0 8px;">📋 Listas guardadas para futuros conteos</h4>
+              <p class="c42-meta">Guarda los productos seleccionados. Podrás recuperar la lista, agregar o quitar productos y guardar los cambios. No se reutilizan cantidades anteriores.</p>
+              <label class="c42-meta" for="c62PlantillaSelect">Listas disponibles</label>
+              <div style="display:flex;gap:7px;flex-wrap:wrap;">
+                <select id="c62PlantillaSelect" style="flex:1 1 190px;"><option value="">Selecciona una lista guardada</option></select>
+                <button type="button" onclick="c62CargarPlantilla()" style="width:auto;background:#e4efff;color:#1a5ba0;">Cargar para editar</button>
+              </div>
+              <label class="c42-meta" for="c62Nombre">Nombre de la lista</label>
+              <input id="c62Nombre" maxlength="80" placeholder="Ej. Pollo Indio, Lácteos o Aceites">
+              <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;">
+                <button type="button" onclick="c62GuardarPlantilla(false)" style="flex:1 1 160px;background:#087cff;">💾 Guardar lista o cambios</button>
+                <button type="button" onclick="c62GuardarPlantilla(true)" style="flex:1 1 145px;background:#e4efff;color:#1a5ba0;">＋ Guardar como nueva</button>
+              </div>
+              <div id="c62Estado" class="c42-meta" role="status" style="margin-top:8px;">Las listas se guardan en Google Sheets, no en Akasia.</div>
+            </section>
             <button id="c42CrearBtn" onclick="c42CrearAsignacion()">＋ Asignar productos a sucursales seleccionadas</button>
             <div id="c42EstadoAdmin" class="c42-estado">Selecciona hasta cinco productos.</div>
             </div><!-- /c50VistaAsignar -->
@@ -10014,9 +10030,11 @@ let c47CategoriasCuenta={};
 let c47PaginaConteo=0;
 let c47MaxPagina=25;
 let c42Seleccionados = [];
+let c62Plantillas = [], c62IdActual = '';
 let c45ErroresProductos=[];
 let c42AsignacionActiva = null;
 let c42Contando = [];
+let c42Editados = new Set();
 let c42Bloqueando = false;
 function c42Esc(v){return String(v==null?'':v).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));}
 function c42Norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();}
@@ -10064,29 +10082,30 @@ async function c42AbrirDetalle(index){
  c42Aviso('c42EstadoEmpleado','Abriendo asignación…');
  try{
    const d=await c42Get('c42DetalleConteo',{id:a.id,empleado:c42NombreActual(),sucursal:c42SucursalActual()});
-   c42AsignacionActiva=d.asignacion;c42Contando=d.productos;c47PaginaConteo=0;
+   c42AsignacionActiva=d.asignacion;c42Contando=d.productos;c42Editados.clear();c47PaginaConteo=0;
    document.getElementById('c42MisLista').style.display='none';
    document.getElementById('c42Detalle').style.display='block';
    document.getElementById('c42DetalleTitulo').textContent='Productos para contar · '+a.sucursal;
-   c42RenderDetalle();c42Aviso('c42EstadoEmpleado','Registra cero cuando no encuentres unidades.');
+   c42RenderDetalle();c42Aviso('c42EstadoEmpleado','Cada producto inicia en 0. Aumenta la cantidad si hay unidades; al finalizar se guardarán los ceros restantes.');
  }catch(e){c42Aviso('c42EstadoEmpleado',e.message,true);}
 }
 function c42RenderDetalle(){
  const bloqueado=c42AsignacionActiva&&c42AsignacionActiva.estado==='FINALIZADA';
  const inicio=c47PaginaConteo*c47MaxPagina,actuales=c42Contando.slice(inicio,inicio+c47MaxPagina);
- document.getElementById('c42Productos').innerHTML=actuales.map((p,i)=>{const index=inicio+i;return `<div class="c42-item"><div class="c42-row"><div style="flex:1"><b>${c42Esc(p.producto)}</b><div class="c42-meta">Producto ${index+1} de ${c42Contando.length} · ${p.conteo===null?'Pendiente':'Contado: '+p.conteo}</div></div>${typeof imagenProductoGlobal==='function'?imagenProductoGlobal(p.producto,null,50):''}</div><div class="c42-stepper"><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${index},-1)" style="background:#7a858e;">−</button><input id="c42Cantidad${index}" type="number" inputmode="decimal" min="0" step="any" placeholder="Sin contar" value="${p.conteo===null?'':p.conteo}" ${bloqueado?'readonly':''}><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${index},1)">+</button></div><input id="c42Obs${index}" type="text" maxlength="250" placeholder="Observación opcional" value="${c42Esc(p.observacion||'')}" ${bloqueado?'readonly':''}></div>`;}).join('');
+ document.getElementById('c42Productos').innerHTML=actuales.map((p,i)=>{const index=inicio+i;return `<div class="c42-item"><div class="c42-row"><div style="flex:1"><b>${c42Esc(p.producto)}</b><div class="c42-meta">Producto ${index+1} de ${c42Contando.length} · ${p.conteo===null?'0 unidades · pendiente de guardar':'Guardado: '+p.conteo+' unidades'}</div></div>${typeof imagenProductoGlobal==='function'?imagenProductoGlobal(p.producto,null,50):''}</div><div class="c42-stepper"><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${index},-1)" style="background:#7a858e;">−</button><input id="c42Cantidad${index}" type="number" inputmode="decimal" min="0" step="any" value="${p.conteo===null?0:p.conteo}" onfocus="this.select()" oninput="c42MarcarEditado(${index})" ${bloqueado?'readonly':''}><button type="button" ${bloqueado?'disabled':''} onclick="c42Ajustar(${index},1)">+</button></div><input id="c42Obs${index}" type="text" maxlength="250" placeholder="Observación opcional" value="${c42Esc(p.observacion||'')}" ${bloqueado?'readonly':''}></div>`;}).join('');
  const paginas=Math.max(1,Math.ceil(c42Contando.length/c47MaxPagina)),p=document.getElementById('c47Paginacion');
  p.innerHTML=paginas>1?`<div class="c42-row" style="gap:6px"><button type="button" onclick="c47CambiarPagina(-1)" ${c47PaginaConteo===0?'disabled':''} style="width:32%;">← Anterior</button><span class="c42-meta">Página ${c47PaginaConteo+1}/${paginas}</span><button type="button" onclick="c47CambiarPagina(1)" ${c47PaginaConteo>=paginas-1?'disabled':''} style="width:32%;">Siguiente →</button></div>`:'';
  document.getElementById('c42GuardarBtn').style.display=bloqueado?'none':'block';
  document.getElementById('c42FinalizarBtn').style.display=bloqueado?'none':'block';
 }
-function c42Ajustar(i,delta){const el=document.getElementById('c42Cantidad'+i);if(!el)return;el.value=String(Math.max(0,Number(el.value||0)+delta));}
+function c42MarcarEditado(i){c42Editados.add(i);}
+function c42Ajustar(i,delta){const el=document.getElementById('c42Cantidad'+i);if(!el)return;el.value=String(Math.max(0,Number(el.value||0)+delta));c42MarcarEditado(i);}
 function c47CapturarPagina(){
  const inicio=c47PaginaConteo*c47MaxPagina;
  for(let i=inicio;i<Math.min(inicio+c47MaxPagina,c42Contando.length);i++){
    const inp=document.getElementById('c42Cantidad'+i),obs=document.getElementById('c42Obs'+i);if(!inp)continue;
    const raw=inp.value.trim();
-   if(raw!==''){
+   if(raw!==''&&(c42Editados.has(i)||c42Contando[i].conteo!==null)){
      const cantidad=Number(raw);
      if(!Number.isFinite(cantidad)||cantidad<0)throw Error('Revisa la cantidad de '+c42Contando[i].producto);
      c42Contando[i].conteo=cantidad;
@@ -10099,14 +10118,17 @@ function c47CambiarPagina(delta){
  const max=Math.max(0,Math.ceil(c42Contando.length/c47MaxPagina)-1);
  c47PaginaConteo=Math.max(0,Math.min(max,c47PaginaConteo+delta));c42RenderDetalle();
 }
-function c42CerrarDetalle(){document.getElementById('c42Detalle').style.display='none';document.getElementById('c42MisLista').style.display='block';c42AsignacionActiva=null;c42Contando=[];c47PaginaConteo=0;}
+function c42CerrarDetalle(){document.getElementById('c42Detalle').style.display='none';document.getElementById('c42MisLista').style.display='block';c42AsignacionActiva=null;c42Contando=[];c42Editados.clear();c47PaginaConteo=0;}
 async function c42Guardar(finalizar){
  if(!c42AsignacionActiva||c42Bloqueando)return;
  try{c47CapturarPagina();}catch(e){alert(e.message);return;}
+ if(finalizar){
+   if(!confirm('¿Finalizar el conteo? Los productos que dejaste en 0 se guardarán con existencia cero. Confirma que revisaste todos los productos; después no podrás modificarlo.'))return;
+   c42Contando.forEach(p=>{if(p.conteo===null)p.conteo=0;});
+ }
  const items=c42Contando.filter(p=>p.conteo!==null).map(p=>({orden:p.orden,cantidad:p.conteo,observacion:p.observacion||''}));
  if(!items.length){alert('Introduce al menos una cantidad.');return;}
  if(finalizar&&items.length!==c42Contando.length){alert('Completa todos los productos, incluso con cantidad cero.');return;}
- if(finalizar&&!confirm('¿Finalizar el conteo? Después no podrás modificarlo.'))return;
  c42Bloqueando=true;c42Aviso('c42EstadoEmpleado','Guardando conteo…');
  try{
    const d=await c42Post('c42GuardarConteo',{id:c42AsignacionActiva.id,sucursal:c42SucursalActual(),empleado:c42NombreActual(),items:JSON.stringify(items),finalizar:finalizar?'SI':'NO'});
@@ -10131,7 +10153,42 @@ async function c42AbrirAdmin(){
    if(Object.hasOwn(c47CategoriasCuenta,c47CategoriaActiva))sele.value=c47CategoriaActiva;else{c47CategoriaActiva='';sele.value='';}
    c42LlenarEmpleados();c47CambiarCategoria();
    c42Aviso('c42EstadoAdmin','Selecciona una categoría o busca productos. Hasta 300 por envío.');
+   c62ListarPlantillas().catch(()=>{});
  }catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}
+}
+function c62Mensaje(m,error=false){const el=document.getElementById('c62Estado');if(el){el.textContent=m;el.style.color=error?'#b42334':'#3e6084';}}
+async function c62ListarPlantillas(){
+ try{
+  const d=await c58Post('c62ListarPlantillas');c62Plantillas=d.plantillas||[];
+  const sel=document.getElementById('c62PlantillaSelect');
+  sel.innerHTML='<option value="">Selecciona una lista guardada</option>'+c62Plantillas.map(x=>`<option value="${c42Esc(x.id)}">${c42Esc(x.nombre)} (${x.productos.length})</option>`).join('');
+  if(c62IdActual&&c62Plantillas.some(x=>x.id===c62IdActual))sel.value=c62IdActual;
+  c62Mensaje(c62Plantillas.length?`${c62Plantillas.length} lista(s) guardada(s). Puedes cargarlas y editarlas.`:'Todavía no hay listas guardadas. Selecciona productos y crea la primera.');
+ }catch(e){c62Mensaje('No se pudieron consultar las listas: '+e.message,true);throw e;}
+}
+function c62CargarPlantilla(){
+ const id=document.getElementById('c62PlantillaSelect').value,p=c62Plantillas.find(x=>x.id===id);
+ if(!p)return c62Mensaje('Selecciona una lista para cargar.',true);
+ const catalogo=new Map(c42Catalogo.map(x=>[c42Norm(x),x]));
+ const faltantes=p.productos.filter(x=>!catalogo.has(c42Norm(x)));
+ if(faltantes.length)return c62Mensaje('Hay '+faltantes.length+' producto(s) de esta lista que ya no aparecen en el catálogo. Revisa el catálogo antes de cargar.',true);
+ if(c42Seleccionados.length&&!confirm('¿Reemplazar los productos seleccionados por los '+p.productos.length+' de la lista '+p.nombre+'?'))return;
+ c42Seleccionados=p.productos.map(x=>catalogo.get(c42Norm(x)));c62IdActual=p.id;
+ document.getElementById('c62Nombre').value=p.nombre;
+ c45LimpiarErroresConteo();c42RenderSeleccionados();c42FiltrarCatalogo();
+ c62Mensaje('Lista «'+p.nombre+'» cargada. Agrega o quita productos y presiona «Guardar lista o cambios».');
+}
+async function c62GuardarPlantilla(comoNueva){
+ const nombre=document.getElementById('c62Nombre').value.trim();
+ if(!nombre)return c62Mensaje('Escribe un nombre para la lista.',true);
+ if(!c42Seleccionados.length)return c62Mensaje('Selecciona al menos un producto para guardar.',true);
+ const id=comoNueva?'':c62IdActual;
+ try{
+  c62Mensaje('Guardando '+c42Seleccionados.length+' productos…');
+  const d=await c58Post('c62GuardarPlantilla',{id,nombre,productos:JSON.stringify(c42Seleccionados),usuario:'ADMIN'});
+  c62IdActual=d.id;await c62ListarPlantillas();
+  c62Mensaje('✅ Lista «'+d.nombre+'» guardada con '+d.productos+' productos. Puedes reutilizarla y editarla cuando quieras.');
+ }catch(e){c62Mensaje(e.message,true);}
 }
 async function c42CargarEmpleadosAdmin(){
  if(c42ModoPrivado){const d=await c42Get('c42Empleados');listaGlobalNombres=d.empleados||[];return;}
@@ -10567,6 +10624,7 @@ async function c58RegistrarRecepcion(){
 // v1.7.55: recepción en lote. La estimación de costos es informativa;
 // las existencias se modifican exclusivamente cuando se importan en Akasia.
 let cm55Lista=[],cm55Sugeridos=[],cm55Elegido=null,cm55ListasConteos=[],cm55BuscarTimer=null,cm55Intento=null;
+let cm55CatalogoRapido=null,cm55CargaCatalogo=null;
 const cm55Dinero=v=>'$'+(Number(v)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const cm55Costo=v=>v===null||v===undefined?'Sin costo registrado':cm55Dinero(v);
 function cm55Clave(){return 'cm55_borrador_matriz_'+(c54PeriodoActual||'sin_periodo');}
@@ -10615,20 +10673,40 @@ async function cm55Abrir(){
  try{
   const d=await c58Post('c58EstadoMatriz');c54PeriodoActual=d.periodoInicio||'';c54SnapshotActual=d.segundoExcel||null;
   const el=document.getElementById('cm55Periodo');if(el)el.textContent=c54PeriodoActual?'Período de cuadre: '+c54PeriodoActual:'Sin período iniciado · comienza desde Cuadre Matriz';
-  cm55RestaurarBorrador();await cm55CargarAsignaciones();
+  cm55RestaurarBorrador();
+  cm55CargarCatalogoRapido().catch(()=>{});
+  await cm55CargarAsignaciones();
   if(!c54PeriodoActual)cm55Estado('Primero inicia un cuadre Matriz para guardar recepciones.',true);
  }catch(e){cm55Estado(e.message,true);}
+}
+async function cm55CargarCatalogoRapido(){
+ if(cm55CargaCatalogo)return cm55CargaCatalogo;
+ cm55CargaCatalogo=(async()=>{
+  const d=await c58Post('c62CatalogoRecepcion');
+  cm55CatalogoRapido=(d.productos||[]).map(p=>({...p,clave:c42Norm(p.nombre)}));
+  if(document.getElementById('cm55Buscar')?.value.trim().length>=2)cm55BuscarProductos();
+  return cm55CatalogoRapido.length;
+ })();
+ try{return await cm55CargaCatalogo;}catch(e){cm55CatalogoRapido=null;throw e;}finally{cm55CargaCatalogo=null;}
+}
+function cm55PintarSugerencias(){
+ document.getElementById('cm55Sugerencias').innerHTML=cm55Sugeridos.map((p,i)=>`<button type="button" ${p.ambiguo?'disabled':''} onclick="cm55Elegir(${i})"><b>${c42Esc(p.nombre)}</b><span style="float:right;">${cm55Costo(p.costo)}</span></button>`).join('')||'<div class="cm55-note">No encontramos ese artículo en Matriz.</div>';
 }
 function cm55BuscarProductos(){
  const q=document.getElementById('cm55Buscar').value.trim();cm55Elegido=null;cm55Sugeridos=[];
  document.getElementById('cm55Sugerencias').innerHTML='';
  clearTimeout(cm55BuscarTimer);if(q.length<2)return;
+ if(cm55CatalogoRapido){
+  const clave=c42Norm(q),hallados=[];
+  for(const p of cm55CatalogoRapido){if(p.clave.includes(clave)){hallados.push(p);if(hallados.length>=30)break;}}
+  cm55Sugeridos=hallados;cm55PintarSugerencias();return;
+ }
  cm55BuscarTimer=setTimeout(async()=>{
   try{
    const d=await c58Post('c58BuscarMatriz',{buscar:q});
    if(document.getElementById('cm55Buscar').value.trim()!==q)return;
    cm55Sugeridos=d.productos||[];
-   document.getElementById('cm55Sugerencias').innerHTML=cm55Sugeridos.map((p,i)=>`<button type="button" ${p.ambiguo?'disabled':''} onclick="cm55Elegir(${i})"><b>${c42Esc(p.nombre)}</b><span style="float:right;">${cm55Costo(p.costo)}</span></button>`).join('')||'<div class="cm55-note">No encontramos ese artículo en Matriz.</div>';
+   cm55PintarSugerencias();
   }catch(e){cm55Estado(e.message,true);}
  },280);
 }
