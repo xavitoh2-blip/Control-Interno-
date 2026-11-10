@@ -2063,7 +2063,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.59</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.60</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -7842,29 +7842,24 @@ async function verificarPassword() {
           const cont=document.getElementById('c227ListaClientes'),ver=++c227Peticion;if(!cont)return;
           cont.innerHTML='<p class="c226-info">Consultando clientes del Kardex…</p>';
           try{
-            await k221CargarRutas();
             const auth={empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};
             if(c227EsAdminLogistica())Object.assign(auth,m200CredencialesAdmin());
-            const res=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'c230ListarRuta',...auth}),cache:'no-store'}),lista=await res.json();
-            if(ver!==c227Peticion)return;
-            if(!res.ok||lista.status!=='OK'||lista.version!=='1.7.30'||lista.flujo!=='CIERRE_FISICO_INDEPENDIENTE')throw Error(lista.mensaje||'Actualiza Código.gs a v1.7.44 para conservar los tickets después del cierre físico.');
-            c244RutasClientes=Array.isArray(lista.rutas)?lista.rutas:[];
-            if(!c244RutasClientes.some(x=>x.idRuta===c244RutaClientes))
-              c244RutaClientes=c244RutasClientes.find(x=>x.idRuta===k223IdAsignable)?.idRuta||(c244RutasClientes[0]?.idRuta||'');
+            // v1.7.60: rutas y entregas juntas, una sola petición a Apps Script.
+            const res=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'c247InicioClientes',idRuta:c244RutaClientes,...auth}),cache:'no-store'}),d=await res.json();
+            if(ver!==c227Peticion||c227Vista!=='clientes')return;
+            if(!res.ok||d.status!=='OK'||d.version!=='1.7.60')throw Error(d.mensaje||'Actualiza Código.gs a v1.7.60 para acelerar la revisión de clientes.');
+            c244RutasClientes=Array.isArray(d.rutas)?d.rutas:[];
+            c244RutaClientes=String(d.idRuta||'');
             if(c244RutaClientes)sessionStorage.setItem('c244RutaClientes',c244RutaClientes);
+            else sessionStorage.removeItem('c244RutaClientes');
             const selector=document.getElementById('c244SelectRutaClientes');
             if(selector){
               selector.innerHTML=c244RutasClientes.length?c244RutasClientes.map(x=>'<option value="'+escaparHtmlPedido(x.idRuta)+'">Kardex #'+escaparHtmlPedido(x.numeroRuta)+' · '+escaparHtmlPedido(x.estado==='ACTIVA'?'Preparación abierta':'Preparación cerrada')+'</option>').join(''):'<option value="">Sin tickets de clientes</option>';
               selector.value=c244RutaClientes;
             }
-            const id=c244RutaClientes;
-            if(!id){cont.innerHTML='<p class="c226-info">No hay tickets importados para revisar.</p>';return;}
-            const p={accion:'c227ListarEntregas',idRuta:id,empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};
-            if(c227EsAdminLogistica())Object.assign(p,m200CredencialesAdmin());
-            const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams(p),cache:'no-store'}),d=await r.json();
-            if(ver!==c227Peticion||c227Vista!=='clientes'||id!==c244RutaClientes)return;
-            if(!r.ok||d.status!=='OK'||d.version!=='1.7.29')throw Error(d.mensaje||'Actualiza Código.gs a v1.7.29.');
-            c227DatosUI=d;c227Render();
+            if(!c244RutaClientes){c227DatosUI=null;cont.innerHTML='<p class="c226-info">No hay tickets importados para revisar.</p>';return;}
+            if(!d.entregas||d.entregas.status!=='OK'||d.entregas.version!=='1.7.29')throw Error('No se pudieron consultar los productos de estos clientes.');
+            c227DatosUI=d.entregas;c227Render();
           }catch(e){if(ver===c227Peticion)cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';}
         }
         // v1.7.33: revisión y forma de pago en una sola ficha de cliente.
@@ -9291,12 +9286,17 @@ async function verificarPassword() {
           }
           cont.innerHTML='<p class="c51-nota">Cargando productos asignados a Despacho...</p>';
           try{
-            const elegida=await k221CargarRutas();
-            const turno=k223ElegirKardexParaSucursales();
-            if(!elegida){c52PreparacionDespacho=[];c52RenderPreparacionDespacho();return;}
-            const r=await fetch(URL_API+'?accion=verFaltantesKardex&idRuta='+encodeURIComponent(turno)+'&sucursal='+encodeURIComponent('Despacho')+'&_='+Date.now(),{cache:'no-store'});
-            const d=await r.json();if(!r.ok||d.status!=='OK')throw new Error(d.mensaje||'No se pudieron consultar los faltantes.');
-            if(turno!==k221IdRuta)return;
+            // v1.7.60: un GET sustituye al listado de rutas y al GET de faltantes.
+            const r=await fetch(URL_API+'?accion=c247InicioPreparacionDespacho&_='+Date.now(),{cache:'no-store'});
+            const d=await r.json();if(!r.ok||d.status!=='OK'||d.version!=='1.7.60')throw new Error(d.mensaje||'Actualiza Código.gs a v1.7.60 para consultar esta preparación.');
+            ++k221CargaVersion;
+            k221Rutas=Array.isArray(d.rutas)?d.rutas:[];
+            k223IdAsignable=String(d.idRutaAsignable||'');k223NumeroAsignable=String(d.numeroRutaAsignable||'');
+            k221IdRuta=String(d.idRuta||'');
+            if(k221IdRuta)sessionStorage.setItem('k221Ruta',k221IdRuta);
+            else sessionStorage.removeItem('k221Ruta');
+            k221PintarSelectores();
+            if(!k221IdRuta){c52PreparacionDespacho=[];c52RenderPreparacionDespacho();return;}
             c53SeleccionDespacho={};
             c52PreparacionDespacho=(Array.isArray(d.faltantes)?d.faltantes:[])
               .filter(x=>normalizarEmpleado(x.sucursal)==='despacho')
