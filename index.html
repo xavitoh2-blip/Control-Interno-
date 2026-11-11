@@ -2063,7 +2063,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.64</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.66</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -7857,14 +7857,132 @@ async function verificarPassword() {
           if(tc){tc.style.background=c227Vista==='clientes'?'#087cff':'#eaf4ff';tc.style.color=c227Vista==='clientes'?'white':'#19558e';}
           if(c227Vista==='clientes')c227Cargar();else cargarFaltantesKardex();
         }
+        // v1.7.66 PILOTO · Misma confirmación de ticket, con efectivo/crédito
+        // guardados localmente cuando no hay señal. No encola abonos ni liquidación.
+        // IMPORTANTE: jamás se informa como sincronizado hasta que el servidor
+        // confirme las dos fases, entrega y pago, bajo los mismos IDs persistidos.
+        let c267GPS=null,c267TicketGPS='',c267DBPromesa=null;
+        let c267Pendientes=[],c267Preparacion=null,c267Sincronizando=false,c267UsandoCacheOffline=false;
+        function c267CapturarGPS(ticket){
+          c267TicketGPS=String(ticket);c267GPS=null;
+          if(!navigator.geolocation||!window.isSecureContext)return;
+          const solicitado=c267TicketGPS;
+          try{navigator.geolocation.getCurrentPosition(pos=>{
+              const lat=Number(pos.coords.latitude),lng=Number(pos.coords.longitude),precision=Number(pos.coords.accuracy);
+              if(c267TicketGPS===solicitado&&Number.isFinite(lat)&&Number.isFinite(lng)&&Math.abs(lat)<=90&&Math.abs(lng)<=180)
+                c267GPS={lat,lng,precision,obtenida:Date.now()};
+            },()=>{},{enableHighAccuracy:true,maximumAge:30000,timeout:6500});
+          }catch(_){/* GPS opcional: una denegación no bloquea la entrega. */}
+        }
+        function c267GpsActual(ticket){return c267TicketGPS===String(ticket)&&c267GPS&&Date.now()-c267GPS.obtenida<120000?c267GPS:null;}
+        function c267DB(){
+          if(c267DBPromesa)return c267DBPromesa;
+          if(!('indexedDB' in window))return Promise.reject(Error('Este navegador no admite almacenamiento de tickets sin conexión.'));
+          c267DBPromesa=new Promise((resolve,reject)=>{
+            const req=indexedDB.open('OnlineShopEntregasOffline267',1);
+            req.onupgradeneeded=()=>{
+              const db=req.result;
+              if(!db.objectStoreNames.contains('rutas'))db.createObjectStore('rutas',{keyPath:'id'});
+              if(!db.objectStoreNames.contains('entregas'))db.createObjectStore('entregas',{keyPath:'operacion'});
+            };
+            req.onsuccess=()=>{const db=req.result;db.onversionchange=()=>{db.close();c267DBPromesa=null;};resolve(db);};
+            req.onerror=()=>reject(req.error||Error('No se pudo abrir el almacenamiento local.'));
+            req.onblocked=()=>reject(Error('Cierra las otras pestañas de Online Shop e intenta nuevamente.'));
+          }).catch(e=>{c267DBPromesa=null;throw e;});
+          return c267DBPromesa;
+        }
+        async function c267DBAccion(hoja,modo,operacion,valor){
+          const db=await c267DB();
+          return new Promise((resolve,reject)=>{
+            let resultado;
+            const tx=db.transaction(hoja,modo),sh=tx.objectStore(hoja);
+            const req=operacion==='put'?sh.put(valor):operacion==='delete'?sh.delete(valor):operacion==='get'?sh.get(valor):sh.getAll();
+            req.onsuccess=()=>{resultado=req.result;};
+            tx.oncomplete=()=>resolve(resultado);
+            tx.onerror=()=>reject(tx.error||Error('No se pudo guardar en este dispositivo.'));
+            tx.onabort=()=>reject(tx.error||Error('Se canceló el guardado local.'));
+          });
+        }
+        function c267Identidad(){return {empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
+        function c267CacheId(idRuta){const u=c267Identidad();return JSON.stringify([u.sucursal,u.empleado,String(idRuta||'')]);}
+        function c267PendienteTicket(idRuta,ticket){
+          const u=c267Identidad();
+          return c267Pendientes.find(x=>String(x.idRuta)===String(idRuta)&&String(x.ticket)===String(ticket)&&x.empleado===u.empleado&&x.sucursal===u.sucursal)||null;
+        }
+        async function c267PrepararOffline(){
+          if(c267Preparacion)return c267Preparacion;
+          c267Preparacion=c267DBAccion('entregas','readonly','all').then(rows=>{
+            c267Pendientes=Array.isArray(rows)?rows:[];
+            if(navigator.onLine)c267Sincronizar();
+          }).catch(e=>{console.warn('Tickets sin conexión no disponibles:',e.message);c267Pendientes=[];});
+          return c267Preparacion;
+        }
+        async function c267GuardarPendiente(p,pago){
+          const u=c267Identidad();
+          if(c227EsAdminLogistica()||u.sucursal!=='Despacho')throw Error('El modo sin conexión solo está disponible para personal de Despacho.');
+          if(c267PendienteTicket(p.idRuta,p.ticket))throw Error('Ya existe una confirmación pendiente de este ticket.');
+          const registro={operacion:p.operacion,payload:{...p},idRuta:p.idRuta,ticket:p.ticket,
+            empleado:u.empleado,sucursal:u.sucursal,fecha:new Date().toISOString(),
+            pago:pago?{tipo:pago.tipo,monto:pago.monto}:null,estado:'PENDIENTE',mensaje:''};
+          await c267DBAccion('entregas','readwrite','put',registro);
+          c267Pendientes=c267Pendientes.filter(x=>x.operacion!==registro.operacion).concat(registro);
+          return registro;
+        }
+        async function c267EnviarRegistro(x){
+          const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),16000);
+          try{
+            const respuesta=await fetch(URL_API,{method:'POST',body:new URLSearchParams(x.payload),cache:'no-store',signal:ctrl.signal});
+            const datos=await respuesta.json();
+            if(!respuesta.ok)throw Error('Error de transporte HTTP '+respuesta.status);
+            return datos;
+          }finally{clearTimeout(tm);}
+        }
+        async function c267Sincronizar(){
+          if(c267Sincronizando||navigator.onLine===false||!c267Pendientes.length)return;
+          c267Sincronizando=true;let actualizo=false;
+          try{
+            const u=c267Identidad();
+            for(const x of c267Pendientes.slice()){
+              if(x.estado!=='PENDIENTE'||x.empleado!==u.empleado||x.sucursal!==u.sucursal)continue;
+              let datos;
+              try{datos=await c267EnviarRegistro(x);}catch(_){break;}// Conserva operación si la respuesta es incierta.
+              const esperado=x.payload.accion==='c268ConfirmarTicket'?'1.7.66':'1.7.29';
+              if(datos.status==='OK'&&datos.version===esperado){
+                await c267DBAccion('entregas','readwrite','delete',x.operacion);
+                c267Pendientes=c267Pendientes.filter(y=>y.operacion!==x.operacion);
+                actualizo=true;
+              }else{
+                x.intentos=(Number(x.intentos)||0)+1;
+                x.mensaje=String(datos?.mensaje||'El ticket necesita revisión en Administración.').slice(0,240);
+                // Se reintenta un error del servidor con el MISMO ID: c227 y
+                // c230 son idempotentes. Tras tres rechazos, requiere revisión.
+                x.estado=x.intentos>=3?'ERROR':'PENDIENTE';
+                await c267DBAccion('entregas','readwrite','put',x);
+                actualizo=true;
+                if(x.estado==='PENDIENTE')break;
+              }
+            }
+          }catch(e){console.warn('Sincronización pendiente:',e.message);}
+          finally{c267Sincronizando=false;}
+          if(actualizo&&c227Vista==='clientes'&&document.getElementById('c227ListaClientes'))c227Cargar();
+        }
+        window.addEventListener('online',()=>{c267PrepararOffline().then(()=>c267Sincronizar()).catch(console.warn);});
+        window.addEventListener('focus',()=>{if(navigator.onLine)c267PrepararOffline().then(()=>c267Sincronizar()).catch(console.warn);});
+        // Reintento mientras la aplicación está abierta; no promete funcionar cerrada.
+        setInterval(()=>{if(navigator.onLine&&c267Pendientes.some(x=>x.estado==='PENDIENTE'))c267Sincronizar();},30000);
         async function c227Cargar(){
           const cont=document.getElementById('c227ListaClientes'),ver=++c227Peticion;if(!cont)return;
+          let respuestaServidor=false;
           cont.innerHTML='<p class="c226-info">Consultando clientes del Kardex…</p>';
           try{
+            await c267PrepararOffline();
+            if(ver!==c227Peticion||c227Vista!=='clientes')return;
             const auth={empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};
             if(c227EsAdminLogistica())Object.assign(auth,m200CredencialesAdmin());
             // v1.7.60: rutas y entregas juntas, una sola petición a Apps Script.
-            const res=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'c247InicioClientes',idRuta:c244RutaClientes,...auth}),cache:'no-store'}),d=await res.json();
+            const res=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'c247InicioClientes',idRuta:c244RutaClientes,...auth}),cache:'no-store'});
+            respuestaServidor=true;
+            const d=await res.json();
             if(ver!==c227Peticion||c227Vista!=='clientes')return;
             if(!res.ok||d.status!=='OK'||d.version!=='1.7.60')throw Error(d.mensaje||'Actualiza Código.gs a v1.7.60 para acelerar la revisión de clientes.');
             c244RutasClientes=Array.isArray(d.rutas)?d.rutas:[];
@@ -7878,8 +7996,25 @@ async function verificarPassword() {
             }
             if(!c244RutaClientes){c227DatosUI=null;cont.innerHTML='<p class="c226-info">No hay tickets importados para revisar.</p>';return;}
             if(!d.entregas||d.entregas.status!=='OK'||d.entregas.version!=='1.7.29')throw Error('No se pudieron consultar los productos de estos clientes.');
-            c227DatosUI=d.entregas;c227Render();
-          }catch(e){if(ver===c227Peticion)cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';}
+            c267UsandoCacheOffline=false;c227DatosUI=d.entregas;c227Render();
+            // Conservar una copia de la ruta consultada para cuando se pierda
+            // la señal. Nunca incluye credenciales ni claves administrativas.
+            if(!c227EsAdminLogistica())c267DBAccion('rutas','readwrite','put',{
+              id:c267CacheId(c244RutaClientes),rutas:c244RutasClientes,idRuta:c244RutaClientes,
+              entregas:d.entregas,fecha:Date.now()
+            }).catch(()=>{});
+          }catch(e){
+            if(ver!==c227Peticion)return;
+            if(respuestaServidor||c227EsAdminLogistica()||!c244RutaClientes){cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';return;}
+            try{
+              const cache=await c267DBAccion('rutas','readonly','get',c267CacheId(c244RutaClientes));
+              if(!cache?.entregas||ver!==c227Peticion)throw e;
+              c244RutasClientes=cache.rutas||[];c267UsandoCacheOffline=true;c227DatosUI=cache.entregas;
+              const selector=document.getElementById('c244SelectRutaClientes');
+              if(selector){selector.innerHTML=c244RutasClientes.map(x=>'<option value="'+escaparHtmlPedido(x.idRuta)+'">Kardex #'+escaparHtmlPedido(x.numeroRuta)+'</option>').join('');selector.value=c244RutaClientes;}
+              c227Render();cont.insertAdjacentHTML('afterbegin','<p class="c226-info" style="color:#9b5f23">📴 Sin conexión: estás viendo una copia de los tickets. Las entregas se guardarán en este dispositivo y necesitarán sincronización.</p>');
+            }catch(_){if(ver===c227Peticion)cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';}
+          }
         }
         // v1.7.33: revisión y forma de pago en una sola ficha de cliente.
         // La entrega se confirma primero; su pago se registra a continuación
@@ -8022,6 +8157,7 @@ async function verificarPassword() {
         function c240AbrirCliente(ticket){
           const lineas=(c227DatosUI?.lineas||[]).filter(x=>x.ticket===ticket);
           if(!lineas.length)return;
+          c267CapturarGPS(ticket); // Comienza al abrir la ficha; nunca bloquea el ticket.
           c240ClienteActivo=ticket;
           if(c240EstadoTicket(lineas)==='pendientes')c229Abrir(ticket);
           else c227Render();
@@ -8167,14 +8303,19 @@ async function verificarPassword() {
           }
           for(const t of orden){
             const g=grupos.get(t),cab=g.cab,lineas=g.indices.map(i=>d.lineas[i]),confirmado=lineas.every(x=>x.entregado!==''),completo=confirmado&&lineas.every(x=>x.entregado===x.cantidad),sinEntregar=confirmado&&lineas.every(x=>x.entregado===0),editable=!confirmado||finanzas;
+            const pendienteLocal=c267PendienteTicket(c244RutaClientes,t);
             const riesgos=lineas.filter(x=>x.advertencia?.tipo==='POSIBLE_FALTANTE');
             if(c240ClienteActivo===t&&!confirmado&&!c229Editor[t])c229Editor[t]={modo:'faltantes',excepciones:Object.create(null)};
             const editor=c229Editor[t],editando=editor?.modo==='faltantes',confirmandoCompleto=editor?.modo==='completo',excepciones=editor?.excepciones||{};
             if(!c240ClienteActivo){
-              html+='<div class="c240-cliente-item" data-estado="'+c240EstadoTicket(lineas)+'" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'"><button type="button" onclick="c240AbrirCliente(\''+t+'\')"><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><b>'+c234Moneda(c233ImporteAkasia(t))+'</b><span class="c240-chevron" aria-hidden="true">›</span></button></div>';
+              html+='<div class="c240-cliente-item" data-estado="'+c240EstadoTicket(lineas)+'" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'"><button type="button" onclick="c240AbrirCliente(\''+t+'\')"><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><b>'+c234Moneda(c233ImporteAkasia(t))+'</b><span class="c240-chevron" aria-hidden="true">›</span></button>'+(pendienteLocal?'<small style="color:'+(pendienteLocal.estado==='ERROR'?'#b42318':'#9c631d')+';padding:0 14px 9px;display:block;font-weight:800">'+(pendienteLocal.estado==='ERROR'?'⚠️ Requiere revisión':'📴 Ticket pendiente de sincronizar')+'</small>':'')+'</div>';
               continue;
             }
             if(c240ClienteActivo!==t)continue;
+            if(pendienteLocal){
+              html+='<section class="k225-ticket"><strong>'+escaparHtmlPedido(cab.cliente||'Cliente')+' · Ticket #'+escaparHtmlPedido(t)+'</strong><p class="c226-info" style="color:'+(pendienteLocal.estado==='ERROR'?'#b42318':'#9c631d')+'">'+(pendienteLocal.estado==='ERROR'?'⚠️ El servidor requiere revisar este ticket: '+escaparHtmlPedido(pendienteLocal.mensaje||'Contacta a Administración.'):'📴 Ticket guardado en el teléfono. La entrega y su forma de pago se sincronizarán cuando regrese internet.')+'</p><p class="c226-info">'+(pendienteLocal.pago?(pendienteLocal.pago.tipo==='EFECTIVO'?'💵 Efectivo':'🧾 Crédito')+' · '+c226Dinero(pendienteLocal.pago.monto)+' · Pendiente de confirmar en servidor':'Registro anterior: pago pendiente de revisar en línea')+'</p></section>';
+              continue;
+            }
             html+='<section class="k225-ticket" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'" data-ticket="'+escaparHtmlPedido(t)+'"><header><div><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><small>Ticket #'+escaparHtmlPedido(t)+' · '+(confirmado?(completo?'✅ Entregado completo':sinEntregar?'🔴 No entregado':'🟡 Entrega parcial'):riesgos.length?'⚠️ Posible faltante':'⏳ Pendiente de entrega')+'</small></div><b>'+c234Moneda(c233ImporteAkasia(t))+'</b></header>';
             const importeTicket=c233ImporteAkasia(t);
             if(confirmado&&cab.pagoEstado!=='SIN_REGISTRAR'&&Number.isFinite(importeTicket)&&Number(cab.pagoMonto)<importeTicket)
@@ -8287,6 +8428,7 @@ async function verificarPassword() {
         async function c227Guardar(ticket,todoCompleto){
           if(c233Guardando)return;
           if(!c227DatosUI||!c244RutaClientes)return alert('Selecciona la ruta de este cliente.');
+          if(c267PendienteTicket(c244RutaClientes,ticket))return alert('Este ticket tiene un registro pendiente en el teléfono. No lo confirmes nuevamente.');
           const card=document.querySelector('#c227ListaClientes .k225-ticket[data-ticket="'+ticket+'"]');if(!card)return;
           const editor=c229Editor[ticket],excepciones=editor?.excepciones||{},indices=[];
           c227DatosUI.lineas.forEach((x,i)=>{if(x.ticket===ticket)indices.push(i);});
@@ -8296,37 +8438,53 @@ async function verificarPassword() {
           const productos=indices.map(i=>{const x=c227DatosUI.lineas[i];return {producto:x.producto,entregado:todoCompleto?x.cantidad:Object.prototype.hasOwnProperty.call(excepciones,i)?Number(excepciones[i]):x.cantidad};});
           if(productos.some((p,j)=>!Number.isInteger(p.entregado)||p.entregado<0||p.entregado>c227DatosUI.lineas[indices[j]].cantidad))return alert('Una de las cantidades no es válida. Revísala antes de confirmar.');
           const total=productos.reduce((n,x)=>n+x.entregado,0),faltan=indices.reduce((n,i,j)=>n+c227DatosUI.lineas[i].cantidad-productos[j].entregado,0);
+          const sinConexion=navigator.onLine===false||c267UsandoCacheOffline;
+          if(confirmadoAntes&&sinConexion)return alert('Una corrección de un ticket ya confirmado necesita conexión al servidor.');
+          // Los mismos botones de efectivo/crédito sirven con y sin señal.
+          // El pago se valida ANTES de guardar localmente, nunca se adivina.
           let pago=null;
           if(!confirmadoAntes){try{pago=c233ValidarPago(ticket,total,faltan);}catch(e){return alert(e.message);}}
           const riesgo=faltan===0&&indices.some(i=>c227DatosUI.lineas[i].advertencia?.tipo==='POSIBLE_FALTANTE');
-          const infoPago=pago?(pago.tipo==='EFECTIVO'?'\n💵 Recibió efectivo: '+c226Dinero(pago.monto):pago.tipo==='CREDITO'?'\n📝 Quedó a crédito: '+c226Dinero(pago.monto):'\n🔴 Sin cobro: no se entregó mercancía.')+(pago.descuento>0?'\n🏷️ Descuento por faltantes: '+c226Dinero(pago.descuento):''):'\nSe guardará la corrección administrativa.';
-          const pregunta='Ticket #'+ticket+': ¿confirmas que el cliente recibió '+total+' unidades?'+(faltan?'\n'+faltan+' unidad(es) quedarán registradas como faltantes para su seguimiento.':'\nTodos los productos quedarán entregados completos.')+infoPago+(riesgo?'\n\n⚠️ El Kardex tiene advertencias de falta de stock. Confirma solo si comprobaste físicamente toda la entrega.':'');
+          const infoPago=pago?(pago.tipo==='EFECTIVO'?'\n💵 Recibió efectivo: '+c226Dinero(pago.monto):pago.tipo==='CREDITO'?'\n📝 Quedó a crédito: '+c226Dinero(pago.monto):'\n🔴 Sin cobro: no se entregó mercancía.')+(pago.descuento>0?'\n🏷️ Descuento por faltantes: '+c226Dinero(pago.descuento):''):'\nCorrección administrativa (sin cambiar cobros).';
+          const pregunta='Ticket #'+ticket+': ¿confirmas que el cliente recibió '+total+' unidades?'+(faltan?'\n'+faltan+' unidad(es) quedarán registradas como faltantes.':'\nTodos los productos quedaron completos.')+infoPago+(sinConexion?'\n📴 SIN SEÑAL: entrega y pago se guardarán en este teléfono hasta sincronizar.':'')+'\n📍 Ubicación: '+(c267GpsActual(ticket)?'disponible':'no disponible')+(riesgo?'\n⚠️ Comprueba físicamente los productos señalados como posibles faltantes.':'');
           if(!confirm(pregunta))return;
           const btn=card.querySelector('.c229-continuar')||card.querySelector('.c229-acciones button:first-child');if(btn)btn.disabled=true;
-          const idRuta=c244RutaClientes;let entregaGuardada=false;c233Guardando=true;
+          const idRuta=c244RutaClientes;c233Guardando=true;
           try{
-            const p={accion:'c227GuardarEntrega',idRuta,ticket,productos:JSON.stringify(productos),operacion:c226IdOperacion(),sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};
+            const op=c226IdOperacion();
+            const p={accion:confirmadoAntes?'c227GuardarEntrega':'c268ConfirmarTicket',idRuta,ticket,
+              productos:JSON.stringify(productos),operacion:op,
+              sucursal:localStorage.getItem('sucursal')||'',empleado:localStorage.getItem('usuario')||''};
+            if(!confirmadoAntes){
+              p.operacionPago=op+'-P';p.tipoPago=pago.tipo;p.montoPago=Number(pago.monto).toFixed(2);
+              if(pago.descuento>0)p.nota='DESCUENTO_POR_FALTANTES:'+Number(pago.descuento).toFixed(2);
+            }
+            const gps=c267GpsActual(ticket);
+            if(gps){p.gpsLat=String(gps.lat);p.gpsLng=String(gps.lng);p.gpsPrecision=String(gps.precision);}
             if(c227EsAdminLogistica())Object.assign(p,m200CredencialesAdmin());
-            const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams(p),cache:'no-store'}),d=await r.json();
-            if(!r.ok||d.status!=='OK'||d.version!=='1.7.29')throw Error(d.mensaje||'No se confirmó la entrega. Actualiza Código.gs a v1.7.29.');
-            entregaGuardada=true;
-            if(pago)await c233RegistrarPago(ticket,pago,idRuta);
+            if(confirmadoAntes){
+              // Correcciones administrativas conservan la acción y permisos previos.
+              const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams(p),cache:'no-store'}),d=await r.json();
+              if(!r.ok||d.status!=='OK'||d.version!=='1.7.29')throw Error(d.mensaje||'No se confirmó la corrección.');
+              delete c229Editor[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];
+              c241UltimoTicketConfirmado=ticket;c240ClienteActivo=null;await c227Cargar();return;
+            }
+            // Guardar PRIMERO en IndexedDB: si el servidor recibe pero se pierde
+            // la respuesta, el reintento usa exactamente las mismas operaciones.
+            await c267GuardarPendiente(p,pago);
             delete c229Editor[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];
-            c241UltimoTicketConfirmado=ticket;
-            c240ClienteActivo=null;
-            await c227Cargar();
+            c240ClienteActivo=null;c227Render();
+            if(sinConexion){alert('📴 Ticket guardado en este teléfono con su forma de pago. Pendiente de sincronizar.\nNo borres los datos del navegador ni liquides la ruta antes de sincronizar.');return;}
+            await c267Sincronizar();
+            const pendiente=c267PendienteTicket(idRuta,ticket);
+            if(pendiente){
+              alert(pendiente.estado==='ERROR'?'⚠️ El servidor requiere revisar este ticket: '+pendiente.mensaje:'📴 Ticket guardado en el teléfono, pendiente de sincronizar. El efectivo/crédito todavía NO aparece confirmado en Administración.');
+            }else{c241UltimoTicketConfirmado=ticket;}
           }catch(e){
-            if(entregaGuardada){
-              delete c229Editor[ticket];delete c233PagoSolo[ticket];
-              alert('⚠️ La ENTREGA sí se guardó, pero no se pudo verificar el registro del pago: '+e.message+'\nActualiza el ticket antes de intentar cobrar de nuevo.');
-              await c227Cargar();
-            }else alert('No se pudo confirmar la entrega: '+e.message+'\nActualiza antes de reintentar por si el servidor ya la guardó.');
+            alert('No se pudo guardar el ticket: '+e.message+'\nSi quedó pendiente en el dispositivo, no repitas la confirmación.');
             if(btn)btn.disabled=false;
           }finally{c233Guardando=false;}
         }
-
-        // v1.7.29 · Reporte de excepciones de entrega por cliente/ticket.
-        // La lista se consulta al abrir el panel; no genera compras automáticamente.
         async function c229CargarFaltantes(tipo){
           const admin=tipo==='admin',box=document.getElementById(admin?'c229ListaFaltantesAdmin':'c229ListaFaltantesBodega');
           if(!box)return;
@@ -12051,6 +12209,7 @@ setInterval(()=>{
 <script>
 // v1.7.32 · Tickets accionables para Despacho sin clave adicional.
 let c230Admin=false,c230Ruta='',c230Rutas=[],c230Datos=null,c230Vista='tickets',c230Buscar='',c230Ocupado=false,c230Carga=0,c230CerradasSinClientes=[];
+let c267HistorialRuta='',c267HistorialUbicaciones=Object.create(null),c267HistorialPeticion=0;
 function c230Panel(){return document.getElementById(c230Admin?'c230PanelAdmin':'c230PanelRuta');}
 function c230Acceso(){return c230Admin?m200CredencialesAdmin():{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
 async function c230Post(accion,extra){
@@ -12058,7 +12217,7 @@ async function c230Post(accion,extra){
   const d=await r.json();if(!r.ok||d.status!=='OK'||d.version!=='1.7.30')throw Error(d.mensaje||'Publica Código.gs versión 1.7.30.');
   return d;
 }
-function c230Abrir(admin){c230Admin=!!admin;c230Ruta='';c230Datos=null;c230CerradasSinClientes=[];c230Cargar();}
+function c230Abrir(admin){c230Admin=!!admin;c230Ruta='';c230Datos=null;c230CerradasSinClientes=[];c267HistorialRuta='';c267HistorialUbicaciones=Object.create(null);c230Cargar();}
 async function c230Cargar(ruta){
   const box=c230Panel(),peticion=++c230Carga;if(!box)return;
   box.innerHTML='<p class="c226-info">↻ Consultando tickets y cobros…</p>';
@@ -12071,10 +12230,27 @@ async function c230Cargar(ruta){
     // v1.7.64: el servidor nuevo ya trae el resumen del primer Kardex.
     // Conserva la segunda consulta únicamente para versiones anteriores.
     if(elegida&&String(d.datos?.ruta?.idRuta||'')!==elegida){d=await c230Post('c230ListarRuta',{idRuta:elegida});if(peticion!==c230Carga)return;}
-    c230Ruta=elegida;c230Datos=d.datos||null;c230Render();
+    c230Ruta=elegida;c230Datos=d.datos||null;c267HistorialRuta='';c267HistorialUbicaciones=Object.create(null);c230Render();
+    if(c230Vista==='historial')c267CargarHistorial();
   }catch(e){if(peticion===c230Carga)box.innerHTML='<p style="color:#a52a2a">'+escaparHtmlPedido(e.message)+'</p><button type="button" onclick="c230Cargar()">↻ Reintentar</button>';}
 }
-function c230Pestana(vista){c230Vista=['tickets','historial','caja'].includes(vista)?vista:'tickets';c230Render();}
+function c230Pestana(vista){c230Vista=['tickets','historial','caja'].includes(vista)?vista:'tickets';c230Render();if(c230Vista==='historial')c267CargarHistorial();}
+async function c267CargarHistorial(){
+  const ruta=c230Ruta;if(!ruta||c267HistorialRuta===ruta)return;
+  const peticion=++c267HistorialPeticion;
+  try{
+    const d=await c230Post('c267ListarUbicaciones',{idRuta:ruta});
+    if(peticion!==c267HistorialPeticion||c230Ruta!==ruta)return;
+    const ubicaciones=Object.create(null);
+    for(const u of d.ubicaciones||[]){
+      const lat=Number(u.latitud),lng=Number(u.longitud);
+      if(!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180)continue;
+      ubicaciones[String(u.ticket)]={lat,lng,fecha:u.fecha||''};
+    }
+    c267HistorialUbicaciones=ubicaciones;c267HistorialRuta=ruta;
+    if(c230Vista==='historial')c230Render();
+  }catch(e){console.warn('No se pudieron consultar las ubicaciones de entregas:',e.message);}
+}
 function c230Filtrar(valor){c230Buscar=String(valor||'');const q=k222Clave(c230Buscar);document.querySelectorAll('.c230-ticket[data-busca]').forEach(x=>{x.style.display=k222Clave(x.dataset.busca).includes(q)?'':'none';});}
 function c230IrTicket(encoded){
   const ticket=decodeURIComponent(encoded);
@@ -12201,8 +12377,11 @@ function c230Render(){
     html+='<p class="c230-leyenda">Historial de entregas confirmadas. Las entregas incompletas permanecen visibles.</p>';
     const registrados=d.tickets.filter(t=>t.confirmado);
     for(const t of registrados){
+      const ubicacion=c267HistorialUbicaciones[String(t.ticket)];
       html+='<div class="c230-ticket"><header><div><strong>'+escaparHtmlPedido(t.cliente||'Cliente sin nombre')+'</strong><small>Ticket #'+escaparHtmlPedido(t.ticket)+'</small></div><b>'+escaparHtmlPedido(t.estado.replaceAll('_',' '))+'</b></header>';
-      html+='<div class="c230-estados"><span>'+t.entregado+' / '+t.solicitado+' unidades entregadas</span><span>'+escaparHtmlPedido(t.pago.replaceAll('_',' '))+'</span></div></div>';
+      html+='<div class="c230-estados"><span>'+t.entregado+' / '+t.solicitado+' unidades entregadas</span><span>'+escaparHtmlPedido(t.pago.replaceAll('_',' '))+'</span></div>';
+      if(ubicacion)html+='<p class="c230-leyenda"><a href="https://www.google.com/maps?q='+encodeURIComponent(ubicacion.lat+','+ubicacion.lng)+'" target="_blank" rel="noopener noreferrer" style="font-weight:800;color:#1464a8">📍 Ver ubicación '+(t.estado==='NO_ENTREGADO'?'de visita':'de entrega')+'</a></p>';
+      html+='</div>';
     }
     if(!registrados.length)html+='<p class="c226-info">Aún no hay tickets entregados confirmados.</p>';
   }else{
