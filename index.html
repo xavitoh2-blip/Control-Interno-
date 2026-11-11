@@ -2063,7 +2063,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.63</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.64</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3525,7 +3525,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         // ===== GÓNDOLAS v1.2.2 =====
         async function cargarGondolas() {
-            await cargarImagenesProductosGlobal();
+            // v1.7.64: las imágenes se cargan en segundo plano; jamás deben
+            // retrasar la lista de Kardex ni tocar el catálogo de imágenes.
+            if(!Object.keys(mapaImagenesProductosGlobal).length)
+              cargarImagenesProductosGlobal().then(refrescarVistasConImagenes);
             const sucursal = localStorage.getItem("sucursal") || "";
             document.getElementById("gondolaSucursalTexto").innerText = "📍 " + sucursal;
             document.getElementById("vistaGondolas").innerHTML = '<p style="text-align:center;color:#888;font-size:12px;">Cargando góndolas...</p>';
@@ -9440,6 +9443,36 @@ async function verificarPassword() {
             cab.innerHTML=esDespacho?'🚚 <b>Despacho</b> · Completo: llegó todo · Incompleto: no llegó nada · Parcial: llegó una parte.':`📍 <b>${escaparHtmlPedido(suc)}</b> · Confirma lo que realmente encontraste. Al confirmar, tu revisión queda terminada.`;
             cont.innerHTML='<p style="font-size:12px;color:#888;text-align:center;">Cargando...</p>';
             try{
+                if(esDespacho){
+                  try{
+                    // Una lectura combina las tres consultas anteriores:
+                    // selector, recepciones y seguimiento del mismo Kardex.
+                    const rRapida=await fetch(URL_API+'?accion=c264InicioRevisionDespacho&_='+Date.now(),{cache:'no-store'});
+                    const rapida=await rRapida.json();
+                    if(!rRapida.ok||rapida.status!=='OK'||rapida.version!=='1.7.64'||
+                       rapida.regla!=='BODEGA_POR_ORDEN'||!Array.isArray(rapida.rutas)||!Array.isArray(rapida.faltantes))
+                      throw Error('La consulta rápida aún no está disponible.');
+                    ++k221CargaVersion;
+                    k221Rutas=rapida.rutas;
+                    k223IdAsignable=String(rapida.idRutaAsignable||'');
+                    k223NumeroAsignable=String(rapida.numeroRutaAsignable||'');
+                    k221IdRuta=String(rapida.idRuta||'');
+                    if(k221IdRuta)sessionStorage.setItem('k221Ruta',k221IdRuta);
+                    else sessionStorage.removeItem('k221Ruta');
+                    k221PintarSelectores();
+                    if(k221IdRuta&&String(rapida.seguimiento?.idRuta||'')!==k221IdRuta)
+                      throw Error('El seguimiento no coincide con el Kardex.');
+                    faltantesKardexActuales=rapida.faltantes.slice();
+                    c75SeguimientoDespacho=rapida.seguimiento||null;
+                    c75ErrorConsulta='';
+                    if(c75SeguimientoDespacho){c75GuardarSeguimiento();c75RecuperarBorrador();}
+                    renderRecepcionKardex();
+                    return;
+                  }catch(_consultaRapida){
+                    // Compatibilidad si el servidor aún usa una versión anterior.
+                    // Las tres consultas originales siguen intactas.
+                  }
+                }
                 const elegida=await k221CargarRutas();
                 const turno=k223ElegirKardexParaSucursales();
                 if(!elegida){faltantesKardexActuales=[];c75SeguimientoDespacho=null;c75Marcas=Object.create(null);esDespacho?renderRecepcionKardex():renderFaltantesKardex();return;}
@@ -12035,7 +12068,9 @@ async function c230Cargar(ruta){
     c230Rutas=Array.isArray(d.rutas)?d.rutas:[];
     c230CerradasSinClientes=Array.isArray(d.cerradasSinClientes)?d.cerradasSinClientes:[];
     const elegida=c230Rutas.some(x=>x.idRuta===id)?id:(c230Rutas[0]?.idRuta||'');
-    if(elegida&&elegida!==id){d=await c230Post('c230ListarRuta',{idRuta:elegida});if(peticion!==c230Carga)return;}
+    // v1.7.64: el servidor nuevo ya trae el resumen del primer Kardex.
+    // Conserva la segunda consulta únicamente para versiones anteriores.
+    if(elegida&&String(d.datos?.ruta?.idRuta||'')!==elegida){d=await c230Post('c230ListarRuta',{idRuta:elegida});if(peticion!==c230Carga)return;}
     c230Ruta=elegida;c230Datos=d.datos||null;c230Render();
   }catch(e){if(peticion===c230Carga)box.innerHTML='<p style="color:#a52a2a">'+escaparHtmlPedido(e.message)+'</p><button type="button" onclick="c230Cargar()">↻ Reintentar</button>';}
 }
