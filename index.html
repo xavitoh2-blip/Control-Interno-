@@ -2063,7 +2063,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.60</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.63</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -8509,25 +8509,52 @@ async function verificarPassword() {
             const ver=++c55RutaFetchVersion,cont=document.getElementById('listaRuta'),resumen=document.getElementById('rutaResumen'),btnCrear=document.getElementById('btnCrearRuta'),etapas=document.getElementById('rutaEtapas');
             cont.innerHTML='<p style="text-align:center;color:#64748b;">Actualizando Kardex y origen de los productos…</p>';
             try{
-                await k221CargarRutas();
-                if(ver!==c55RutaFetchVersion)return;
-                const elegida=k221IdRuta;
+                let data,cd,sd,elegida='';
+                try{
+                    // v1.7.61: una sola consulta devuelve selector, Kardex, cierre y seguimiento.
+                    // Conserva el identificador elegido y no modifica ningún dato.
+                    const url=URL_API+'?accion=c248InicioKardexBodega&idRuta='+encodeURIComponent(k221IdRuta||'')+'&_='+Date.now();
+                    const rRapida=await fetch(url,{cache:'no-store'}),d=await rRapida.json();
+                    if(!rRapida.ok||d.status!=='OK'||d.version!=='1.7.61'||d.regla!=='BODEGA_POR_ORDEN'||!Array.isArray(d.rutas))
+                        throw Error('La consulta de apertura rápida todavía no está disponible.');
+                    if(ver!==c55RutaFetchVersion)return;
+                    ++k221CargaVersion; // Descartar posibles listados anteriores ya obsoletos.
+                    k221Rutas=d.rutas;
+                    k223IdAsignable=String(d.idRutaAsignable||'');
+                    k223NumeroAsignable=String(d.numeroRutaAsignable||'');
+                    k221IdRuta=String(d.idRuta||'');
+                    if(k221IdRuta)sessionStorage.setItem('k221Ruta',k221IdRuta);
+                    else sessionStorage.removeItem('k221Ruta');
+                    k221PintarSelectores();
+                    elegida=k221IdRuta;
+                    data={status:'OK',ruta:d.ruta||null};
+                    cd={status:'OK',version:'1.6.55',ruta:d.cierre||null};
+                    sd={status:'OK',version:'1.6.57',seguimiento:d.seguimiento||null};
+                }catch(_eRapida){
+                    // Despliegue escalonado: si Código.gs es anterior, mantener
+                    // exactamente las consultas y comprobaciones anteriores.
+                    await k221CargarRutas();
+                    if(ver!==c55RutaFetchVersion)return;
+                    elegida=k221IdRuta;
+                    if(elegida){
+                        const momento73=Date.now();
+                        const [r,cr,sr]=await Promise.all([
+                            fetch(URL_API+'?accion=verRutaActiva&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'}),
+                            fetch(URL_API+'?accion=verResumenCierreKardex&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'}),
+                            fetch(URL_API+'?accion=verSeguimientoKardex&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'})
+                        ]);
+                        [data,cd,sd]=await Promise.all([r.json(),cr.json(),sr.json()]);
+                        if(!r.ok||!cr.ok||!sr.ok)throw Error('No se pudo consultar el Kardex. Comprueba la conexión.');
+                    }
+                }
+                if(ver!==c55RutaFetchVersion||elegida!==k221IdRuta)return;
                 if(!elegida){
                     rutaActiva=null;c56Seguimiento=null;
                     resumen.innerHTML='No hay Kardex abierto. Pulsa <b>Nuevo Kardex</b> para importar un Excel.';
                     cont.innerHTML='<div class="kx-complete">✅ No hay Kardex por preparar.</div>';
                     btnCrear.style.display='block';if(etapas)etapas.style.display='none';return;
                 }
-                // v1.6.73: tres consultas independientes en paralelo para reducir la espera.
-                const momento73=Date.now();
-                const [r,cr,sr]=await Promise.all([
-                    fetch(URL_API+'?accion=verRutaActiva&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'}),
-                    fetch(URL_API+'?accion=verResumenCierreKardex&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'}),
-                    fetch(URL_API+'?accion=verSeguimientoKardex&idRuta='+encodeURIComponent(elegida)+'&_='+momento73,{cache:'no-store'})
-                ]);
-                const [data,cd,sd]=await Promise.all([r.json(),cr.json(),sr.json()]);
-                if(ver!==c55RutaFetchVersion||elegida!==k221IdRuta)return;
-                if(!r.ok||data.status!=='OK')throw Error(data.mensaje||'No se pudo cargar la ruta.');
+                if(data.status!=='OK')throw Error(data.mensaje||'No se pudo cargar la ruta.');
                 rutaActiva=data.ruta||null;c55RutaRevisionDespacho=false;
                 if(!rutaActiva){
                     resumen.innerHTML='No hay Kardex activo. Pulsa <b>Nuevo Kardex</b> para importar un Excel.';
@@ -8536,11 +8563,11 @@ async function verificarPassword() {
                     c56Seguimiento=null;c54SeleccionBodega={};c54RutaSeleccionada='';return;
                 }
                 btnCrear.style.display='block';
-                // Las tres respuestas ya se cargaron juntas arriba.
+                // Los datos comparten el mismo Kardex y se verifican antes de mostrarse.
                 if(ver!==c55RutaFetchVersion)return;
-                if(!cr.ok||cd.status!=='OK'||cd.version!=='1.6.55'||!cd.ruta||String(cd.ruta.idRuta)!==String(rutaActiva.idRuta)||!cd.ruta.cierreFisicoIndependiente)
+                if(cd.status!=='OK'||cd.version!=='1.6.55'||!cd.ruta||String(cd.ruta.idRuta)!==String(rutaActiva.idRuta)||!cd.ruta.cierreFisicoIndependiente)
                     throw Error('Publica Código.gs v1.7.44 en Apps Script antes de cerrar Kardex. Así conservarás los tickets pendientes.');
-                if(!sr.ok||sd.status!=='OK'||sd.version!=='1.6.57'||!sd.seguimiento||String(sd.seguimiento.idRuta)!==String(rutaActiva.idRuta))
+                if(sd.status!=='OK'||sd.version!=='1.6.57'||!sd.seguimiento||String(sd.seguimiento.idRuta)!==String(rutaActiva.idRuta))
                     throw Error('Publica Código.gs v1.6.57 en Apps Script para ver el seguimiento y la reasignación.');
                 c56Seguimiento=sd.seguimiento;
                 c55RutaRevisionDespacho=!!cd.ruta.revisionDespachoIniciada;
@@ -11990,7 +12017,7 @@ setInterval(()=>{
 </script>
 <script>
 // v1.7.32 · Tickets accionables para Despacho sin clave adicional.
-let c230Admin=false,c230Ruta='',c230Rutas=[],c230Datos=null,c230Vista='tickets',c230Buscar='',c230Ocupado=false,c230Carga=0;
+let c230Admin=false,c230Ruta='',c230Rutas=[],c230Datos=null,c230Vista='tickets',c230Buscar='',c230Ocupado=false,c230Carga=0,c230CerradasSinClientes=[];
 function c230Panel(){return document.getElementById(c230Admin?'c230PanelAdmin':'c230PanelRuta');}
 function c230Acceso(){return c230Admin?m200CredencialesAdmin():{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
 async function c230Post(accion,extra){
@@ -11998,7 +12025,7 @@ async function c230Post(accion,extra){
   const d=await r.json();if(!r.ok||d.status!=='OK'||d.version!=='1.7.30')throw Error(d.mensaje||'Publica Código.gs versión 1.7.30.');
   return d;
 }
-function c230Abrir(admin){c230Admin=!!admin;c230Ruta='';c230Datos=null;c230Cargar();}
+function c230Abrir(admin){c230Admin=!!admin;c230Ruta='';c230Datos=null;c230CerradasSinClientes=[];c230Cargar();}
 async function c230Cargar(ruta){
   const box=c230Panel(),peticion=++c230Carga;if(!box)return;
   box.innerHTML='<p class="c226-info">↻ Consultando tickets y cobros…</p>';
@@ -12006,6 +12033,7 @@ async function c230Cargar(ruta){
     const id=String(ruta||c230Ruta||'');
     let d=await c230Post('c230ListarRuta',{idRuta:id});if(peticion!==c230Carga)return;
     c230Rutas=Array.isArray(d.rutas)?d.rutas:[];
+    c230CerradasSinClientes=Array.isArray(d.cerradasSinClientes)?d.cerradasSinClientes:[];
     const elegida=c230Rutas.some(x=>x.idRuta===id)?id:(c230Rutas[0]?.idRuta||'');
     if(elegida&&elegida!==id){d=await c230Post('c230ListarRuta',{idRuta:elegida});if(peticion!==c230Carga)return;}
     c230Ruta=elegida;c230Datos=d.datos||null;c230Render();
@@ -12053,15 +12081,66 @@ async function c230Reabrir(codigo){
   if(motivo===null)return;if(motivo.trim().length<5)return alert('Indica el motivo.');
   await c230Mutar('c230AnularLiquidacion',{cobrador:empleado,motivo:motivo.trim()},'¿Reabrir la liquidación de '+empleado+'? La anulación quedará registrada.');
 }
+async function c263CerrarSinClientes(){
+  if(!c230Admin||!c230Ruta||!c230Datos||c230Ocupado)return;
+  const numero=c230Datos.ruta?.numero||'',estado=String(c230Datos.ruta?.estado||'').toUpperCase();
+  if(!['COMPLETA','FINALIZADA CON FALTANTES'].includes(estado))return alert('Primero cierra el Kardex físico desde Bodega.');
+  if(!confirm('Kardex #'+numero+'\n\n¿Confirmas que HOY NO se utilizó el módulo Clientes para registrar entregas ni cobros?\n\nLos tickets originales y faltantes físicos se conservarán.'))return;
+  if(!confirm('Esta acción archivará la ruta como SIN GESTIÓN DE CLIENTES.\nNo marcará entregas ni pagos ficticios.\n¿Cerrar definitivamente esta parte de la ruta?'))return;
+  c230Ocupado=true;
+  try{
+    await c230Post('c230CerrarSinClientes',{idRuta:c230Ruta,operacion:c226IdOperacion()});
+    alert('✅ Kardex #'+numero+' archivado sin utilizar Clientes. Queda guardado en el historial de Administración.');
+    c230Ruta='';await c230Cargar('');
+  }catch(e){alert('No se pudo cerrar la ruta: '+e.message+'\nConsulta el historial antes de intentar otra vez.');}
+  finally{c230Ocupado=false;}
+}
 function c230Render(){
   const box=c230Panel(),d=c230Datos;if(!box)return;
   let html='<label style="font-size:12px;font-weight:800">Kardex de la ruta</label><select onchange="c230Cargar(this.value)" style="min-height:46px;margin:8px 0 11px">';
   if(!c230Rutas.length)html+='<option value="">Sin Kardex para consultar</option>';
   for(const r of c230Rutas)html+='<option value="'+escaparHtmlPedido(r.idRuta)+'" '+(r.idRuta===c230Ruta?'selected':'')+'>Kardex #'+escaparHtmlPedido(r.numeroRuta)+' · '+escaparHtmlPedido(r.fecha)+' · '+escaparHtmlPedido(r.estado||'ACTIVA')+'</option>';
   html+='</select><button type="button" style="background:#eaf4ff;color:#1e5f9a" onclick="c230Cargar(c230Ruta)">↻ Actualizar datos</button>';
+  if(c230Admin&&c230CerradasSinClientes.length){
+    html+='<details style="margin:12px 0;padding:12px;border:1px solid #dce7f4;border-radius:12px;background:#f6f9fe"><summary style="cursor:pointer;font-weight:800;color:#2d587b">📁 Historial de rutas cerradas sin utilizar Clientes ('+c230CerradasSinClientes.length+')</summary>';
+    for(const c of c230CerradasSinClientes){
+      html+='<div style="padding:9px 0;border-bottom:1px solid #e2e9f1;font-size:12px"><strong>Kardex #'+escaparHtmlPedido(c.numeroRuta||c.idRuta)+'</strong> · '+escaparHtmlPedido(c.fechaCierre||'')+' · '+escaparHtmlPedido(c.cerradoPor||'ADMIN')+'<div style="color:#607991">Sin entregas ni cobros gestionados desde Clientes. No se borraron los tickets.</div></div>';
+    }
+    html+='</details>';
+  }
   if(!d){box.innerHTML=html+'<p class="c230-leyenda">Selecciona el Kardex que deseas revisar.</p>';return;}
   const tot=d.totales||{},caja=Number(d.efectivoAEntregar)||0,completos=d.tickets.filter(t=>t.estado==='COMPLETO').length;
   html+='<div class="c230-resumen"><div>Tickets revisados<strong>'+d.confirmados+' / '+d.totalTickets+'</strong></div><div>Unidades entregadas<strong>'+d.porcentajeEntrega+'%</strong></div><div>💵 Efectivo a rendir<strong>'+c226Dinero(caja)+'</strong></div><div>📝 Ventas a crédito<strong>'+c226Dinero(tot.ventasCredito)+'</strong></div></div>';
+  // v1.7.62 · Consulta visible en Administración y Despacho. Solo las
+  // entregas confirmadas generan utilidad estimada; no modifica el cobro.
+  const utilidad=d.utilidadRuta||{};
+  html+='<section style="margin:12px 0;padding:15px;border:1px solid #b8e3cb;border-radius:15px;background:#f0fff5;color:#165b35">';
+  html+='<div style="font-weight:800;font-size:13px">📈 Utilidad bruta estimada de la ruta</div>';
+  html+='<div style="font-size:29px;font-weight:900;margin:5px 0">'+(utilidad.disponible?c226Dinero(utilidad.estimada):'No disponible')+'</div>';
+  html+='<p style="font-size:12px;line-height:1.5;margin:0">'+(utilidad.disponible?'Calculada con la ganancia de Akasia y las cantidades entregadas confirmadas ('+d.confirmados+' de '+d.totalTickets+' tickets revisados).':'El Kardex no contiene ganancias de Akasia confirmadas para calcularla.')+' No es efectivo cobrado ni utilidad neta: no descuenta combustible, sueldos ni otros gastos; los ajustes manuales de tickets parciales pueden cambiar la ganancia real.</p>';
+  html+='</section>';
+  // El Kardex físico puede cerrarse sin cerrar los tickets ni la caja de ruta.
+  const fisicos=d.faltantesFisicos||{};
+  if(fisicos.cerrado){
+    html+='<details open style="margin:12px 0;border:1px solid #f0c7a6;border-radius:15px;background:#fffbf5;padding:12px 14px">';
+    html+='<summary style="cursor:pointer;color:#86501e;font-weight:900">📦 Faltantes físicos al cerrar Kardex #'+escaparHtmlPedido(d.ruta?.numero||'')+' · '+(Number(fisicos.totalProductos)||0)+' productos · '+(Number(fisicos.totalUnidades)||0)+' unidades</summary>';
+    html+='<p class="c230-leyenda">Este es el resultado final de la preparación física. Despacho y la caja siguen funcionando aunque el Kardex esté cerrado.</p>';
+    if(Array.isArray(fisicos.productos)&&fisicos.productos.length){
+      html+='<div style="max-height:360px;overflow:auto">';
+      for(const f of fisicos.productos){
+        html+='<div style="padding:9px 1px;border-bottom:1px solid #f1dfca;display:flex;align-items:center;justify-content:space-between;gap:12px"><div><strong>'+escaparHtmlPedido(f.producto||'Producto')+'</strong><div style="font-size:12px;color:#866849">Requerido: '+(Number(f.requerido)||0)+' · Recibido: '+(Number(f.recibido)||0)+'</div></div><strong style="color:#bd4d27;white-space:nowrap">Faltan '+(Number(f.faltante)||0)+'</strong></div>';
+      }
+      html+='</div>';
+    }else html+='<p class="c230-leyenda">✅ No hubo faltantes físicos al cierre de este Kardex.</p>';
+    html+='</details>';
+  }
+  if(c230Admin&&fisicos.cerrado&&d.confirmados===0){
+    html+='<section style="margin:12px 0;padding:14px;border:1px solid #b7cde9;border-radius:14px;background:#f5f9ff">';
+    html+='<strong style="color:#245d91">🗂️ ¿Hoy no se utilizó el módulo Clientes?</strong>';
+    html+='<p class="c230-leyenda">Puedes cerrar también esta parte de la ruta. Solo se permitirá si no existen entregas ni movimientos de dinero, créditos o liquidaciones asociados. Los tickets originales no se borran.</p>';
+    html+='<button type="button" style="background:#305c8d;color:white" onclick="c263CerrarSinClientes()">✓ Cerrar ruta sin utilizar Clientes (Admin)</button>';
+    html+='</section>';
+  }
   html+='<p class="c230-leyenda">Avance de revisión: '+d.porcentaje+'% de tickets · Unidades entregadas: '+d.unidadesEntregadas+' / '+d.unidadesPedidas+' · Tickets completos: '+completos+' · Con faltantes o no entregados: '+d.tickets.filter(t=>t.estado==='PARCIAL'||t.estado==='NO_ENTREGADO').length+' · Con pago sin registrar: '+d.ticketsSinPago+'.</p>';
   html+='<div class="c230-tabs">'+[['tickets','🧾 Tickets'],['historial','📋 Historial'],['caja','💵 Caja de Ruta']].map(([id,label])=>'<button type="button" aria-selected="'+(c230Vista===id)+'" onclick="c230Pestana(\''+id+'\')">'+label+'</button>').join('')+'</div>';
   if(c230Vista==='tickets'){
