@@ -2694,6 +2694,22 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
   <div id="pv270RutaPrevia" aria-live="polite"></div>
   <p id="pv270RutaEstado" class="pv270-muted" role="status">Las asociaciones se guardarán en PreventaRutasExcel271; no modificarán Kardex, créditos, cobros ni ventas informativas.</p>
  </div>
+ <div class="pv270-panel" id="pv270RutaGestionPanel">
+  <h4>🧹 Administrar asociaciones de clientes de ruta</h4>
+  <p class="pv270-muted">Solo Administración. Puedes corregir una fecha elegida por error, borrar asociaciones de una fecha o reiniciar todas las importaciones de Excel. No elimina clientes del catálogo, visitas, ubicaciones, Kardex, pedidos ni ventas.</p>
+  <label for="pv270GestionFecha">Fecha de asociaciones que deseas consultar o limpiar</label>
+  <input type="date" id="pv270GestionFecha" />
+  <button type="button" onclick="pv270RutaConsultar()">🔎 Consultar cuántas asociaciones hay</button>
+  <button type="button" style="background:#a54d36" onclick="pv270RutaGestion('FECHA')">🗑️ Borrar asociaciones de esta fecha</button>
+  <h4>Corregir día asignado por error</h4>
+  <label for="pv270GestionOrigen">Fecha equivocada (origen)</label><input type="date" id="pv270GestionOrigen"/>
+  <label for="pv270GestionDestino">Fecha correcta (destino)</label><input type="date" id="pv270GestionDestino"/>
+  <p class="pv270-muted">Ejemplo: corregir jueves 05/11/2026 a miércoles 04/11/2026. Si un cliente ya figura en destino, no se duplicará.</p>
+  <button type="button" onclick="pv270RutaGestion('MOVER')">📅 Cambiar día de estas asociaciones</button>
+  <button type="button" style="background:#873b36" onclick="pv270RutaGestion('TODO')">🗑️ Reiniciar todas las asociaciones importadas de Excel</button>
+  <p id="pv270GestionEstado" class="pv270-muted" role="status">No se ha modificado ninguna asociación.</p>
+  <p class="pv270-aviso">Esta limpieza afecta únicamente las asociaciones de Excel en PreventaRutasExcel271. Un cliente aún podría ser sugerido por su historial de visitas o Kardex.</p>
+ </div>
  <div class="pv270-panel">
   <h4>Visitas y ventas informativas por fecha</h4>
   <label>Consultar fecha o previsualizar ruta de la próxima semana</label><input id="pv270AdminFecha" type="date" onchange="pv270Abrir(true)"/>
@@ -12794,6 +12810,52 @@ async function pv270RutaConfirmar(){
   pv270RutaExcelPrevia=null;const out=document.getElementById('pv270RutaPrevia');if(out)out.innerHTML='';
   const f=document.getElementById('pv270AdminFecha');if(f)f.value=p.fecha;await pv270Abrir(true);
  }catch(e){estado.textContent='⚠️ No se pudo guardar: '+e.message;boton.disabled=false;}
+}
+// v1.7.70 - gestión de asociaciones de Excel (exclusiva del administrador).
+let pv270RutaGestionOcupada=false;
+async function pv270RutaConsultar(){
+ const e=document.getElementById('pv270GestionEstado'),fecha=document.getElementById('pv270GestionFecha')?.value;
+ if(!e)return;
+ if(!fecha)return alert('Selecciona la fecha que deseas consultar.');
+ try{
+  e.textContent='Consultando asociaciones de ruta…';
+  const r=await pv270API('pv270ContarRutaExcel',{fecha},true);
+  e.textContent='Asociaciones Excel en '+fecha+': '+r.enFecha+'. Total en todas las fechas: '+r.total+'.';
+ }catch(ex){e.textContent='⚠️ '+ex.message;}
+}
+async function pv270RutaGestion(tipo){
+ const e=document.getElementById('pv270GestionEstado'),panel=document.getElementById('pv270RutaGestionPanel');
+ if(!e||!panel||pv270RutaGestionOcupada)return;
+ const botones=[...panel.querySelectorAll('button')];
+ pv270RutaGestionOcupada=true;botones.forEach(b=>b.disabled=true);
+ try{
+  if(tipo==='MOVER'){
+   const origen=document.getElementById('pv270GestionOrigen')?.value,destino=document.getElementById('pv270GestionDestino')?.value;
+   if(!origen||!destino||origen===destino){alert('Selecciona fechas de origen y destino diferentes.');return;}
+   const resumen=await pv270API('pv270ContarRutaExcel',{fecha:origen},true);
+   if(!resumen.enFecha){e.textContent='No hay asociaciones Excel en la fecha de origen '+origen+'.';return;}
+   if(!confirm('¿Mover '+resumen.enFecha+' asociaciones Excel desde '+origen+' hacia '+destino+'? Se omitirá cualquier cliente que ya esté relacionado en destino. No se cambiarán visitas, Kardex ni cobros.'))return;
+   e.textContent='Corrigiendo fechas de asociaciones…';
+   const r=await pv270API('pv270MoverRutaExcel',{fechaOrigen:origen,fechaDestino:destino,confirmacion:'MOVER_FECHA'},true);
+   e.textContent='✅ '+r.movidos+' asociaciones cambiaron de día; '+r.duplicados+' repetidas en destino se omitieron.';
+  }else{
+   const fecha=document.getElementById('pv270GestionFecha')?.value;
+   if(tipo==='FECHA'&&!fecha){alert('Selecciona una fecha para borrar únicamente ese día.');return;}
+   const r=await pv270API('pv270ContarRutaExcel',{fecha:tipo==='FECHA'?fecha:''},true);
+   const n=tipo==='TODO'?r.total:r.enFecha;
+   if(!n){e.textContent='No hay asociaciones Excel que borrar para esta selección.';return;}
+   if(tipo==='TODO'){
+    if(prompt('Esto quitará '+n+' asociaciones Excel de todas las fechas. Escribe REINICIAR para continuar:')!=='REINICIAR')return;
+   }
+   const descripcion=tipo==='TODO'?'TODAS las fechas':'la fecha '+fecha;
+   if(!confirm('¿Borrar '+n+' asociaciones Excel de '+descripcion+'? Esta acción no se puede deshacer desde la app. NO borra catálogo, visitas, Kardex ni ventas.'))return;
+   e.textContent='Eliminando asociaciones de Excel…';
+   const res=await pv270API('pv270BorrarRutaExcel',{alcance:tipo,fecha:tipo==='FECHA'?fecha:'',confirmacion:tipo==='TODO'?'REINICIAR':'BORRAR_FECHA'},true);
+   e.textContent='✅ '+res.eliminados+' asociaciones Excel eliminadas. Catálogo, visitas y Kardex intactos.';
+  }
+  await pv270Abrir(true);
+ }catch(ex){e.textContent='⚠️ '+ex.message;}
+ finally{pv270RutaGestionOcupada=false;botones.forEach(b=>b.disabled=false);}
 }
 async function pv270GuardarFechaKardex(){const id=document.getElementById('pv270AdminKardex')?.value,fecha=document.getElementById('pv270FechaKardex')?.value,el=document.getElementById('pv270AdminEstado');if(!id||!fecha)return alert('Selecciona Kardex y fecha.');
  try{const r=await pv270API('pv270FechaKardex',{idRuta:id,fechaPreventa:fecha},true);el.textContent='✅ '+r.mensaje;await pv270Abrir(true);}catch(e){el.textContent='⚠️ '+e.message;}
