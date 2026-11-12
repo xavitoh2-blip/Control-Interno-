@@ -2104,7 +2104,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.67</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.68</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2192,7 +2192,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             </div>
         </div>
 
-<!-- v1.7.67: Preventa piloto, sin alterar Despacho ni créditos -->
+<!-- v1.7.68: Importador Excel ruta separado, sin alterar Despacho ni créditos -->
 <div id="moduloPreventa270" class="card modulo-pantalla" style="display:none;text-align:left">
  <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
  <div class="pv270-top"><div><h3>📍 Preventa · Mi ruta</h3><p>Catálogo Akasia · visitas · montos solo informativos</p></div><span class="pv270-pill">PILOTO</span></div>
@@ -2681,6 +2681,18 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
   <input id="pv270ArchivoClientes" type="file" accept=".xlsx,.xls" />
   <button type="button" onclick="pv270ImportarClientes()">📥 Importar / actualizar catálogo de clientes</button>
   <p id="pv270ImportEstado" class="pv270-muted" role="status">El catálogo se almacenará únicamente en PreventaClientes270.</p>
+ </div>
+ <div class="pv270-panel" id="pv270ImportarRutaPanel">
+  <h4>📋 Importar Excel de ruta y asociar clientes</h4>
+  <p class="pv270-muted">Carga el Excel con los nombres o tickets de Akasia que ya utilizas para la ruta. Se cruzarán con el catálogo de clientes importado arriba, sin volver a registrarlos.</p>
+  <label for="pv270RutaArchivo">Excel con nombres de clientes / tickets de la ruta</label>
+  <input type="file" accept=".xlsx,.xls" id="pv270RutaArchivo" onchange="pv270RutaLimpiarPrevia()" />
+  <label for="pv270RutaFecha">Fecha real en que el preventista tomó los pedidos</label>
+  <input type="date" id="pv270RutaFecha" onchange="pv270RutaLimpiarPrevia()" />
+  <p class="pv270-aviso">⚠ Indica el día de <b>preventa</b>, no el día de preparación, entrega ni importación. Ej.: miércoles 11 → próximo miércoles 18.</p>
+  <button type="button" onclick="pv270RutaPrevisualizar()">🔎 Revisar coincidencias del Excel</button>
+  <div id="pv270RutaPrevia" aria-live="polite"></div>
+  <p id="pv270RutaEstado" class="pv270-muted" role="status">Las asociaciones se guardarán en PreventaRutasExcel271; no modificarán Kardex, créditos, cobros ni ventas informativas.</p>
  </div>
  <div class="pv270-panel">
   <h4>Visitas y ventas informativas por fecha</h4>
@@ -12599,7 +12611,7 @@ async function c57DescargarMini(){
 }
 </script>
 <script id="pv270Script">
-// Preventa piloto 1.7.67. Montos INFORMATIVOS, jamás se envían a endpoint de créditos.
+// Preventa piloto 1.7.68. Montos INFORMATIVOS, jamás se envían a endpoint de créditos.
 let pv270Datos=null,pv270Filtro='ruta',pv270Buscar='',pv270ClienteAbierto='',pv270FichaActual=null,pv270Busy=false;
 function pv270Esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function pv270Moneda(v){return '$'+(Number(v)||0).toFixed(2);}
@@ -12637,7 +12649,7 @@ function pv270Render(){
 }
 function pv270Filas(listado,indicados,visto){return listado.map(c=>{
  const asignado=pv270Datos.asignados.includes(c.uuid),sugerido=indicados.get(c.uuid),visitado=visto.has(c.uuid),ultimo=pv270Datos.ultimoKardexFecha,pidio=(pv270Datos.pedidosUltimo||[]).includes(c.uuid);
- return `<div class="pv270-cliente"><input aria-label="Incluir ${pv270Esc(c.nombre)} en la ruta de hoy" type="checkbox" ${asignado?'checked':''} onchange="pv270Asignar('${pv270Esc(c.uuid)}',this.checked,this)"/><div class="pv270-info"><b>${pv270Esc(c.nombre)}</b><div class="pv270-tags">${asignado?'<span class="pv270-tag">#'+(pv270Datos.asignados.indexOf(c.uuid)+1)+' en mi ruta</span>':''}${sugerido?'<span class="pv270-tag">Sugerido: '+pv270Esc(sugerido==='KARDEX'?'Kardex':sugerido==='VISITA_ANTERIOR'?'visita anterior':'día anterior')+'</span>':''}${(asignado||sugerido)&&ultimo?'<span class="pv270-tag">'+(pidio?'Compró último ciclo':'No aparece en último Kardex')+'</span>':''}${visitado?'<span class="pv270-tag visto">Visitado hoy</span>':''}</div></div><button type="button" onclick="pv270AbrirCliente('${pv270Esc(c.uuid)}')">Ver ficha</button></div>`;
+ return `<div class="pv270-cliente"><input aria-label="Incluir ${pv270Esc(c.nombre)} en la ruta de hoy" type="checkbox" ${asignado?'checked':''} onchange="pv270Asignar('${pv270Esc(c.uuid)}',this.checked,this)"/><div class="pv270-info"><b>${pv270Esc(c.nombre)}</b><div class="pv270-tags">${asignado?'<span class="pv270-tag">#'+(pv270Datos.asignados.indexOf(c.uuid)+1)+' en mi ruta</span>':''}${sugerido?'<span class="pv270-tag">Sugerido: '+pv270Esc(sugerido==='KARDEX'?'Kardex':sugerido==='EXCEL_RUTA'?'Excel de ruta':sugerido==='VISITA_ANTERIOR'?'visita anterior':'día anterior')+'</span>':''}${(asignado||sugerido)&&ultimo?'<span class="pv270-tag">'+(pidio?'Compró último ciclo':'No aparece en último Kardex')+'</span>':''}${visitado?'<span class="pv270-tag visto">Visitado hoy</span>':''}</div></div><button type="button" onclick="pv270AbrirCliente('${pv270Esc(c.uuid)}')">Ver ficha</button></div>`;
  }).join('')||'<p class="pv270-muted">No hay clientes con este filtro. Prueba «Todos» o utiliza el buscador.</p>';}
 function pv270RenderPreservarBuscar(){const i=document.getElementById('pv270Buscar'),sel=i?.selectionStart??0;pv270Render();const n=document.getElementById('pv270Buscar');if(n){n.focus();n.setSelectionRange(sel,sel);}}
 function pv270CambiarFiltro(v){pv270Filtro=v;pv270ClienteAbierto='';pv270Render();}
@@ -12682,8 +12694,8 @@ async function pv270GuardarVisita(){
 function pv270PintarAdmin(){const s=document.getElementById('pv270AdminEstado'),sel=document.getElementById('pv270AdminKardex');if(!pv270Datos)return;
  const d=pv270Datos,inp=document.getElementById('pv270AdminFecha'),res=document.getElementById('pv270AdminResumen');if(inp)inp.value=d.fecha;
  if(res){const por=Object.create(null);(d.visitas||[]).forEach(v=>{const x=por[v.empleado]||(por[v.empleado]={ef:0,cr:0,visitas:0});x.visitas++;if(v.tipo==='EFECTIVO')x.ef+=v.monto;else if(v.tipo==='CREDITO')x.cr+=v.monto;});res.innerHTML=Object.keys(por).length?Object.keys(por).map(nombre=>{const x=por[nombre];return `<div class="pv270-cliente"><div class="pv270-info"><b>${pv270Esc(nombre)}</b><small>${x.visitas} visitas · Efectivo estimado ${pv270Moneda(x.ef)} · Crédito estimado ${pv270Moneda(x.cr)} · Total ${pv270Moneda(x.ef+x.cr)}</small></div></div>`;}).join(''):'Sin visitas registradas para esta fecha.';}
- const sug=document.getElementById('pv270AdminSugerencias');if(sug){const nombres=new Map(d.clientes.map(c=>[c.uuid,c.nombre]));sug.innerHTML='<b>Ruta sugerida ('+d.sugeridos.length+' clientes)</b>'+(d.ultimoKardexFecha?' · Basada en Kardex/visitas anteriores. Último Kardex de este día: '+pv270Esc(d.ultimoKardexFecha):'')+(d.sugeridos.length?d.sugeridos.slice(0,100).map(x=>'<div class="pv270-cliente"><div class="pv270-info"><b>'+pv270Esc(nombres.get(x.uuid)||'Cliente')+'</b><small>'+pv270Esc(x.fuente==='KARDEX'?'Kardex':x.fuente==='VISITA_ANTERIOR'?'Visita anterior':'Selección anterior')+'</small></div></div>').join(''):'<p>No hay clientes sugeridos para este día todavía.</p>');}
- if(s)s.textContent='Catálogo activo: '+pv270Datos.clientes.length+' clientes. Kardex sin relación única de nombre en el día consultado: '+pv270Datos.kardexSinVincular+'.';
+ const sug=document.getElementById('pv270AdminSugerencias');if(sug){const nombres=new Map(d.clientes.map(c=>[c.uuid,c.nombre]));sug.innerHTML='<b>Ruta sugerida ('+d.sugeridos.length+' clientes)</b>'+(d.ultimoKardexFecha?' · Basada en Kardex/visitas anteriores. Último Kardex de este día: '+pv270Esc(d.ultimoKardexFecha):'')+(d.sugeridos.length?d.sugeridos.slice(0,100).map(x=>'<div class="pv270-cliente"><div class="pv270-info"><b>'+pv270Esc(nombres.get(x.uuid)||'Cliente')+'</b><small>'+pv270Esc(x.fuente==='KARDEX'?'Kardex':x.fuente==='EXCEL_RUTA'?'Excel de ruta':x.fuente==='VISITA_ANTERIOR'?'Visita anterior':'Selección anterior')+'</small></div></div>').join(''):'<p>No hay clientes sugeridos para este día todavía.</p>');}
+ if(s)s.textContent='Catálogo activo: '+pv270Datos.clientes.length+' clientes. Excel de ruta asociados a esta fecha: '+(pv270Datos.clientesExcelFecha||0)+'. Kardex sin relación única de nombre en el día consultado: '+pv270Datos.kardexSinVincular+'.';
  if(sel)sel.innerHTML='<option value="">Selecciona un Kardex</option>'+(pv270Datos.rutas||[]).map(x=>`<option value="${pv270Esc(x.idRuta)}">#${pv270Esc(x.numero)} · Cargado ${pv270Esc(x.fecha)} ${x.fechaPreventa?'· Preventa '+pv270Esc(x.fechaPreventa):''}</option>`).join('');
 }
 async function pv270ImportarClientes(){
@@ -12700,6 +12712,88 @@ async function pv270ImportarClientes(){
   for(let i=0;i<clientes.length;i+=140){await pv270API('pv270ImportarLote',{clientes:JSON.stringify(clientes.slice(i,i+140))},true);el.textContent='Cargados '+Math.min(i+140,clientes.length)+' / '+clientes.length+'…';}
   const res=await pv270API('pv270ImportarFinalizar',{total:String(clientes.length)},true);el.textContent='✅ '+res.mensaje+' Total: '+res.clientes+'.';await pv270Abrir(true);
  }catch(e){el.textContent='⚠️ '+e.message+' El catálogo anterior no se reemplazó si la carga quedó incompleta.';}
+}
+// v1.7.68: importar una lista de nombres o tickets de Akasia sin tocar el libro de ventas.
+let pv270RutaExcelPrevia=null;
+function pv270RutaNorm(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase().replace(/\s+/g,' ');}
+function pv270RutaCampo(v){return pv270RutaNorm(v).replace(/[^A-Z0-9]/g,'');}
+function pv270RutaLimpiarPrevia(){pv270RutaExcelPrevia=null;const p=document.getElementById('pv270RutaPrevia');if(p)p.innerHTML='';}
+function pv270RutaCoincidencias(){
+ const p=pv270RutaExcelPrevia;if(!p)return {lista:[],faltantes:[]};
+ const mapa=new Map(),faltantes=[];
+ p.filas.forEach((f,i)=>{if(!f.uuid){faltantes.push(f);return;}
+  if(!mapa.has(f.uuid))mapa.set(f.uuid,{uuid:f.uuid,tickets:new Set(),originales:new Set()});
+  const x=mapa.get(f.uuid);if(f.ticket)x.tickets.add(f.ticket);x.originales.add(f.nombre);
+ });
+ return {lista:[...mapa.values()].map(x=>({uuid:x.uuid,tickets:[...x.tickets].join(', ').slice(0,300)})),faltantes};
+}
+function pv270RutaPintarPrevia(){
+ const p=pv270RutaExcelPrevia,out=document.getElementById('pv270RutaPrevia');if(!out||!p)return;
+ const {lista,faltantes}=pv270RutaCoincidencias(),n=lista.length,rep=p.filas.length-n-faltantes.length;
+ const detalle=faltantes.slice(0,80).map(f=>`<div class="pv270-cliente"><div class="pv270-info"><b>${pv270Esc(f.nombre||'Sin nombre')}</b><small>${f.razon==='AMBIGUO'?'Nombre repetido en catálogo':'No se encontró coincidencia única'} · fila ${f.fila}</small></div><button type="button" onclick="pv270RutaElegir(${f.fila})">Vincular</button></div><div id="pv270RutaEditar${f.fila}"></div>`).join('');
+ out.innerHTML=`<div class="pv270-alerta pv270-ok"><b>Previsualización: ${pv270Esc(p.fecha)}</b><div>${n} clientes relacionados · ${rep} tickets/filas repetidas del mismo cliente · ${faltantes.length} por revisar.</div><small>No se ha guardado nada todavía.</small></div>${faltantes.length?'<h4>Clientes que necesitan revisión</h4>'+detalle+(faltantes.length>80?'<p class="pv270-muted">Se muestran 80 excepciones. Revisa el catálogo antes de importar el resto.</p>':''):'<p class="pv270-muted">✅ Todos los nombres tienen relación única con el catálogo.</p>'}<button type="button" ${n?'':'disabled'} id="pv270RutaConfirmar" onclick="pv270RutaConfirmar()">💾 Guardar ${n} clientes para el ${pv270Esc(p.fecha)}</button><p class="pv270-aviso">Los clientes se sugerirán ese mismo día y los mismos días de la semana siguiente. Esta importación NO registra ventas, deudas, cobros ni confirma pedidos.</p>`;
+}
+function pv270RutaElegir(fila){
+ const p=pv270RutaExcelPrevia,f=p?.filas.find(x=>x.fila===fila),box=document.getElementById('pv270RutaEditar'+fila);if(!p||!f||!box)return;
+ const opciones=p.clientes.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(c=>`<option value="${pv270Esc(c.uuid)}">${pv270Esc(c.nombre)} · ID ${pv270Esc(c.idcliente)}</option>`).join('');
+ box.innerHTML=`<div class="pv270-panel" style="padding:10px"><label for="pv270RutaSel${fila}">Asociar «${pv270Esc(f.nombre)}» con:</label><select id="pv270RutaSel${fila}"><option value="">Selecciona el cliente correcto</option>${opciones}</select><button type="button" onclick="pv270RutaAsignar(${fila})">✓ Confirmar vínculo</button></div>`;
+}
+function pv270RutaAsignar(fila){
+ const f=pv270RutaExcelPrevia?.filas.find(x=>x.fila===fila),sel=document.getElementById('pv270RutaSel'+fila),v=sel?.value;
+ if(!f||!v)return alert('Selecciona el cliente exacto del catálogo de Akasia.');
+ f.uuid=v;f.razon='MANUAL';pv270RutaPintarPrevia();
+}
+async function pv270RutaPrevisualizar(){
+ const file=document.getElementById('pv270RutaArchivo')?.files?.[0],fecha=document.getElementById('pv270RutaFecha')?.value,estado=document.getElementById('pv270RutaEstado');
+ pv270RutaLimpiarPrevia();if(!file)return alert('Selecciona el Excel con nombres de la ruta.');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(fecha||''))return alert('Selecciona la fecha en que el preventista tomó los pedidos.');
+ if(!/\.xlsx?$/i.test(file.name)||file.size>8e6)return alert('Selecciona un Excel .xlsx/.xls menor de 8 MB.');
+ if(typeof XLSX==='undefined')return alert('No se pudo cargar el lector de Excel. Comprueba la conexión.');
+ if(!pv270Datos?.clientes?.length)return alert('Primero importa el catálogo de clientes de Akasia (802 clientes).');
+ try{
+  estado.textContent='Analizando nombres y buscando coincidencias…';
+  const wb=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false}),hoja=wb.Sheets[wb.SheetNames[0]],tabla=XLSX.utils.sheet_to_json(hoja,{header:1,defval:'',blankrows:false});
+  if(!tabla.length)throw Error('El Excel está vacío.');
+  const nombres=['RAZONSOCIAL','CLIENTE','NOMBRECLIENTE','NOMBRE','NOMBRES','CLIENTENOMBRE','TIENDA','NEGOCIO','ESTABLECIMIENTO'],tickets=['NTICKET','NUMEROTICKET','TICKET','NUMTICKET','FOLIO','NVENTA'],uuids=['UUIDCLIENTE'],ids=['IDCLIENTE'];
+  let cab=-1,ci=-1,ti=-1,ui=-1,ii=-1;
+  for(let i=0;i<Math.min(12,tabla.length);i++){
+   const claves=(tabla[i]||[]).map(pv270RutaCampo),indice=claves.findIndex(k=>nombres.includes(k));
+   if(indice>=0){cab=i;ci=indice;ti=claves.findIndex(k=>tickets.includes(k));ui=claves.findIndex(k=>uuids.includes(k));ii=claves.findIndex(k=>ids.includes(k));break;}
+  }
+  if(cab<0){if(tabla.some(r=>r.filter(v=>String(v??'').trim()).length>1))throw Error('No se encontró columna de cliente. El Excel debe traer razon_social, Cliente o Nombre.');ci=0;cab=-1;}
+  const clientes=pv270Datos.clientes,porUUID=new Map(clientes.map(c=>[c.uuid.toLowerCase(),c])),porID=new Map(),porNombre=new Map();
+  clientes.forEach(c=>{const id=String(c.idcliente).trim(),key=pv270RutaNorm(c.nombre);if(id)porID.set(id,[...(porID.get(id)||[]),c]);porNombre.set(key,[...(porNombre.get(key)||[]),c]);});
+  const filas=[];
+  for(let i=cab+1;i<tabla.length;i++){
+   const r=tabla[i],nombre=String(r[ci]??'').trim(),ticket=ti>=0?String(r[ti]??'').trim():'';
+   const uid=ui>=0?String(r[ui]??'').trim().toLowerCase():'',id=ii>=0?String(r[ii]??'').trim():'';
+   if(!nombre&&!uid&&!id)continue;
+   if(!nombre&&!(porUUID.has(uid)||porID.has(id)))continue;
+   if(/^total( general)?$/i.test(nombre)||/^subtotal$/i.test(nombre))continue;
+   let c=null,razon='SIN_COINCIDENCIA';
+   if(uid&&porUUID.has(uid))c=porUUID.get(uid);
+   else if(id&&porID.get(id)?.length===1)c=porID.get(id)[0];
+   else {const a=porNombre.get(pv270RutaNorm(nombre))||[];if(a.length===1)c=a[0];else if(a.length>1)razon='AMBIGUO';}
+   filas.push({fila:i+1,nombre:nombre||c?.nombre||'Cliente sin nombre',ticket,uuid:c?.uuid||'',razon});
+  }
+  if(!filas.length||filas.length>2500)throw Error('Debe haber entre 1 y 2500 registros de clientes en la primera hoja del Excel.');
+  pv270RutaExcelPrevia={filas,fecha,archivo:file.name,clientes};pv270RutaPintarPrevia();
+  estado.textContent='Vista previa lista: '+filas.length+' registros leídos. Comprueba coincidencias y fecha antes de guardar.';
+ }catch(e){estado.textContent='⚠️ '+e.message;}
+}
+async function pv270RutaConfirmar(){
+ const p=pv270RutaExcelPrevia,estado=document.getElementById('pv270RutaEstado'),boton=document.getElementById('pv270RutaConfirmar');if(!p)return;
+ const fecha=document.getElementById('pv270RutaFecha')?.value,file=document.getElementById('pv270RutaArchivo')?.files?.[0];
+ if(fecha!==p.fecha||file?.name!==p.archivo)return alert('Cambió la fecha o el archivo. Previsualiza nuevamente.');
+ const {lista,faltantes}=pv270RutaCoincidencias();if(!lista.length)return alert('No hay clientes vinculados para guardar.');
+ if(faltantes.length&&!confirm('Hay '+faltantes.length+' filas sin relación única que NO se guardarán. ¿Continuar solo con los '+lista.length+' clientes reconocidos?'))return;
+ if(!confirm('Asociar '+lista.length+' clientes al día de preventa '+p.fecha+'? Esto no modifica ventas, Kardex ni créditos.'))return;
+ boton.disabled=true;estado.textContent='Guardando asociaciones de ruta…';
+ try{const resp=await pv270API('pv270ImportarRutaExcel',{fechaPreventa:p.fecha,archivo:p.archivo,clientes:JSON.stringify(lista),operacion:pv270Op()},true);
+  estado.textContent='✅ '+resp.agregados+' clientes asociados; '+resp.existentes+' ya estaban relacionados en esa fecha. '+faltantes.length+' filas quedaron para revisión.';
+  pv270RutaExcelPrevia=null;const out=document.getElementById('pv270RutaPrevia');if(out)out.innerHTML='';
+  const f=document.getElementById('pv270AdminFecha');if(f)f.value=p.fecha;await pv270Abrir(true);
+ }catch(e){estado.textContent='⚠️ No se pudo guardar: '+e.message;boton.disabled=false;}
 }
 async function pv270GuardarFechaKardex(){const id=document.getElementById('pv270AdminKardex')?.value,fecha=document.getElementById('pv270FechaKardex')?.value,el=document.getElementById('pv270AdminEstado');if(!id||!fecha)return alert('Selecciona Kardex y fecha.');
  try{const r=await pv270API('pv270FechaKardex',{idRuta:id,fechaPreventa:fecha},true);el.textContent='✅ '+r.mensaje;await pv270Abrir(true);}catch(e){el.textContent='⚠️ '+e.message;}
