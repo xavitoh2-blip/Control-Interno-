@@ -2075,7 +2075,29 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .pv270-alerta{padding:13px;border-radius:14px;background:#fff4ea;color:#9c4a17;margin:11px 0;font-size:13px}
 .pv270-ok{background:#e9faee;color:#22754a}
 .pv270-aviso{font-size:11px;color:#697e96;margin:7px 0;line-height:1.5}
-#pv270Ficha{border-top:1px solid #dee9f7;margin-top:18px;padding-top:14px}
+/* Preventa v1.7.72: lista compacta + ficha individual como en Despacho */
+#pv270Contenido .pv270-cliente-item{padding:9px 12px;gap:10px;min-height:73px;border-radius:15px;transition:border-color .15s,background .15s}
+#pv270Contenido .pv270-cliente-item:focus-within{border-color:#80b9fc;background:#f9fcff}
+#pv270Contenido .pv270-cliente-item input[type=checkbox]{flex:0 0 23px;width:23px!important;height:23px!important;min-height:23px!important}
+#pv270Contenido .pv270-cliente-item button.pv270-abrir{flex:1;min-width:0;max-width:none!important;min-height:46px!important;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0!important;padding:4px 2px!important;border:0!important;border-radius:10px!important;text-align:left;background:transparent!important;color:#234363!important;box-shadow:none!important;font-weight:normal}
+#pv270Contenido .pv270-cliente-item button.pv270-abrir .pv270-info{flex:1;min-width:0}
+#pv270Contenido .pv270-cliente-item button.pv270-abrir .pv270-info b{font-size:14px;line-height:1.35}
+#pv270Contenido .pv270-cliente-item button.pv270-abrir .pv270-info .pv270-tags{display:flex;gap:4px;margin-top:5px}
+#pv270Contenido .pv270-cliente-item button.pv270-abrir .pv270-tag{font-size:10px;padding:3px 7px}
+#pv270Contenido .pv270-cliente-item button.pv270-abrir .pv270-chevron{color:#087cff;font-size:26px;line-height:1;flex:0 0 auto;font-weight:600}
+#pv270Contenido .pv270-cliente-item button.pv270-abrir:focus-visible{outline:2px solid #087cff;outline-offset:2px}
+#pv270Contenido .pv270-cliente-item button.pv270-abrir:hover{background:#f1f7ff!important}
+#pv270Ficha{margin:0;padding:0;scroll-margin-top:74px}
+#pv270Ficha .pv270-ficha-cabecera{display:flex;gap:11px;align-items:flex-start;margin:0 0 12px;border:1px solid #dce5f1;border-radius:16px;padding:13px;background:#fff}
+#pv270Ficha .pv270-ficha-cabecera .pv270-titulo-cliente{flex:1;min-width:0}
+#pv270Ficha .pv270-ficha-cabecera h3{font-size:19px!important;line-height:1.3!important;overflow-wrap:anywhere}
+#pv270Ficha .pv270-ficha-cabecera p{font-size:12px;margin-top:4px}
+#pv270Contenido #pv270Ficha button.pv270-volver{background:#eef5fe!important;border:1px solid #cbdff8!important;color:#205c9c!important;font-weight:800!important;flex:0 0 auto;margin:0!important;min-height:40px!important;padding:8px 11px!important}
+#pv270Ficha .pv270-ficha-intro{font-size:12px;color:#607994;line-height:1.5;margin:6px 0 12px}
+#pv270Ficha .pv270-panel{margin:10px 0}
+#pv270Ficha .pv270-saldo{border:1px solid #e3eaf4;background:#f4f8ff;border-radius:15px;padding:14px;margin:10px 0}
+@media(max-width:460px){#pv270Contenido .pv270-cliente-item button.pv270-abrir .pv270-info b{font-size:13px}#pv270Ficha .pv270-ficha-cabecera h3{font-size:17px!important}#pv270Contenido .pv270-cliente-item{padding:9px 10px}}
+
 #pv270Ficha .pv270-saldo{background:#f6f8fc;border-radius:15px;padding:14px;margin:12px 0}
 #pv270Ficha .pv270-saldo strong{font-size:28px;display:block;margin:4px 0}
 #pv270Ficha input[type=radio]{width:18px;min-height:18px}
@@ -2708,7 +2730,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
   <button type="button" onclick="pv270RutaGestion('MOVER')">📅 Cambiar día de estas asociaciones</button>
   <button type="button" style="background:#873b36" onclick="pv270RutaGestion('TODO')">🗑️ Reiniciar todas las asociaciones importadas de Excel</button>
   <p id="pv270GestionEstado" class="pv270-muted" role="status">No se ha modificado ninguna asociación.</p>
-  <p class="pv270-aviso">Esta limpieza afecta únicamente las asociaciones de Excel en PreventaRutasExcel271. Un cliente aún podría ser sugerido por su historial de visitas o Kardex.</p>
+  <p class="pv270-aviso">Esta limpieza afecta únicamente las asociaciones de Excel en PreventaRutasExcel271. Un cliente aún podría ser sugerido por una visita anterior, una selección manual o un Kardex vinculado expresamente a Preventa.</p>
  </div>
  <div class="pv270-panel">
   <h4>Visitas y ventas informativas por fecha</h4>
@@ -12627,8 +12649,8 @@ async function c57DescargarMini(){
 }
 </script>
 <script id="pv270Script">
-// Preventa piloto 1.7.69. Montos INFORMATIVOS, jamás se envían a endpoint de créditos.
-let pv270Datos=null,pv270Filtro='ruta',pv270Buscar='',pv270ClienteAbierto='',pv270FichaActual=null,pv270Busy=false;
+// Preventa UI 1.7.72. Montos INFORMATIVOS, jamás se envían a endpoint de créditos.
+let pv270Datos=null,pv270Filtro='ruta',pv270Buscar='',pv270ClienteAbierto='',pv270FichaActual=null,pv270Busy=false,pv270ScrollLista=0;
 function pv270Esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function pv270Moneda(v){return '$'+(Number(v)||0).toFixed(2);}
 function pv270Usuario(admin){return admin?{empleado:'SUPERVISOR',sucursal:'Administracion',token:m201TokenSupervisor||''}:{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
@@ -12653,19 +12675,19 @@ function pv270Render(){
  const indicados=new Map(d.sugeridos.map(s=>[s.uuid,s.fuente])),f=pv270Filtro;
  let listado=d.clientes.filter(c=>(f!=='ruta'||d.asignados.includes(c.uuid)||indicados.has(c.uuid))&&(f!=='pendientes'||((d.asignados.includes(c.uuid)||indicados.has(c.uuid))&&!visto.has(c.uuid)))&&c.nombre.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(pv270Buscar.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')));
  listado.sort((a,b)=>Number(d.asignados.includes(b.uuid))-Number(d.asignados.includes(a.uuid))||(d.asignados.includes(a.uuid)&&d.asignados.includes(b.uuid)?d.asignados.indexOf(a.uuid)-d.asignados.indexOf(b.uuid):0)||Number(indicados.has(b.uuid))-Number(indicados.has(a.uuid))||a.nombre.localeCompare(b.nombre,'es'));
- const html=`<div class="pv270-resumen"><div class="pv270-grande"><label>Venta estimada de hoy</label><strong>${pv270Moneda(ef+cr)}</strong><div class="pv270-sin">No es dinero recibido ni crédito real.</div></div><div><label>Efectivo previsto</label><strong>${pv270Moneda(ef)}</strong></div><div><label>Crédito previsto</label><strong>${pv270Moneda(cr)}</strong></div></div>
+ const html=`<section id="pv270Ficha" class="pv270-vista-ficha" aria-label="Ficha del cliente" style="display:none"></section><div id="pv270VistaLista"><div class="pv270-resumen"><div class="pv270-grande"><label>Venta estimada de hoy</label><strong>${pv270Moneda(ef+cr)}</strong><div class="pv270-sin">No es dinero recibido ni crédito real.</div></div><div><label>Efectivo previsto</label><strong>${pv270Moneda(ef)}</strong></div><div><label>Crédito previsto</label><strong>${pv270Moneda(cr)}</strong></div></div>
  <div class="pv270-panel"><p class="pv270-muted"><b>${pv270Esc(d.fecha)}</b> · ${visto.size} clientes visitados · ${pv270Rutas().length} sugeridos/asignados</p>
  <input aria-label="Buscar cliente de Akasia" id="pv270Buscar" type="search" placeholder="Buscar cliente Akasia…" value="${pv270Esc(pv270Buscar)}" oninput="pv270Buscar=this.value;pv270RenderPreservarBuscar()">
  <div class="pv270-filtros"><button type="button" aria-pressed="${f==='ruta'}" onclick="pv270CambiarFiltro('ruta')">Mi ruta</button><button type="button" aria-pressed="${f==='pendientes'}" onclick="pv270CambiarFiltro('pendientes')">Sin visitar</button><button type="button" aria-pressed="${f==='todos'}" onclick="pv270CambiarFiltro('todos')">Todos</button></div>
- <p class="pv270-aviso">✓ Marca los clientes que quieres visitar hoy. Los sugeridos provienen de Kardex y visitas anteriores; tú decides a quién añadir. ${d.ultimoKardexFecha?'Último Kardex de este día de semana: '+pv270Esc(d.ultimoKardexFecha)+'.':''}</p>
+ <p class="pv270-aviso">✓ Marca los clientes que quieres visitar hoy. Los sugeridos provienen del Excel de ruta, visitas anteriores y Kardex vinculados expresamente al día de Preventa; tú decides a quién añadir. ${d.ultimoKardexFecha?'Último Kardex vinculado a este día: '+pv270Esc(d.ultimoKardexFecha)+'.':''}</p>
  <div id="pv270Lista">${pv270Filas(listado.slice(0,120),indicados,visto)}</div>${listado.length>120?'<p class="pv270-muted">Mostrando los primeros 120. Escribe parte del nombre para encontrar otros.</p>':''}
- </div><section id="pv270Ficha" style="display:none"></section>`;
+ </div></div>`;
  el.innerHTML=html;
  if(pv270ClienteAbierto)pv270AbrirCliente(pv270ClienteAbierto,true);
 }
 function pv270Filas(listado,indicados,visto){return listado.map(c=>{
  const asignado=pv270Datos.asignados.includes(c.uuid),sugerido=indicados.get(c.uuid),visitado=visto.has(c.uuid),ultimo=pv270Datos.ultimoKardexFecha,pidio=(pv270Datos.pedidosUltimo||[]).includes(c.uuid);
- return `<div class="pv270-cliente"><input aria-label="Incluir ${pv270Esc(c.nombre)} en la ruta de hoy" type="checkbox" ${asignado?'checked':''} onchange="pv270Asignar('${pv270Esc(c.uuid)}',this.checked,this)"/><div class="pv270-info"><b>${pv270Esc(c.nombre)}</b><div class="pv270-tags">${asignado?'<span class="pv270-tag">#'+(pv270Datos.asignados.indexOf(c.uuid)+1)+' en mi ruta</span>':''}${sugerido?'<span class="pv270-tag">Sugerido: '+pv270Esc(sugerido==='KARDEX'?'Kardex':sugerido==='EXCEL_RUTA'?'Excel de ruta':sugerido==='VISITA_ANTERIOR'?'visita anterior':'día anterior')+'</span>':''}${(asignado||sugerido)&&ultimo?'<span class="pv270-tag">'+(pidio?'Compró último ciclo':'No aparece en último Kardex')+'</span>':''}${visitado?'<span class="pv270-tag visto">Visitado hoy</span>':''}</div></div><button type="button" onclick="pv270AbrirCliente('${pv270Esc(c.uuid)}')">Ver ficha</button></div>`;
+ return `<div class="pv270-cliente pv270-cliente-item"><input aria-label="Incluir ${pv270Esc(c.nombre)} en la ruta de hoy" type="checkbox" ${asignado?'checked':''} onchange="pv270Asignar('${pv270Esc(c.uuid)}',this.checked,this)"/><button type="button" class="pv270-abrir" aria-label="Abrir ficha de ${pv270Esc(c.nombre)}" onclick="pv270AbrirCliente('${pv270Esc(c.uuid)}')"><span class="pv270-info"><b>${pv270Esc(c.nombre)}</b><span class="pv270-tags">${asignado?'<span class="pv270-tag">#'+(pv270Datos.asignados.indexOf(c.uuid)+1)+' en mi ruta</span>':''}${sugerido?'<span class="pv270-tag">Sugerido: '+pv270Esc(sugerido==='KARDEX'?'Kardex vinculado':sugerido==='EXCEL_RUTA'?'Excel de ruta':sugerido==='VISITA_ANTERIOR'?'visita anterior':'día anterior')+'</span>':''}${(asignado||sugerido)&&ultimo?'<span class="pv270-tag">'+(pidio?'Compró último ciclo':'No aparece en último Kardex')+'</span>':''}${visitado?'<span class="pv270-tag visto">Visitado hoy</span>':''}</span></span><span class="pv270-chevron" aria-hidden="true">›</span></button></div>`;
  }).join('')||'<p class="pv270-muted">No hay clientes con este filtro. Prueba «Todos» o utiliza el buscador.</p>';}
 function pv270RenderPreservarBuscar(){const i=document.getElementById('pv270Buscar'),sel=i?.selectionStart??0;pv270Render();const n=document.getElementById('pv270Buscar');if(n){n.focus();n.setSelectionRange(sel,sel);}}
 function pv270CambiarFiltro(v){pv270Filtro=v;pv270ClienteAbierto='';pv270Render();}
@@ -12676,13 +12698,18 @@ async function pv270Asignar(uuid,checked,control){
  }catch(e){control.checked=!checked;alert('No se guardó la selección: '+e.message);}finally{pv270Busy=false;}
 }
 async function pv270AbrirCliente(uuid,silencioso=false){
- pv270ClienteAbierto=uuid;const card=document.getElementById('pv270Ficha');if(!card)return;
- card.style.display='block';card.innerHTML='<p>Consultando saldo real e historial…</p>';
+ const card=document.getElementById('pv270Ficha'),lista=document.getElementById('pv270VistaLista');if(!card||!lista)return;
+ if(!silencioso)pv270ScrollLista=window.scrollY||0;
+ pv270ClienteAbierto=uuid;
+ lista.style.display='none';lista.setAttribute('aria-hidden','true');
+ card.style.display='block';card.removeAttribute('aria-hidden');
+ card.innerHTML='<div class="pv270-panel"><button type="button" class="pv270-volver" onclick="pv270CerrarFicha()">← Volver a mi ruta</button><p class="pv270-muted">Consultando información del cliente…</p></div>';
+ if(!silencioso)card.scrollIntoView({behavior:'auto',block:'start'});
  try{const d=await pv270API('pv270Ficha',{uuid});if(pv270ClienteAbierto!==uuid)return;pv270FichaActual=d;
   const cr=d.credito,saldo=cr.verificado?`<div class="pv270-saldo"><span>Saldo REAL pendiente en Online Shop</span><strong style="color:${cr.saldo>0?'#c04d26':'#19804e'}">${pv270Moneda(cr.saldo)}</strong><small>${cr.saldo>0?'⚠️ Cliente con deuda pendiente':'✓ No tiene saldo registrado con este nombre'}</small></div>`:'<div class="pv270-alerta">Hay clientes con el mismo nombre en Akasia. No se puede mostrar un saldo sin confirmar su identidad.</div>';
   const visitado=pv270Datos.visitas.some(v=>v.uuid===uuid);
   const ub=d.ubicacion,ubicacionHTML=ub?`<div class="pv270-panel"><b>📍 Última ubicación registrada</b><p class="pv270-muted">GPS de visita del ${pv270Esc(ub.fecha)} (referencia, no domicilio verificado)</p><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ub.lat+','+ub.lng)}" target="_blank" rel="noopener noreferrer">Ver en Google Maps</a></div>`:'<p class="pv270-muted">📍 Ubicación pendiente. Se intentará guardar GPS al registrar la visita.</p>';
-  card.innerHTML=`<div class="pv270-top"><div><h3>${pv270Esc(d.cliente.nombre)}</h3><p>Ficha de cliente Akasia · ${pv270Esc(d.cliente.idcliente)}</p></div><button type="button" onclick="pv270CerrarFicha()" style="width:auto">✕</button></div>${saldo}
+  card.innerHTML=`<div class="pv270-ficha-detalle"><div class="pv270-ficha-cabecera"><button type="button" class="pv270-volver" onclick="pv270CerrarFicha()" aria-label="Volver a lista de clientes">← Volver</button><div class="pv270-titulo-cliente"><h3>${pv270Esc(d.cliente.nombre)}</h3><p>Cliente Akasia · ${pv270Esc(d.cliente.idcliente)}</p></div></div><p class="pv270-ficha-intro">Visita de preventa · ${pv270Esc(pv270Datos.fecha)}. Registra el resultado y vuelve a la ruta para continuar con el siguiente cliente.</p>${saldo}
   ${ubicacionHTML}<div class="pv270-panel"><h4>Venta informativa de esta visita</h4><p class="pv270-aviso">No aumenta cuentas por cobrar ni el efectivo de Despacho.</p>
    <label>Resultado</label><select id="pv270Estado" onchange="pv270CambioEstado()"><option value="VENTA_ESTIMADA">Visita con venta informativa</option><option value="SIN_COMPRA">Visitado, no realizó compra</option><option value="CERRADO">Establecimiento cerrado</option><option value="AUSENTE">Cliente no encontrado</option><option value="REPROGRAMADO">Visita reprogramada</option></select>
    <div id="pv270VentaDatos"><label>Monto estimado ($)</label><input id="pv270Monto" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" placeholder="Ej. 45.00"/><label>Forma de pago prevista</label><select id="pv270Tipo"><option value="EFECTIVO">Efectivo</option><option value="CREDITO">Crédito</option></select></div>
@@ -12690,12 +12717,17 @@ async function pv270AbrirCliente(uuid,silencioso=false){
    <p class="pv270-aviso">Al guardar intentaremos capturar GPS. Si no está disponible, la visita seguirá guardándose.</p>
    <button type="button" id="pv270Guardar" ${visitado?'disabled':''} onclick="pv270GuardarVisita()">${visitado?'Ya se registró una visita hoy':'💾 Guardar visita'}</button>
    <p id="pv270GuardarEstado" role="status" class="pv270-muted"></p>
-  </div><div class="pv270-panel"><h4>Historial reciente de visitas</h4>${d.historial.length?d.historial.map(v=>`<p class="pv270-muted"><b>${pv270Esc(v.fecha)} ${pv270Esc(v.hora)}</b> · ${pv270Esc(v.estado)} ${v.monto?pv270Moneda(v.monto)+' '+pv270Esc(v.tipo):''}</p>`).join(''):'<p class="pv270-muted">Aún no hay visitas registradas.</p>'}</div>`;
-  if(!silencioso)card.scrollIntoView({behavior:'smooth',block:'start'});
- }catch(e){card.innerHTML='<p class="pv270-alerta">'+pv270Esc(e.message)+'</p>';}
+  </div><div class="pv270-panel"><h4>Historial reciente de visitas</h4>${d.historial.length?d.historial.map(v=>`<p class="pv270-muted"><b>${pv270Esc(v.fecha)} ${pv270Esc(v.hora)}</b> · ${pv270Esc(v.estado)} ${v.monto?pv270Moneda(v.monto)+' '+pv270Esc(v.tipo):''}</p>`).join(''):'<p class="pv270-muted">Aún no hay visitas registradas.</p>'}</div></div>`;
+ }catch(e){if(pv270ClienteAbierto!==uuid)return;card.innerHTML='<div class="pv270-panel"><button type="button" class="pv270-volver" onclick="pv270CerrarFicha()">← Volver a mi ruta</button><p class="pv270-alerta">'+pv270Esc(e.message)+'</p></div>';}
 }
 function pv270CambioEstado(){const estado=document.getElementById('pv270Estado')?.value,datos=document.getElementById('pv270VentaDatos');if(datos)datos.style.display=estado==='VENTA_ESTIMADA'?'block':'none';}
-function pv270CerrarFicha(){pv270ClienteAbierto='';pv270FichaActual=null;const x=document.getElementById('pv270Ficha');if(x)x.style.display='none';}
+function pv270CerrarFicha(){
+ pv270ClienteAbierto='';pv270FichaActual=null;
+ const ficha=document.getElementById('pv270Ficha'),lista=document.getElementById('pv270VistaLista');
+ if(ficha){ficha.style.display='none';ficha.setAttribute('aria-hidden','true');ficha.innerHTML='';}
+ if(lista){lista.style.display='block';lista.removeAttribute('aria-hidden');}
+ requestAnimationFrame(()=>window.scrollTo({top:pv270ScrollLista,behavior:'auto'}));
+}
 function pv270GPS(){return new Promise(resolve=>{if(!navigator.geolocation){resolve({});return;}navigator.geolocation.getCurrentPosition(p=>resolve({lat:p.coords.latitude,lng:p.coords.longitude,precision:p.coords.accuracy}),()=>resolve({}),{enableHighAccuracy:true,timeout:6000,maximumAge:15000});});}
 async function pv270GuardarVisita(){
  const b=document.getElementById('pv270Guardar'),status=document.getElementById('pv270GuardarEstado'),estado=document.getElementById('pv270Estado')?.value,monto=estado==='VENTA_ESTIMADA'?Number(document.getElementById('pv270Monto')?.value):0,tipo=estado==='VENTA_ESTIMADA'?document.getElementById('pv270Tipo')?.value:'',nota=document.getElementById('pv270Nota')?.value||'',uuid=pv270ClienteAbierto;
@@ -12704,13 +12736,13 @@ async function pv270GuardarVisita(){
  try{const geo=await pv270GPS();const op=pv270Op();await pv270API('pv270GuardarVisita',{uuid,estado,monto:String(monto||0),tipo,observacion:nota,operacion:op,lat:geo.lat??'',lng:geo.lng??'',precision:geo.precision??''});
   const cli=pv270Datos.clientes.find(c=>c.uuid===uuid);
   pv270Datos.visitas.push({uuid,cliente:cli?.nombre||'',estado,monto:monto||0,tipo,hora:new Date().toLocaleTimeString('es-SV'),empleado:pv270Usuario().empleado});
-  pv270ClienteAbierto='';pv270Render();alert('✅ Visita registrada. El monto es SOLO INFORMATIVO. '+(geo.lat!==undefined?'GPS capturado.':'GPS no disponible.'));
+  pv270ClienteAbierto='';pv270Render();requestAnimationFrame(()=>window.scrollTo({top:pv270ScrollLista,behavior:'auto'}));alert('✅ Visita registrada. El monto es SOLO INFORMATIVO. '+(geo.lat!==undefined?'GPS capturado.':'GPS no disponible.'));
  }catch(e){status.textContent='⚠️ '+e.message;b.disabled=false;}finally{pv270Busy=false;}
 }
 function pv270PintarAdmin(){const s=document.getElementById('pv270AdminEstado'),sel=document.getElementById('pv270AdminKardex');if(!pv270Datos)return;
  const d=pv270Datos,inp=document.getElementById('pv270AdminFecha'),res=document.getElementById('pv270AdminResumen');if(inp)inp.value=d.fecha;
  if(res){const por=Object.create(null);(d.visitas||[]).forEach(v=>{const x=por[v.empleado]||(por[v.empleado]={ef:0,cr:0,visitas:0});x.visitas++;if(v.tipo==='EFECTIVO')x.ef+=v.monto;else if(v.tipo==='CREDITO')x.cr+=v.monto;});res.innerHTML=Object.keys(por).length?Object.keys(por).map(nombre=>{const x=por[nombre];return `<div class="pv270-cliente"><div class="pv270-info"><b>${pv270Esc(nombre)}</b><small>${x.visitas} visitas · Efectivo estimado ${pv270Moneda(x.ef)} · Crédito estimado ${pv270Moneda(x.cr)} · Total ${pv270Moneda(x.ef+x.cr)}</small></div></div>`;}).join(''):'Sin visitas registradas para esta fecha.';}
- const sug=document.getElementById('pv270AdminSugerencias');if(sug){const nombres=new Map(d.clientes.map(c=>[c.uuid,c.nombre]));sug.innerHTML='<b>Ruta sugerida ('+d.sugeridos.length+' clientes)</b>'+(d.ultimoKardexFecha?' · Basada en Kardex/visitas anteriores. Último Kardex de este día: '+pv270Esc(d.ultimoKardexFecha):'')+(d.sugeridos.length?d.sugeridos.slice(0,100).map(x=>'<div class="pv270-cliente"><div class="pv270-info"><b>'+pv270Esc(nombres.get(x.uuid)||'Cliente')+'</b><small>'+pv270Esc(x.fuente==='KARDEX'?'Kardex':x.fuente==='EXCEL_RUTA'?'Excel de ruta':x.fuente==='VISITA_ANTERIOR'?'Visita anterior':'Selección anterior')+'</small></div></div>').join(''):'<p>No hay clientes sugeridos para este día todavía.</p>');}
+ const sug=document.getElementById('pv270AdminSugerencias');if(sug){const nombres=new Map(d.clientes.map(c=>[c.uuid,c.nombre]));sug.innerHTML='<b>Ruta sugerida ('+d.sugeridos.length+' clientes)</b>'+(d.ultimoKardexFecha?' · Solo Kardex vinculados explícitamente. Último Kardex de este día: '+pv270Esc(d.ultimoKardexFecha):'')+(d.sugeridos.length?d.sugeridos.slice(0,100).map(x=>'<div class="pv270-cliente"><div class="pv270-info"><b>'+pv270Esc(nombres.get(x.uuid)||'Cliente')+'</b><small>'+pv270Esc(x.fuente==='KARDEX'?'Kardex vinculado':x.fuente==='EXCEL_RUTA'?'Excel de ruta':x.fuente==='VISITA_ANTERIOR'?'Visita anterior':'Selección anterior')+'</small></div></div>').join(''):'<p>No hay clientes sugeridos para este día todavía.</p>');}
  if(s)s.textContent='Catálogo activo: '+pv270Datos.clientes.length+' clientes. Excel de ruta guardados para la fecha consultada: '+(pv270Datos.clientesExcelFecha||0)+'. Para la ruta de la próxima semana, cambia la fecha del calendario al mismo día de la semana siguiente. Kardex sin relación única de nombre: '+pv270Datos.kardexSinVincular+'.';
  if(sel)sel.innerHTML='<option value="">Selecciona un Kardex</option>'+(pv270Datos.rutas||[]).map(x=>`<option value="${pv270Esc(x.idRuta)}">#${pv270Esc(x.numero)} · Cargado ${pv270Esc(x.fecha)} ${x.fechaPreventa?'· Preventa '+pv270Esc(x.fechaPreventa):''}</option>`).join('');
 }
