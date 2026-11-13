@@ -13133,6 +13133,7 @@ async function pv270AsignarFicha(uuid,control){
   const ids=new Set(pv270Datos.asignados);checked?ids.add(uuid):ids.delete(uuid);pv270Datos.asignados=[...ids];pv270CambioLocal++;
  }catch(e){control.checked=!checked;alert('No se guardó la selección: '+e.message);}finally{control.disabled=false;pv270Busy=false;}
 }
+// Navegación contextual de Preventa: solo mostrar la tarea seleccionada.
 function pv270FichaSeccion(seccion){
  const permitidas=['menu','visita','saldo','ubicacion','historial'];if(!permitidas.includes(seccion))return;
  const menu=document.getElementById('pv270FichaMenu');if(menu)menu.style.display=seccion==='menu'?'block':'none';
