@@ -2671,7 +2671,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <div class="k225-cliente-import">
                 <label for="k225ArchivoClientes">👥 2. Excel de clientes y tickets de Akasia</label>
                 <input type="file" id="k225ArchivoClientes" accept=".xlsx,.xls" onchange="k225LeerClientes(this.files?.[0])">
-                <small id="k225EstadoClientes">Con esta lista se relacionan los productos con el cliente y se comprueban los totales.</small>
+                <small id="k225EstadoClientes">Se aceptan reportes Akasia con ticket y nombre, o listas con solo nombres. Si falta el ticket o el total, se pedirá vincular y verificar antes de crear el Kardex.</small>
+                <div id="k225Vinculos" class="k222-preview" style="display:none;margin-top:10px" aria-live="polite"></div>
               </div>
               <div id="k222Previa" class="k222-preview" aria-live="polite">Selecciona un Excel para revisar los productos.</div>
               <button type="button" id="k222CrearBtn" onclick="k222CrearDesdeExcel()" disabled>＋ Crear Kardex</button>
@@ -7908,7 +7909,11 @@ async function verificarPassword() {
         // v1.7.22 · Crear Kardex sin copiar productos a Google Sheets.
         // El Excel se lee localmente; solo se envía la lista confirmada.
         let k222Libro=null,k222Productos=[],k222ArchivoNombre='',k222Ocupado=false;
+        // v1.7.77: aceptar el reporte de nombres exportado por Akasia sin
+        // inventar la correspondencia entre nombre y ticket. Cuando falta
+        // n_ticket o total, solicitar vinculación/verificación explícita.
         let k225Lineas=[],k225Clientes=[],k225LibroClientes=null,k225ArchivoClientesNombre='';
+        let k225OrigenClientes=[],k225Modo='NINGUNO',k225Listo=false,k225Firma='';
         function k222Texto(v){return String(v??'').trim().replace(/\s+/g,' ');}
         function k222Clave(v){return k222Texto(v).toUpperCase();}
         function k222Cabecera(v){return k222Clave(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');}
@@ -7922,46 +7927,169 @@ async function verificarPassword() {
           const box=document.getElementById('k222Previa');if(!box)return;
           box.innerHTML='<div class="k222-summary" style="'+(error?'color:#9f3034;border-color:#e9b4b4;':'')+'">'+escaparHtmlPedido(mensaje)+'</div>';
         }
+        function k225Cols(hdr){
+          const tipos={
+            ticket:['NTICKET','NUMTICKET','NUMEROTICKET','NUMERODETICKET','NOTICKET','TICKET','TICKETNUMERO','FOLIO','NUMVENTA','NUMEROVENTA','NVENTA'],
+            cliente:['RAZONSOCIAL','RAZONSOCIALCLIENTE','CLIENTE','NOMBRE','NOMBRES','NOMBRECLIENTE','CLIENTENOMBRE','NOMBRECOMPLETO','NOMBRECOMERCIAL','NOMBREDELCLIENTE','NOMBREDECLIENTE','NOMBREDELCOMPRADOR','NEGOCIO','TIENDA'],
+            total:['TOTAL','TOTALTICKET','TOTALVENTA','TOTALPAGAR','TOTALAPAGAR','IMPORTE','IMPORTEVENTA','MONTO','VENTATOTAL'],
+            descuento:['DESCUENTO','DESCUENTOS','DSCTO','DESCTO'],
+            fecha:['FALTA','FECHA','FECHAVENTA','FECHAFACTURA']
+          };
+          const resultado={};
+          Object.keys(tipos).forEach(k=>resultado[k]=hdr.findIndex(h=>tipos[k].includes(h)));
+          return resultado;
+        }
+        function k225FirmaTickets(){
+          const orden=new Map();
+          for(const l of k225Lineas)orden.set(l.ticket,(orden.get(l.ticket)||0)+Number(l.total));
+          return [...orden].map(([t,n])=>t+':'+Math.round(n*100)).join('|');
+        }
+        function k225TicketsCalculados(){
+          const mapa=new Map();
+          for(const l of k225Lineas)mapa.set(l.ticket,(mapa.get(l.ticket)||0)+Number(l.total));
+          return [...mapa].map(([ticket,bruto])=>({ticket,bruto:Math.round(bruto*100)/100}));
+        }
+        function k225OcultarVinculos(){const div=document.getElementById('k225Vinculos');if(div){div.style.display='none';div.innerHTML='';}}
         async function k225LeerClientes(file){
           if(k222Ocupado)return;
-          k225LibroClientes=null;k225Clientes=[];k225ArchivoClientesNombre='';
+          k225LibroClientes=null;k225Clientes=[];k225OrigenClientes=[];k225Modo='NINGUNO';k225Listo=false;k225Firma='';k225ArchivoClientesNombre='';k225OcultarVinculos();
           const msg=document.getElementById('k225EstadoClientes'),btn=document.getElementById('k222CrearBtn');
           if(!file){if(msg)msg.textContent='Archivo opcional: puedes añadir clientes antes de crear el Kardex.';if(k222Libro)k222PrevisualizarHoja();return;}
-          if(!/\.xlsx?$/i.test(file.name)||file.size>8*1024*1024){if(msg)msg.textContent='Selecciona un archivo Excel válido de hasta 8 MB.';if(btn)btn.disabled=true;return;}
+          if(!/\.xlsx?$/i.test(file.name)||file.size>8*1024*1024){k225Modo='ERROR';if(msg)msg.textContent='Selecciona un Excel válido de hasta 8 MB.';if(btn)btn.disabled=true;return;}
           try{
             if(typeof XLSX==='undefined')throw Error('No está disponible el lector de Excel.');
             k225LibroClientes=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});
             const hoja=k225LibroClientes.Sheets[k225LibroClientes.SheetNames[0]];
-            if(!hoja)throw Error('El Excel de clientes no contiene hojas.');
+            if(!hoja)throw Error('El Excel de nombres no contiene hojas.');
             const filas=XLSX.utils.sheet_to_json(hoja,{header:1,raw:true,defval:'',blankrows:false});
-            if(filas.length>2501)throw Error('Máximo 2,500 tickets por Kardex.');
-            const encabezados=(filas[0]||[]).map(k222Cabecera),iTicket=encabezados.indexOf('NTICKET'),iCliente=encabezados.indexOf('RAZONSOCIAL'),iTotal=encabezados.indexOf('TOTAL'),iDescuento=encabezados.indexOf('DESCUENTO'),iFecha=encabezados.indexOf('FALTA');
-            if(iTicket<0||iCliente<0||iTotal<0)throw Error('Faltan columnas n_ticket, razon_social o total.');
-            const vistos=new Set();
-            k225Clientes=filas.slice(1).filter(r=>r.some(v=>String(v??'').trim())).map((r,i)=>{
-              const ticket=String(r[iTicket]??'').trim(),cliente=k222Texto(r[iCliente]),total=k222Numero(r[iTotal]),descuento=iDescuento>=0?k222Numero(r[iDescuento]||0):0;
-              if(!/^\d{1,20}$/.test(ticket)||!cliente||cliente.length>180||/^[=+@-]/.test(cliente)||!Number.isFinite(total)||total<0||!Number.isFinite(descuento)||descuento<0||vistos.has(ticket))throw Error('Revisa el ticket de la fila '+(i+2)+'.');
-              vistos.add(ticket);return {ticket,cliente,total,descuento,fecha:iFecha>=0?String(r[iFecha]||''):''};
-            });
-            k225ArchivoClientesNombre=file.name;
-            if(msg)msg.textContent='✅ '+k225Clientes.length+' tickets identificados en '+file.name;
+            if(filas.length>2501)throw Error('Máximo 2,500 filas por Kardex.');
+            let cab=-1,cols=null;
+            for(let i=0;i<Math.min(20,filas.length);i++){
+              const actual=k225Cols((filas[i]||[]).map(k222Cabecera));
+              if(actual.cliente>=0){cab=i;cols=actual;break;}
+            }
+            let reg=[];
+            if(cab>=0){
+              reg=filas.slice(cab+1).map((r,j)=>({r,fila:cab+2+j})).filter(x=>x.r.some(v=>String(v??'').trim())).map(({r,fila})=>({
+                fila, ticket:cols.ticket<0?'':String(r[cols.ticket]??'').trim(),
+                cliente:k222Texto(r[cols.cliente]),
+                total:cols.total<0?null:k222Numero(r[cols.total]),
+                descuento:cols.descuento<0?null:k222Numero(r[cols.descuento]||0),
+                fecha:cols.fecha<0?'':String(r[cols.fecha]||'')
+              }));
+            }else{
+              // Sin encabezado: SOLO un campo de texto por fila, sin adivinar columnas.
+              const simples=filas.map((r,i)=>({fila:i+1,valores:r.filter(v=>String(v??'').trim())})).filter(x=>x.valores.length);
+              if(!simples.length||simples.some(x=>x.valores.length!==1))throw Error('No pude identificar una columna única de nombres. Necesito el Excel original para adaptar ese formato.');
+              reg=simples.map(x=>({fila:x.fila,ticket:'',cliente:k222Texto(x.valores[0]),total:null,descuento:null,fecha:''}));
+            }
+            if(!reg.length)throw Error('El archivo no contiene clientes.');
+            for(const r of reg){
+              if(!r.cliente||r.cliente.length>180||/^[=+@-]/.test(r.cliente)||/[\r\n\t]/.test(r.cliente))throw Error('Nombre de cliente inválido en fila '+r.fila+'.');
+              if(r.ticket&&!/^\d{1,20}$/.test(r.ticket))throw Error('Número de ticket inválido en fila '+r.fila+'.');
+              if(r.total!==null&&(!Number.isFinite(r.total)||r.total<0))throw Error('Total inválido en fila '+r.fila+'.');
+              if(r.descuento!==null&&(!Number.isFinite(r.descuento)||r.descuento<0))throw Error('Descuento inválido en fila '+r.fila+'.');
+            }
+            if(reg.some(r=>!!r.ticket)&&reg.some(r=>!r.ticket))throw Error('El Excel mezcla clientes con y sin número de ticket; revisa las filas.');
+            const ticketed=reg.every(r=>!!r.ticket),conTotal=ticketed&&reg.every(r=>r.total!==null);
+            if(ticketed&&new Set(reg.map(r=>r.ticket)).size!==reg.length)throw Error('El Excel repite un mismo ticket. Revísalo para evitar duplicados.');
+            k225OrigenClientes=reg;k225ArchivoClientesNombre=file.name;
+            k225Modo=conTotal?'DIRECTO':ticketed?'SIN_TOTAL':'SOLO_NOMBRES';
+            if(k225Modo==='DIRECTO'){
+              k225Clientes=reg.map(r=>({ticket:r.ticket,cliente:r.cliente,total:r.total,descuento:r.descuento??0,fecha:r.fecha}));
+              k225Listo=true;
+            }
+            if(msg)msg.textContent=k225Modo==='DIRECTO'?'✅ '+reg.length+' tickets con nombres y totales identificados.':
+              'ℹ️ '+reg.length+' nombres leídos. Falta verificar su relación con tickets y/o descuentos antes de crear el Kardex.';
             if(k222Libro)k222PrevisualizarHoja();
-          }catch(e){k225LibroClientes=null;k225Clientes=[];if(msg)msg.textContent='⚠️ '+e.message;if(btn)btn.disabled=true;}
+            else if(k225Modo!=='DIRECTO'&&msg)msg.textContent+=' Carga primero el Excel de productos.';
+          }catch(e){k225LibroClientes=null;k225Clientes=[];k225OrigenClientes=[];k225Listo=false;k225Modo='ERROR';if(msg)msg.textContent='⚠️ '+e.message;if(btn)btn.disabled=true;}
+        }
+        function k225RenderVinculos(){
+          const caja=document.getElementById('k225Vinculos');if(!caja)return;
+          k225OcultarVinculos();
+          if(!['SOLO_NOMBRES','SIN_TOTAL'].includes(k225Modo)||k225Listo||!k225OrigenClientes.length)return;
+          const tickets=k225TicketsCalculados();
+          caja.style.display='block';
+          if(!tickets.length){caja.textContent='Primero carga el Excel de productos que incluye los números de ticket y los importes.';return;}
+          if(tickets.length>200){caja.textContent='Hay más de 200 tickets. Para esta cantidad se necesita un Excel que contenga el número de ticket por cliente. No se vincularán por suposición.';return;}
+          const nombres=k225OrigenClientes;
+          if(k225Modo==='SOLO_NOMBRES'&&nombres.length!==tickets.length){
+            caja.textContent='⚠️ El Excel tiene '+nombres.length+' nombres y el de productos '+tickets.length+' tickets. No se pueden asignar por orden porque las cantidades no coinciden. Comprueba los Excel antes de importar.';return;
+          }
+          if(k225Modo==='SIN_TOTAL'&&new Set(nombres.map(n=>n.ticket)).size!==tickets.length){
+            caja.textContent='⚠️ No coinciden los números de ticket entre los Excel. No se crearán relaciones incorrectas.';return;
+          }
+          const opciones=nombres.map((n,i)=>'<option value="'+i+'">'+(i+1)+'. '+escaparHtmlPedido(n.cliente)+'</option>').join('');
+          const lookup=new Map(nombres.map(n=>[n.ticket,n]));
+          const filas=tickets.map((t,i)=>{
+            const seleccionado=lookup.get(t.ticket);
+            const descuentoOriginal=seleccionado?.descuento;
+            const selector=k225Modo==='SOLO_NOMBRES'?'<select id="k225Asignar'+i+'" aria-label="Cliente del ticket '+t.ticket+'" style="width:100%;margin:6px 0"><option value="">Elegir cliente…</option>'+opciones+'</select>':
+              '<div style="font-weight:700">'+escaparHtmlPedido(seleccionado?.cliente||'Ticket no reconocido')+'</div>';
+            return '<div style="border:1px solid #d8e4f3;border-radius:12px;padding:10px;margin:8px 0;background:#fff">'+
+              '<b>Ticket #'+escaparHtmlPedido(t.ticket)+'</b> · Productos $'+t.bruto.toFixed(2)+
+              selector+'<label for="k225Desc'+i+'" style="display:block;margin-top:6px">Descuento del ticket ($)</label>'+
+              '<input type="number" min="0" step="0.01" id="k225Desc'+i+'" '+(descuentoOriginal!==null&&descuentoOriginal!==undefined?'value="'+descuentoOriginal+'" ':'')+'placeholder="Escribe 0 si no tuvo descuento" style="width:100%;box-sizing:border-box"/>'+
+              '</div>';
+          }).join('');
+          caja.innerHTML='<h4 style="margin:8px 0">🔗 Relacionar tickets con clientes</h4>'+
+            '<p style="font-size:13px">Este Excel no incluye todos los campos de Akasia. Para evitar asignar nombres o importes equivocados, verifica la vinculación antes de crear el Kardex.</p>'+
+            (k225Modo==='SOLO_NOMBRES'?'<button type="button" onclick="k225AsignarPorOrden()" style="background:#ecf3fd;color:#1d4778;border:1px solid #c9d9ee">Usar el orden del Excel (solo si coincide; revisar después)</button>':'')+
+            '<label style="display:flex;gap:8px;align-items:flex-start;margin:12px 0"><input type="checkbox" id="k225SinDescuento" style="width:auto;margin:2px 0"> <span>Confirmo que estos tickets NO tienen descuentos; usar $0.00 en todos. Si hubo descuentos, escribe el importe real en cada ticket y deja esto sin marcar.</span></label>'+
+            '<div style="max-height:390px;overflow:auto">'+filas+'</div>'+
+            '<button type="button" onclick="k225ConfirmarVinculos()">✓ Verificar y aplicar relaciones</button>'+
+            '<p style="font-size:12px">Los importes de productos se suman por ticket; los descuentos solo se aplican si tú los confirmas. No se crean cuentas por cobrar automáticamente.</p>';
+        }
+        function k225AsignarPorOrden(){
+          if(k225Modo!=='SOLO_NOMBRES')return;
+          const tickets=k225TicketsCalculados();
+          if(tickets.length!==k225OrigenClientes.length)return alert('La cantidad de tickets y nombres no coincide.');
+          if(!confirm('¿Los nombres del segundo Excel están en EXACTAMENTE el mismo orden que los tickets del Excel de productos? Si no estás seguro, cancela y vincula manualmente.'))return;
+          tickets.forEach((t,i)=>{const sel=document.getElementById('k225Asignar'+i);if(sel)sel.value=String(i);});
+        }
+        function k225ConfirmarVinculos(){
+          if(!['SOLO_NOMBRES','SIN_TOTAL'].includes(k225Modo))return;
+          const tickets=k225TicketsCalculados(),nombres=k225OrigenClientes,sinDescuento=!!document.getElementById('k225SinDescuento')?.checked;
+          if(!tickets.length||tickets.length>200)return alert('No hay tickets con importes de productos listos para verificar.');
+          const porTicket=new Map(nombres.map(n=>[n.ticket,n]));
+          const usados=new Set(),nuevos=[];
+          for(let i=0;i<tickets.length;i++){
+            const t=tickets[i];let r;
+            if(k225Modo==='SOLO_NOMBRES'){
+              const sel=document.getElementById('k225Asignar'+i),indice=sel?.value;
+              if(!indice&&indice!=='0')return alert('Elige el cliente del ticket #'+t.ticket+'.');
+              const n=Number(indice);if(!Number.isInteger(n)||n<0||n>=nombres.length||usados.has(n))return alert('El ticket #'+t.ticket+' tiene un cliente repetido o no reconocido. Cada fila de nombres debe vincularse una sola vez.');
+              usados.add(n);r=nombres[n];
+            }else{r=porTicket.get(t.ticket);if(!r)return alert('Falta el nombre del ticket #'+t.ticket+'.');}
+            const descValor=document.getElementById('k225Desc'+i)?.value;
+            const descuento=sinDescuento?0:k222Numero(descValor);
+            if(!Number.isFinite(descuento)||descuento<0||descuento>t.bruto||Math.round(descuento*100)!==Math.round(descuento*10000)/100)return alert('Revisa el descuento del ticket #'+t.ticket+'. Escribe 0 si no tuvo descuento.');
+            nuevos.push({ticket:t.ticket,cliente:r.cliente,total:Math.round((t.bruto-descuento)*100)/100,descuento:Math.round(descuento*100)/100,fecha:r.fecha||''});
+          }
+          const resumen=nuevos.slice(0,8).map(x=>'#'+x.ticket+' → '+x.cliente+' · $'+x.total.toFixed(2)).join('\n');
+          if(!confirm('Verifica las asociaciones y los importes antes de continuar:\n\n'+resumen+(nuevos.length>8?'\n… y '+(nuevos.length-8)+' tickets más.':'')+'\n\n¿Confirmas que cada nombre y descuento son correctos?'))return;
+          k225Clientes=nuevos;k225Listo=true;k225Firma=k225FirmaTickets();
+          const msg=document.getElementById('k225EstadoClientes');if(msg)msg.textContent='✅ '+nuevos.length+' tickets relacionados y descuentos verificados. Ya puedes crear el Kardex.';
+          k225OcultarVinculos();k222PrevisualizarHoja();
         }
         function k225Conciliar(){
+          if(k225Modo==='ERROR')throw Error('Revisa el Excel de clientes antes de crear el Kardex.');
+          if(k225Modo!=='NINGUNO'&&!k225Listo)throw Error('Faltan las relaciones de clientes y/o la verificación de descuentos.');
           if(!k225Clientes.length)return {tickets:new Set(k225Lineas.map(x=>x.ticket)).size,clientes:0};
           if(!k225Lineas.length)throw Error('El Excel de productos no incluye n_ticket, total, ganancia y precio_unitario.');
           const totales=new Map();k225Lineas.forEach(x=>totales.set(x.ticket,(totales.get(x.ticket)||0)+x.total));
           if(totales.size!==k225Clientes.length)throw Error('El número de tickets no coincide entre los Excel.');
           for(const c of k225Clientes){
             if(!totales.has(c.ticket))throw Error('No se encontró el ticket #'+c.ticket+' entre los productos.');
-            if(Math.abs(totales.get(c.ticket)-c.descuento-c.total)>.03)throw Error('El total del ticket #'+c.ticket+' no coincide.');
+            if(Math.abs(totales.get(c.ticket)-c.descuento-c.total)>.03)throw Error('El total del ticket #'+c.ticket+' no coincide. Revisa descuentos o datos del Excel.');
           }
           return {tickets:totales.size,clientes:new Set(k225Clientes.map(x=>k222Clave(x.cliente))).size};
         }
         async function k222LeerArchivo(file){
           if(k222Ocupado)return;
           k222Libro=null;k222Productos=[];k222ArchivoNombre='';k225Lineas=[];
+          if(k225Modo==='SOLO_NOMBRES'||k225Modo==='SIN_TOTAL'){k225Listo=false;k225Clientes=[];k225Firma='';k225OcultarVinculos();}
           const btn=document.getElementById('k222CrearBtn'),wrap=document.getElementById('k222HojaWrap');
           if(btn)btn.disabled=true;if(wrap)wrap.style.display='none';
           if(!file){k222PintarMensaje('Elige un Excel para ver sus productos.',false);return;}
@@ -8031,15 +8159,24 @@ async function verificarPassword() {
             if(!items.length)throw Error('No se encontraron productos con cantidades positivas. Usa las columnas Producto y Cantidad.');
             if(items.length>600)throw Error('Máximo 600 productos distintos por Kardex.');
             if(unidades>200000||items.some(x=>x.cantidad>100000))throw Error('Las cantidades exceden el límite por Kardex.');
-            const union=k225Conciliar();
+            // Revalidar si cambió la hoja o la lista de tickets después de enlazar nombres.
+            if(k225Firma&&k225Firma!==k225FirmaTickets()){
+              k225Listo=false;k225Clientes=[];k225Firma='';
+              const nota=document.getElementById('k225EstadoClientes');if(nota)nota.textContent='⚠️ Cambió el Excel o la hoja de productos. Verifica las relaciones de tickets nuevamente.';
+            }
+            const pendientes=['SOLO_NOMBRES','SIN_TOTAL'].includes(k225Modo)&&!k225Listo;
+            const union=pendientes?{tickets:new Set(k225Lineas.map(x=>x.ticket)).size,clientes:0}:k225Conciliar();
             k222Productos=items;
             const lista=items.map(x=>`<div class="k222-row"><span>${escaparHtmlPedido(x.producto)}</span><b>${x.cantidad}</b></div>`).join('');
-            document.getElementById('k222Previa').innerHTML=`<div class="k222-summary"><b>✅ Listo para crear</b><div>Productos: ${escaparHtmlPedido(k222ArchivoNombre)}</div><div>Hoja: ${escaparHtmlPedido(nombreHoja)}</div><div><b>${items.length} productos</b> · <b>${unidades} unidades</b></div>${union.tickets?`<div><b>${union.tickets} tickets</b> · ${union.clientes?union.clientes+' clientes identificados':'sin nombres de clientes todavía'}</div>`:''}${duplicados?`<div>${duplicados} productos repetidos agrupados.</div>`:''}${ceros?`<div>${ceros} filas con cantidad 0 omitidas.</div>`:''}</div><div class="k222-list">${lista}</div><p>Al confirmar se creará un Kardex nuevo. No se reemplazará ningún Kardex anterior.</p>`;
-            if(btn)btn.disabled=false;
-          }catch(ex){k222Productos=[];k222PintarMensaje(ex.message,true);}
+            document.getElementById('k222Previa').innerHTML=`<div class="k222-summary"><b>${pendientes?'⏳ Productos leídos · falta vincular clientes':'✅ Listo para crear'}</b><div>Productos: ${escaparHtmlPedido(k222ArchivoNombre)}</div><div>Hoja: ${escaparHtmlPedido(nombreHoja)}</div><div><b>${items.length} productos</b> · <b>${unidades} unidades</b></div>${union.tickets?`<div><b>${union.tickets} tickets</b> · ${union.clientes?union.clientes+' clientes identificados':'sin nombres de clientes todavía'}</div>`:''}${duplicados?`<div>${duplicados} productos repetidos agrupados.</div>`:''}${ceros?`<div>${ceros} filas con cantidad 0 omitidas.</div>`:''}</div><div class="k222-list">${lista}</div><p>Al confirmar se creará un Kardex nuevo. No se reemplazará ningún Kardex anterior.</p>`;
+            if(btn)btn.disabled=pendientes;
+            k225RenderVinculos();
+            if(pendientes){const estado=document.getElementById('k225EstadoClientes');if(estado)estado.textContent='⚠️ Antes de crear el Kardex, relaciona cada ticket con su cliente y verifica los descuentos abajo.';}
+          }catch(ex){k222Productos=[];k222PintarMensaje(ex.message,true);if(btn)btn.disabled=true;}
         }
         async function k222CrearDesdeExcel(){
           if(k222Ocupado||!k222Productos.length)return;
+          if(k225Modo==='ERROR'||(k225Modo!=='NINGUNO'&&!k225Listo))return alert('Primero verifica la relación entre el Excel de nombres y los tickets.');
           if(normalizarEmpleado(localStorage.getItem('sucursal'))!=='bodega'||m214Vista)return alert('Solo Bodega puede iniciar Kardex nuevos.');
           const total=k222Productos.reduce((s,x)=>s+x.cantidad,0);
           if(!confirm(`¿Crear un Kardex NUEVO con ${k222Productos.length} productos y ${total} unidades del archivo ${k222ArchivoNombre}?\n\nLos Kardex que ya están abiertos conservarán sus pendientes.`))return;
@@ -8052,7 +8189,7 @@ async function verificarPassword() {
             if(!r.ok||d.status!=='OK'||d.version!=='1.7.25'||!d.idRuta)throw Error(d.mensaje||'Publica primero Código.gs v1.7.25 en Apps Script.');
             k221IdRuta=String(d.idRuta);sessionStorage.setItem('k221Ruta',k221IdRuta);
             alert(`✅ Kardex #${d.numeroRuta} creado con ${d.productos} productos. Los anteriores permanecen abiertos.`);
-            k222Libro=null;k222Productos=[];k222ArchivoNombre='';k225Lineas=[];k225Clientes=[];k225LibroClientes=null;k225ArchivoClientesNombre='';
+            k222Libro=null;k222Productos=[];k222ArchivoNombre='';k225Lineas=[];k225Clientes=[];k225LibroClientes=null;k225ArchivoClientesNombre='';k225OrigenClientes=[];k225Modo='NINGUNO';k225Listo=false;k225Firma='';k225OcultarVinculos();
             if(archivo)archivo.value='';
             const archivoClientes=document.getElementById('k225ArchivoClientes');if(archivoClientes)archivoClientes.value='';
             const estadoClientes=document.getElementById('k225EstadoClientes');if(estadoClientes)estadoClientes.textContent='Selecciona el próximo Excel de clientes cuando lo necesites.';
