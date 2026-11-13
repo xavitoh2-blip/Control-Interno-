@@ -2250,6 +2250,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloPreventa270 #pv270Contenido button.pv270-accion-secundaria {width:100%!important;background:#eef5ff!important;color:#2164a5!important;border:1px solid #d5e5fa!important;border-radius:13px!important;min-height:46px!important;}
 #moduloPreventa270 #pv270Contenido .pv270-subvista .pv270-ubicacion-info {font-size:13px;line-height:1.6;color:#4e6881;background:#f7f9fc;border:1px solid #e4eaf3;border-radius:13px;padding:12px;margin-top:14px;}
 @media(max-width:360px){#moduloPreventa270 #pv270Contenido .pv270-menu-acciones{gap:7px;}#moduloPreventa270 #pv270Contenido button.pv270-menu-accion{padding:11px!important;}}
+
+/* Preventa: forma de pago por botones. El select oculto conserva el valor para Apps Script. */
+#moduloPreventa270 #pv270Contenido .pv270-pago-opciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:3px 0 12px}
+#moduloPreventa270 #pv270Contenido button.pv270-pago-opcion{width:100%!important;min-height:49px!important;padding:10px 12px!important;margin:0!important;border-radius:12px!important;border:1px solid #dce5ef!important;background:#fff!important;color:#45607b!important;font-size:14px!important;font-weight:700!important}
+#moduloPreventa270 #pv270Contenido button.pv270-pago-opcion.elegido{background:#eaf3ff!important;border:2px solid #4285df!important;color:#205eaa!important}
 </style>
 </head>
 <body>
@@ -13088,15 +13093,18 @@ async function pv270AbrirCliente(uuid,silencioso=false){
    <h4>Registrar visita</h4>
    <p class="pv270-subvista-subtitulo">${pv270Esc(pv270Datos.fecha)}</p>
    <label class="pv270-subtitulo-form">Resultado</label>
-   <select id="pv270Estado" class="pv270-select-interno" aria-label="Resultado de visita" onchange="pv270CambioEstado()"><option value="VENTA_ESTIMADA">Visita con venta informativa</option><option value="SIN_COMPRA">Visitado, no realizó compra</option><option value="CERRADO">Establecimiento cerrado</option><option value="AUSENTE">Cliente no encontrado</option><option value="REPROGRAMADO">Visita reprogramada</option></select>
+   <select id="pv270Estado" class="pv270-select-interno" aria-label="Resultado de visita" onchange="pv270CambioEstado()"><option value="VENTA_ESTIMADA">Visita con venta informativa</option><option value="SIN_COMPRA">Visitado, no realizó compra</option><option value="CERRADO">Establecimiento cerrado</option><option value="AUSENTE">Cliente no encontrado</option></select>
    <div class="pv270-resultado-opciones" role="group" aria-label="Resultado de la visita">
     <button type="button" data-pv270-resultado="VENTA_ESTIMADA" aria-pressed="true" class="pv270-resultado-opcion elegido" onclick="pv270ResultadoElegir('VENTA_ESTIMADA')">🛒 Venta</button>
     <button type="button" data-pv270-resultado="SIN_COMPRA" aria-pressed="false" class="pv270-resultado-opcion" onclick="pv270ResultadoElegir('SIN_COMPRA')">🙅 Sin compra</button>
     <button type="button" data-pv270-resultado="CERRADO" aria-pressed="false" class="pv270-resultado-opcion" onclick="pv270ResultadoElegir('CERRADO')">🔒 Cerrado</button>
     <button type="button" data-pv270-resultado="AUSENTE" aria-pressed="false" class="pv270-resultado-opcion" onclick="pv270ResultadoElegir('AUSENTE')">👤 No estaba</button>
-    <button type="button" data-pv270-resultado="REPROGRAMADO" aria-pressed="false" class="pv270-resultado-opcion" onclick="pv270ResultadoElegir('REPROGRAMADO')">📅 Reprogramar</button>
    </div>
-   <div id="pv270VentaDatos" class="pv270-venta-campos"><label for="pv270Monto">Monto vendido ($)</label><input id="pv270Monto" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" placeholder="Ej. 45.00"/><label for="pv270Tipo">Forma de pago prevista</label><select id="pv270Tipo"><option value="EFECTIVO">Efectivo</option><option value="CREDITO">Crédito</option></select></div>
+   <div id="pv270VentaDatos" class="pv270-venta-campos"><label for="pv270Monto">Monto vendido ($)</label><input id="pv270Monto" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" placeholder="Ej. 45.00"/><label id="pv270EtiquetaPago">Forma de pago prevista</label><select id="pv270Tipo" class="pv270-select-interno" aria-label="Forma de pago prevista" tabindex="-1"><option value="EFECTIVO">Efectivo</option><option value="CREDITO">Crédito</option></select>
+    <div class="pv270-pago-opciones" role="group" aria-labelledby="pv270EtiquetaPago">
+     <button type="button" class="pv270-pago-opcion elegido" data-pv270-tipo="EFECTIVO" aria-pressed="true" onclick="pv270PagoElegir('EFECTIVO')">💵 Efectivo</button>
+     <button type="button" class="pv270-pago-opcion" data-pv270-tipo="CREDITO" aria-pressed="false" onclick="pv270PagoElegir('CREDITO')">📄 Crédito</button>
+    </div></div>
    <details class="pv270-nota-opcional"><summary>Agregar observación (opcional)</summary><label for="pv270Nota">Observación</label><input id="pv270Nota" type="text" maxlength="180" placeholder="Ej. Regresar por la tarde"/></details>
    <p class="pv270-gps-discreto" id="pv270GPSAviso" role="status" aria-live="polite">📍 Se enviará la ubicación automáticamente al guardar la visita (con permiso de GPS).</p>
    <button type="button" id="pv270Guardar" ${visitado?'disabled':''} onclick="pv270GuardarVisita()">${visitado?'✓ Visita registrada hoy':'✓ Guardar visita'}</button>
@@ -13145,9 +13153,19 @@ function pv270FichaSeccion(seccion){
  const ficha=document.getElementById('pv270Ficha');if(ficha)ficha.scrollIntoView({behavior:'auto',block:'start'});
 }
 function pv270ResultadoElegir(estado){
- const opciones=['VENTA_ESTIMADA','SIN_COMPRA','CERRADO','AUSENTE','REPROGRAMADO'];if(!opciones.includes(estado))return;
+ const opciones=['VENTA_ESTIMADA','SIN_COMPRA','CERRADO','AUSENTE'];if(!opciones.includes(estado))return;
  const control=document.getElementById('pv270Estado');if(!control)return;
  control.value=estado;pv270CambioEstado();
+}
+function pv270PagoElegir(tipo){
+ if(tipo!=='EFECTIVO'&&tipo!=='CREDITO')return;
+ const control=document.getElementById('pv270Tipo');if(!control)return;
+ control.value=tipo;
+ document.querySelectorAll('#pv270Ficha [data-pv270-tipo]').forEach(b=>{
+  const elegido=b.dataset.pv270Tipo===tipo;
+  b.classList.toggle('elegido',elegido);
+  b.setAttribute('aria-pressed',String(elegido));
+ });
 }
 function pv270CambioEstado(){
  const estado=document.getElementById('pv270Estado')?.value,datos=document.getElementById('pv270VentaDatos');
