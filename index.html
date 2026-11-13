@@ -12752,7 +12752,7 @@ async function c57DescargarMini(){
 }
 </script>
 <script id="pv270Script">
-// Preventa UI 1.7.72. Montos INFORMATIVOS, jamás se envían a endpoint de créditos.
+// Preventa UI 1.7.76. Créditos se muestran únicamente si el cliente está en Mi ruta; montos INFORMATIVOS.
 let pv270Datos=null,pv270Filtro='ruta',pv270Buscar='',pv270ClienteAbierto='',pv270FichaActual=null,pv270Busy=false,pv270ScrollLista=0;
 let pv270Limite=60,pv270CargaActual=0,pv270CambioLocal=0,pv270SesionClave='';
 let pv270CreditosDatos=null,pv270CreditosCargando=false,pv270CreditosError='',pv270FichaCarga=0;
@@ -12798,11 +12798,11 @@ function pv270Render(){
  const d=pv270Datos,vis=d.visitas||[],vend=vis.filter(v=>v.estado==='VENTA_ESTIMADA'),ef=vend.filter(v=>v.tipo==='EFECTIVO').reduce((s,v)=>s+(Number(v.monto)||0),0),cr=vend.filter(v=>v.tipo==='CREDITO').reduce((s,v)=>s+(Number(v.monto)||0),0),ix=pv270Indice();
  const pendientes=[...ix.ruta].filter(id=>!ix.visitados.has(id)).length;
  const boton=(f,cantidad,titulo)=>`<button type="button" class="pv270-contador" aria-pressed="${pv270Filtro===f}" onclick="pv270CambiarFiltro('${f}')"><strong>${cantidad}</strong><span>${titulo}</span></button>`;
- const creditosLabel=pv270CreditosDatos?`(${Object.keys(pv270CreditosDatos).length})`:'';
+ const creditosLabel=pv270CreditosDatos?`(${[...ix.ruta].filter(id=>Number(pv270CreditosDatos[id])>0).length})`:'';
  el.innerHTML=`<section id="pv270Ficha" class="pv270-vista-ficha" aria-label="Ficha del cliente" style="display:none"></section><div id="pv270VistaLista">
  <div class="pv270-cabecera-ruta"><h4>Ruta de clientes</h4><p>${pv270Esc(d.fecha)} · ${ix.ruta.size} clientes sugeridos o seleccionados</p><small id="pv270EstadoCarga" class="pv270-actualizando" aria-live="polite"></small></div>
  <div class="pv270-contadores">${boton('ruta',ix.ruta.size,'Mi ruta')}${boton('pendientes',pendientes,'Sin visitar')}${boton('visitados',ix.visitados.size,'Visitados')}${boton('todos',d.clientes.length,'Todos')}</div>
- <div class="pv270-creditos-accion"><button type="button" class="pv270-credito-tab" aria-pressed="${pv270Filtro==='credito'}" onclick="pv270CambiarFiltro('credito')">💳 Con crédito ${creditosLabel}</button><small>Consulta separada: no retrasa la carga de los demás clientes ni modifica sus cuentas.</small></div>
+ <div class="pv270-creditos-accion"><button type="button" class="pv270-credito-tab" aria-pressed="${pv270Filtro==='credito'}" onclick="pv270CambiarFiltro('credito')">💳 Con crédito ${creditosLabel}</button><small>Solo clientes con saldo pendiente que están en Mi ruta de hoy. La consulta se hace por separado.</small></div>
  <input class="pv270-buscar-ruta" aria-label="Buscar cliente o negocio" id="pv270Buscar" type="search" autocomplete="off" placeholder="🔎 Buscar cliente..." value="${pv270Esc(pv270Buscar)}" oninput="pv270Buscar=this.value;pv270Limite=60;pv270ActualizarLista()">
  <div class="pv270-lista-header"><b id="pv270TituloFiltro">Clientes</b><small id="pv270CantidadFiltro"></small></div>
  <div id="pv270Lista" aria-live="polite"></div><div class="pv270-paginacion" id="pv270Paginacion"></div>
@@ -12816,14 +12816,14 @@ function pv270ActualizarLista(){
  const ix=pv270Indice(),f=pv270Filtro,term=pv270Buscar.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
  if(f==='credito'&&!pv270CreditosDatos){
   el.innerHTML=pv270CreditosError?'<p class="pv270-alerta">'+pv270Esc(pv270CreditosError)+'</p><button type="button" onclick="pv270CargarCreditos()">Reintentar consulta de créditos</button>':'<div class="pv270-inicio-carga">Consultando clientes con saldo pendiente…<small>La ruta normal puede abrirse sin esperar esta consulta.</small></div>';
-  const label=document.getElementById('pv270TituloFiltro'),n=document.getElementById('pv270CantidadFiltro'),pie=document.getElementById('pv270Paginacion');if(label)label.textContent='Clientes con crédito';if(n)n.textContent='Consulta independiente';if(pie)pie.innerHTML='';return;
+  const label=document.getElementById('pv270TituloFiltro'),n=document.getElementById('pv270CantidadFiltro'),pie=document.getElementById('pv270Paginacion');if(label)label.textContent='Clientes con crédito de mi ruta';if(n)n.textContent='Consulta independiente';if(pie)pie.innerHTML='';return;
  }
- const lista=d.clientes.filter(c=>(f==='todos'||f==='visitados'&&ix.visitados.has(c.uuid)||f==='ruta'&&ix.ruta.has(c.uuid)||f==='pendientes'&&ix.ruta.has(c.uuid)&&!ix.visitados.has(c.uuid)||f==='credito'&&pv270CreditosDatos&&Object.prototype.hasOwnProperty.call(pv270CreditosDatos,c.uuid))&&(!term||c.nombre.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(term)));
+ const lista=d.clientes.filter(c=>(f==='todos'||f==='visitados'&&ix.visitados.has(c.uuid)||f==='ruta'&&ix.ruta.has(c.uuid)||f==='pendientes'&&ix.ruta.has(c.uuid)&&!ix.visitados.has(c.uuid)||f==='credito'&&ix.ruta.has(c.uuid)&&pv270CreditosDatos&&Number(pv270CreditosDatos[c.uuid])>0)&&(!term||c.nombre.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(term)));
  const orden=new Map((d.asignados||[]).map((id,i)=>[id,i]));
  lista.sort((a,b)=>f==='credito'?(pv270CreditosDatos[b.uuid]-pv270CreditosDatos[a.uuid])||a.nombre.localeCompare(b.nombre,'es'):Number(orden.has(b.uuid))-Number(orden.has(a.uuid))||(orden.has(a.uuid)&&orden.has(b.uuid)?orden.get(a.uuid)-orden.get(b.uuid):0)||Number(ix.sugeridos.has(b.uuid))-Number(ix.sugeridos.has(a.uuid))||a.nombre.localeCompare(b.nombre,'es'));
- el.innerHTML=pv270Filas(lista.slice(0,pv270Limite),ix.sugeridos,ix.visitados);
+ el.innerHTML=lista.length?pv270Filas(lista.slice(0,pv270Limite),ix.sugeridos,ix.visitados):(f==='credito'?'<p class="pv270-muted">No hay clientes con saldo pendiente dentro de Mi ruta de hoy.</p>':pv270Filas([],ix.sugeridos,ix.visitados));
  const tit=document.getElementById('pv270TituloFiltro'),cantidad=document.getElementById('pv270CantidadFiltro');
- if(tit)tit.textContent=({ruta:'Mi ruta',pendientes:'Sin visitar',visitados:'Visitados',todos:'Todos los clientes',credito:'Clientes con crédito'})[f]||'Clientes';
+ if(tit)tit.textContent=({ruta:'Mi ruta',pendientes:'Sin visitar',visitados:'Visitados',todos:'Todos los clientes',credito:'Clientes con crédito de mi ruta'})[f]||'Clientes';
  if(cantidad)cantidad.textContent=lista.length+' cliente'+(lista.length===1?'':'s');
  const pie=document.getElementById('pv270Paginacion');if(pie)pie.innerHTML=lista.length>pv270Limite?'<button type="button" onclick="pv270MostrarMas()">Mostrar más clientes ('+(lista.length-pv270Limite)+' restantes)</button>':'';
 }
