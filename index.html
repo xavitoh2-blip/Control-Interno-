@@ -997,8 +997,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloPrepararDespacho .c53-acciones .c53-parcial{background:#fff8df!important;color:#8b6119!important;border:1.5px solid #e9c76d!important}
 #moduloPrepararDespacho .c53-acciones .c53-seleccionado.c53-parcial{background:#edbc42!important;color:#583c04!important;border-color:#d9a72a!important}
 .c53-detalle{margin-top:12px;padding:13px;background:rgba(255,255,255,.84);border:1px solid #f2cda9;border-radius:18px}
-.c53-detalle label{display:block;font-size:13px;font-weight:800;color:#814618;margin-bottom:9px}
-#moduloFaltantesKardex .c53-detalle input,#moduloPrepararDespacho .c53-detalle input{display:block;max-width:175px;width:100%;height:54px;min-height:54px;background:#f1f5fa!important;border:1px solid #d5e0ec!important;border-radius:16px!important;text-align:center;font-size:23px;font-weight:850;margin:0!important;padding:5px}
+.c53-detalle label{display:block;font-size:13px;font-weight:800;color:#814618;margin-bottom:9px}#moduloFaltantesKardex .c53-detalle input,#moduloPrepararDespacho .c53-detalle input{display:block;max-width:175px;width:100%;height:54px;min-height:54px;background:#f1f5fa!important;border:1px solid #d5e0ec!important;border-radius:16px!important;text-align:center;font-size:23px;font-weight:850;margin:0!important;padding:5px}
 .c53-ayuda{font-size:12px;color:#6e7b8e;line-height:1.5;margin-top:9px}
 .c53-marcados{background:#edf5ff;border:1px solid #d3e7ff;border-radius:16px;color:#1d5eaa;font-weight:750;font-size:12px;padding:11px;margin-top:12px}
 @media(max-width:360px){#moduloFaltantesKardex .c53-acciones button,#moduloPrepararDespacho .c53-acciones button{font-size:12px!important}}
@@ -1997,8 +1996,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c238-barra .c238-secciones{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
 .c238-barra .c238-secciones button{flex:1 1 105px;margin:0!important;min-height:38px!important;padding:6px 8px!important;font-size:11px!important;background:white!important;color:#42627b!important;border:1px solid #dce6f1!important}
 .c238-barra .c238-secciones button[aria-selected="true"]{background:#def0ff!important;color:#0b63ab!important;border-color:#7abaf0!important}
-.c229-filtro{margin:10px 0!important;background:#fff!important}
-.c229-avisos{background:#fff6e8;color:#8c541d;border:1px solid #eed2a5;border-radius:12px;padding:11px;margin:10px 0;font-size:12px}
+.c229-filtro{margin:10px 0!important;background:#fff!important}.c229-avisos{background:#fff6e8;color:#8c541d;border:1px solid #eed2a5;border-radius:12px;padding:11px;margin:10px 0;font-size:12px}
 .c229-marcado{font-size:11px;color:#a14b18;font-weight:800;margin-top:7px}
 .c229-continuar{background:#087cff!important;color:white!important;font-weight:800!important;min-height:48px!important;margin-top:12px!important}
 .c229-reporte{margin:18px 0 8px;border:1px solid #d5e4f5;border-radius:17px;background:#f7fbff;padding:13px;color:#25435f}
@@ -2255,6 +2253,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloPreventa270 #pv270Contenido .pv270-pago-opciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:3px 0 12px}
 #moduloPreventa270 #pv270Contenido button.pv270-pago-opcion{width:100%!important;min-height:49px!important;padding:10px 12px!important;margin:0!important;border-radius:12px!important;border:1px solid #dce5ef!important;background:#fff!important;color:#45607b!important;font-size:14px!important;font-weight:700!important}
 #moduloPreventa270 #pv270Contenido button.pv270-pago-opcion.elegido{background:#eaf3ff!important;border:2px solid #4285df!important;color:#205eaa!important}
+
+/* Preventa: adiciones de venta agrupadas sin duplicar visitas. */
+#moduloPreventa270 #pv270Contenido .pv272-resumen-cliente{background:#edf6ff;border:1px solid #d3e6fb;color:#285a8a;padding:12px;border-radius:12px;font-weight:800;font-size:13px;margin:8px 0 14px}
+#moduloPreventa270 #pv270Contenido button.pv272-agregar-accion{background:#f0fbf7!important;border-color:#b5e8d2!important}
+#moduloPreventa270 #pv270Contenido .pv272-subvista input,#moduloPreventa270 #pv270Contenido .pv272-subvista select,#moduloPreventa270 #pv270Contenido .pv272-subvista textarea{width:100%;max-width:100%;min-height:45px;border:1px solid #dce5ef;border-radius:12px;padding:10px;box-sizing:border-box;font:inherit}
+#moduloPreventa270 #pv270Contenido button#pv272Guardar{width:100%;min-height:50px;margin-top:12px;background:#2276db!important;color:#fff!important;border-radius:12px;font-weight:800}
 </style>
 </head>
 <body>
@@ -2991,8 +2995,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <label style="font-size:11px;color:#365577;display:block;margin-top:8px">Buscar pedido o producto
                 <input id="m211HistBuscar" type="search" placeholder="Nombre o número del pedido" oninput="m211Render()" style="margin-top:4px">
               </label>
-              <label style="font-size:11px;color:#365577;display:block;margin-top:8px">Sucursal
-                <select id="m211HistSucursal" onchange="m211Render()" style="margin-top:4px"><option value="TODAS">Todas</option></select>
+              <label style="font-size:11px;color:#365577;display:block;margin-top:8px">Sucursal                <select id="m211HistSucursal" onchange="m211Render()" style="margin-top:4px"><option value="TODAS">Todas</option></select>
               </label>
               <div id="m211Historial" style="margin-top:10px;font-size:12px;color:#526b85">Actualiza para ver el historial.</div>
             </div>
@@ -3991,8 +3994,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             
             if (desplegado) {
                 cargarPedidosEnBodega();
-            }
-        }
+            }        }
 
         function filtrarNombresPorSucursal() {
             const sucursalSeleccionada = document.getElementById("selectSucursal").value;
@@ -4991,8 +4993,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const el=document.getElementById('c60Cantidad');if(!el)return;
             const max=Number(el.max)||99999;
             el.value=Math.max(1,Math.min(max,(Number(el.value)||1)+delta));
-            c62MostrarResumen();
-        }
+            c62MostrarResumen();        }
         function c67CambiarConversion(delta){
             const el=document.getElementById('c67NuevaCantidad');if(!el)return;
             el.value=Math.max(1,Math.min(99999,(Number(el.value)||1)+delta));c62MostrarResumen();
@@ -5991,8 +5992,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(!cont)return;
             cont.innerHTML='<div class="c69-empty">Consultando los pedidos pendientes…</div>';
             fetch(URL_API+'?accion=verPedidosRecepcion&sucursal='+encodeURIComponent(sucursal)+'&_='+Date.now())
-                .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
-                .then(data=>{
+                .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})                .then(data=>{
                     if(!data||data.status!=='OK')throw Error(data?.mensaje||'Respuesta inválida');
                     if(data.recepcionVersion!=='1.6.71')throw Error('Publica Código.gs v1.6.71 antes de usar la recepción nueva. No se modificó ningún pedido.');
                     pedidosRecepcionActuales=Array.isArray(data.productos)?data.productos:[];
@@ -6991,8 +6991,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         async function agregarCompraAbastecimiento() {
             if (!productoCompraActual) return alert("Selecciona un producto.");
-            const cantidad=Math.max(1,Number(document.getElementById("cantidadCompra").value)||1);
-            const params=new URLSearchParams({accion:"AgregarCompraAbastecimiento",producto:productoCompraActual.producto,cantidad:String(cantidad),empleado:localStorage.getItem("usuario")||""});
+            const cantidad=Math.max(1,Number(document.getElementById("cantidadCompra").value)||1);            const params=new URLSearchParams({accion:"AgregarCompraAbastecimiento",producto:productoCompraActual.producto,cantidad:String(cantidad),empleado:localStorage.getItem("usuario")||""});
             try {
                 const r=await fetch(URL_API,{method:"POST",body:params}); const d=await r.json();
                 if (!d || d.status!=="OK") throw new Error(d && d.mensaje || "Error");
@@ -7991,8 +7990,7 @@ async function verificarPassword() {
           const orden=new Map();
           for(const l of k225Lineas)orden.set(l.ticket,(orden.get(l.ticket)||0)+Number(l.total));
           return [...orden].map(([t,n])=>t+':'+Math.round(n*100)).join('|');
-        }
-        function k225TicketsCalculados(){
+        }        function k225TicketsCalculados(){
           const mapa=new Map();
           for(const l of k225Lineas)mapa.set(l.ticket,(mapa.get(l.ticket)||0)+Number(l.total));
           return [...mapa].map(([ticket,bruto])=>({ticket,bruto:Math.round(bruto*100)/100}));
@@ -8991,8 +8989,7 @@ async function verificarPassword() {
                   const etiqueta=m.tipo==='ABONO'?'Abono':m.tipo==='REVERSO_ABONO'?'Anulación':'Crédito';
                   html+='<tr><td>'+escaparHtmlPedido(m.fecha.slice(0,16))+'</td><td>'+escaparHtmlPedido(etiqueta+' · '+m.empleado);
                   if(c226Admin&&m.tipo==='ABONO'&&!anulados.has(m.operacion))html+='<button type="button" style="font-size:10px;background:#fff0f0;color:#a52a2a;margin:4px 0;padding:5px 8px" onclick="c226Anular(\''+encodeURIComponent(m.operacion).replace(/'/g,'%27')+'\')">Anular</button>';
-                  html+='</td><td>'+c226Dinero(Math.abs(m.monto))+'</td></tr>';
-                });html+='</table>';
+                  html+='</td><td>'+c226Dinero(Math.abs(m.monto))+'</td></tr>';                });html+='</table>';
               }
             }
             html+='</section>';
@@ -9991,8 +9988,7 @@ async function verificarPassword() {
               c75Marcas[x.producto]={producto:x.producto,modo:x.modo,cantidad:x.cantidad,
                 destino:String(x.destino||''),
                 estadoPrevio:x.estadoPrevio||c75EstadoPrevio(productoActual,sucursalDestino)};
-            });
-            if(!c75ErrorConsulta)c75GuardarBorrador();
+            });            if(!c75ErrorConsulta)c75GuardarBorrador();
           }catch(_){/* No usar un borrador dañado. */}
         }
         function c75GuardarSeguimiento(){
@@ -10991,8 +10987,7 @@ function c50PillsParaProducto(nombre){
   const estado=contado?'Contado':p&&p.estado==='EN PROCESO'?'En proceso':p?'Asignado':'Pendiente';
   return '<span class="c50-pill '+(p&&p.ambiguo?'advertencia':contado?'contado':estado==='En proceso'?'proceso':'')+'">'+c42Esc(etiqueta)+' · '+c42Esc(p&&p.ambiguo?'Revisar identidad':estado)+'</span>';
  }).join('');
-}
-function c50RenderProceso(){
+}function c50RenderProceso(){
  const el=document.getElementById('c50ListaProceso');if(!el)return;
  const arr=c50Productos.filter(p=>!p.contado);
  el.innerHTML='<p class="c42-meta">'+arr.length+' producto(s) asignados y sin conteo registrado en este período.</p>'+arr.slice(0,60).map(p=>'<div class="c50-consulta-row"><b>'+c42Esc(p.nombre)+'</b><div class="c50-mini-info">'+c42Esc(p.sucursal)+' · '+c42Esc(p.empleado)+' · '+c42Esc(p.estado)+' · '+c42Esc(p.fecha)+'</div></div>').join('')+(arr.length>60?'<p class="c42-meta">Mostrando los 60 más recientes. Utiliza la consulta para buscar productos ya contados.</p>':'');
@@ -11991,8 +11986,7 @@ setInterval(()=>{
  }
  document.getElementById('n188EmpleadosLista').addEventListener('change',function(e){
    if(!e.target.matches('[data-n188-empleado]'))return;
-   const v=e.target.dataset.n188Empleado;
-   if(e.target.checked)n188SeleccionEmpleados.add(v);else n188SeleccionEmpleados.delete(v);
+   const v=e.target.dataset.n188Empleado;   if(e.target.checked)n188SeleccionEmpleados.add(v);else n188SeleccionEmpleados.delete(v);
    document.getElementById('n188NumEmpleados').textContent=n188SeleccionEmpleados.size+' seleccionados';
  });
  document.getElementById('n188CatalogoLista').addEventListener('change',function(e){
@@ -12984,9 +12978,53 @@ function pv270Indice(){
  if(!pv270Datos)return {ruta:new Set(),visitados:new Set(),sugeridos:new Map()};
  return {ruta:new Set([...(pv270Datos.asignados||[]),...(pv270Datos.sugeridos||[]).map(s=>s.uuid)]),visitados:pv270Visitados(),sugeridos:new Map((pv270Datos.sugeridos||[]).map(s=>[s.uuid,s.fuente]))};
 }
+// Agrupa ventas por UUID, sin contar varias veces la visita al mismo cliente.
+function pv272VentasCliente(uuid){
+ const d=pv270Datos||{},base=(d.visitas||[]).filter(v=>v.uuid===uuid&&v.estado==='VENTA_ESTIMADA').map(v=>({...v,origen:'VISITA'}));
+ const extras=(d.ventasAdicionales||[]).filter(v=>v.uuid===uuid);
+ const ventas=base.concat(extras);
+ return {ventas,cantidad:ventas.length,total:ventas.reduce((s,v)=>s+(Number(v.monto)||0),0)};
+}
+let pv272OperacionPendiente=null;function pv272PagoElegir(tipo){
+ if(tipo!=='EFECTIVO'&&tipo!=='CREDITO')return;
+ const control=document.getElementById('pv272Tipo');if(!control)return;
+ control.value=tipo;
+ document.querySelectorAll('#pv270Ficha [data-pv272-tipo]').forEach(b=>{
+  const activo=b.dataset.pv272Tipo===tipo;
+  b.classList.toggle('elegido',activo);b.setAttribute('aria-pressed',String(activo));
+ });
+}
+function pv272ResumenCliente(uuid){
+ const lista=pv272VentasCliente(uuid),el=document.getElementById('pv272ResumenCliente');if(!el)return;
+ el.textContent=lista.cantidad+' venta'+(lista.cantidad===1?'':'s')+' · Total informativo '+pv270Moneda(lista.total);
+}
+async function pv272GuardarVenta(){
+ const btn=document.getElementById('pv272Guardar'),status=document.getElementById('pv272GuardarEstado');
+ const uuid=pv270ClienteAbierto,monto=Number(document.getElementById('pv272Monto')?.value||0),tipo=document.getElementById('pv272Tipo')?.value||'',origen=document.getElementById('pv272Origen')?.value||'WHATSAPP',detalle=document.getElementById('pv272Detalle')?.value||'';
+ if(!uuid||!pv270Datos?.visitas?.some(v=>v.uuid===uuid))return alert('Primero registra la visita de este cliente.');
+ if(!Number.isFinite(monto)||monto<=0||monto>1000000||Math.abs(monto*100-Math.round(monto*100))>0.00001)return alert('Ingresa un monto válido con hasta dos decimales.');
+ if(!['EFECTIVO','CREDITO'].includes(tipo))return alert('Selecciona Efectivo o Crédito.');
+ if(!['WHATSAPP','LLAMADA','OTRO'].includes(origen))return alert('Selecciona un origen válido.');
+ if(!btn||!status||pv270Busy)return;
+ // Mismo ID al reintentar para que una falla de conexión no duplique la venta.
+ if(!pv272OperacionPendiente)pv272OperacionPendiente={operacion:pv270Op(),uuid,monto:String(monto),tipo,origen,detalle};
+ const pendiente=pv272OperacionPendiente;
+ pv270Busy=true;btn.disabled=true;status.textContent='Guardando venta adicional…';
+ try{
+  const r=await pv270API('pv270AgregarVenta',pendiente);
+  const venta=r.venta;
+  if(!venta||!venta.operacion)throw Error('El servidor no devolvió el comprobante de la venta. Reintenta sin modificar el formulario.');
+  pv270Datos.ventasAdicionales=pv270Datos.ventasAdicionales||[];
+  if(!pv270Datos.ventasAdicionales.some(v=>v.operacion===venta.operacion))pv270Datos.ventasAdicionales.push(venta);
+  pv272OperacionPendiente=null;pv270CambioLocal++;
+  pv270ClienteAbierto='';pv270Render();pv270AbrirCliente(uuid);pv270FichaSeccion('adicional');
+  alert('✅ Venta adicional registrada. Sigue siendo 1 visita para el cliente.');
+ }catch(e){status.textContent='⚠️ '+e.message+' Si falló la conexión, utiliza Guardar de nuevo para reintentar sin duplicar.';btn.disabled=false;}
+ finally{pv270Busy=false;}
+}
 function pv270Render(){
  const el=document.getElementById('pv270Contenido');if(!el||!pv270Datos)return;
- const d=pv270Datos,vis=d.visitas||[],vend=vis.filter(v=>v.estado==='VENTA_ESTIMADA'),ef=vend.filter(v=>v.tipo==='EFECTIVO').reduce((s,v)=>s+(Number(v.monto)||0),0),cr=vend.filter(v=>v.tipo==='CREDITO').reduce((s,v)=>s+(Number(v.monto)||0),0),ix=pv270Indice();
+ const d=pv270Datos,vis=d.visitas||[],vend=vis.filter(v=>v.estado==='VENTA_ESTIMADA'),extras=d.ventasAdicionales||[],ventas=vend.concat(extras),ef=ventas.filter(v=>v.tipo==='EFECTIVO').reduce((s,v)=>s+(Number(v.monto)||0),0),cr=ventas.filter(v=>v.tipo==='CREDITO').reduce((s,v)=>s+(Number(v.monto)||0),0),ix=pv270Indice();
  // Cuando no hay ruta asignada, mostrar el catálogo sin crear asignaciones ficticias.
  const rutaVacia=ix.ruta.size===0&&d.clientes.length>0;
  if(rutaVacia&&pv270Filtro==='ruta')pv270Filtro='todos';
@@ -13001,7 +13039,7 @@ function pv270Render(){
  <input class="pv270-buscar-ruta" aria-label="Buscar cliente o negocio" id="pv270Buscar" type="search" autocomplete="off" placeholder="🔎 Buscar cliente..." value="${pv270Esc(pv270Buscar)}" oninput="pv270Buscar=this.value;pv270Limite=60;pv270ActualizarLista()">
  <div class="pv270-lista-header"><b id="pv270TituloFiltro">Clientes</b><small id="pv270CantidadFiltro"></small></div>
  <div id="pv270Lista" aria-live="polite"></div><div class="pv270-paginacion" id="pv270Paginacion"></div>
- <details class="pv270-historial" style="margin:16px 0"><summary>Resumen de venta informativa</summary><div class="pv270-panel"><div class="pv270-resumen"><div class="pv270-grande"><label>Venta prevista</label><strong>${pv270Moneda(ef+cr)}</strong></div><div><label>Efectivo previsto</label><strong>${pv270Moneda(ef)}</strong></div><div><label>Crédito previsto</label><strong>${pv270Moneda(cr)}</strong></div></div><p class="pv270-aviso">Estas cantidades no registran cobros ni deudas reales.</p></div></details>
+ <details class="pv270-historial" style="margin:16px 0" open><summary>Resumen de venta informativa · ${ventas.length} venta${ventas.length===1?'':'s'} / ${ix.visitados.size} cliente${ix.visitados.size===1?'':'s'} visitado${ix.visitados.size===1?'':'s'}</summary><div class="pv270-panel"><div class="pv270-resumen"><div class="pv270-grande"><label>Venta prevista</label><strong>${pv270Moneda(ef+cr)}</strong></div><div><label>Efectivo previsto</label><strong>${pv270Moneda(ef)}</strong></div><div><label>Crédito previsto</label><strong>${pv270Moneda(cr)}</strong></div></div><p class="pv270-aviso">Estas cantidades no registran cobros ni deudas reales.</p></div></details>
  </div>`;
  pv270ActualizarLista();
  if(pv270ClienteAbierto)pv270AbrirCliente(pv270ClienteAbierto,true);
@@ -13025,7 +13063,8 @@ function pv270ActualizarLista(){
 function pv270MostrarMas(){pv270Limite+=60;pv270ActualizarLista();}
 function pv270Filas(listado,indicados,visto){return listado.map(c=>{
  const asignado=pv270Datos.asignados.includes(c.uuid),visitado=visto.has(c.uuid),saldo=pv270CreditosDatos?.[c.uuid];
- const nota=visitado?'<span class="pv270-lista-visita">✓ Visitado</span>':pv270Filtro==='credito'&&Number(saldo)>0?'<span class="pv270-saldo-lista">'+pv270Moneda(saldo)+'</span>':'';
+ const cuenta=visitado?pv272VentasCliente(c.uuid):null;
+ const nota=visitado?'<span class="pv270-lista-visita">✓ Visitado'+(cuenta.cantidad?' · '+cuenta.cantidad+' venta'+(cuenta.cantidad===1?'':'s')+' · '+pv270Moneda(cuenta.total):'')+'</span>':pv270Filtro==='credito'&&Number(saldo)>0?'<span class="pv270-saldo-lista">'+pv270Moneda(saldo)+'</span>':'';
  return `<div class="pv270-cliente pv270-cliente-item"><input aria-label="Incluir ${pv270Esc(c.nombre)} en mi ruta" type="checkbox" ${asignado?'checked':''} onchange="pv270Asignar('${pv270Esc(c.uuid)}',this.checked,this)"/><button type="button" class="pv270-abrir" aria-label="Abrir ficha de ${pv270Esc(c.nombre)}" onclick="pv270AbrirCliente('${pv270Esc(c.uuid)}')"><span class="pv270-info"><b>${pv270Esc(c.nombre)}</b></span>${nota}<span class="pv270-chevron" aria-hidden="true">›</span></button></div>`;
  }).join('')||'<p class="pv270-muted">No hay clientes en esta lista. Puedes buscar por nombre o elegir otro filtro.</p>';
 }
@@ -13069,20 +13108,25 @@ async function pv270AbrirCliente(uuid,silencioso=false){
  const card=document.getElementById('pv270Ficha'),lista=document.getElementById('pv270VistaLista');if(!card||!lista)return;
  if(!silencioso)pv270ScrollLista=window.scrollY||0;
  const token=++pv270FichaCarga;
+ if(pv270ClienteAbierto!==uuid)pv272OperacionPendiente=null;
  pv270ClienteAbierto=uuid;
  lista.style.display='none';lista.setAttribute('aria-hidden','true');
  card.style.display='block';card.removeAttribute('aria-hidden');
  const cli=pv270Datos?.clientes?.find(c=>c.uuid===uuid);if(!cli){pv270CerrarFicha();return;}
  const visitado=(pv270Datos.visitas||[]).some(v=>v.uuid===uuid);
+ const puedeAgregar=visitado&&pv270Datos.adicionesHabilitadas===true;
+ const cuentaHoy=pv272VentasCliente(uuid);
  const creditoConocido=pv270CreditosDatos&&Number(pv270CreditosDatos[uuid])>0;
  const saldoAviso=creditoConocido?'<p class="pv270-credito-respuesta">Saldo al abrir el filtro Créditos: <strong>'+pv270Moneda(pv270CreditosDatos[uuid])+'</strong></p>':'<p class="pv270-credito-respuesta">El saldo se consulta solo cuando lo necesites, para que la ficha cargue rápido.</p>';
  card.innerHTML=`<div class="pv270-ficha-detalle pv270-ficha-simple">
   <div class="pv270-ficha-cabecera"><button type="button" class="pv270-volver" onclick="pv270CerrarFicha()">← Clientes</button><div class="pv270-titulo-cliente"><h3>${pv270Esc(cli.nombre)}</h3><p>Cliente Akasia · ${pv270Esc(cli.idcliente)}</p></div></div>
   <div class="pv270-ficha-seleccion"><input type="checkbox" id="pv270FichaEnRuta" ${pv270Datos.asignados.includes(uuid)?'checked':''} onchange="pv270AsignarFicha('${pv270Esc(uuid)}',this)"/><label for="pv270FichaEnRuta">Incluir en mi ruta de hoy</label></div>
+  ${visitado?`<p class="pv272-resumen-cliente">${cuentaHoy.cantidad} venta${cuentaHoy.cantidad===1?'':'s'} · Total ${pv270Moneda(cuentaHoy.total)} · 1 visita</p>`:''}
   <div id="pv270FichaMenu" class="pv270-menu-inicio">
    <p class="pv270-menu-pregunta">¿Qué deseas hacer con este cliente?</p>
    <div class="pv270-menu-acciones">
     <button type="button" class="pv270-menu-accion pv270-menu-principal" onclick="pv270FichaSeccion('visita')"><span class="pv270-menu-icono">📝</span><span class="pv270-menu-texto"><strong>Registrar visita</strong><small>${visitado?'Visita registrada hoy · Ver detalle':'Venta, sin compra o no encontrado'}</small></span><span aria-hidden="true" class="pv270-menu-chevron">›</span></button>
+    ${puedeAgregar?`<button type="button" class="pv270-menu-accion pv272-agregar-accion" onclick="pv270FichaSeccion('adicional')"><span class="pv270-menu-icono">➕</span><span class="pv270-menu-texto"><strong>Agregar venta</strong><small>Otra compra por WhatsApp o llamada</small></span><span aria-hidden="true" class="pv270-menu-chevron">›</span></button>`:''}
     <button type="button" class="pv270-menu-accion" onclick="pv270FichaSeccion('saldo')"><span class="pv270-menu-icono">💳</span><span class="pv270-menu-texto"><strong>Consultar saldo</strong><small>Crédito pendiente</small></span><span aria-hidden="true" class="pv270-menu-chevron">›</span></button>
     <button type="button" class="pv270-menu-accion" onclick="pv270FichaSeccion('ubicacion')"><span class="pv270-menu-icono">📍</span><span class="pv270-menu-texto"><strong>Ubicación</strong><small>Última visita registrada</small></span><span aria-hidden="true" class="pv270-menu-chevron">›</span></button>
     <button type="button" class="pv270-menu-accion" onclick="pv270FichaSeccion('historial')"><span class="pv270-menu-icono">🕘</span><span class="pv270-menu-texto"><strong>Historial</strong><small>Visitas anteriores</small></span><span aria-hidden="true" class="pv270-menu-chevron">›</span></button>
@@ -13110,6 +13154,27 @@ async function pv270AbrirCliente(uuid,silencioso=false){
    <button type="button" id="pv270Guardar" ${visitado?'disabled':''} onclick="pv270GuardarVisita()">${visitado?'✓ Visita registrada hoy':'✓ Guardar visita'}</button>
    <p id="pv270GuardarEstado" role="status" class="pv270-muted"></p>
   </section>
+  ${puedeAgregar?`<section class="pv270-subvista pv272-subvista" data-pv270-seccion="adicional" style="display:none" aria-label="Agregar otra venta">
+   <button type="button" class="pv270-menu-volver" onclick="pv270FichaSeccion('menu')">← Menú del cliente</button>
+   <h4>➕ Venta adicional</h4>
+   <p class="pv270-subvista-subtitulo">Una nueva venta del mismo cliente, sin duplicar su visita.</p>
+   <p id="pv272ResumenCliente" class="pv272-resumen-cliente">${cuentaHoy.cantidad} venta${cuentaHoy.cantidad===1?'':'s'} · Total informativo ${pv270Moneda(cuentaHoy.total)}</p>
+   <label for="pv272Monto" class="pv270-subtitulo-form">Monto adicional ($)</label>
+   <input id="pv272Monto" type="number" step="0.01" min="0.01" max="1000000" inputmode="decimal" placeholder="Ej. 15.00"/>
+   <label class="pv270-subtitulo-form" id="pv272TipoLabel">Forma de pago prevista</label>
+   <select id="pv272Tipo" class="pv270-select-interno" aria-label="Forma de pago prevista" tabindex="-1"><option value="EFECTIVO">Efectivo</option><option value="CREDITO">Crédito</option></select>
+   <div class="pv270-pago-opciones" role="group" aria-labelledby="pv272TipoLabel">
+    <button type="button" class="pv270-pago-opcion elegido" aria-pressed="true" data-pv272-tipo="EFECTIVO" onclick="pv272PagoElegir('EFECTIVO')">💵 Efectivo</button>
+    <button type="button" class="pv270-pago-opcion" aria-pressed="false" data-pv272-tipo="CREDITO" onclick="pv272PagoElegir('CREDITO')">📄 Crédito</button>
+   </div>
+   <label for="pv272Origen" class="pv270-subtitulo-form">Cómo hizo el pedido</label>
+   <select id="pv272Origen"><option value="WHATSAPP">💬 WhatsApp</option><option value="LLAMADA">☎ Llamada</option><option value="OTRO">Otro</option></select>
+   <label for="pv272Detalle" class="pv270-subtitulo-form">Qué productos agregó (opcional)</label>
+   <textarea id="pv272Detalle" rows="2" maxlength="250" placeholder="Ej. 2 paquetes de café y 1 caja de galletas"></textarea>
+   <p class="pv270-gps-discreto">Se conserva el GPS de la visita original. Esta adición solo registra el monto informativo y una nota, no cambia Akasia ni Kardex.</p>
+   <button type="button" id="pv272Guardar" onclick="pv272GuardarVenta()">✓ Guardar venta adicional</button>
+   <p id="pv272GuardarEstado" class="pv270-muted" role="status"></p>
+  </section>`:''}
   <section class="pv270-subvista" data-pv270-seccion="saldo" style="display:none" aria-label="Consultar saldo">
    <button type="button" class="pv270-menu-volver" onclick="pv270FichaSeccion('menu')">← Menú del cliente</button>
    <h4>Saldo pendiente</h4>
@@ -13134,7 +13199,9 @@ async function pv270AbrirCliente(uuid,silencioso=false){
   pv270FichaActual=d;
   const ubicacion=document.getElementById('pv270FichaInfoUbicacion'),historialEl=document.getElementById('pv270FichaInfoHistorial');
   const ub=d.ubicacion,ubHtml=ub?`<p>📍 Última ubicación de visita: ${pv270Esc(ub.fecha)}</p><p><a target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ub.lat+','+ub.lng)}">📍 Abrir ubicación en Google Maps</a></p>`:'<p>📍 Todavía no hay ubicación guardada para este cliente.</p>';
-  const historial=d.historial?.length?d.historial.map(v=>`<p><b>${pv270Esc(v.fecha)} ${pv270Esc(v.hora)}</b> · ${pv270Esc(v.estado)} ${v.monto?pv270Moneda(v.monto)+' '+pv270Esc(v.tipo):''}</p>`).join(''):'<p>Aún no hay visitas anteriores.</p>';
+  const eventos=(d.historial||[]).map(v=>({...v,clase:'VISITA'})).concat((d.adiciones||[]).map(v=>({...v,clase:'ADICIONAL'})));
+  eventos.sort((a,b)=>(String(b.fecha)+' '+String(b.hora)).localeCompare(String(a.fecha)+' '+String(a.hora)));
+  const historial=eventos.length?eventos.slice(0,40).map(v=>`<p><b>${pv270Esc(v.fecha)} ${pv270Esc(v.hora)}</b> · ${v.clase==='ADICIONAL'?'➕ Venta adicional '+pv270Esc(v.origen||'WHATSAPP'):'Visita '+pv270Esc(v.estado)} ${v.monto?pv270Moneda(v.monto)+' '+pv270Esc(v.tipo):''}${v.clase==='ADICIONAL'&&v.detalle?' · '+pv270Esc(v.detalle):''}</p>`).join(''):'<p>Aún no hay visitas anteriores.</p>';
   if(ubicacion)ubicacion.innerHTML=ubHtml;
   if(historialEl)historialEl.innerHTML=historial;
  }catch(e){if(token!==pv270FichaCarga)return;for(const id of ['pv270FichaInfoUbicacion','pv270FichaInfoHistorial']){const info=document.getElementById(id);if(info)info.textContent='⚠️ No se pudo consultar la información: '+e.message;}}
@@ -13146,7 +13213,8 @@ async function pv270AsignarFicha(uuid,control){
  }catch(e){control.checked=!checked;alert('No se guardó la selección: '+e.message);}finally{control.disabled=false;pv270Busy=false;}
 }
 function pv270FichaSeccion(seccion){
- const permitidas=['menu','visita','saldo','ubicacion','historial'];if(!permitidas.includes(seccion))return;
+ const permitidas=['menu','visita','saldo','ubicacion','historial','adicional'];if(!permitidas.includes(seccion))return;
+ if(seccion==='adicional'&&!document.querySelector('#pv270Ficha [data-pv270-seccion="adicional"]'))return;
  const menu=document.getElementById('pv270FichaMenu');if(menu)menu.style.display=seccion==='menu'?'block':'none';
  document.querySelectorAll('#pv270Ficha [data-pv270-seccion]').forEach(x=>{x.style.display=x.dataset.pv270Seccion===seccion?'block':'none';});
  if(seccion==='visita')pv270CambioEstado();
@@ -13202,7 +13270,7 @@ async function pv270GuardarVisita(){
 }
 function pv270PintarAdmin(){const s=document.getElementById('pv270AdminEstado'),sel=document.getElementById('pv270AdminKardex');if(!pv270Datos)return;
  const d=pv270Datos,inp=document.getElementById('pv270AdminFecha'),res=document.getElementById('pv270AdminResumen');if(inp)inp.value=d.fecha;
- if(res){const por=Object.create(null);(d.visitas||[]).forEach(v=>{const x=por[v.empleado]||(por[v.empleado]={ef:0,cr:0,visitas:0});x.visitas++;if(v.tipo==='EFECTIVO')x.ef+=v.monto;else if(v.tipo==='CREDITO')x.cr+=v.monto;});res.innerHTML=Object.keys(por).length?Object.keys(por).map(nombre=>{const x=por[nombre];return `<div class="pv270-cliente"><div class="pv270-info"><b>${pv270Esc(nombre)}</b><small>${x.visitas} visitas · Efectivo estimado ${pv270Moneda(x.ef)} · Crédito estimado ${pv270Moneda(x.cr)} · Total ${pv270Moneda(x.ef+x.cr)}</small></div></div>`;}).join(''):'Sin visitas registradas para esta fecha.';}
+ if(res){const por=Object.create(null);(d.visitas||[]).forEach(v=>{const x=por[v.empleado]||(por[v.empleado]={ef:0,cr:0,visitas:0,ventas:0});x.visitas++;if(v.estado==='VENTA_ESTIMADA')x.ventas++;if(v.tipo==='EFECTIVO')x.ef+=v.monto;else if(v.tipo==='CREDITO')x.cr+=v.monto;});(d.ventasAdicionales||[]).forEach(v=>{const x=por[v.empleado]||(por[v.empleado]={ef:0,cr:0,visitas:0,ventas:0});x.ventas++;if(v.tipo==='EFECTIVO')x.ef+=Number(v.monto)||0;else if(v.tipo==='CREDITO')x.cr+=Number(v.monto)||0;});res.innerHTML=Object.keys(por).length?Object.keys(por).map(nombre=>{const x=por[nombre];return `<div class="pv270-cliente"><div class="pv270-info"><b>${pv270Esc(nombre)}</b><small>${x.visitas} visitas · ${x.ventas} ventas · Efectivo estimado ${pv270Moneda(x.ef)} · Crédito estimado ${pv270Moneda(x.cr)} · Total ${pv270Moneda(x.ef+x.cr)}</small></div></div>`;}).join(''):'Sin visitas registradas para esta fecha.';}
  const sug=document.getElementById('pv270AdminSugerencias');if(sug){const nombres=new Map(d.clientes.map(c=>[c.uuid,c.nombre]));sug.innerHTML='<b>Ruta sugerida ('+d.sugeridos.length+' clientes)</b>'+(d.ultimoKardexFecha?' · Solo Kardex vinculados explícitamente. Último Kardex de este día: '+pv270Esc(d.ultimoKardexFecha):'')+(d.sugeridos.length?d.sugeridos.slice(0,100).map(x=>'<div class="pv270-cliente"><div class="pv270-info"><b>'+pv270Esc(nombres.get(x.uuid)||'Cliente')+'</b><small>'+pv270Esc(x.fuente==='KARDEX'?'Kardex vinculado':x.fuente==='EXCEL_RUTA'?'Excel de ruta':x.fuente==='VISITA_ANTERIOR'?'Visita anterior':'Selección anterior')+'</small></div></div>').join(''):'<p>No hay clientes sugeridos para este día todavía.</p>');}
  if(s)s.textContent='Catálogo activo: '+pv270Datos.clientes.length+' clientes. Excel de ruta guardados para la fecha consultada: '+(pv270Datos.clientesExcelFecha||0)+'. Para la ruta de la próxima semana, cambia la fecha del calendario al mismo día de la semana siguiente. Kardex sin relación única de nombre: '+pv270Datos.kardexSinVincular+'.';
  if(sel)sel.innerHTML='<option value="">Selecciona un Kardex</option>'+(pv270Datos.rutas||[]).map(x=>`<option value="${pv270Esc(x.idRuta)}">#${pv270Esc(x.numero)} · Cargado ${pv270Esc(x.fecha)} ${x.fechaPreventa?'· Preventa '+pv270Esc(x.fechaPreventa):''}</option>`).join('');
