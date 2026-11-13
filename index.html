@@ -997,7 +997,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloPrepararDespacho .c53-acciones .c53-parcial{background:#fff8df!important;color:#8b6119!important;border:1.5px solid #e9c76d!important}
 #moduloPrepararDespacho .c53-acciones .c53-seleccionado.c53-parcial{background:#edbc42!important;color:#583c04!important;border-color:#d9a72a!important}
 .c53-detalle{margin-top:12px;padding:13px;background:rgba(255,255,255,.84);border:1px solid #f2cda9;border-radius:18px}
-.c53-detalle label{display:block;font-size:13px;font-weight:800;color:#814618;margin-bottom:9px}#moduloFaltantesKardex .c53-detalle input,#moduloPrepararDespacho .c53-detalle input{display:block;max-width:175px;width:100%;height:54px;min-height:54px;background:#f1f5fa!important;border:1px solid #d5e0ec!important;border-radius:16px!important;text-align:center;font-size:23px;font-weight:850;margin:0!important;padding:5px}
+.c53-detalle label{display:block;font-size:13px;font-weight:800;color:#814618;margin-bottom:9px}
+#moduloFaltantesKardex .c53-detalle input,#moduloPrepararDespacho .c53-detalle input{display:block;max-width:175px;width:100%;height:54px;min-height:54px;background:#f1f5fa!important;border:1px solid #d5e0ec!important;border-radius:16px!important;text-align:center;font-size:23px;font-weight:850;margin:0!important;padding:5px}
 .c53-ayuda{font-size:12px;color:#6e7b8e;line-height:1.5;margin-top:9px}
 .c53-marcados{background:#edf5ff;border:1px solid #d3e7ff;border-radius:16px;color:#1d5eaa;font-weight:750;font-size:12px;padding:11px;margin-top:12px}
 @media(max-width:360px){#moduloFaltantesKardex .c53-acciones button,#moduloPrepararDespacho .c53-acciones button{font-size:12px!important}}
@@ -1996,7 +1997,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c238-barra .c238-secciones{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
 .c238-barra .c238-secciones button{flex:1 1 105px;margin:0!important;min-height:38px!important;padding:6px 8px!important;font-size:11px!important;background:white!important;color:#42627b!important;border:1px solid #dce6f1!important}
 .c238-barra .c238-secciones button[aria-selected="true"]{background:#def0ff!important;color:#0b63ab!important;border-color:#7abaf0!important}
-.c229-filtro{margin:10px 0!important;background:#fff!important}.c229-avisos{background:#fff6e8;color:#8c541d;border:1px solid #eed2a5;border-radius:12px;padding:11px;margin:10px 0;font-size:12px}
+.c229-filtro{margin:10px 0!important;background:#fff!important}
+.c229-avisos{background:#fff6e8;color:#8c541d;border:1px solid #eed2a5;border-radius:12px;padding:11px;margin:10px 0;font-size:12px}
 .c229-marcado{font-size:11px;color:#a14b18;font-weight:800;margin-top:7px}
 .c229-continuar{background:#087cff!important;color:white!important;font-weight:800!important;min-height:48px!important;margin-top:12px!important}
 .c229-reporte{margin:18px 0 8px;border:1px solid #d5e4f5;border-radius:17px;background:#f7fbff;padding:13px;color:#25435f}
@@ -2995,7 +2997,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <label style="font-size:11px;color:#365577;display:block;margin-top:8px">Buscar pedido o producto
                 <input id="m211HistBuscar" type="search" placeholder="Nombre o número del pedido" oninput="m211Render()" style="margin-top:4px">
               </label>
-              <label style="font-size:11px;color:#365577;display:block;margin-top:8px">Sucursal                <select id="m211HistSucursal" onchange="m211Render()" style="margin-top:4px"><option value="TODAS">Todas</option></select>
+              <label style="font-size:11px;color:#365577;display:block;margin-top:8px">Sucursal
+                <select id="m211HistSucursal" onchange="m211Render()" style="margin-top:4px"><option value="TODAS">Todas</option></select>
               </label>
               <div id="m211Historial" style="margin-top:10px;font-size:12px;color:#526b85">Actualiza para ver el historial.</div>
             </div>
@@ -3994,7 +3997,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             
             if (desplegado) {
                 cargarPedidosEnBodega();
-            }        }
+            }
+        }
 
         function filtrarNombresPorSucursal() {
             const sucursalSeleccionada = document.getElementById("selectSucursal").value;
@@ -4993,7 +4997,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const el=document.getElementById('c60Cantidad');if(!el)return;
             const max=Number(el.max)||99999;
             el.value=Math.max(1,Math.min(max,(Number(el.value)||1)+delta));
-            c62MostrarResumen();        }
+            c62MostrarResumen();
+        }
         function c67CambiarConversion(delta){
             const el=document.getElementById('c67NuevaCantidad');if(!el)return;
             el.value=Math.max(1,Math.min(99999,(Number(el.value)||1)+delta));c62MostrarResumen();
@@ -5992,7 +5997,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(!cont)return;
             cont.innerHTML='<div class="c69-empty">Consultando los pedidos pendientes…</div>';
             fetch(URL_API+'?accion=verPedidosRecepcion&sucursal='+encodeURIComponent(sucursal)+'&_='+Date.now())
-                .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})                .then(data=>{
+                .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
+                .then(data=>{
                     if(!data||data.status!=='OK')throw Error(data?.mensaje||'Respuesta inválida');
                     if(data.recepcionVersion!=='1.6.71')throw Error('Publica Código.gs v1.6.71 antes de usar la recepción nueva. No se modificó ningún pedido.');
                     pedidosRecepcionActuales=Array.isArray(data.productos)?data.productos:[];
@@ -6991,7 +6997,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         async function agregarCompraAbastecimiento() {
             if (!productoCompraActual) return alert("Selecciona un producto.");
-            const cantidad=Math.max(1,Number(document.getElementById("cantidadCompra").value)||1);            const params=new URLSearchParams({accion:"AgregarCompraAbastecimiento",producto:productoCompraActual.producto,cantidad:String(cantidad),empleado:localStorage.getItem("usuario")||""});
+            const cantidad=Math.max(1,Number(document.getElementById("cantidadCompra").value)||1);
+            const params=new URLSearchParams({accion:"AgregarCompraAbastecimiento",producto:productoCompraActual.producto,cantidad:String(cantidad),empleado:localStorage.getItem("usuario")||""});
             try {
                 const r=await fetch(URL_API,{method:"POST",body:params}); const d=await r.json();
                 if (!d || d.status!=="OK") throw new Error(d && d.mensaje || "Error");
@@ -7990,7 +7997,8 @@ async function verificarPassword() {
           const orden=new Map();
           for(const l of k225Lineas)orden.set(l.ticket,(orden.get(l.ticket)||0)+Number(l.total));
           return [...orden].map(([t,n])=>t+':'+Math.round(n*100)).join('|');
-        }        function k225TicketsCalculados(){
+        }
+        function k225TicketsCalculados(){
           const mapa=new Map();
           for(const l of k225Lineas)mapa.set(l.ticket,(mapa.get(l.ticket)||0)+Number(l.total));
           return [...mapa].map(([ticket,bruto])=>({ticket,bruto:Math.round(bruto*100)/100}));
@@ -8989,7 +8997,8 @@ async function verificarPassword() {
                   const etiqueta=m.tipo==='ABONO'?'Abono':m.tipo==='REVERSO_ABONO'?'Anulación':'Crédito';
                   html+='<tr><td>'+escaparHtmlPedido(m.fecha.slice(0,16))+'</td><td>'+escaparHtmlPedido(etiqueta+' · '+m.empleado);
                   if(c226Admin&&m.tipo==='ABONO'&&!anulados.has(m.operacion))html+='<button type="button" style="font-size:10px;background:#fff0f0;color:#a52a2a;margin:4px 0;padding:5px 8px" onclick="c226Anular(\''+encodeURIComponent(m.operacion).replace(/'/g,'%27')+'\')">Anular</button>';
-                  html+='</td><td>'+c226Dinero(Math.abs(m.monto))+'</td></tr>';                });html+='</table>';
+                  html+='</td><td>'+c226Dinero(Math.abs(m.monto))+'</td></tr>';
+                });html+='</table>';
               }
             }
             html+='</section>';
@@ -9988,7 +9997,8 @@ async function verificarPassword() {
               c75Marcas[x.producto]={producto:x.producto,modo:x.modo,cantidad:x.cantidad,
                 destino:String(x.destino||''),
                 estadoPrevio:x.estadoPrevio||c75EstadoPrevio(productoActual,sucursalDestino)};
-            });            if(!c75ErrorConsulta)c75GuardarBorrador();
+            });
+            if(!c75ErrorConsulta)c75GuardarBorrador();
           }catch(_){/* No usar un borrador dañado. */}
         }
         function c75GuardarSeguimiento(){
@@ -10987,7 +10997,8 @@ function c50PillsParaProducto(nombre){
   const estado=contado?'Contado':p&&p.estado==='EN PROCESO'?'En proceso':p?'Asignado':'Pendiente';
   return '<span class="c50-pill '+(p&&p.ambiguo?'advertencia':contado?'contado':estado==='En proceso'?'proceso':'')+'">'+c42Esc(etiqueta)+' · '+c42Esc(p&&p.ambiguo?'Revisar identidad':estado)+'</span>';
  }).join('');
-}function c50RenderProceso(){
+}
+function c50RenderProceso(){
  const el=document.getElementById('c50ListaProceso');if(!el)return;
  const arr=c50Productos.filter(p=>!p.contado);
  el.innerHTML='<p class="c42-meta">'+arr.length+' producto(s) asignados y sin conteo registrado en este período.</p>'+arr.slice(0,60).map(p=>'<div class="c50-consulta-row"><b>'+c42Esc(p.nombre)+'</b><div class="c50-mini-info">'+c42Esc(p.sucursal)+' · '+c42Esc(p.empleado)+' · '+c42Esc(p.estado)+' · '+c42Esc(p.fecha)+'</div></div>').join('')+(arr.length>60?'<p class="c42-meta">Mostrando los 60 más recientes. Utiliza la consulta para buscar productos ya contados.</p>':'');
@@ -11986,7 +11997,8 @@ setInterval(()=>{
  }
  document.getElementById('n188EmpleadosLista').addEventListener('change',function(e){
    if(!e.target.matches('[data-n188-empleado]'))return;
-   const v=e.target.dataset.n188Empleado;   if(e.target.checked)n188SeleccionEmpleados.add(v);else n188SeleccionEmpleados.delete(v);
+   const v=e.target.dataset.n188Empleado;
+   if(e.target.checked)n188SeleccionEmpleados.add(v);else n188SeleccionEmpleados.delete(v);
    document.getElementById('n188NumEmpleados').textContent=n188SeleccionEmpleados.size+' seleccionados';
  });
  document.getElementById('n188CatalogoLista').addEventListener('change',function(e){
@@ -12985,7 +12997,8 @@ function pv272VentasCliente(uuid){
  const ventas=base.concat(extras);
  return {ventas,cantidad:ventas.length,total:ventas.reduce((s,v)=>s+(Number(v.monto)||0),0)};
 }
-let pv272OperacionPendiente=null;function pv272PagoElegir(tipo){
+let pv272OperacionPendiente=null;
+function pv272PagoElegir(tipo){
  if(tipo!=='EFECTIVO'&&tipo!=='CREDITO')return;
  const control=document.getElementById('pv272Tipo');if(!control)return;
  control.value=tipo;
