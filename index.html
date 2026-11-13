@@ -13011,7 +13011,7 @@ async function pv270AbrirCliente(uuid,silencioso=false){
  const card=document.getElementById('pv270Ficha'),lista=document.getElementById('pv270VistaLista');if(!card||!lista)return;
  if(!silencioso)pv270ScrollLista=window.scrollY||0;
  const token=++pv270FichaCarga;
- pv270ClienteAbierto=uuid;pv270ReiniciarGPSVenta(uuid);
+ pv270ClienteAbierto=uuid;
  lista.style.display='none';lista.setAttribute('aria-hidden','true');
  card.style.display='block';card.removeAttribute('aria-hidden');
  const cli=pv270Datos?.clientes?.find(c=>c.uuid===uuid);if(!cli){pv270CerrarFicha();return;}
@@ -13023,9 +13023,9 @@ async function pv270AbrirCliente(uuid,silencioso=false){
  <p class="pv270-ficha-intro">Visita de preventa · ${pv270Esc(pv270Datos.fecha)}</p>
  <div class="pv270-panel"><h4>Resultado de la visita</h4><p class="pv270-aviso">Estos valores son informativos y no modifican cobros ni saldos reales.</p>
  <label for="pv270Estado">Resultado</label><select id="pv270Estado" onchange="pv270CambioEstado()"><option value="VENTA_ESTIMADA">Visita con venta informativa</option><option value="SIN_COMPRA">Visitado, no realizó compra</option><option value="CERRADO">Establecimiento cerrado</option><option value="AUSENTE">Cliente no encontrado</option><option value="REPROGRAMADO">Visita reprogramada</option></select>
- <div id="pv270VentaDatos"><label for="pv270Monto">Monto estimado ($)</label><input id="pv270Monto" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" placeholder="Ej. 45.00" oninput="pv270MontoGPS()"/><label for="pv270Tipo">Forma de pago prevista</label><select id="pv270Tipo"><option value="EFECTIVO">Efectivo</option><option value="CREDITO">Crédito</option></select></div>
+ <div id="pv270VentaDatos"><label for="pv270Monto">Monto estimado ($)</label><input id="pv270Monto" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" placeholder="Ej. 45.00"/><label for="pv270Tipo">Forma de pago prevista</label><select id="pv270Tipo"><option value="EFECTIVO">Efectivo</option><option value="CREDITO">Crédito</option></select></div>
  <label for="pv270Nota">Observación opcional</label><input id="pv270Nota" type="text" maxlength="180" placeholder="Ej. Regresar por la tarde"/>
- <p class="pv270-aviso" id="pv270GPSAviso" role="status" aria-live="polite">📍 Al ingresar una venta se buscará la ubicación automáticamente. Se enviará junto con la visita al guardar (si el teléfono concede permiso).</p>
+ <p class="pv270-aviso" id="pv270GPSAviso" role="status" aria-live="polite">📍 Al confirmar la visita, el teléfono capturará y enviará automáticamente la ubicación GPS junto con el resultado. No es necesario ingresarla manualmente.</p>
  <button type="button" id="pv270Guardar" ${visitado?'disabled':''} onclick="pv270GuardarVisita()">${visitado?'Ya se registró una visita hoy':'✓ Guardar visita'}</button><p id="pv270GuardarEstado" role="status" class="pv270-muted"></p></div>
  <div class="pv270-consulta-credito"><button type="button" id="pv270ConsultarSaldo" onclick="pv270ConsultarSaldo('${pv270Esc(uuid)}')">💳 Consultar saldo pendiente</button><div id="pv270SaldoResultado">${saldoAviso}</div></div>
  <details class="pv270-historial"><summary>Historial y ubicación del cliente</summary><div id="pv270FichaInfo" class="pv270-ubicacion-info">Cargando historial y ubicación…</div></details></div>`;
@@ -13054,58 +13054,20 @@ function pv270CerrarFicha(){
  if(lista){lista.style.display='block';lista.removeAttribute('aria-hidden');}
  requestAnimationFrame(()=>window.scrollTo({top:pv270ScrollLista,behavior:'auto'}));
 }
-// GPS automático de preventa: se solicita al ingresar el monto y se adjunta SOLO al guardar.
-let pv270GPSVentaEstado={uuid:'',ubicacion:null,obtenida:0,pendiente:null,intentada:false};
-function pv270ReiniciarGPSVenta(uuid=''){pv270GPSVentaEstado={uuid,ubicacion:null,obtenida:0,pendiente:null,intentada:false};}
-function pv270AvisarGPSVenta(mensaje){const el=document.getElementById('pv270GPSAviso');if(el)el.textContent=mensaje;}
+// GPS de Preventa: se solicita al confirmar la visita, no al ingresar el monto.
 function pv270GPS(){return new Promise(resolve=>{
  if(!navigator.geolocation||!window.isSecureContext){resolve({});return;}
  try{navigator.geolocation.getCurrentPosition(p=>{
-   const lat=Number(p.coords.latitude),lng=Number(p.coords.longitude),precision=Number(p.coords.accuracy);
-   resolve(Number.isFinite(lat)&&Number.isFinite(lng)&&Math.abs(lat)<=90&&Math.abs(lng)<=180?{lat,lng,precision}:{});
+  const lat=Number(p.coords.latitude),lng=Number(p.coords.longitude),precision=Number(p.coords.accuracy);
+  resolve(Number.isFinite(lat)&&Number.isFinite(lng)&&Math.abs(lat)<=90&&Math.abs(lng)<=180?{lat,lng,precision}:{});
  },()=>resolve({}),{enableHighAccuracy:true,timeout:10000,maximumAge:0});}
  catch(_){resolve({});}
 });}
-function pv270SolicitarGPSVenta(uuid){
- if(!uuid)return Promise.resolve({});
- if(pv270GPSVentaEstado.uuid!==uuid)pv270ReiniciarGPSVenta(uuid);
- const s=pv270GPSVentaEstado;
- if(s.pendiente)return s.pendiente;
- if(s.ubicacion&&Date.now()-s.obtenida<30000)return Promise.resolve(s.ubicacion);
- s.intentada=true;pv270AvisarGPSVenta('📍 Obteniendo ubicación automáticamente…');
- const solicitud=pv270GPS().then(geo=>{
-   if(pv270GPSVentaEstado!==s)return {};
-   if(geo.lat!==undefined&&geo.lng!==undefined){
-    s.ubicacion=geo;s.obtenida=Date.now();
-    pv270AvisarGPSVenta('✅ Ubicación capturada. Se enviará automáticamente cuando guardes la visita.');
-   }else{
-    pv270AvisarGPSVenta('⚠️ No se pudo obtener GPS. Revisa que la ubicación del teléfono esté activada y autorizada para esta página.');
-   }
-   return geo;
- }).finally(()=>{if(pv270GPSVentaEstado===s)s.pendiente=null;});
- s.pendiente=solicitud;
- return solicitud;
-}
-function pv270MontoGPS(){
- const input=document.getElementById('pv270Monto'),uuid=pv270ClienteAbierto;
- if(!input||!uuid||document.getElementById('pv270Estado')?.value!=='VENTA_ESTIMADA')return;
- const n=Number(input.value);
- if(!input.value.trim()||!Number.isFinite(n)||n<=0||n>1000000||Math.abs(n*100-Math.round(n*100))>.00001)return;
- if(pv270GPSVentaEstado.uuid!==uuid)pv270ReiniciarGPSVenta(uuid);
- if(!pv270GPSVentaEstado.intentada)pv270SolicitarGPSVenta(uuid).catch(()=>{});
-}
-async function pv270GPSAlGuardarVenta(uuid){
- if(pv270GPSVentaEstado.uuid!==uuid)pv270ReiniciarGPSVenta(uuid);
- const s=pv270GPSVentaEstado;
- if(s.pendiente)await s.pendiente;
- if(s.ubicacion&&Date.now()-s.obtenida<30000)return s.ubicacion;
- return await pv270SolicitarGPSVenta(uuid);
-}
 async function pv270GuardarVisita(){
  const b=document.getElementById('pv270Guardar'),status=document.getElementById('pv270GuardarEstado'),estado=document.getElementById('pv270Estado')?.value,monto=estado==='VENTA_ESTIMADA'?Number(document.getElementById('pv270Monto')?.value):0,tipo=estado==='VENTA_ESTIMADA'?document.getElementById('pv270Tipo')?.value:'',nota=document.getElementById('pv270Nota')?.value||'',uuid=pv270ClienteAbierto;
  if(estado==='VENTA_ESTIMADA'&&(!Number.isFinite(monto)||monto<=0||Math.abs(monto*100-Math.round(monto*100))>.00001))return alert('Ingresa el monto estimado con máximo dos decimales.');
- if(!uuid||pv270Busy)return;pv270Busy=true;b.disabled=true;status.textContent='Guardando visita y buscando GPS…';
- try{const geo=estado==='VENTA_ESTIMADA'?await pv270GPSAlGuardarVenta(uuid):await pv270GPS();const op=pv270Op();await pv270API('pv270GuardarVisita',{uuid,estado,monto:String(monto||0),tipo,observacion:nota,operacion:op,lat:geo.lat??'',lng:geo.lng??'',precision:geo.precision??''});
+ if(!uuid||pv270Busy)return;pv270Busy=true;b.disabled=true;status.textContent='📍 Capturando ubicación para confirmar la visita…';
+ try{const geo=await pv270GPS();const op=pv270Op();await pv270API('pv270GuardarVisita',{uuid,estado,monto:String(monto||0),tipo,observacion:nota,operacion:op,lat:geo.lat??'',lng:geo.lng??'',precision:geo.precision??''});
   const cli=pv270Datos.clientes.find(c=>c.uuid===uuid);
   pv270Datos.visitas.push({uuid,cliente:cli?.nombre||'',estado,monto:monto||0,tipo,hora:new Date().toLocaleTimeString('es-SV'),empleado:pv270Usuario().empleado});pv270CambioLocal++;
   pv270ClienteAbierto='';pv270Render();requestAnimationFrame(()=>window.scrollTo({top:pv270ScrollLista,behavior:'auto'}));alert('✅ Visita registrada. El monto es SOLO INFORMATIVO. '+(geo.lat!==undefined?'GPS capturado.':'GPS no disponible.'));
