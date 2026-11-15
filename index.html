@@ -2262,6 +2262,39 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloPreventa270 #pv270Contenido .pv272-subvista input,#moduloPreventa270 #pv270Contenido .pv272-subvista select,#moduloPreventa270 #pv270Contenido .pv272-subvista textarea{width:100%;max-width:100%;min-height:45px;border:1px solid #dce5ef;border-radius:12px;padding:10px;box-sizing:border-box;font:inherit}
 #moduloPreventa270 #pv270Contenido button#pv272Guardar{width:100%;min-height:50px;margin-top:12px;background:#2276db!important;color:#fff!important;border-radius:12px;font-weight:800}
 </style>
+
+<style id="online-shop-fix-bienvenida-responsive-20261114">
+/* Solo menú principal: evita que la bienvenida se comprima en teléfonos Android. */
+#menuPrincipalModulos .concept-hero{
+  box-sizing:border-box!important;display:block!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  justify-self:stretch!important;grid-column:1 / -1!important;
+  flex:1 1 100%!important;overflow:hidden!important;
+}
+#menuPrincipalModulos .concept-hero .hello,
+#menuPrincipalModulos .concept-hero .sub{
+  max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important;
+}
+#menuPrincipalModulos .concept-banner{
+  box-sizing:border-box!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;align-items:center!important;gap:10px!important;
+}
+#menuPrincipalModulos .concept-banner .ico{
+  flex:0 0 36px!important;min-width:0!important;width:36px!important;text-align:center!important;
+}
+#menuPrincipalModulos .concept-banner > div:last-child{
+  flex:1 1 0!important;min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important;
+}
+#menuPrincipalModulos .concept-banner strong,
+#menuPrincipalModulos .concept-banner small{
+  display:block!important;min-width:0!important;max-width:100%!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;
+}
+@media(max-width:430px){
+  #menuPrincipalModulos .concept-hero{padding:14px 16px!important;}
+  #menuPrincipalModulos .concept-banner{padding:10px!important;}
+}
+</style>
 </head>
 <body>
 <div id="c42PortalPrueba" class="card" style="display:none;max-width:490px;text-align:left;">
