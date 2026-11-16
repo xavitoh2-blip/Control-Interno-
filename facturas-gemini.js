@@ -208,13 +208,13 @@
   }
   function fgAbrir(){
     if(!el('fgPendientes'))return;
-    if(!el('fgPreparado')){
+    if(!el('fgPendientes').dataset.fgPreparado){
       var f1=el('fgFotos'),f2=el('fgCamara');
       if(f1)f1.addEventListener('change',function(){archivosSeleccionados(this.files);this.value='';});
       if(f2)f2.addEventListener('change',function(){archivosSeleccionados(this.files);this.value='';});
       var b=el('fgProcesarBoton');if(b)b.addEventListener('click',fgProcesar);
       var ex=el('fgExportarBoton');if(ex)ex.addEventListener('click',fgExportar);
-      var marca=document.createElement('i');marca.id='fgPreparado';marca.hidden=true;el('fgPendientes').appendChild(marca);
+      el('fgPendientes').dataset.fgPreparado = 'si';
     }
     renderPendientes();renderResultados();
     estado('Etapa de prueba: las facturas no se guardan ni afectan inventario.',false);
