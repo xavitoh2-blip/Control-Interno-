@@ -3237,64 +3237,126 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         </div>
 
         <!-- v1.6.42 BETA: pantalla exclusiva para administrar conteos -->
+        <style>
+          /* Asignación visual actualizada; se conservan datos, IDs y funciones de conteo. */
+          #adminConteosAsignados{color:#22384f;max-width:1180px;margin:0 auto;text-align:left}
+          #adminConteosAsignados>h4{font-size:23px;margin:9px 0 2px}
+          #adminConteosAsignados .c42-modern-subheading{font-size:12px;margin:0 0 15px;color:#71849a}
+          #adminConteosAsignados .c50-tabs{display:flex;gap:5px;flex-wrap:wrap;padding:5px;background:#f1f5fb;border:1px solid #e4eaf2;border-radius:13px;margin:12px 0}
+          #adminConteosAsignados .c50-tabs button{width:auto;min-height:38px;min-width:110px;flex:1 1 130px;padding:8px;border:0;border-radius:9px;background:transparent;color:#546b82;box-shadow:none;margin:0;font-size:12px}
+          #adminConteosAsignados .c50-tabs button.c50-activa{background:white;color:#265cb0;box-shadow:0 1px 4px #cad7e659}
+          #adminConteosAsignados .c42-modern-dates{margin:5px 0 14px;padding:7px 11px;border:1px solid #e5ebf2;border-radius:11px;background:#fff}
+          #adminConteosAsignados .c42-modern-dates>summary{font-size:12px;color:#678099;cursor:pointer;font-weight:700;padding:4px}
+          #adminConteosAsignados .c42-modern-dates .c50-filtros{margin:8px 0}
+          #adminConteosAsignados .c42-modern-update{width:auto;min-height:35px;background:#eaf1fc;color:#245a93}
+          #adminConteosAsignados .c42-modern{display:grid;grid-template-columns:1fr 1.08fr;gap:12px}
+          #adminConteosAsignados .c42-modern-card{background:#fff;border:1px solid #e1e7ef;border-radius:15px;padding:16px;min-width:0;box-shadow:none}
+          #adminConteosAsignados .c42-modern-selected{grid-column:1/-1}
+          #adminConteosAsignados .c42-modern-title{display:flex;gap:10px;align-items:center;margin:0 0 14px}
+          #adminConteosAsignados .c42-modern-title h5{font-size:17px;font-weight:850;color:#223c5b;margin:0;line-height:1.3}
+          #adminConteosAsignados .c42-modern-num{width:30px;height:30px;min-width:30px;display:grid;place-items:center;border-radius:10px;background:#eaf1fe;color:#295ca7;font-size:13px;font-weight:900}
+          #adminConteosAsignados .c42-modern-count{display:inline-grid;place-items:center;background:#e9f3fd;padding:3px 8px;border-radius:8px;color:#2965a6;font-size:13px;margin-left:4px}
+          #adminConteosAsignados .c42-modern-label{font-size:12px;font-weight:750;color:#4e637c;display:block;margin:7px 0}
+          #adminConteosAsignados .c42-modern input[type="search"],#adminConteosAsignados .c42-modern input[type="text"],#adminConteosAsignados .c42-modern select{border-radius:10px;border:1px solid #dce6f1;min-height:44px;padding:9px 11px;background:#fff;color:#213b5b;max-width:100%}
+          #adminConteosAsignados .c42-modern #c42BuscarAdmin{width:100%;font-size:14px}
+          #adminConteosAsignados .c42-branch-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
+          #adminConteosAsignados .c42-branch-options .c45-opcion{margin:0;padding:11px 9px;border:1px solid #e0e8f1;border-radius:10px;background:#f9fbfe;color:#264362;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;min-width:0}
+          #adminConteosAsignados .c42-branch-options .c45-opcion:has(input:checked){background:#eef5ff;border-color:#9fc1ef}
+          #adminConteosAsignados .c42-branch-options input{width:17px;height:17px;min-width:17px}
+          #adminConteosAsignados .c45-empleados{border-top:1px solid #eef0f4;padding-top:10px}
+          #adminConteosAsignados .c42-modern-check{display:flex;align-items:center;gap:8px;margin:10px 0;color:#5d728a;font-size:12px}
+          #adminConteosAsignados .c42-modern-check input{width:17px;height:17px}
+          #adminConteosAsignados .c42-modern-extra{background:#fafcff;border:1px solid #e5ecf5;border-radius:11px;padding:9px 12px;margin:13px 0}
+          #adminConteosAsignados .c42-modern-extra summary{font-size:12px;font-weight:800;color:#466d9b;cursor:pointer;padding:2px 0}
+          #adminConteosAsignados .c42-modern-extra .c42-meta{font-size:11px}
+          #adminConteosAsignados .c42-modern-category-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+          #adminConteosAsignados .c42-modern-category-actions button{min-height:37px;width:auto;flex:1 1 135px;margin:0;padding:8px 10px;background:#eaf2ff;color:#235b9b;border-radius:9px;font-size:12px}
+          #adminConteosAsignados .c42-modern-category-actions button:first-child{background:#2869d4;color:white}
+          #adminConteosAsignados .c42-modern-results{max-height:290px;overflow:auto;margin-top:10px;display:grid;grid-template-columns:1fr;gap:5px}
+          #adminConteosAsignados .c42-modern-results button{width:100%;margin:0;border:1px solid #e2eaf5;background:#f7faff;color:#264e7a;border-radius:10px;min-height:38px;padding:9px 11px;text-align:left;font-size:12px}
+          #adminConteosAsignados .c42-modern-results button:disabled{opacity:.48}
+          #adminConteosAsignados .c42-modern-selected #c42SeleccionadosAdmin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:8px}
+          #adminConteosAsignados .c42-modern-selected #c42SeleccionadosAdmin .c42-item{margin:0;padding:9px 10px;background:#f8fbff;border:1px solid #e3eaf3;border-radius:9px;min-width:0;gap:8px}
+          #adminConteosAsignados .c42-modern-selected #c42SeleccionadosAdmin .c42-item b{overflow-wrap:anywhere}
+          #adminConteosAsignados .c42-modern-selected #c42SeleccionadosAdmin .c42-item button{background:#fff1f2!important;color:#ab4255!important;min-height:31px;width:auto;border-radius:7px;font-size:11px;margin:0}
+          #adminConteosAsignados .c42-modern-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+          #adminConteosAsignados .c42-modern-row select,#adminConteosAsignados .c42-modern-row input{flex:1 1 190px}
+          #adminConteosAsignados .c42-modern-row button{min-height:40px;width:auto;flex:1 1 115px;margin:0;background:#e8f1ff;color:#245c99;font-size:12px}
+          #adminConteosAsignados .c42-modern-save{display:block;width:100%;min-height:48px;background:#216bde;color:white;font-size:14px;font-weight:850;border-radius:11px;margin:13px 0 6px}
+          #adminConteosAsignados .c42-modern #c42EstadoAdmin{font-size:12px;line-height:1.5;margin:0}
+          @media(max-width:920px){#adminConteosAsignados .c42-modern{grid-template-columns:1fr}#adminConteosAsignados .c42-modern-selected{grid-column:1}}
+          @media(max-width:540px){#adminConteosAsignados .c42-modern-card{padding:12px}#adminConteosAsignados .c42-branch-options{grid-template-columns:1fr 1fr}#adminConteosAsignados .c42-modern-selected #c42SeleccionadosAdmin{grid-template-columns:1fr}#adminConteosAsignados .c50-tabs button{min-width:70px;flex-basis:70px;font-size:11px}}
+        </style>
         <div id="adminConteosAsignados" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="c42ModoPrivado&&document.body.getAttribute('data-c42-beta')==='1'?c42VistaPrueba('inicio'):volverMenuAdmin()">← Volver al panel</button>
             <h4>🧮 Asignar conteos</h4>
-            <p class="c42-meta">Asigna productos por categoría o individualmente. Los conteos se guardan en Sheets y no modifican Akasia.</p>
+            <p class="c42-meta c42-modern-subheading">Elige sucursal, productos y colaborador.</p>
             <div class="c50-tabs">
-              <button type="button" id="c50TabAsignar" class="c50-activa" onclick="c50CambiarVista('asignar')">➕ Asignar productos</button>
-              <button type="button" id="c50TabProceso" onclick="c50CambiarVista('proceso')">⏳ En proceso</button>
-              <button type="button" id="c50TabContados" onclick="c50CambiarVista('contados')">✅ Productos contados</button>
-              <button type="button" id="c50TabResultados" onclick="c50CambiarVista('resultados')">📊 Resultados</button>
+              <button type="button" id="c50TabAsignar" class="c50-activa" onclick="c50CambiarVista('asignar')">Asignar</button>
+              <button type="button" id="c50TabProceso" onclick="c50CambiarVista('proceso')">En proceso</button>
+              <button type="button" id="c50TabContados" onclick="c50CambiarVista('contados')">Contados</button>
+              <button type="button" id="c50TabResultados" onclick="c50CambiarVista('resultados')">Resultados</button>
             </div>
-            <div class="c50-filtros">
-              <div><label for="c50Desde">Conteos desde</label><input id="c50Desde" type="date" onchange="c50CargarEstados()"></div>
-              <div><label for="c50Hasta">Hasta (opcional)</label><input id="c50Hasta" type="date" onchange="c50CargarEstados()"></div>
-            </div>
-            <div id="c50EstadoCarga" class="c50-mini-info">Los indicadores corresponden al período seleccionado.</div>
-            <button type="button" onclick="c50CargarEstados()" style="background:#e8f2ff;color:#165aa5;border:1px solid #ccdef6;min-height:35px;font-size:12px;margin:6px 0 12px;">↻ Actualizar estados de conteo</button>
-            <div id="c50VistaAsignar">
-            <!-- v1.6.45: una, dos o todas las sucursales; misma lista, conteos separados -->
-            <label class="c42-meta" style="font-weight:800;display:block;margin:12px 0 8px;">Sucursales donde contarás estos productos</label>
-            <div class="c45-sucursales">
-              <label class="c45-opcion c45-todas"><input id="c45TodasSucursales" type="checkbox" onchange="c45CambiarTodas()"><strong>✅ Todas las sucursales</strong></label>
-              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Tienda Online Shop" checked onchange="c45CambiarSucursal()"> Tienda Online Shop</label>
-              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Mini super" onchange="c45CambiarSucursal()"> Mini Súper</label>
-              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Bodega" onchange="c45CambiarSucursal()"> Bodega</label>
-            </div>
-            <div id="c45EmpleadosPorSucursal" class="c45-empleados"></div>
-            <p class="c42-meta">Cada sucursal tendrá su propio colaborador y conteo independiente.</p>
-            <label class="c42-meta" style="font-weight:800;display:block;margin:12px 0 5px;">Seleccionar productos por categoría</label>
-            <select id="c47Categoria" onchange="c47CambiarCategoria()"><option value="">Selecciona una categoría</option></select>
-            <p id="c47InfoCategoria" class="c42-meta">Los departamentos se leen de Akasia tras la sincronización.</p>
-            <button type="button" id="c47AgregarCategoria" onclick="c47SeleccionarCategoria()" style="background:#087cff;">✓ Agregar productos de esta categoría</button>
-            <button type="button" onclick="c47QuitarCategoria()" style="background:#7a858e;min-height:38px;">Quitar productos de esta categoría</button>
-            <label class="c50-inline-check"><input type="checkbox" id="c50SoloPendientes" onchange="c42FiltrarCatalogo()"> Mostrar solo productos pendientes en las sucursales seleccionadas</label>
-            <label class="c42-meta">O buscar productos por nombre</label>
-            <input type="search" id="c42BuscarAdmin" placeholder="Escribe el nombre de un producto" oninput="c42FiltrarCatalogo()">
-            <div id="c42ResultadosAdmin" class="c42-prods"></div>
-            <h4>Seleccionados (<span id="c42SeleccionadosTotal">0</span>/300)</h4>
-            <div id="c42SeleccionadosAdmin"></div>
-            <p id="c47SeleccionResumen" class="c42-meta"></p>
-            <section class="c42-item" style="margin:14px 0;padding:14px;background:#f5f9ff;border:1px solid #d7e6f8;border-radius:15px;">
-              <h4 style="margin:0 0 8px;">📋 Listas guardadas para futuros conteos</h4>
-              <p class="c42-meta">Guarda los productos seleccionados. Podrás recuperar la lista, agregar o quitar productos y guardar los cambios. No se reutilizan cantidades anteriores.</p>
-              <label class="c42-meta" for="c62PlantillaSelect">Listas disponibles</label>
-              <div style="display:flex;gap:7px;flex-wrap:wrap;">
-                <select id="c62PlantillaSelect" style="flex:1 1 190px;"><option value="">Selecciona una lista guardada</option></select>
-                <button type="button" onclick="c62CargarPlantilla()" style="width:auto;background:#e4efff;color:#1a5ba0;">Cargar para editar</button>
+            <details class="c42-modern-dates">
+              <summary>Fechas y actualización</summary>
+              <div class="c50-filtros">
+                <div><label for="c50Desde">Desde</label><input id="c50Desde" type="date" onchange="c50CargarEstados()"></div>
+                <div><label for="c50Hasta">Hasta</label><input id="c50Hasta" type="date" onchange="c50CargarEstados()"></div>
               </div>
-              <label class="c42-meta" for="c62Nombre">Nombre de la lista</label>
-              <input id="c62Nombre" maxlength="80" placeholder="Ej. Pollo Indio, Lácteos o Aceites">
-              <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;">
-                <button type="button" onclick="c62GuardarPlantilla(false)" style="flex:1 1 160px;background:#087cff;">💾 Guardar lista o cambios</button>
-                <button type="button" onclick="c62GuardarPlantilla(true)" style="flex:1 1 145px;background:#e4efff;color:#1a5ba0;">＋ Guardar como nueva</button>
-              </div>
-              <div id="c62Estado" class="c42-meta" role="status" style="margin-top:8px;">Las listas se guardan en Google Sheets, no en Akasia.</div>
-            </section>
-            <button id="c42CrearBtn" onclick="c42CrearAsignacion()">＋ Asignar productos a sucursales seleccionadas</button>
-            <div id="c42EstadoAdmin" class="c42-estado">Selecciona hasta cinco productos.</div>
-            </div><!-- /c50VistaAsignar -->
+              <div id="c50EstadoCarga" class="c50-mini-info"></div>
+              <button type="button" onclick="c50CargarEstados()" class="c42-modern-update">↻ Actualizar</button>
+            </details>
+            <div id="c50VistaAsignar"><div class="c42-modern">
+              <section class="c42-modern-card">
+                <div class="c42-modern-title"><span class="c42-modern-num">1</span><h5>¿Dónde se contará?</h5></div>
+                <div class="c45-sucursales c42-branch-options">
+                  <label class="c45-opcion c45-todas"><input id="c45TodasSucursales" type="checkbox" onchange="c45CambiarTodas()"> Todas las sucursales</label>
+                  <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Tienda Online Shop" checked onchange="c45CambiarSucursal()"> Tienda Online Shop</label>
+                  <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Mini super" onchange="c45CambiarSucursal()"> Mini Súper</label>
+                  <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Bodega" onchange="c45CambiarSucursal()"> Bodega</label>
+                </div>
+                <div id="c45EmpleadosPorSucursal" class="c45-empleados"></div>
+              </section>
+              <section class="c42-modern-card">
+                <div class="c42-modern-title"><span class="c42-modern-num">2</span><h5>Buscar productos</h5></div>
+                <label class="c42-modern-label" for="c42BuscarAdmin">Nombre del producto</label>
+                <input type="search" id="c42BuscarAdmin" placeholder="Escribe para buscar..." oninput="c42FiltrarCatalogo()">
+                <label class="c50-inline-check c42-modern-check"><input type="checkbox" id="c50SoloPendientes" onchange="c42FiltrarCatalogo()"> Solo pendientes</label>
+                <details class="c42-modern-extra">
+                  <summary>Seleccionar por categoría</summary>
+                  <label class="c42-modern-label" for="c47Categoria">Categoría</label>
+                  <select id="c47Categoria" onchange="c47CambiarCategoria()"><option value="">Selecciona una categoría</option></select>
+                  <div id="c47InfoCategoria" class="c42-meta"></div>
+                  <div class="c42-modern-category-actions">
+                    <button type="button" id="c47AgregarCategoria" onclick="c47SeleccionarCategoria()">＋ Agregar categoría</button>
+                    <button type="button" onclick="c47QuitarCategoria()">Quitar categoría</button>
+                  </div>
+                </details>
+                <div id="c42ResultadosAdmin" class="c42-prods c42-modern-results"></div>
+              </section>
+              <section class="c42-modern-card c42-modern-selected">
+                <div class="c42-modern-title"><span class="c42-modern-num">3</span><h5>Productos seleccionados <span class="c42-modern-count" id="c42SeleccionadosTotal">0</span></h5></div>
+                <div id="c42SeleccionadosAdmin"></div>
+                <p id="c47SeleccionResumen" class="c42-meta"></p>
+                <details class="c42-modern-extra">
+                  <summary>Mis listas guardadas</summary>
+                  <label class="c42-modern-label" for="c62PlantillaSelect">Abrir una lista</label>
+                  <div class="c42-modern-row">
+                    <select id="c62PlantillaSelect"><option value="">Selecciona una lista guardada</option></select>
+                    <button type="button" onclick="c62CargarPlantilla()">Cargar lista</button>
+                  </div>
+                  <label class="c42-modern-label" for="c62Nombre">Nombre de la lista</label>
+                  <input id="c62Nombre" maxlength="80" placeholder="Ej. Lácteos o aceites">
+                  <div class="c42-modern-row">
+                    <button type="button" onclick="c62GuardarPlantilla(false)">Guardar cambios</button>
+                    <button type="button" onclick="c62GuardarPlantilla(true)">＋ Guardar otra</button>
+                  </div>
+                  <div id="c62Estado" class="c42-meta" role="status"></div>
+                </details>
+                <button type="button" id="c42CrearBtn" onclick="c42CrearAsignacion()" class="c42-modern-save">✓ Asignar productos</button>
+                <div id="c42EstadoAdmin" class="c42-estado">Selecciona productos y el colaborador que los contará.</div>
+              </section>
+            </div></div><!-- /c50VistaAsignar -->
             <div id="c50VistaProceso" style="display:none;">
               <p class="c42-meta">Asignaciones y productos que aún no tienen un conteo físico registrado dentro del período seleccionado.</p>
               <div id="c50ListaProceso"></div>
@@ -3378,34 +3440,83 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           #adminMercaderiaNueva .cm55-ai-actions button{flex:1 1 165px;margin:0}
           @media(max-width:580px){#adminMercaderiaNueva .cm55-ai-cols{grid-template-columns:1fr}#adminMercaderiaNueva .cm55-methods button{flex-basis:100%}}
         </style>
+        <style>
+          /* Recepción 2026: interfaz compacta con las mismas funciones originales. */
+          #adminMercaderiaNueva.cm55-root{max-width:1180px;color:#24364c}
+          #adminMercaderiaNueva .cm55-hero{background:#f5f8ff;color:#183660;border:1px solid #dae5f7;box-shadow:none;border-radius:16px;padding:17px 20px}
+          #adminMercaderiaNueva .cm55-hero h3{color:#183660;font-size:22px;margin:0 0 5px}
+          #adminMercaderiaNueva .cm55-hero span{background:#e8effc;border:0;color:#476787;font-weight:600;font-size:11px;margin:0;padding:5px 8px}
+          #adminMercaderiaNueva .cm55-methods{margin:11px 0 14px;gap:9px}
+          #adminMercaderiaNueva .cm55-methods button{border-radius:12px;min-height:46px!important;box-shadow:none}
+          #adminMercaderiaNueva .cm55-methods .cm55-ai-btn{background:#275cd0}
+          #adminMercaderiaNueva .cm55-methods .cm55-manual-btn{background:#eff5ff;border:1px solid #dce8f7}
+          #adminMercaderiaNueva .cm55-grid{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:14px;margin-top:0}
+          #adminMercaderiaNueva .cm55-panel{padding:19px;border-radius:14px;box-shadow:none;border:1px solid #e1e7ef}
+          #adminMercaderiaNueva .cm55-panel>h4{font-size:17px;margin:0 0 17px;font-weight:850;color:#223d5c}
+          #adminMercaderiaNueva .cm55-panel label{font-size:12px;font-weight:740;color:#40556c;margin:14px 0 6px}
+          #adminMercaderiaNueva .cm55-panel input{min-height:45px;background:white;border-color:#d8e0e9}
+          #adminMercaderiaNueva .cm55-panel #cm55Elegido:empty{display:none}
+          #adminMercaderiaNueva #cm55Elegido{background:#f3f7fb;color:#3b5875;border:1px solid #e0ebf6}
+          #adminMercaderiaNueva #cm55Cantidad{max-width:125px}
+          #adminMercaderiaNueva .cm55-grid>.cm55-panel:first-child button[onclick="cm55Agregar()"]{flex:1;background:#2369d9;border:0;min-width:130px;min-height:45px;margin:0}
+          #adminMercaderiaNueva .cm55-settings{margin-top:19px;background:transparent;border:0;border-top:1px solid #e7ecf1;border-radius:0;padding:12px 0}
+          #adminMercaderiaNueva .cm55-extra>summary{font-size:12px;font-weight:800;color:#536e90}
+          #adminMercaderiaNueva .cm55-settings>.cm55-extra{margin:9px 0 0}
+          #adminMercaderiaNueva .cm55-list{max-height:440px;gap:5px;margin-top:7px}
+          #adminMercaderiaNueva .cm55-count{display:inline-grid;place-items:center;background:#edf3fe;color:#295eaa;border-radius:9px;font-size:13px;min-width:29px;height:25px;padding:0 6px;margin-left:6px}
+          #adminMercaderiaNueva .cm55-item{background:#fff;border:0;border-bottom:1px solid #e7ecf2;border-radius:0;padding:11px 4px}
+          #adminMercaderiaNueva .cm55-item-top{display:flex;align-items:flex-start;gap:6px}
+          #adminMercaderiaNueva .cm55-item-top>div{min-width:0;flex:1}
+          #adminMercaderiaNueva .cm55-item-name{font-size:13px;color:#203a55;line-height:1.35;font-weight:850}
+          #adminMercaderiaNueva .cm55-item-meta{margin-top:4px;font-size:11px;color:#76899d}
+          #adminMercaderiaNueva .cm55-item-top>button{min-width:58px!important;width:58px!important;height:32px;min-height:32px!important;padding:3px!important;margin:0!important;background:#fff1f1!important;border-radius:8px;color:#a94952!important}
+          #adminMercaderiaNueva .cm55-stepper{justify-content:flex-end;margin-top:7px!important}
+          #adminMercaderiaNueva .cm55-stepper>span{display:none}
+          #adminMercaderiaNueva .cm55-stepper button{width:31px;min-width:31px;height:32px;min-height:32px!important;margin:0;padding:0;border-radius:9px!important;background:#edf3fc;color:#335b86}
+          #adminMercaderiaNueva .cm55-stepper input{width:68px;min-width:55px;min-height:34px;padding:4px 6px;border-radius:8px;font-size:13px}
+          #adminMercaderiaNueva #cm55Estado{font-size:11px;color:#6d849a;margin:0 0 9px}
+          #adminMercaderiaNueva .cm55-list-total{border:0;background:#f2f8f5;padding:12px 14px;margin-top:12px}
+          #adminMercaderiaNueva .cm55-list-total b{color:#375c49;font-size:13px}
+          #adminMercaderiaNueva .cm55-list-total strong{font-size:22px;color:#176447}
+          #adminMercaderiaNueva .cm55-primary-save{width:100%;min-height:47px!important;margin:12px 0 4px!important;background:#198053;color:#fff;font-size:14px!important}
+          #adminMercaderiaNueva .cm55-secondary-actions{border:0;background:transparent;margin:8px 0 0;padding:8px 0;border-top:1px solid #edf0f5}
+          #adminMercaderiaNueva .cm55-secondary-actions button{width:100%}
+          @media(max-width:930px){#adminMercaderiaNueva .cm55-grid{grid-template-columns:1fr}#adminMercaderiaNueva .cm55-list{max-height:420px}}
+          @media(max-width:580px){#adminMercaderiaNueva .cm55-panel{padding:13px}#adminMercaderiaNueva .cm55-hero{padding:13px 14px}#adminMercaderiaNueva .cm55-stepper input{width:60px}}
+        </style>
         <div id="adminMercaderiaNueva" class="admin-modulo cm55-root" style="display:none;margin-top:18px;">
           <div class="cm55-actions"><button type="button" class="btn-volver" onclick="abrirModuloAdmin('cuadreMatriz')">← Volver al cuadre Matriz</button><button type="button" class="btn-volver" onclick="volverMenuAdmin()">Menú Administrador</button></div>
-          <section class="cm55-hero"><div style="font-size:11px;font-weight:900;letter-spacing:1px;">ONLINE SHOP · MATRIZ</div><h3>📥 Recibir mercadería</h3><span id="cm55Periodo">Consultando período…</span></section>
+          <section class="cm55-hero"><h3>📦 Recibir mercadería</h3><span id="cm55Periodo">Consultando período…</span></section>
           <div class="cm55-methods">
-            <button type="button" class="cm55-ai-btn" onclick="fgAbrirDesdeRecepcion()">✨ Escanear factura con IA</button>
-            <button type="button" class="cm55-manual-btn" onclick="document.getElementById('cm55Buscar').focus()">🔎 Agregar manualmente</button>
+            <button type="button" class="cm55-ai-btn" onclick="fgAbrirDesdeRecepcion()">✨ Escanear factura</button>
+            <button type="button" class="cm55-manual-btn" onclick="document.getElementById('cm55Buscar').focus()">＋ Agregar manual</button>
           </div>
           <section id="fgRecepcionRevision" class="cm55-panel cm55-ai-review" hidden aria-live="polite"></section>
           <div class="cm55-grid">
             <section class="cm55-panel">
-              <h4>Buscar productos en Akasia</h4>
-              <label>Buscar artículo en Akasia Matriz</label><input id="cm55Buscar" type="search" autocomplete="off" placeholder="Ej. Aceite Capullo 750 ml" oninput="cm55BuscarProductos()">
+              <h4>Agregar producto</h4>
+              <label for="cm55Buscar">Buscar producto</label><input id="cm55Buscar" type="search" autocomplete="off" placeholder="Nombre del producto..." oninput="cm55BuscarProductos()">
               <div id="cm55Sugerencias" class="cm55-search-results"></div>
-              <div id="cm55Elegido" class="cm55-note">Selecciona un producto; mostraremos su precio de compra del Excel de Akasia.</div>
-              <label>Unidades que llegaron</label><div style="display:flex;gap:8px;align-items:center;"><input id="cm55Cantidad" type="number" min="1" step="1" inputmode="numeric" value="1"><button type="button" onclick="cm55Agregar()" style="background:#2578e9;min-width:140px;">＋ Agregar a lista</button></div>
+              <div id="cm55Elegido" class="cm55-note"></div>
+              <label for="cm55Cantidad">Cantidad recibida</label><div style="display:flex;gap:8px;align-items:center;"><input id="cm55Cantidad" type="number" min="1" step="1" inputmode="numeric" value="1"><button type="button" onclick="cm55Agregar()" style="background:#2578e9;min-width:140px;">＋ Agregar</button></div>
               
-              <label>Proveedor del lote (opcional)</label><input id="cm55Proveedor" maxlength="100" placeholder="Puedes dejarlo vacío" oninput="cm55GuardarBorrador()">
-              <details class="cm55-extra"><summary>Traer productos de Conteos asignados</summary>
+              <details class="cm55-extra cm55-settings"><summary>Opciones adicionales</summary>
+                <label for="cm55Proveedor">Proveedor (opcional)</label>
+                <input id="cm55Proveedor" maxlength="100" placeholder="Nombre del proveedor" oninput="cm55GuardarBorrador()">
+                <details class="cm55-extra"><summary>Traer lista de conteos</summary>
               <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;"><select id="cm55Asignaciones" style="flex:1 1 190px;"><option value="">Selecciona una lista asignada</option></select><button type="button" style="background:#eaf3ff;color:#245d9b;min-width:125px;" onclick="cm55CargarAsignaciones()">↻ Actualizar listas</button></div>
-              <button type="button" style="background:#e5f2ff;color:#185da0;" onclick="cm55ImportarAsignacion()">↓ Cargar lista seleccionada</button></details>
+              <button type="button" style="background:#e5f2ff;color:#185da0;" onclick="cm55ImportarAsignacion()">↓ Cargar lista</button></details></details>
             </section>
             <section class="cm55-panel">
-              <h4>Lista de recepción (<span id="cm55Contador">0</span>)</h4>
+              <h4>Productos agregados <span class="cm55-count" id="cm55Contador">0</span></h4>
               <p id="cm55Estado">El borrador se guarda en este navegador. Puedes salir y volver.</p>
               <div id="cm55Lista" class="cm55-list"><div class="cm55-note">Todavía no agregas productos.</div></div>
-              <div class="cm55-list-total"><div><b style="font-size:12px;">Valor estimado</b><div style="font-size:10px;color:#5c8877;">Solo visual · no se registra como compra</div></div><strong id="cm55Total">$0.00</strong></div>
-              <div class="cm55-actions" style="margin-top:12px;"><button type="button" onclick="cm55EnviarConteos()" style="background:#e6f1ff;color:#1d609f;">🧮 Llevar lista a Conteos asignados</button><button type="button" id="cm55GuardarBtn" onclick="cm55GuardarLote()" style="background:#18865c;color:white;">✓ Guardar toda la recepción</button></div>
-              <div class="cm55-note">Importante: no vuelvas a contar estas unidades en Tienda o Bodega. Akasia se actualiza por separado.</div>
+              <div class="cm55-list-total"><div><b>Total estimado</b></div><strong id="cm55Total">$0.00</strong></div>
+              <button type="button" id="cm55GuardarBtn" onclick="cm55GuardarLote()" class="cm55-primary-save">✓ Guardar recepción</button>
+              <details class="cm55-extra cm55-secondary-actions"><summary>Otras opciones</summary>
+                <button type="button" onclick="cm55EnviarConteos()" style="background:#e6f1ff;color:#1d609f;">🧮 Llevar lista a Conteos asignados</button>
+                <p class="cm55-note">No cuentes dos veces las mismas unidades. Akasia se actualiza por separado.</p>
+              </details>
             </section>
           </div>
         </div>
@@ -11495,10 +11606,10 @@ function cm55Render(){
  document.getElementById('cm55Total').textContent=cm55Dinero(total);
  const btn=document.getElementById('cm55GuardarBtn');if(btn)btn.disabled=!cm55Lista.length||!c54PeriodoActual;
  box.innerHTML=cm55Lista.map((x,i)=>`<div class="cm55-item">
-  <div class="cm55-item-top"><div><div class="cm55-item-name">${c42Esc(x.nombre)}</div><div class="cm55-item-meta">Costo unitario: ${cm55Costo(x.costo)} · Subtotal: <b>${x.costo===null?'—':cm55Dinero(x.costo*x.cantidad)}</b></div></div><button type="button" style="background:#fff0f1;color:#ac4352;width:auto;min-width:64px;padding:6px 9px;" onclick="cm55Quitar(${i})">Quitar</button></div>
+  <div class="cm55-item-top"><div><div class="cm55-item-name">${c42Esc(x.nombre)}</div><div class="cm55-item-meta">Subtotal: <b>${x.costo===null?'—':cm55Dinero(x.costo*x.cantidad)}</b></div></div><button type="button" style="background:#fff0f1;color:#ac4352;width:auto;min-width:64px;padding:6px 9px;" onclick="cm55Quitar(${i})">Quitar</button></div>
   <div class="cm55-stepper" style="margin-top:9px;"><button type="button" onclick="cm55CambiarCantidad(${i},${Math.max(0,x.cantidad-1)})">−</button><input type="number" min="0" max="1000000" step="1" value="${x.cantidad}" onchange="cm55CambiarCantidad(${i},this.value)" aria-label="Cantidad de ${c42Esc(x.nombre)}"><button type="button" onclick="cm55CambiarCantidad(${i},${x.cantidad+1})">＋</button><span style="margin-left:auto;font-size:10px;color:${x.cantidad?'#2a7853':'#a45b21'};font-weight:800;">${x.cantidad?'Listo':'Falta cantidad'}</span></div>
  </div>`).join('')||'<div class="cm55-note">Tu lista está vacía. Busca artículos o importa una asignación.</div>';
- if(cm55Lista.length)cm55Estado(`${cm55Lista.length} productos en borrador · ${pendientes?pendientes+' sin cantidad.':'todos con cantidad.'}${cm55Lista.some(x=>x.costo===null)?' Hay artículos sin costo registrado: el total visual es parcial.':''} Se guarda al salir.`);
+ if(cm55Lista.length)cm55Estado(pendientes?`${pendientes} producto(s) sin cantidad. Revísalos antes de guardar.`:(cm55Lista.some(x=>x.costo===null)?'Borrador guardado · algunos productos no tienen costo.':'Borrador guardado automáticamente.'));
  cm55GuardarBorrador();
 }
 function cm55CambiarCantidad(i,valor){
@@ -11573,7 +11684,7 @@ async function cm55CargarAsignaciones(){
  try{
   const d=await c58Post('cm55ListasConteosMatriz');cm55ListasConteos=d.listas||[];
   select.innerHTML='<option value="">Selecciona una lista asignada</option>'+cm55ListasConteos.map((x,i)=>`<option value="${i}">${c42Esc(x.sucursal)} · ${c42Esc(x.empleado)} · ${x.productos.length} productos</option>`).join('');
-  if(!cm55ListasConteos.length)cm55Estado('Aún no hay listas asignadas en este período. Puedes crear tu propia lista aquí.');
+  if(!cm55ListasConteos.length)select.innerHTML='<option value="">Sin listas asignadas</option>';
  }catch(e){select.innerHTML='<option value="">No se pudieron cargar listas</option>';cm55Estado(e.message,true);}
 }
 function cm55ImportarAsignacion(){
