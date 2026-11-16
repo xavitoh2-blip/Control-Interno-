@@ -11675,10 +11675,17 @@ function cm55Render(){
 }
 function cm55CambiarCantidad(i,valor){
  if(cm55Guardando)return;
+ if(cm55Lista[i]&&cm55IntentosGrupos[String(cm55Lista[i].grupoId||'anterior')]){
+  cm55Estado('Esta factura tiene un guardado por confirmar. Reinténtalo antes de cambiar sus cantidades.',true);return;
+ }
  const q=Number(valor);if(!cm55Lista[i]||!Number.isInteger(q)||q<0||q>1000000){cm55Estado('Indica unidades enteras entre 0 y 1,000,000.',true);cm55Render();return;}
  cm55Lista[i].cantidad=q;cm55Render();
 }
-function cm55Quitar(i){if(cm55Guardando||!cm55Lista[i])return;cm55Lista.splice(i,1);cm55Render();}
+function cm55Quitar(i){
+ if(cm55Guardando||!cm55Lista[i])return;
+ if(cm55IntentosGrupos[String(cm55Lista[i].grupoId||'anterior')]){
+  cm55Estado('Este grupo tiene un guardado por confirmar. Reinténtalo antes de quitar productos.',true);return;
+ }cm55Lista.splice(i,1);cm55Render();}
 async function cm55Abrir(){
  cm55Estado('Consultando período actual y lista guardada…');
  try{
@@ -11732,6 +11739,7 @@ function cm55Elegir(i){
  document.getElementById('cm55Cantidad').focus();
 }
 function cm55Agregar(){
+ if(cm55IntentosGrupos.manual)return cm55Estado('Primero reintenta el guardado de la lista manual pendiente.',true);
  if(!cm55Elegido)return cm55Estado('Primero selecciona el producto de los resultados.',true);
  const cantidad=Number(document.getElementById('cm55Cantidad').value);
  if(!Number.isInteger(cantidad)||cantidad<1||cantidad>1000000)return cm55Estado('Ingresa una cantidad entera mayor que cero.',true);
@@ -11750,6 +11758,7 @@ async function cm55CargarAsignaciones(){
  }catch(e){select.innerHTML='<option value="">No se pudieron cargar listas</option>';cm55Estado(e.message,true);}
 }
 function cm55ImportarAsignacion(){
+ if(cm55IntentosGrupos.manual)return cm55Estado('Primero reintenta el guardado de la lista manual pendiente.',true);
  const sel=document.getElementById('cm55Asignaciones'),i=Number(sel.value),a=cm55ListasConteos[i];
  if(sel.value===''||!a)return cm55Estado('Selecciona primero una lista de Conteos asignados.',true);
  let agregados=0;
@@ -11782,11 +11791,14 @@ async function cm55GuardarGrupo(indice){
  const proveedor=grupo.id==='manual'||grupo.id==='anterior'?(document.getElementById('cm55Proveedor')?.value||'').trim():grupo.proveedor;
  if(!confirm('¿Guardar por separado '+grupo.nombre+' ('+grupo.items.length+' productos)? No se modificará Akasia.'))return;
  cm55Guardando=true;cm55Render();
+ let mensaje='',esError=false;
  try{
   const d=await cm55RegistrarGrupo(grupo,proveedor);
-  cm55Estado((d.repetido?'✓ Grupo ya registrado.':'✓ Grupo guardado.')+' '+grupo.nombre+' · '+d.unidades+' unidades.');
- }catch(e){cm55Estado('No se guardó por completo: '+String(e.message||e)+'. Conservamos el grupo para volver a intentar sin duplicarlo.',true);}
- finally{cm55Guardando=false;cm55Render();}
+  mensaje=(d.repetido?'✓ Grupo ya registrado.':'✓ Grupo guardado.')+' '+grupo.nombre+' · '+d.unidades+' unidades.';
+ }catch(e){
+  esError=true;mensaje='Guardado sin confirmar: '+String(e.message||e)+'. El grupo permanece. Reintenta sin cambiar las cantidades.';
+ }finally{cm55Guardando=false;cm55Render();}
+ cm55Estado(mensaje,esError);
 }
 async function cm55RegistrarGrupo(grupo,proveedor){
  const items=grupo.items.map(y=>({nombre:y.x.nombre,cantidad:y.x.cantidad}));
@@ -11824,7 +11836,7 @@ async function cm55GuardarLote(){
  const grupos=cm55Grupos(),unidades=cm55Lista.reduce((ac,x)=>ac+x.cantidad,0);
  if(!confirm('¿Guardar '+grupos.length+' grupo(s) por separado ('+unidades+' unidades)? Se registrarán como recepciones distintas; no se modificará Akasia.'))return;
  cm55Guardando=true;cm55Render();
- var guardados=0;
+ var guardados=0,mensaje='',esError=false;
  try{
   for(const grupo of grupos){
    const proveedor=grupo.id==='manual'||grupo.id==='anterior'?(document.getElementById('cm55Proveedor')?.value||'').trim():grupo.proveedor;
@@ -11833,10 +11845,11 @@ async function cm55GuardarLote(){
    guardados++;
    cm55Render();
   }
-  cm55Estado('✓ '+guardados+' recepción(es) guardadas por separado. Ya aparecen en el cuadre Matriz.');
+  mensaje='✓ '+guardados+' recepción(es) guardadas por separado. Ya aparecen en el cuadre Matriz.';
  }catch(e){
-  cm55Estado('Se guardaron '+guardados+' de '+grupos.length+'. El resto permanece en el borrador. Reintenta sin duplicar: '+String(e.message||e),true);
+  esError=true;mensaje='Se guardaron '+guardados+' de '+grupos.length+'. El resto permanece en el borrador. Reintenta sin cambiar las cantidades: '+String(e.message||e);
  }finally{cm55Guardando=false;cm55Render();}
+ cm55Estado(mensaje,esError);
 }
 async function c58ImportarExcel(inputId='c58ArchivoMatriz',estadoId='c58ImportEstado'){
  if(c58Importando)return;
