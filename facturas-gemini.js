@@ -262,6 +262,77 @@
     if(typeof c42Norm==='function')return c42Norm(t);
     return texto(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
   }
+
+  // Búsqueda flexible por marca, presentación y códigos disponibles, sin vinculación automática dudosa.
+  function fgClaveBusqueda(v) {
+    return texto(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+  }
+  function fgPalabrasBusqueda(v) {
+    var vacias={BOLSA:1,BOL:1,CAJA:1,CJA:1,PAQUETE:1,PAQ:1,PACK:1,CS:1,
+      NI:1,XP:1,SV:1,US:1,MP:1,SAC:1,SOBRE:1,PIEZA:1,PIEZAS:1,
+      UNI:1,UND:1,UNIDAD:1,UNIDADES:1,DE:1,DEL:1,CON:1,PARA:1,LA:1,EL:1};
+    return fgClaveBusqueda(v).split(/\s+/).filter(function(w){
+      return w.length>=3 && !vacias[w] && !/^\d{6,}$/.test(w) && !/^\d+X\d/.test(w);
+    });
+  }
+  function fgConsultaCorta(nombre) {
+    var textoBase=texto(nombre).split('|')[0];
+    var tokens=fgPalabrasBusqueda(textoBase).filter(function(w){return !/^\d/.test(w);});
+    return tokens.slice(0,2).join(' ') || textoBase.trim().slice(0,45);
+  }
+  function fgPresentaciones(v) {
+    var textoBase=texto(v).toUpperCase();
+    var encontradas=[],m,re=/(\d+(?:[.,]\d+)?)\s*(KG|GR|G|ML|L)\b/g;
+    while((m=re.exec(textoBase))!==null) {
+      var cantidad=Number(m[1].replace(',','.'));
+      var unidad=m[2];
+      if(unidad==='KG'){cantidad*=1000;unidad='G';}
+      if(unidad==='GR')unidad='G';
+      if(unidad==='L'){cantidad*=1000;unidad='ML';}
+      encontradas.push(cantidad+unidad);
+    }
+    return encontradas;
+  }
+  function fgBuscarCoincidencias(consulta, nombreFactura, catalogo, maxResultados) {
+    if(!Array.isArray(catalogo))return [];
+    var tokens=fgPalabrasBusqueda(consulta);
+    var query=fgClaveBusqueda(consulta),codigoSolo=/^\d{7,14}$/.test(query);
+    if(!tokens.length&&!codigoSolo)return [];
+    var sourceTokens=fgPalabrasBusqueda(nombreFactura);
+    var sourceSizes=fgPresentaciones(nombreFactura);
+    var candidatos=[];
+    catalogo.forEach(function(c){
+      if(!c || c.ambiguo || !c.nombre)return;
+      var name=fgClaveBusqueda(c.nombre),nameTokens=name.split(/\s+/),points=0,coincidencias=0;
+      var barcode=texto(c.cbarras||c.codigoBarras||c.codigo_barras||c.barcode||c.codigo||'').replace(/\D/g,'');
+      if(codigoSolo) {
+        if((barcode && barcode===query) || nameTokens.includes(query)){points+=500;coincidencias++;}
+        else return;
+      } else {
+        tokens.forEach(function(t) {
+          if(nameTokens.includes(t)){points+=40;coincidencias++;}
+          else if(t.length>=3&&nameTokens.some(function(w){return w.startsWith(t)})){points+=21;coincidencias++;}
+          else if(t.length>=4&&name.includes(t)){points+=9;coincidencias++;}
+        });
+        if(!coincidencias)return; // nunca mostrar productos de otra marca solo por 2 letras
+        if(coincidencias===tokens.length)points+=25;
+        if(query.length>=4 && name.includes(query))points+=30;
+        if(name===fgClaveBusqueda(nombreFactura))points+=130;
+        var sourceSet=new Set(sourceTokens);
+        points+=Math.min(15,nameTokens.filter(function(t){return sourceSet.has(t)}).length*3);
+        var sizes=fgPresentaciones(c.nombre);
+        if(sourceSizes.length && sizes.length) {
+          if(sizes.some(function(t){return sourceSizes.includes(t)}))points+=32;
+          else points-=24;
+        }
+      }
+      candidatos.push({producto:c,puntos:points});
+    });
+    candidatos.sort(function(a,b){return b.puntos-a.puntos||a.producto.nombre.localeCompare(b.producto.nombre,'es');});
+    return candidatos.slice(0,maxResultados||6).map(function(x){return x.producto;});
+  }
+
   function fgMostrarImportacionRecepcion() {
     var p=window.fgRecepcionPendiente,box=el('fgRecepcionRevision');
     if(!p||!box)return;
@@ -278,7 +349,7 @@
         });
         var cantidad=Number(x.cantidad);
         var unidades=fgTipoUnidadSegura(x.unidad) && Number.isInteger(cantidad) && cantidad>0 && cantidad<=1000000 ? cantidad : 0;
-        return {origen:x,sku:exactos.length===1?exactos[0]:null,unidades:unidades,consulta:nombre};
+        return {origen:x,sku:exactos.length===1?exactos[0]:null,unidades:unidades,consulta:exactos.length===1?exactos[0].nombre:fgConsultaCorta(nombre)};
       });
       fgRevision={key:p.key,lista:lista,aprobado:false,proveedor:p.factura.proveedor||''};
     }
@@ -290,7 +361,7 @@
     box.hidden=false;box.textContent='';
     box.appendChild(fgEl('h4','✨ Revisar productos de la factura'));
     box.appendChild(pText('Factura: '+texto(p.factura.numero||p.archivo)+' · '+texto(p.factura.proveedor||'Sin proveedor identificado')));
-    box.appendChild(pText('Relaciona cada producto con Akasia y confirma las unidades reales. Las cajas o presentaciones sin equivalencia comienzan en 0.'));
+    box.appendChild(pText('Busca por marca o nombre (por ejemplo NIDO o NESCAFÉ) y selecciona el producto correcto. Confirma las unidades por presentación.'));
     if(p.factura.productos.length>150)box.appendChild(pText('⚠️ Solo se muestran 150 líneas de esta factura. Las restantes no se traspasarán.'));
     var numeroRelacionados=0;
     fgRevision.lista.forEach(function(linea,i){
@@ -305,28 +376,41 @@
       input.value=linea.sku?linea.sku.nombre:linea.consulta;
       input.setAttribute('aria-label','Relacionar producto '+(i+1)+' con Akasia');
       var suggestions=fgEl('div',null,'cm55-ai-choices');
+      suggestions.style.maxHeight='250px';suggestions.style.overflowY='auto';
       input.addEventListener('input',function(){
         linea.sku=null;linea.consulta=input.value;fgRevision.aprobado=false;
         var cb=el('fgConfirmarImportacion');if(cb)cb.checked=false;
-        mostrarSugerencias();
+        mostrarSugerencias(true);
       });
-      function mostrarSugerencias(){
+      input.addEventListener('focus',function(){if(!linea.sku)mostrarSugerencias(true);});
+      function mostrarSugerencias(expandido){
         suggestions.textContent='';
-        var q=fgNormalizar(input.value);
-        if(q.length<2)return;
-        var vistos=0;
-        cm55CatalogoRapido.forEach(function(catalogo) {
-          if(vistos>=8||catalogo.ambiguo||!fgNormalizar(catalogo.nombre).includes(q))return;
-          vistos++;
+        var q=input.value.trim();
+        if(fgClaveBusqueda(q).length<3) {
+          suggestions.appendChild(fgEl('small','Escribe al menos 3 letras, como NIDO, para evitar resultados de otras marcas.'));
+          return;
+        }
+        var todas=fgBuscarCoincidencias(q,o.descripcion,cm55CatalogoRapido,8);
+        var opciones=expandido?todas:todas.slice(0,2);
+        if(!todas.length){
+          suggestions.appendChild(fgEl('small','No hay coincidencias para "'+q+'". Prueba con la marca (ej. NIDO), el tamaño (ej. 325G) o comprueba que esté en el catálogo de Matriz.'));
+          return;
+        }
+        suggestions.appendChild(fgEl('small','Opciones de Akasia (verifica tamaño y presentación):'));
+        opciones.forEach(function(catalogo){
           var b=boton(catalogo.nombre+' · '+(catalogo.costo==null?'sin costo':formatUSD(catalogo.costo)),function(){
             linea.sku=catalogo;linea.consulta=catalogo.nombre;fgRevision.aprobado=false;
             fgRenderRevision();
           });
           suggestions.appendChild(b);
         });
-        if(!vistos)suggestions.appendChild(fgEl('small','Sin coincidencias. Busca otra palabra o agrega manualmente el producto.'));
+        if(!expandido && todas.length>2) {
+          var mas=boton('Ver más coincidencias ('+todas.length+')',function(){mostrarSugerencias(true);});
+          mas.style.background='#f5f7fa';mas.style.fontWeight='700';
+          suggestions.appendChild(mas);
+        }
       }
-      if(!linea.sku)mostrarSugerencias();
+      if(!linea.sku)mostrarSugerencias(false);
       izq.appendChild(input);izq.appendChild(suggestions);
       c.appendChild(izq);
       var der=fgEl('label','Unidades recibidas');
