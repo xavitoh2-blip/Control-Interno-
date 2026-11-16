@@ -117,7 +117,7 @@
       estado('Leyendo fotografía '+(i+1)+' de '+total+': '+f.name+'…');
       try {
         var dato=await analizarUna(f);
-        facturas.push({archivo:f.name, dato:dato, error:''});
+        facturas.push({archivo:f.name, archivoId:String(f.size||0)+'-'+String(f.lastModified||0), dato:dato, error:''});
       } catch(e) {
         facturas.push({archivo:f.name, dato:null, error:String(e&&e.message||e)});
       }
@@ -232,6 +232,14 @@
     if (typeof abrirModuloAdmin !== 'function') return;
     abrirModuloAdmin('facturasGemini');
   }
+  function fgHuellaFactura(d){
+    var cadena=JSON.stringify({productos:(d.productos||[]).map(function(p){
+      return [p.descripcion,p.cantidad,p.unidad,p.precioUnitario];
+    }),total:d.total,fecha:d.fecha,numero:d.numero});
+    var h=2166136261;
+    for(var i=0;i<cadena.length;i++)h=Math.imul(h^cadena.charCodeAt(i),16777619);
+    return (h>>>0).toString(36);
+  }
   function fgEnviarRecepcion(item) {
     if (el('fgDestino') && el('fgDestino').value !== 'Matriz') {
       return estado('La recepción automática de facturas está disponible primero para Sucursal Matriz. Selecciona Matriz.', true);
@@ -243,7 +251,7 @@
       return estado('Esta factura no contiene productos para preparar.', true);
     }
     var d = item.dato;
-    var key = [d.proveedor,d.numero,d.fecha,item.archivo].map(texto).join('|');
+    var key = [d.proveedor,d.numero,d.fecha,item.archivo,item.archivoId||'',fgHuellaFactura(d)].map(texto).join('|');
     if (fgTransferidas.has(key) || (typeof cm55Lista!=='undefined' && cm55Lista.some(function(x){return x.grupoId==='factura:'+key;})))
       return estado('Esta factura ya está preparada en su propio grupo. Revisa la lista de recepción.', true);
     var yaRegistrada=false;
