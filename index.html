@@ -2869,6 +2869,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('pedidos')"><span>🛍️</span>Pedidos</button>
                 <button id="m201MenuMercaderia" class="menu-modulo" onclick="abrirModuloAdmin('mercaderia')"><span>📊</span><b>Control de Mercadería</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('compras')"><span>🛒</span>Gestión de Compras</button>
+                <button id="fgMenuFacturas" class="menu-modulo" onclick="abrirModuloAdmin('facturasGemini')"><span>🧾</span><b>Escanear Facturas · IA</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoRuta')"><span>📖</span>Catálogo de Ruta</button>
@@ -3155,6 +3156,38 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <div id="adminPedidos" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button><h4>🛍️ Pedidos</h4>
             <div style="overflow-x:auto;"><table id="tablaPedidos"><thead><tr><th>Fecha</th><th>Hora</th><th>Sucursal</th><th>Empleado</th><th>Producto</th><th>Cant.</th></tr></thead><tbody></tbody></table></div>
+        </div>
+
+        <!-- Módulo nuevo aislado: no escribe inventario ni modifica el catálogo de imágenes. -->
+        <div id="adminFacturasGemini" class="admin-modulo" style="display:none;margin-top:18px;text-align:left;">
+          <button type="button" class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
+          <h4>🧾 Escanear Facturas · Gemini (prueba)</h4>
+          <p style="font-size:12px;color:#425569;line-height:1.5">
+            Carga hasta 12 fotografías JPG/PNG/WEBP. Cada fotografía se lee por separado.
+            Si una factura tiene varias páginas, conviene probar una página a la vez y revisar el resultado.
+            <strong>No se guardan compras ni se cambia el inventario.</strong>
+          </p>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;padding:12px;border:1px solid #dce8f5;border-radius:12px;background:#f7fbff;">
+            <label style="flex:1;min-width:175px;font-size:12px;font-weight:700;">📷 Tomar fotografía
+              <input type="file" id="fgCamara" accept="image/*" capture="environment" style="width:100%;margin-top:5px;">
+            </label>
+            <label style="flex:1;min-width:175px;font-size:12px;font-weight:700;">📁 Seleccionar varias fotografías
+              <input type="file" id="fgFotos" accept="image/jpeg,image/png,image/webp" multiple style="width:100%;margin-top:5px;">
+            </label>
+          </div>
+          <div id="fgPendientes" style="font-size:12px;margin:12px 0"></div>
+          <button id="fgProcesarBoton" type="button" disabled style="background:#087cff;width:100%;margin:6px 0 10px;">✨ Leer fotografías con Gemini</button>
+          <div id="fgEstado" role="status" aria-live="polite" style="padding:8px 10px;background:#edf5ff;border-radius:8px;font-size:12px;"></div>
+          <div id="fgResultados"></div>
+          <label style="display:block;font-size:12px;font-weight:700;margin-top:14px;">Destino de recepción para exportación
+            <select id="fgDestino" style="width:100%;margin-top:5px;padding:10px;">
+              <option value="Matriz">Sucursal Matriz</option>
+              <option value="Mini Súper">Mini Súper</option>
+              <option value="Bodega">Bodega</option>
+            </select>
+          </label>
+          <button type="button" id="fgExportarBoton" disabled style="width:100%;margin:10px 0;background:#167c52;">⬇️ Exportar productos revisados (CSV para Excel)</button>
+          <p style="font-size:11px;color:#6b7887">Antes de importar a Akasia verifica presentación, unidades por caja, descuentos e IVA. Este CSV no es una importación directa a Akasia.</p>
         </div>
 
         <div id="adminCompras" class="admin-modulo" style="display:none;margin-top:18px;">
@@ -7679,10 +7712,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(typeof m214Restaurar==='function')m214Restaurar();
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",cuadreMatriz:"adminCuadreMatriz",exportarSucursales:"adminExportarSucursales",mercaderiaNueva:"adminMercaderiaNueva",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos",rutacaja:"adminRutaCaja230",preventa270:"adminPreventa270"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", facturasGemini:"adminFacturasGemini", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",cuadreMatriz:"adminCuadreMatriz",exportarSucursales:"adminExportarSucursales",mercaderiaNueva:"adminMercaderiaNueva",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos",rutacaja:"adminRutaCaja230",preventa270:"adminPreventa270"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
+            if (modulo === "facturasGemini" && typeof fgAbrir === "function") fgAbrir();
             if (modulo === "gondolas") iniciarAdminGondolas();
             if (modulo === "imagenes") iniciarAdminImagenes();
             if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
@@ -13469,5 +13503,6 @@ async function pv270GuardarFechaKardex(){const id=document.getElementById('pv270
 }
 </script>
 
+<script src="./facturas-gemini.js" defer></script>
 </body>
 </html>
