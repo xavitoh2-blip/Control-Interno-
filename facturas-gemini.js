@@ -333,12 +333,62 @@
     return candidatos.slice(0,maxResultados||6).map(function(x){return x.producto;});
   }
 
+  // Estado de la fuente real de productos; no registra ni modifica ningún dato.
+  function fgBotonesCatalogo(box){
+    var fila=fgEl('div',null,'cm55-ai-actions');
+    var retry=boton('↻ Consultar catálogo de nuevo',fgRecargarCatalogo);
+    retry.style.cssText='background:#e7f0ff;color:#1b5594;font-weight:800;';
+    fila.appendChild(retry);
+    var excel=boton('📥 Ir al Excel base de Matriz',function(){
+      if(typeof abrirModuloAdmin==='function')abrirModuloAdmin('cuadreMatriz');
+      if(typeof cm54MostrarPaso==='function')cm54MostrarPaso(1);
+    });
+    excel.style.cssText='background:#f0f7ff;color:#22547a;font-weight:750;';
+    fila.appendChild(excel);
+    box.appendChild(fila);
+  }
+  async function fgRecargarCatalogo(){
+    var box=el('fgRecepcionRevision');
+    if(box)box.appendChild(pText('Consultando el catálogo de Sucursal Matriz…'));
+    try{
+      if(typeof cm55CargarCatalogoRapido!=='function')throw Error('No está disponible la consulta del catálogo.');
+      await cm55CargarCatalogoRapido();
+      fgMostrarImportacionRecepcion();
+    }catch(error){
+      if(box){
+        box.textContent='';
+        box.appendChild(fgEl('h4','⚠️ No fue posible consultar Akasia Matriz'));
+        box.appendChild(pText(texto(error&&error.message||error)));
+        fgBotonesCatalogo(box);
+      }
+    }
+  }
+  function fgMostrarEstadoCatalogo(box){
+    var catalogo=typeof cm55CatalogoRapido==='undefined'?[]:cm55CatalogoRapido;
+    if(!Array.isArray(catalogo))catalogo=[];
+    var total=catalogo.length;
+    var desc=fgEl('div',null,'cm55-ai-catalogo-estado');
+    desc.style.cssText='padding:10px 12px;border:1px solid #cfe1f5;border-radius:11px;background:#edf6ff;color:#224b77;margin:10px 0;font-size:12px;line-height:1.55;';
+    var relevantes=['NIDO','NESTLE','NESCAFE'];
+    var faltantes=relevantes.filter(function(marca){
+      return !catalogo.some(function(x){return x && fgClaveBusqueda(x.nombre).split(/\s+/).includes(marca);});
+    });
+    var estado='Catálogo Akasia Matriz: '+total+' productos cargados.';
+    if(faltantes.length)estado+=' No se encontraron estas marcas en el catálogo recibido: '+faltantes.join(', ')+'.';
+    if(faltantes.length===relevantes.length)estado+=' Revisa que el Excel base de Matriz sea el correcto y esté actualizado.';
+    desc.appendChild(fgEl('div',estado));
+    box.appendChild(desc);
+    if(faltantes.length || total<10)fgBotonesCatalogo(box);
+  }
   function fgMostrarImportacionRecepcion() {
     var p=window.fgRecepcionPendiente,box=el('fgRecepcionRevision');
     if(!p||!box)return;
     box.hidden=false;
-    if(typeof cm55CatalogoRapido==='undefined' || !Array.isArray(cm55CatalogoRapido)) {
-      box.textContent='No se cargó el catálogo de Matriz. Comprueba la conexión antes de relacionar los productos.';
+    if(typeof cm55CatalogoRapido==='undefined' || !Array.isArray(cm55CatalogoRapido) || !cm55CatalogoRapido.length) {
+      box.textContent='';
+      box.appendChild(fgEl('h4','⚠️ Catálogo Akasia Matriz no disponible'));
+      box.appendChild(pText('Se reconoció la factura, pero el catálogo de Matriz no entregó productos. La relación requiere que la hoja CatalogoAkasia_Matriz tenga el Excel base cargado.'));
+      fgBotonesCatalogo(box);
       return;
     }
     if(!fgRevision || fgRevision.key!==p.key) {
@@ -362,6 +412,7 @@
     box.appendChild(fgEl('h4','✨ Revisar productos de la factura'));
     box.appendChild(pText('Factura: '+texto(p.factura.numero||p.archivo)+' · '+texto(p.factura.proveedor||'Sin proveedor identificado')));
     box.appendChild(pText('Busca por marca o nombre (por ejemplo NIDO o NESCAFÉ) y selecciona el producto correcto. Confirma las unidades por presentación.'));
+    fgMostrarEstadoCatalogo(box);
     if(p.factura.productos.length>150)box.appendChild(pText('⚠️ Solo se muestran 150 líneas de esta factura. Las restantes no se traspasarán.'));
     var numeroRelacionados=0;
     fgRevision.lista.forEach(function(linea,i){
