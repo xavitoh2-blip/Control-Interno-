@@ -178,6 +178,11 @@
       }));
       var finales=p('Subtotal: '+formatUSD(f.subtotal)+' · IVA: '+formatUSD(f.iva)+' · Total factura: '+formatUSD(f.total));
       finales.style.fontWeight='700';card.appendChild(finales);
+      if (f.productos && f.productos.length) {
+        var pasar=boton('📥 Preparar recepción Matriz', function(){fgEnviarRecepcion(item);});
+        pasar.style.cssText='width:100%;min-height:43px;margin-top:10px;background:#dff4e9;color:#135d3e;border:1px solid #b7e7d0;border-radius:10px;font-weight:800;';
+        card.appendChild(pasar);
+      }
       box.appendChild(card);
     });
     var exportar=el('fgExportarBoton');
@@ -219,5 +224,195 @@
     renderPendientes();renderResultados();
     estado('Etapa de prueba: las facturas no se guardan ni afectan inventario.',false);
   }
+
+  // De factura leída a borrador de recepción. Ninguna acción registra existencias.
+  var fgRevision = null;
+  var fgTransferidas = new Set();
+  function fgAbrirDesdeRecepcion() {
+    if (typeof abrirModuloAdmin !== 'function') return;
+    abrirModuloAdmin('facturasGemini');
+  }
+  function fgEnviarRecepcion(item) {
+    if (el('fgDestino') && el('fgDestino').value !== 'Matriz') {
+      return estado('La recepción automática de facturas está disponible primero para Sucursal Matriz. Selecciona Matriz.', true);
+    }
+    if (typeof c49SesionAdministrador === 'undefined' || !c49SesionAdministrador) {
+      return estado('Debes volver a ingresar como Administrador.', true);
+    }
+    if (!item || !item.dato || !Array.isArray(item.dato.productos) || !item.dato.productos.length) {
+      return estado('Esta factura no contiene productos para preparar.', true);
+    }
+    var d = item.dato;
+    var key = [d.proveedor,d.numero,d.fecha,item.archivo].map(texto).join('|');
+    if (fgTransferidas.has(key)) return estado('Esta factura ya se agregó al borrador de esta sesión. Revisa la lista de recepción.', true);
+    window.fgRecepcionPendiente = {key:key,archivo:item.archivo,factura:JSON.parse(JSON.stringify(d))};
+    fgRevision=null;
+    abrirModuloAdmin('mercaderiaNueva');
+  }
+  function fgEl(tag,valor,clase) {
+    var e=document.createElement(tag);
+    if (valor != null) e.textContent=texto(valor);
+    if(clase)e.className=clase;
+    return e;
+  }
+  function fgTipoUnidadSegura(t) {
+    return /^(ud|uds|und|unidad|unidades|unid|u|pz|pza|pieza|piezas)$/i.test(texto(t).trim().replace(/[\s.]/g,''));
+  }
+  function fgNormalizar(t) {
+    if(typeof c42Norm==='function')return c42Norm(t);
+    return texto(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+  }
+  function fgMostrarImportacionRecepcion() {
+    var p=window.fgRecepcionPendiente,box=el('fgRecepcionRevision');
+    if(!p||!box)return;
+    box.hidden=false;
+    if(typeof cm55CatalogoRapido==='undefined' || !Array.isArray(cm55CatalogoRapido)) {
+      box.textContent='No se cargó el catálogo de Matriz. Comprueba la conexión antes de relacionar los productos.';
+      return;
+    }
+    if(!fgRevision || fgRevision.key!==p.key) {
+      var lista=p.factura.productos.slice(0,150).map(function(x) {
+        var nombre=texto(x.descripcion).trim();
+        var exactos=cm55CatalogoRapido.filter(function(c) {
+          return !c.ambiguo && fgNormalizar(c.nombre)===fgNormalizar(nombre);
+        });
+        var cantidad=Number(x.cantidad);
+        var unidades=fgTipoUnidadSegura(x.unidad) && Number.isInteger(cantidad) && cantidad>0 && cantidad<=1000000 ? cantidad : 0;
+        return {origen:x,sku:exactos.length===1?exactos[0]:null,unidades:unidades,consulta:nombre};
+      });
+      fgRevision={key:p.key,lista:lista,aprobado:false,proveedor:p.factura.proveedor||''};
+    }
+    fgRenderRevision();
+  }
+  function fgRenderRevision() {
+    var box=el('fgRecepcionRevision'),p=window.fgRecepcionPendiente;
+    if(!box || !fgRevision || !p)return;
+    box.hidden=false;box.textContent='';
+    box.appendChild(fgEl('h4','✨ Revisar productos de la factura'));
+    box.appendChild(pText('Factura: '+texto(p.factura.numero||p.archivo)+' · '+texto(p.factura.proveedor||'Sin proveedor identificado')));
+    box.appendChild(pText('Relaciona cada producto con Akasia y confirma las unidades reales. Las cajas o presentaciones sin equivalencia comienzan en 0.'));
+    if(p.factura.productos.length>150)box.appendChild(pText('⚠️ Solo se muestran 150 líneas de esta factura. Las restantes no se traspasarán.'));
+    var numeroRelacionados=0;
+    fgRevision.lista.forEach(function(linea,i){
+      var article=fgEl('article',null,'cm55-ai-line');
+      var o=linea.origen;
+      article.appendChild(fgEl('strong',(i+1)+'. '+texto(o.descripcion||'Producto sin descripción')));
+      article.appendChild(fgEl('small','Factura: '+texto(o.cantidad==null?'Cantidad no legible':o.cantidad)+' '+texto(o.unidad||'sin unidad')+' · Costo facturado: '+formatUSD(o.precioUnitario)));
+      var c=fgEl('div',null,'cm55-ai-cols');
+      var izq=fgEl('label','Producto correspondiente en Akasia');
+      var input=document.createElement('input');
+      input.type='search';input.autocomplete='off';input.placeholder='Buscar en catálogo Matriz';
+      input.value=linea.sku?linea.sku.nombre:linea.consulta;
+      input.setAttribute('aria-label','Relacionar producto '+(i+1)+' con Akasia');
+      var suggestions=fgEl('div',null,'cm55-ai-choices');
+      input.addEventListener('input',function(){
+        linea.sku=null;linea.consulta=input.value;fgRevision.aprobado=false;
+        var cb=el('fgConfirmarImportacion');if(cb)cb.checked=false;
+        mostrarSugerencias();
+      });
+      function mostrarSugerencias(){
+        suggestions.textContent='';
+        var q=fgNormalizar(input.value);
+        if(q.length<2)return;
+        var vistos=0;
+        cm55CatalogoRapido.forEach(function(catalogo) {
+          if(vistos>=8||catalogo.ambiguo||!fgNormalizar(catalogo.nombre).includes(q))return;
+          vistos++;
+          var b=boton(catalogo.nombre+' · '+(catalogo.costo==null?'sin costo':formatUSD(catalogo.costo)),function(){
+            linea.sku=catalogo;linea.consulta=catalogo.nombre;fgRevision.aprobado=false;
+            fgRenderRevision();
+          });
+          suggestions.appendChild(b);
+        });
+        if(!vistos)suggestions.appendChild(fgEl('small','Sin coincidencias. Busca otra palabra o agrega manualmente el producto.'));
+      }
+      if(!linea.sku)mostrarSugerencias();
+      izq.appendChild(input);izq.appendChild(suggestions);
+      c.appendChild(izq);
+      var der=fgEl('label','Unidades recibidas');
+      var qty=document.createElement('input');
+      qty.type='number';qty.min='0';qty.max='1000000';qty.step='1';qty.inputMode='numeric';
+      qty.value=String(linea.unidades);
+      qty.setAttribute('aria-label','Unidades de '+texto(o.descripcion));
+      qty.addEventListener('input',function(){
+        linea.unidades=qty.value===''?0:Number(qty.value);
+        fgRevision.aprobado=false;
+        var cb=el('fgConfirmarImportacion');if(cb)cb.checked=false;
+      });
+      der.appendChild(qty);
+      c.appendChild(der);
+      article.appendChild(c);
+      if(linea.sku) {
+        numeroRelacionados++;
+        article.appendChild(fgEl('small','✓ Relacionado: '+linea.sku.nombre+' · costo Akasia '+(linea.sku.costo==null?'no disponible':formatUSD(linea.sku.costo))));
+      } else {
+        article.appendChild(fgEl('small','⚠️ Sin relacionar: esta línea no podrá agregarse todavía.'));
+      }
+      box.appendChild(article);
+    });
+    box.appendChild(pText('Relacionados: '+numeroRelacionados+' de '+fgRevision.lista.length+' · No se guardará nada hasta confirmar la recepción.'));
+    var aceptar=document.createElement('label');
+    aceptar.style.cssText='display:flex;align-items:flex-start;gap:9px;font-size:12px;margin:10px 0;';
+    var cbox=document.createElement('input');cbox.type='checkbox';cbox.id='fgConfirmarImportacion';cbox.checked=fgRevision.aprobado;
+    cbox.style.cssText='width:18px;min-width:18px;height:18px;margin:0;';
+    cbox.addEventListener('change',function(){fgRevision.aprobado=cbox.checked;});
+    aceptar.appendChild(cbox);
+    aceptar.appendChild(fgEl('span','Revisé las presentaciones, cantidades y productos relacionados con Akasia.'));
+    box.appendChild(aceptar);
+    var actions=fgEl('div',null,'cm55-ai-actions');
+    var go=boton('📥 Agregar al borrador de recepción',fgAplicarRevision);
+    go.style.cssText='background:#18865c;color:#fff;font-weight:800;';
+    actions.appendChild(go);
+    actions.appendChild(boton('Cancelar',function(){
+      window.fgRecepcionPendiente=null;fgRevision=null;box.hidden=true;box.textContent='';
+    }));
+    box.appendChild(actions);
+  }
+  function pText(t) {var v=fgEl('p',t);v.style.cssText='font-size:12px;color:#56718b;line-height:1.5;';return v;}
+  function fgAplicarRevision(){
+    var r=fgRevision, box=el('fgRecepcionRevision');
+    if(!r || !r.aprobado)return alert('Primero marca que revisaste los productos y las cantidades.');
+    if(typeof c54PeriodoActual==='undefined'||!c54PeriodoActual) return alert('Inicia un período de cuadre Matriz antes de preparar la recepción.');
+    if(typeof cm55Lista==='undefined')return alert('No está disponible la lista de recepción.');
+    var agregados=[],omitidos=0,nombresNuevos=new Set();
+    for(var i=0;i<r.lista.length;i++){
+      var x=r.lista[i],q=Number(x.unidades);
+      if(!Number.isInteger(q)||q<0||q>1000000)return alert('Corrige la cantidad del producto '+(i+1)+'.');
+      if(!x.sku||q===0){omitidos++;continue;}
+      var nombre=x.sku.nombre;
+      if(!cm55Lista.some(function(y){return fgNormalizar(y.nombre)===fgNormalizar(nombre)}))nombresNuevos.add(fgNormalizar(nombre));
+      agregados.push({nombre:nombre,cantidad:q,costo:x.sku.costo==null?null:Number(x.sku.costo)||0});
+    }
+    if(!agregados.length)return alert('Relaciona al menos un producto y coloca unidades recibidas mayores que cero.');
+    if(cm55Lista.length+nombresNuevos.size>150)return alert('La lista de recepción admite hasta 150 productos. Divide las facturas en grupos.');
+    var adicionales=(window.fgRecepcionPendiente && window.fgRecepcionPendiente.factura.productos.length>150)?window.fgRecepcionPendiente.factura.productos.length-150:0;
+    omitidos+=adicionales;
+    if(omitidos && !confirm('Se omitirán '+omitidos+' líneas sin relacionar, con 0 unidades o fuera del límite de 150. ¿Continuar solo con los '+agregados.length+' productos preparados?'))return;
+    if(!confirm('¿Agregar '+agregados.length+' líneas al BORRADOR de recepción? Aún no se guardarán en el inventario.'))return;
+    var totalesPorProducto = new Map();
+    agregados.forEach(function(x){
+      var clave=fgNormalizar(x.nombre);
+      totalesPorProducto.set(clave,(totalesPorProducto.get(clave)||0)+x.cantidad);
+    });
+    for(var par of totalesPorProducto){
+      var ya=cm55Lista.find(function(y){return fgNormalizar(y.nombre)===par[0]});
+      if((ya?ya.cantidad:0)+par[1]>1000000)return alert('La cantidad total de un producto supera el límite de 1,000,000 unidades.');
+    }
+    var prov=el('cm55Proveedor');
+    if(prov && !prov.value.trim() && r.proveedor)prov.value=r.proveedor.slice(0,100);
+    agregados.forEach(function(x){
+      var ya=cm55Lista.find(function(y){return fgNormalizar(y.nombre)===fgNormalizar(x.nombre);});
+      if(ya)ya.cantidad+=x.cantidad;
+      else cm55Lista.push(x);
+    });
+    fgTransferidas.add(r.key);
+    window.fgRecepcionPendiente=null;fgRevision=null;
+    if(box){box.hidden=true;box.textContent='';}
+    cm55Render();
+    cm55Estado('✓ Productos agregados al borrador. Verifica la lista y presiona «Guardar toda la recepción» solo cuando hayas recibido la mercadería.');
+  }
+  window.fgAbrirDesdeRecepcion=fgAbrirDesdeRecepcion;
+  window.fgMostrarImportacionRecepcion=fgMostrarImportacionRecepcion;
+
   window.fgAbrir=fgAbrir;
 })();
