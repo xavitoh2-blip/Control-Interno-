@@ -3484,6 +3484,23 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           @media(max-width:930px){#adminMercaderiaNueva .cm55-grid{grid-template-columns:1fr}#adminMercaderiaNueva .cm55-list{max-height:420px}}
           @media(max-width:580px){#adminMercaderiaNueva .cm55-panel{padding:13px}#adminMercaderiaNueva .cm55-hero{padding:13px 14px}#adminMercaderiaNueva .cm55-stepper input{width:60px}}
         </style>
+        
+        <style>
+          /* Facturas separadas en la recepción; sin modificar el cálculo de existencias. */
+          #adminMercaderiaNueva .cm55-invoice{border:1px solid #dbe5ef;background:#fff;border-radius:12px;margin:0 0 10px;overflow:hidden}
+          #adminMercaderiaNueva .cm55-invoice>summary{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;list-style:none;cursor:pointer;padding:13px 12px;background:#f6f9fd}
+          #adminMercaderiaNueva .cm55-invoice>summary::-webkit-details-marker{display:none}
+          #adminMercaderiaNueva .cm55-invoice-title{font-size:13px;font-weight:850;color:#1d4067;flex:1 1 160px;overflow-wrap:anywhere}
+          #adminMercaderiaNueva .cm55-invoice-info{font-size:11px;color:#58718c;white-space:nowrap;font-weight:700}
+          #adminMercaderiaNueva .cm55-invoice-supplier{font-size:11px;color:#52677d;padding:8px 12px 0}
+          #adminMercaderiaNueva .cm55-invoice-items{padding:0 10px}
+          #adminMercaderiaNueva .cm55-invoice-items .cm55-item:last-child{border-bottom:0}
+          #adminMercaderiaNueva .cm55-invoice-save{width:calc(100% - 20px);margin:8px 10px 11px!important;min-height:39px!important;background:#ecf5ff;color:#23598f;border:1px solid #d1e3f5;border-radius:9px;font-size:12px!important;font-weight:800}
+          #adminMercaderiaNueva .cm55-invoice-warning{font-size:11px;color:#ad5c18}
+          #adminMercaderiaNueva .cm55-list{display:block;max-height:560px}
+          #adminMercaderiaNueva .cm55-item{padding:9px 2px}
+          @media(max-width:650px){#adminMercaderiaNueva .cm55-invoice-info{white-space:normal}#adminMercaderiaNueva .cm55-invoice-items{padding:0 8px}}
+        </style>
         <div id="adminMercaderiaNueva" class="admin-modulo cm55-root" style="display:none;margin-top:18px;">
           <div class="cm55-actions"><button type="button" class="btn-volver" onclick="abrirModuloAdmin('cuadreMatriz')">← Volver al cuadre Matriz</button><button type="button" class="btn-volver" onclick="volverMenuAdmin()">Menú Administrador</button></div>
           <section class="cm55-hero"><h3>📦 Recibir mercadería</h3><span id="cm55Periodo">Consultando período…</span></section>
@@ -3512,7 +3529,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <p id="cm55Estado">El borrador se guarda en este navegador. Puedes salir y volver.</p>
               <div id="cm55Lista" class="cm55-list"><div class="cm55-note">Todavía no agregas productos.</div></div>
               <div class="cm55-list-total"><div><b>Total estimado</b></div><strong id="cm55Total">$0.00</strong></div>
-              <button type="button" id="cm55GuardarBtn" onclick="cm55GuardarLote()" class="cm55-primary-save">✓ Guardar recepción</button>
+              <button type="button" id="cm55GuardarBtn" onclick="cm55GuardarLote()" class="cm55-primary-save">✓ Guardar recepciones</button>
               <details class="cm55-extra cm55-secondary-actions"><summary>Otras opciones</summary>
                 <button type="button" onclick="cm55EnviarConteos()" style="background:#e6f1ff;color:#1d609f;">🧮 Llevar lista a Conteos asignados</button>
                 <p class="cm55-note">No cuentes dos veces las mismas unidades. Akasia se actualiza por separado.</p>
@@ -11574,49 +11591,101 @@ async function c58RegistrarRecepcion(){
 // las existencias se modifican exclusivamente cuando se importan en Akasia.
 let cm55Lista=[],cm55Sugeridos=[],cm55Elegido=null,cm55ListasConteos=[],cm55BuscarTimer=null,cm55Intento=null;
 let cm55CatalogoRapido=null,cm55CargaCatalogo=null;
+let cm55IntentosGrupos={},cm55Guardando=false;
 const cm55Dinero=v=>'$'+(Number(v)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const cm55Costo=v=>v===null||v===undefined?'Sin costo registrado':cm55Dinero(v);
 function cm55Clave(){return 'cm55_borrador_matriz_'+(c54PeriodoActual||'sin_periodo');}
 function cm55Estado(m,error=false){const el=document.getElementById('cm55Estado');if(el){el.textContent=m;el.style.color=error?'#b42334':'#456889';}}
+
+function cm55Grupos(){
+ const grupos=[],mapa=new Map();
+ cm55Lista.forEach(function(x,i){
+  const id=String(x.grupoId||'anterior');
+  if(!mapa.has(id)){
+   const g={id:id,nombre:String(x.grupoNombre||(id==='manual'?'Agregados manualmente':id==='anterior'?'Borrador anterior · sin separar':'Factura')),proveedor:String(x.grupoProveedor||''),items:[]};
+   mapa.set(id,g);grupos.push(g);
+  }
+  mapa.get(id).items.push({x:x,i:i});
+ });
+ return grupos;
+}
 function cm55RestaurarBorrador(){
- cm55Lista=[];cm55Intento=null;
+ cm55Lista=[];cm55Intento=null;cm55IntentosGrupos={};
  try{
   const d=JSON.parse(localStorage.getItem(cm55Clave())||'null');
-  if(d&&Array.isArray(d.lista))cm55Lista=d.lista.filter(x=>x&&typeof x.nombre==='string'&&Number.isInteger(Number(x.cantidad))&&Number(x.cantidad)>=0).slice(0,150).map(x=>({nombre:x.nombre,costo:x.costo==null?null:Number(x.costo)||0,cantidad:Number(x.cantidad)}));
-  cm55Intento=d?.intento||null;
-  const proveedor=document.getElementById('cm55Proveedor');if(proveedor)proveedor.value=d?.proveedor||'';
+  if(d&&Array.isArray(d.lista))cm55Lista=d.lista.filter(x=>x&&typeof x.nombre==='string'&&Number.isInteger(Number(x.cantidad))&&Number(x.cantidad)>=0).slice(0,150).map(x=>({
+   nombre:x.nombre,costo:x.costo==null?null:Number(x.costo)||0,cantidad:Number(x.cantidad),
+   grupoId:String(x.grupoId||'anterior'),grupoNombre:String(x.grupoNombre||''),
+   grupoProveedor:String(x.grupoProveedor||'')
+  }));
+  cm55Intento=d&&d.intento||null;
+  cm55IntentosGrupos=(d&&d.intentosGrupos&&typeof d.intentosGrupos==='object'&&!Array.isArray(d.intentosGrupos))?d.intentosGrupos:{};
+  if(cm55Intento&&!cm55IntentosGrupos.anterior)cm55IntentosGrupos.anterior=cm55Intento;
+  const proveedor=document.getElementById('cm55Proveedor');if(proveedor)proveedor.value=d&&d.proveedor||'';
  }catch(_e){}
  cm55Render();
 }
 function cm55GuardarBorrador(){
- try{localStorage.setItem(cm55Clave(),JSON.stringify({lista:cm55Lista,proveedor:document.getElementById('cm55Proveedor')?.value||'',intento:cm55Intento}));}catch(_e){}
+ try{localStorage.setItem(cm55Clave(),JSON.stringify({
+  lista:cm55Lista,proveedor:document.getElementById('cm55Proveedor')?.value||'',
+  intento:cm55Intento,intentosGrupos:cm55IntentosGrupos
+ }));}catch(_e){}
  cm55ResumenInline();
 }
 function cm55ResumenInline(){
  let d=null;try{d=JSON.parse(localStorage.getItem(cm55Clave())||'null');}catch(_e){}
- const lista=Array.isArray(d?.lista)?d.lista:[];
+ const lista=Array.isArray(d&&d.lista)?d.lista:[];
  const total=lista.reduce((s,x)=>s+(Number(x.cantidad)||0)*(Number(x.costo)||0),0);
  const el=document.getElementById('cm55ResumenInline');
- if(el)el.textContent=`${lista.length} productos preparados · ${cm55Dinero(total)} valor estimado (solo visual).`;
+ if(el)el.textContent=lista.length+' productos preparados · '+cm55Dinero(total)+' valor estimado (solo visual).';
 }
 function cm55Render(){
  const box=document.getElementById('cm55Lista');if(!box)return;
+ const grupos=cm55Grupos();
  const total=cm55Lista.reduce((s,x)=>s+x.cantidad*(Number(x.costo)||0),0),pendientes=cm55Lista.filter(x=>!x.cantidad).length;
  document.getElementById('cm55Contador').textContent=cm55Lista.length;
  document.getElementById('cm55Total').textContent=cm55Dinero(total);
- const btn=document.getElementById('cm55GuardarBtn');if(btn)btn.disabled=!cm55Lista.length||!c54PeriodoActual;
- box.innerHTML=cm55Lista.map((x,i)=>`<div class="cm55-item">
-  <div class="cm55-item-top"><div><div class="cm55-item-name">${c42Esc(x.nombre)}</div><div class="cm55-item-meta">Subtotal: <b>${x.costo===null?'—':cm55Dinero(x.costo*x.cantidad)}</b></div></div><button type="button" style="background:#fff0f1;color:#ac4352;width:auto;min-width:64px;padding:6px 9px;" onclick="cm55Quitar(${i})">Quitar</button></div>
-  <div class="cm55-stepper" style="margin-top:9px;"><button type="button" onclick="cm55CambiarCantidad(${i},${Math.max(0,x.cantidad-1)})">−</button><input type="number" min="0" max="1000000" step="1" value="${x.cantidad}" onchange="cm55CambiarCantidad(${i},this.value)" aria-label="Cantidad de ${c42Esc(x.nombre)}"><button type="button" onclick="cm55CambiarCantidad(${i},${x.cantidad+1})">＋</button><span style="margin-left:auto;font-size:10px;color:${x.cantidad?'#2a7853':'#a45b21'};font-weight:800;">${x.cantidad?'Listo':'Falta cantidad'}</span></div>
- </div>`).join('')||'<div class="cm55-note">Tu lista está vacía. Busca artículos o importa una asignación.</div>';
- if(cm55Lista.length)cm55Estado(pendientes?`${pendientes} producto(s) sin cantidad. Revísalos antes de guardar.`:(cm55Lista.some(x=>x.costo===null)?'Borrador guardado · algunos productos no tienen costo.':'Borrador guardado automáticamente.'));
+ const btn=document.getElementById('cm55GuardarBtn');
+ if(btn)btn.disabled=cm55Guardando||!cm55Lista.length||!c54PeriodoActual;
+ box.innerHTML=grupos.map(function(g,n){
+  const subtotal=g.items.reduce((ac,i)=>ac+(Number(i.x.costo)||0)*i.x.cantidad,0);
+  const titulo=c42Esc(g.nombre),proveedor=g.proveedor?'<div class="cm55-invoice-supplier">'+c42Esc(g.proveedor)+'</div>':'';
+  const items=g.items.map(function(entry){
+   const x=entry.x,i=entry.i;
+   return '<div class="cm55-item"><div class="cm55-item-top"><div><div class="cm55-item-name">'+c42Esc(x.nombre)+'</div>'+
+    '<div class="cm55-item-meta">Subtotal: <b>'+(x.costo===null?'—':cm55Dinero(x.costo*x.cantidad))+'</b></div></div>'+
+    '<button type="button" class="cm55-remove" onclick="cm55Quitar('+i+')" '+(cm55Guardando?'disabled':'')+'>Quitar</button></div>'+
+    '<div class="cm55-stepper" style="margin-top:7px;">'+
+    '<button type="button" '+(cm55Guardando?'disabled':'')+' onclick="cm55CambiarCantidad('+i+','+Math.max(0,x.cantidad-1)+')">−</button>'+
+    '<input type="number" min="0" max="1000000" step="1" '+(cm55Guardando?'disabled':'')+' value="'+x.cantidad+'" onchange="cm55CambiarCantidad('+i+',this.value)" aria-label="Cantidad de '+c42Esc(x.nombre)+'">'+
+    '<button type="button" '+(cm55Guardando?'disabled':'')+' onclick="cm55CambiarCantidad('+i+','+(x.cantidad+1)+')">＋</button>'+
+    (x.cantidad?'':'<small class="cm55-invoice-warning">Revisar cantidad</small>')+'</div></div>';
+  }).join('');
+  return '<details class="cm55-invoice" open><summary><span class="cm55-invoice-title">'+titulo+'</span>'+
+   '<span class="cm55-invoice-info">'+g.items.length+' productos · '+cm55Dinero(subtotal)+'</span></summary>'+
+   proveedor+'<div class="cm55-invoice-items">'+items+'</div>'+
+   '<button type="button" class="cm55-invoice-save" '+(cm55Guardando?'disabled':'')+' onclick="cm55GuardarGrupo('+n+')">'+
+   (g.id.startsWith('factura:')?'Guardar esta factura':'Guardar este grupo')+'</button></details>';
+ }).join('')||'<div class="cm55-note">Aún no hay productos. Escanea una factura o agrega manualmente.</div>';
+ if(!cm55Guardando&&cm55Lista.length)cm55Estado(
+  pendientes?pendientes+' productos sin cantidad. Revísalos antes de guardar.':
+  grupos.length+' grupo(s) en borrador · guardado automáticamente.'
+ );
  cm55GuardarBorrador();
 }
 function cm55CambiarCantidad(i,valor){
+ if(cm55Guardando)return;
+ if(cm55Lista[i]&&cm55IntentosGrupos[String(cm55Lista[i].grupoId||'anterior')]){
+  cm55Estado('Esta factura tiene un guardado por confirmar. Reinténtalo antes de cambiar sus cantidades.',true);return;
+ }
  const q=Number(valor);if(!cm55Lista[i]||!Number.isInteger(q)||q<0||q>1000000){cm55Estado('Indica unidades enteras entre 0 y 1,000,000.',true);cm55Render();return;}
  cm55Lista[i].cantidad=q;cm55Render();
 }
-function cm55Quitar(i){if(!cm55Lista[i])return;cm55Lista.splice(i,1);cm55Render();}
+function cm55Quitar(i){
+ if(cm55Guardando||!cm55Lista[i])return;
+ if(cm55IntentosGrupos[String(cm55Lista[i].grupoId||'anterior')]){
+  cm55Estado('Este grupo tiene un guardado por confirmar. Reinténtalo antes de quitar productos.',true);return;
+ }cm55Lista.splice(i,1);cm55Render();}
 async function cm55Abrir(){
  cm55Estado('Consultando período actual y lista guardada…');
  try{
@@ -11670,12 +11739,13 @@ function cm55Elegir(i){
  document.getElementById('cm55Cantidad').focus();
 }
 function cm55Agregar(){
+ if(cm55IntentosGrupos.manual)return cm55Estado('Primero reintenta el guardado de la lista manual pendiente.',true);
  if(!cm55Elegido)return cm55Estado('Primero selecciona el producto de los resultados.',true);
  const cantidad=Number(document.getElementById('cm55Cantidad').value);
  if(!Number.isInteger(cantidad)||cantidad<1||cantidad>1000000)return cm55Estado('Ingresa una cantidad entera mayor que cero.',true);
- const x=cm55Lista.find(x=>c42Norm(x.nombre)===c42Norm(cm55Elegido.nombre));
+ const x=cm55Lista.find(x=>x.grupoId==='manual'&&c42Norm(x.nombre)===c42Norm(cm55Elegido.nombre));
  if(x){if(x.cantidad+cantidad>1000000)return cm55Estado('La cantidad supera el límite permitido.',true);x.cantidad+=cantidad;}
- else{if(cm55Lista.length>=150)return cm55Estado('El máximo es de 150 productos por lote.',true);cm55Lista.push({...cm55Elegido,cantidad});}
+ else{if(cm55Lista.length>=150)return cm55Estado('El máximo es de 150 productos por lote.',true);cm55Lista.push({...cm55Elegido,cantidad,grupoId:'manual',grupoNombre:'Agregados manualmente',grupoProveedor:''});}
  cm55Elegido=null;document.getElementById('cm55Buscar').value='';document.getElementById('cm55Elegido').textContent='Producto agregado. Continúa buscando y agrega el siguiente.';
  document.getElementById('cm55Cantidad').value='1';cm55Render();document.getElementById('cm55Buscar').focus();
 }
@@ -11688,13 +11758,14 @@ async function cm55CargarAsignaciones(){
  }catch(e){select.innerHTML='<option value="">No se pudieron cargar listas</option>';cm55Estado(e.message,true);}
 }
 function cm55ImportarAsignacion(){
+ if(cm55IntentosGrupos.manual)return cm55Estado('Primero reintenta el guardado de la lista manual pendiente.',true);
  const sel=document.getElementById('cm55Asignaciones'),i=Number(sel.value),a=cm55ListasConteos[i];
  if(sel.value===''||!a)return cm55Estado('Selecciona primero una lista de Conteos asignados.',true);
  let agregados=0;
  for(const p of a.productos){
   if(cm55Lista.length>=150)break;
-  if(cm55Lista.some(x=>c42Norm(x.nombre)===c42Norm(p.nombre)))continue;
-  cm55Lista.push({nombre:p.nombre,costo:p.costo===null?null:Number(p.costo)||0,cantidad:0});agregados++;
+  if(cm55Lista.some(x=>x.grupoId==='manual'&&c42Norm(x.nombre)===c42Norm(p.nombre)))continue;
+  cm55Lista.push({nombre:p.nombre,costo:p.costo===null?null:Number(p.costo)||0,cantidad:0,grupoId:'manual',grupoNombre:'Agregados manualmente',grupoProveedor:''});agregados++;
  }
  cm55Render();cm55Estado(`${agregados} nombres agregados de la asignación. Coloca las unidades recibidas; ninguna cantidad se guardó automáticamente.`);
 }
@@ -11710,24 +11781,75 @@ function cm55EnviarConteos(){
  alert('Se prepararon '+nombres.length+' productos para asignar conteos. Ahora elige los colaboradores de Tienda y Bodega y presiona «Asignar productos». No se han creado tareas todavía. IMPORTANTE: el conteo físico no debe incluir unidades que hayas registrado como mercadería nueva.');
 }
 function cm55NuevoId(){return 'CM55-'+(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():(Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)));}
+
+async function cm55GuardarGrupo(indice){
+ if(cm55Guardando)return;
+ const grupo=cm55Grupos()[Number(indice)];
+ if(!grupo)return;
+ if(!c54PeriodoActual)return cm55Estado('Primero inicia un período de cuadre Matriz.',true);
+ if(grupo.items.some(y=>!Number.isInteger(y.x.cantidad)||y.x.cantidad<1))return cm55Estado('Revisa las cantidades de '+grupo.nombre+'.',true);
+ const proveedor=grupo.id==='manual'||grupo.id==='anterior'?(document.getElementById('cm55Proveedor')?.value||'').trim():grupo.proveedor;
+ if(!confirm('¿Guardar por separado '+grupo.nombre+' ('+grupo.items.length+' productos)? No se modificará Akasia.'))return;
+ cm55Guardando=true;cm55Render();
+ let mensaje='',esError=false;
+ try{
+  const d=await cm55RegistrarGrupo(grupo,proveedor);
+  mensaje=(d.repetido?'✓ Grupo ya registrado.':'✓ Grupo guardado.')+' '+grupo.nombre+' · '+d.unidades+' unidades.';
+ }catch(e){
+  esError=true;mensaje='Guardado sin confirmar: '+String(e.message||e)+'. El grupo permanece. Reintenta sin cambiar las cantidades.';
+ }finally{cm55Guardando=false;cm55Render();}
+ cm55Estado(mensaje,esError);
+}
+async function cm55RegistrarGrupo(grupo,proveedor){
+ const items=grupo.items.map(y=>({nombre:y.x.nombre,cantidad:y.x.cantidad}));
+ const firma=JSON.stringify({periodo:c54PeriodoActual,proveedor,items});
+ let intento=cm55IntentosGrupos[grupo.id];
+ if(!intento||intento.firma!==firma)intento={firma,id:cm55NuevoId()};
+ cm55IntentosGrupos[grupo.id]=intento;
+ cm55GuardarBorrador();
+ const d=await c58Post('cm55GuardarRecepcionesLote',{
+  periodo:c54PeriodoActual,idLote:intento.id,items:JSON.stringify(items),
+  proveedor,usuario:localStorage.getItem('usuario')||'ADMIN'
+ });
+ // Marcar las facturas ya guardadas para evitar que otra lectura repita su registro.
+ if(grupo.id.startsWith('factura:')){
+  try{
+   const k='cm55_facturas_guardadas_'+String(c54PeriodoActual);
+   const vistos=JSON.parse(localStorage.getItem(k)||'{}');
+   vistos[grupo.id]=true;localStorage.setItem(k,JSON.stringify(vistos));
+  }catch(_e){}
+ }
+ // Conservar los demás grupos, incluso si contienen productos iguales.
+ cm55Lista=cm55Lista.filter(x=>String(x.grupoId||'anterior')!==grupo.id);
+ delete cm55IntentosGrupos[grupo.id];
+ if(grupo.id==='anterior')cm55Intento=null;
+ if(!cm55Lista.length){const prov=document.getElementById('cm55Proveedor');if(prov)prov.value='';}
+ cm55GuardarBorrador();
+ return d;
+}
 async function cm55GuardarLote(){
+ if(cm55Guardando)return;
  if(!c54PeriodoActual)return cm55Estado('Primero inicia un período desde Cuadre Matriz.',true);
  if(!cm55Lista.length)return cm55Estado('Agrega productos a la lista.',true);
- if(cm55Lista.some(x=>!Number.isInteger(x.cantidad)||x.cantidad<1))return cm55Estado('Completa las cantidades pendientes (mayores que cero) antes de guardar.',true);
- const proveedor=document.getElementById('cm55Proveedor').value.trim();
- const items=cm55Lista.map(x=>({nombre:x.nombre,cantidad:x.cantidad}));
- const firma=JSON.stringify({periodo:c54PeriodoActual,proveedor,items});
- const unidades=items.reduce((n,x)=>n+x.cantidad,0),total=cm55Lista.reduce((n,x)=>n+x.cantidad*x.costo,0);
- if(!confirm(`¿Registrar ${cm55Lista.length} productos (${unidades} unidades) como mercadería nueva de Matriz? El valor ${cm55Dinero(total)} es solo informativo. No se modificará Akasia.`))return;
- if(!cm55Intento||cm55Intento.firma!==firma)cm55Intento={firma,id:cm55NuevoId()};
- cm55GuardarBorrador();
- const btn=document.getElementById('cm55GuardarBtn');btn.disabled=true;
+ if(cm55Lista.some(x=>!Number.isInteger(x.cantidad)||x.cantidad<1))
+  return cm55Estado('Completa todas las cantidades antes de guardar.',true);
+ const grupos=cm55Grupos(),unidades=cm55Lista.reduce((ac,x)=>ac+x.cantidad,0);
+ if(!confirm('¿Guardar '+grupos.length+' grupo(s) por separado ('+unidades+' unidades)? Se registrarán como recepciones distintas; no se modificará Akasia.'))return;
+ cm55Guardando=true;cm55Render();
+ var guardados=0,mensaje='',esError=false;
  try{
-  cm55Estado('Guardando todos los artículos de la recepción…');
-  const d=await c58Post('cm55GuardarRecepcionesLote',{periodo:c54PeriodoActual,idLote:cm55Intento.id,items:JSON.stringify(items),proveedor,usuario:localStorage.getItem('usuario')||'ADMIN'});
-  cm55Lista=[];cm55Intento=null;document.getElementById('cm55Proveedor').value='';cm55Render();
-  cm55Estado(`✅ ${d.repetido?'Lote ya guardado previamente.':'Recepción guardada.'} ${d.registrados} productos y ${d.unidades} unidades. Ya aparecen en el cuadre Matriz.`);
- }catch(e){cm55Estado(e.message+' Si hubo un error de conexión, puedes reintentar el mismo lote sin duplicarlo.',true);}finally{btn.disabled=!cm55Lista.length;}
+  for(const grupo of grupos){
+   const proveedor=grupo.id==='manual'||grupo.id==='anterior'?(document.getElementById('cm55Proveedor')?.value||'').trim():grupo.proveedor;
+   cm55Estado('Guardando '+(guardados+1)+' de '+grupos.length+': '+grupo.nombre);
+   await cm55RegistrarGrupo(grupo,proveedor);
+   guardados++;
+   cm55Render();
+  }
+  mensaje='✓ '+guardados+' recepción(es) guardadas por separado. Ya aparecen en el cuadre Matriz.';
+ }catch(e){
+  esError=true;mensaje='Se guardaron '+guardados+' de '+grupos.length+'. El resto permanece en el borrador. Reintenta sin cambiar las cantidades: '+String(e.message||e);
+ }finally{cm55Guardando=false;cm55Render();}
+ cm55Estado(mensaje,esError);
 }
 async function c58ImportarExcel(inputId='c58ArchivoMatriz',estadoId='c58ImportEstado'){
  if(c58Importando)return;

@@ -117,7 +117,7 @@
       estado('Leyendo fotografía '+(i+1)+' de '+total+': '+f.name+'…');
       try {
         var dato=await analizarUna(f);
-        facturas.push({archivo:f.name, dato:dato, error:''});
+        facturas.push({archivo:f.name, archivoId:String(f.size||0)+'-'+String(f.lastModified||0), dato:dato, error:''});
       } catch(e) {
         facturas.push({archivo:f.name, dato:null, error:String(e&&e.message||e)});
       }
@@ -232,6 +232,14 @@
     if (typeof abrirModuloAdmin !== 'function') return;
     abrirModuloAdmin('facturasGemini');
   }
+  function fgHuellaFactura(d){
+    var cadena=JSON.stringify({productos:(d.productos||[]).map(function(p){
+      return [p.descripcion,p.cantidad,p.unidad,p.precioUnitario];
+    }),total:d.total,fecha:d.fecha,numero:d.numero});
+    var h=2166136261;
+    for(var i=0;i<cadena.length;i++)h=Math.imul(h^cadena.charCodeAt(i),16777619);
+    return (h>>>0).toString(36);
+  }
   function fgEnviarRecepcion(item) {
     if (el('fgDestino') && el('fgDestino').value !== 'Matriz') {
       return estado('La recepción automática de facturas está disponible primero para Sucursal Matriz. Selecciona Matriz.', true);
@@ -243,8 +251,15 @@
       return estado('Esta factura no contiene productos para preparar.', true);
     }
     var d = item.dato;
-    var key = [d.proveedor,d.numero,d.fecha,item.archivo].map(texto).join('|');
-    if (fgTransferidas.has(key)) return estado('Esta factura ya se agregó al borrador de esta sesión. Revisa la lista de recepción.', true);
+    var key = [d.proveedor,d.numero,d.fecha,item.archivo,item.archivoId||'',fgHuellaFactura(d)].map(texto).join('|');
+    if (fgTransferidas.has(key) || (typeof cm55Lista!=='undefined' && cm55Lista.some(function(x){return x.grupoId==='factura:'+key;})))
+      return estado('Esta factura ya está preparada en su propio grupo. Revisa la lista de recepción.', true);
+    var yaRegistrada=false;
+    try{
+      var guardadas=JSON.parse(localStorage.getItem('cm55_facturas_guardadas_'+String(c54PeriodoActual||''))||'{}');
+      yaRegistrada=!!guardadas['factura:'+key];
+    }catch(_e){}
+    if(yaRegistrada)return estado('Esta factura ya se guardó en este período. No se volverá a registrar automáticamente.',true);
     window.fgRecepcionPendiente = {key:key,archivo:item.archivo,factura:JSON.parse(JSON.stringify(d))};
     fgRevision=null;
     abrirModuloAdmin('mercaderiaNueva');
@@ -588,47 +603,48 @@
     box.appendChild(actions);
   }
   function pText(t) {var v=fgEl('p',t);v.style.cssText='font-size:12px;color:#56718b;line-height:1.5;';return v;}
+
   function fgAplicarRevision(){
-    var r=fgRevision, box=el('fgRecepcionRevision');
+    var r=fgRevision,box=el('fgRecepcionRevision'),pendiente=window.fgRecepcionPendiente;
     if(!r || !r.aprobado)return alert('Primero marca que revisaste los productos y las cantidades.');
-    if(typeof c54PeriodoActual==='undefined'||!c54PeriodoActual) return alert('Inicia un período de cuadre Matriz antes de preparar la recepción.');
+    if(typeof c54PeriodoActual==='undefined'||!c54PeriodoActual)return alert('Inicia un período de cuadre Matriz antes de preparar la recepción.');
     if(typeof cm55Lista==='undefined')return alert('No está disponible la lista de recepción.');
-    var agregados=[],omitidos=0,nombresNuevos=new Set();
+    if(!pendiente||!pendiente.key)return alert('No hay factura pendiente para recibir.');
+    var grupoId='factura:'+pendiente.key;
+    if(cm55Lista.some(function(x){return x.grupoId===grupoId}))
+      return alert('Esta factura ya está en el borrador. No se agregará nuevamente.');
+    var lineas=new Map(),omitidos=0;
     for(var i=0;i<r.lista.length;i++){
       var x=r.lista[i],q=Number(x.unidades);
       if(!Number.isInteger(q)||q<0||q>1000000)return alert('Corrige la cantidad del producto '+(i+1)+'.');
       if(!x.sku||q===0){omitidos++;continue;}
-      var nombre=x.sku.nombre;
-      if(!cm55Lista.some(function(y){return fgNormalizar(y.nombre)===fgNormalizar(nombre)}))nombresNuevos.add(fgNormalizar(nombre));
-      agregados.push({nombre:nombre,cantidad:q,costo:x.sku.costo==null?null:Number(x.sku.costo)||0});
+      var nombre=x.sku.nombre,key=fgNormalizar(nombre);
+      if(!lineas.has(key))lineas.set(key,{nombre:nombre,cantidad:0,costo:x.sku.costo==null?null:Number(x.sku.costo)||0});
+      var linea=lineas.get(key);
+      linea.cantidad+=q;
+      if(linea.cantidad>1000000)return alert('El total del producto '+nombre+' supera el límite permitido.');
     }
+    var agregados=[...lineas.values()];
     if(!agregados.length)return alert('Relaciona al menos un producto y coloca unidades recibidas mayores que cero.');
-    if(cm55Lista.length+nombresNuevos.size>150)return alert('La lista de recepción admite hasta 150 productos. Divide las facturas en grupos.');
-    var adicionales=(window.fgRecepcionPendiente && window.fgRecepcionPendiente.factura.productos.length>150)?window.fgRecepcionPendiente.factura.productos.length-150:0;
+    if(cm55Lista.length+agregados.length>150)
+      return alert('El borrador permite hasta 150 productos en total. Guarda alguna factura antes de agregar más.');
+    var adicionales=(pendiente.factura&&pendiente.factura.productos.length>150)?pendiente.factura.productos.length-150:0;
     omitidos+=adicionales;
-    if(omitidos && !confirm('Se omitirán '+omitidos+' líneas sin relacionar, con 0 unidades o fuera del límite de 150. ¿Continuar solo con los '+agregados.length+' productos preparados?'))return;
-    if(!confirm('¿Agregar '+agregados.length+' líneas al BORRADOR de recepción? Aún no se guardarán en el inventario.'))return;
-    var totalesPorProducto = new Map();
+    if(omitidos && !confirm('Se omitirán '+omitidos+' líneas sin relacionar, sin unidades o fuera del límite. ¿Preparar solo las '+agregados.length+' líneas válidas?'))return;
+    var factura=pendiente.factura||{},nombreFactura=texto(factura.numero).trim()||texto(pendiente.archivo).trim()||'Factura sin número';
+    if(!confirm('¿Agregar "'+nombreFactura+'" como una factura independiente en el BORRADOR? Aún no se registrará mercadería.'))return;
     agregados.forEach(function(x){
-      var clave=fgNormalizar(x.nombre);
-      totalesPorProducto.set(clave,(totalesPorProducto.get(clave)||0)+x.cantidad);
-    });
-    for(var par of totalesPorProducto){
-      var ya=cm55Lista.find(function(y){return fgNormalizar(y.nombre)===par[0]});
-      if((ya?ya.cantidad:0)+par[1]>1000000)return alert('La cantidad total de un producto supera el límite de 1,000,000 unidades.');
-    }
-    var prov=el('cm55Proveedor');
-    if(prov && !prov.value.trim() && r.proveedor)prov.value=r.proveedor.slice(0,100);
-    agregados.forEach(function(x){
-      var ya=cm55Lista.find(function(y){return fgNormalizar(y.nombre)===fgNormalizar(x.nombre);});
-      if(ya)ya.cantidad+=x.cantidad;
-      else cm55Lista.push(x);
+      cm55Lista.push({
+        nombre:x.nombre,cantidad:x.cantidad,costo:x.costo,
+        grupoId:grupoId,grupoNombre:'Factura · '+nombreFactura.slice(0,95),
+        grupoProveedor:texto(factura.proveedor||'').trim().slice(0,100)
+      });
     });
     fgTransferidas.add(r.key);
     window.fgRecepcionPendiente=null;fgRevision=null;
     if(box){box.hidden=true;box.textContent='';}
     cm55Render();
-    cm55Estado('✓ Productos agregados al borrador. Verifica la lista y presiona «Guardar toda la recepción» solo cuando hayas recibido la mercadería.');
+    cm55Estado('✓ Factura agregada por separado. Revísala y utiliza «Guardar esta factura» cuando hayas recibido los productos.');
   }
   window.fgMostrarErrorCatalogoRecepcion=fgMostrarErrorCatalogoRecepcion;
   window.fgAbrirDesdeRecepcion=fgAbrirDesdeRecepcion;
