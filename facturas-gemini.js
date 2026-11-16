@@ -376,24 +376,27 @@
       input.value=linea.sku?linea.sku.nombre:linea.consulta;
       input.setAttribute('aria-label','Relacionar producto '+(i+1)+' con Akasia');
       var suggestions=fgEl('div',null,'cm55-ai-choices');
+      suggestions.style.maxHeight='250px';suggestions.style.overflowY='auto';
       input.addEventListener('input',function(){
         linea.sku=null;linea.consulta=input.value;fgRevision.aprobado=false;
         var cb=el('fgConfirmarImportacion');if(cb)cb.checked=false;
-        mostrarSugerencias();
+        mostrarSugerencias(true);
       });
-      function mostrarSugerencias(){
+      input.addEventListener('focus',function(){if(!linea.sku)mostrarSugerencias(true);});
+      function mostrarSugerencias(expandido){
         suggestions.textContent='';
         var q=input.value.trim();
         if(fgClaveBusqueda(q).length<3) {
           suggestions.appendChild(fgEl('small','Escribe al menos 3 letras, como NIDO, para evitar resultados de otras marcas.'));
           return;
         }
-        var opciones=fgBuscarCoincidencias(q,o.descripcion,cm55CatalogoRapido,5);
-        if(!opciones.length){
+        var todas=fgBuscarCoincidencias(q,o.descripcion,cm55CatalogoRapido,8);
+        var opciones=expandido?todas:todas.slice(0,2);
+        if(!todas.length){
           suggestions.appendChild(fgEl('small','No hay coincidencias para "'+q+'". Prueba con la marca (ej. NIDO), el tamaño (ej. 325G) o comprueba que esté en el catálogo de Matriz.'));
           return;
         }
-        suggestions.appendChild(fgEl('small','Coincidencias sugeridas (verifica presentación y tamaño):'));
+        suggestions.appendChild(fgEl('small','Opciones de Akasia (verifica tamaño y presentación):'));
         opciones.forEach(function(catalogo){
           var b=boton(catalogo.nombre+' · '+(catalogo.costo==null?'sin costo':formatUSD(catalogo.costo)),function(){
             linea.sku=catalogo;linea.consulta=catalogo.nombre;fgRevision.aprobado=false;
@@ -401,8 +404,13 @@
           });
           suggestions.appendChild(b);
         });
+        if(!expandido && todas.length>2) {
+          var mas=boton('Ver más coincidencias ('+todas.length+')',function(){mostrarSugerencias(true);});
+          mas.style.background='#f5f7fa';mas.style.fontWeight='700';
+          suggestions.appendChild(mas);
+        }
       }
-      if(!linea.sku)mostrarSugerencias();
+      if(!linea.sku)mostrarSugerencias(false);
       izq.appendChild(input);izq.appendChild(suggestions);
       c.appendChild(izq);
       var der=fgEl('label','Unidades recibidas');
