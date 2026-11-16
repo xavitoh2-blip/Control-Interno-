@@ -347,6 +347,15 @@
     fila.appendChild(excel);
     box.appendChild(fila);
   }
+  function fgMostrarErrorCatalogoRecepcion(error){
+    var box=el('fgRecepcionRevision');
+    if(!box)return;
+    box.hidden=false;
+    box.textContent='';
+    box.appendChild(fgEl('h4','⚠️ Problema al consultar el catálogo Matriz'));
+    box.appendChild(pText(texto(error&&error.message||error||'No fue posible consultar la fuente de Akasia.')));
+    fgBotonesCatalogo(box);
+  }
   async function fgRecargarCatalogo(){
     var box=el('fgRecepcionRevision');
     if(box)box.appendChild(pText('Consultando el catálogo de Sucursal Matriz…'));
@@ -369,13 +378,19 @@
     var total=catalogo.length;
     var desc=fgEl('div',null,'cm55-ai-catalogo-estado');
     desc.style.cssText='padding:10px 12px;border:1px solid #cfe1f5;border-radius:11px;background:#edf6ff;color:#224b77;margin:10px 0;font-size:12px;line-height:1.55;';
-    var relevantes=['NIDO','NESTLE','NESCAFE'];
-    var faltantes=relevantes.filter(function(marca){
-      return !catalogo.some(function(x){return x && fgClaveBusqueda(x.nombre).split(/\s+/).includes(marca);});
+    var factura=window.fgRecepcionPendiente&&window.fgRecepcionPendiente.factura;
+    var primeros=(factura&&Array.isArray(factura.productos)?factura.productos:[]).slice(0,8);
+    var consultados=new Set(),faltantes=[];
+    primeros.forEach(function(item){
+      var consulta=fgConsultaCorta(item.descripcion);
+      var clave=fgClaveBusqueda(consulta);
+      if(!clave||consultados.has(clave))return;
+      consultados.add(clave);
+      if(!fgBuscarCoincidencias(consulta,item.descripcion,catalogo,1).length)faltantes.push(consulta);
     });
-    var estado='Catálogo Akasia Matriz: '+total+' productos cargados.';
-    if(faltantes.length)estado+=' No se encontraron estas marcas en el catálogo recibido: '+faltantes.join(', ')+'.';
-    if(faltantes.length===relevantes.length)estado+=' Revisa que el Excel base de Matriz sea el correcto y esté actualizado.';
+    var estado='Catálogo Akasia Matriz: '+total+' productos disponibles para relacionar.';
+    if(faltantes.length)estado+=' No veo posibles coincidencias para: '+faltantes.slice(0,5).join(', ')+(faltantes.length>5?' y otros':'')+'.';
+    if(consultados.size>0&&faltantes.length===consultados.size)estado+=' Comprueba que el Excel base de Sucursal Matriz esté importado y actualizado.';
     desc.appendChild(fgEl('div',estado));
     box.appendChild(desc);
     if(faltantes.length || total<10)fgBotonesCatalogo(box);
@@ -546,6 +561,7 @@
     cm55Render();
     cm55Estado('✓ Productos agregados al borrador. Verifica la lista y presiona «Guardar toda la recepción» solo cuando hayas recibido la mercadería.');
   }
+  window.fgMostrarErrorCatalogoRecepcion=fgMostrarErrorCatalogoRecepcion;
   window.fgAbrirDesdeRecepcion=fgAbrirDesdeRecepcion;
   window.fgMostrarImportacionRecepcion=fgMostrarImportacionRecepcion;
 
