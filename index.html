@@ -3306,7 +3306,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <div id="c50EstadoCarga" class="c50-mini-info"></div>
               <button type="button" onclick="c50CargarEstados()" class="c42-modern-update">↻ Actualizar</button>
             </details>
-            <div id="c50VistaAsignar" class="c42-modern">
+            <div id="c50VistaAsignar"><div class="c42-modern">
               <section class="c42-modern-card">
                 <div class="c42-modern-title"><span class="c42-modern-num">1</span><h5>¿Dónde se contará?</h5></div>
                 <div class="c45-sucursales c42-branch-options">
@@ -3356,7 +3356,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button type="button" id="c42CrearBtn" onclick="c42CrearAsignacion()" class="c42-modern-save">✓ Asignar productos</button>
                 <div id="c42EstadoAdmin" class="c42-estado">Selecciona productos y el colaborador que los contará.</div>
               </section>
-            </div><!-- /c50VistaAsignar -->
+            </div></div><!-- /c50VistaAsignar -->
             <div id="c50VistaProceso" style="display:none;">
               <p class="c42-meta">Asignaciones y productos que aún no tienen un conteo físico registrado dentro del período seleccionado.</p>
               <div id="c50ListaProceso"></div>
@@ -11609,7 +11609,7 @@ function cm55Render(){
   <div class="cm55-item-top"><div><div class="cm55-item-name">${c42Esc(x.nombre)}</div><div class="cm55-item-meta">Subtotal: <b>${x.costo===null?'—':cm55Dinero(x.costo*x.cantidad)}</b></div></div><button type="button" style="background:#fff0f1;color:#ac4352;width:auto;min-width:64px;padding:6px 9px;" onclick="cm55Quitar(${i})">Quitar</button></div>
   <div class="cm55-stepper" style="margin-top:9px;"><button type="button" onclick="cm55CambiarCantidad(${i},${Math.max(0,x.cantidad-1)})">−</button><input type="number" min="0" max="1000000" step="1" value="${x.cantidad}" onchange="cm55CambiarCantidad(${i},this.value)" aria-label="Cantidad de ${c42Esc(x.nombre)}"><button type="button" onclick="cm55CambiarCantidad(${i},${x.cantidad+1})">＋</button><span style="margin-left:auto;font-size:10px;color:${x.cantidad?'#2a7853':'#a45b21'};font-weight:800;">${x.cantidad?'Listo':'Falta cantidad'}</span></div>
  </div>`).join('')||'<div class="cm55-note">Tu lista está vacía. Busca artículos o importa una asignación.</div>';
- if(cm55Lista.length)cm55Estado(`${cm55Lista.length} productos en borrador · ${pendientes?pendientes+' sin cantidad.':'todos con cantidad.'}${cm55Lista.some(x=>x.costo===null)?' Hay artículos sin costo registrado: el total visual es parcial.':''} Se guarda al salir.`);
+ if(cm55Lista.length)cm55Estado(pendientes?`${pendientes} producto(s) sin cantidad. Revísalos antes de guardar.`:(cm55Lista.some(x=>x.costo===null)?'Borrador guardado · algunos productos no tienen costo.':'Borrador guardado automáticamente.'));
  cm55GuardarBorrador();
 }
 function cm55CambiarCantidad(i,valor){
@@ -11684,7 +11684,7 @@ async function cm55CargarAsignaciones(){
  try{
   const d=await c58Post('cm55ListasConteosMatriz');cm55ListasConteos=d.listas||[];
   select.innerHTML='<option value="">Selecciona una lista asignada</option>'+cm55ListasConteos.map((x,i)=>`<option value="${i}">${c42Esc(x.sucursal)} · ${c42Esc(x.empleado)} · ${x.productos.length} productos</option>`).join('');
-  if(!cm55ListasConteos.length)cm55Estado('Aún no hay listas asignadas en este período. Puedes crear tu propia lista aquí.');
+  if(!cm55ListasConteos.length)select.innerHTML='<option value="">Sin listas asignadas</option>';
  }catch(e){select.innerHTML='<option value="">No se pudieron cargar listas</option>';cm55Estado(e.message,true);}
 }
 function cm55ImportarAsignacion(){
