@@ -358,7 +358,8 @@
         var k=fgClaveBusqueda(p.nombre);
         if(!encontrados.has(k))encontrados.set(k,p);
       });
-      if(encontrados.size>=25)break;
+      // No mezclar marcas por buscar palabras sueltas si ya existe un grupo de resultados de la consulta.
+      if(encontrados.size>0)break;
     }
     var lista=[...encontrados.values()];
     if(fgCacheBusquedaAkasia.size>40)fgCacheBusquedaAkasia.clear();
@@ -498,6 +499,11 @@
             return;
           }
           suggestions.appendChild(fgEl('small','✓ '+opciones.length+' resultados consultados directamente en Akasia Matriz. Selecciona la presentación correcta:'));
+          var palabrasConsulta=fgPalabrasBusqueda(q);
+          if(palabrasConsulta.length>=2 && !opciones.some(function(p){
+            var textoProducto=fgPalabrasBusqueda(p.nombre);
+            return palabrasConsulta.every(function(w){return textoProducto.includes(w);});
+          }))suggestions.appendChild(fgEl('small','⚠️ Solo aparecen coincidencias parciales. No relaciones un producto distinto al de la factura; confirma presentación y código antes de agregarlo.'));
           var preferidas=fgBuscarCoincidencias(q,o.descripcion,opciones,25);
           var agrupadas=[...preferidas,...opciones.filter(function(c){return !preferidas.some(function(p){return fgClaveBusqueda(p.nombre)===fgClaveBusqueda(c.nombre);});})];
           agrupadas.slice(0,25).forEach(opcionAkasia);
