@@ -3431,52 +3431,94 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           #adminCuadreMatriz .c56-check{display:flex!important;align-items:center;gap:9px;font-size:12px!important;font-weight:850!important;color:#255f9c!important;background:#f1f6ff;border:1px solid #e2ecfb;border-radius:10px;padding:9px 10px;margin:8px 0 0!important;cursor:pointer}
           #adminCuadreMatriz .c56-check input{width:19px;height:19px;min-width:19px;min-height:19px;margin:0;flex:none;accent-color:#1874e8}
           #adminCuadreMatriz .c56-check.is-selected{background:#e5f2ff;border-color:#aacdf5}
+          /* Navegación y explicación: cambios visuales exclusivos de Cuadre Matriz. */
+          #adminCuadreMatriz .cm54-help{margin-top:16px;padding:18px 19px;background:#fff;border:1px solid #dbe7f7;border-radius:19px;box-shadow:0 6px 18px rgba(37,77,117,.05)}
+          #adminCuadreMatriz .cm54-help-title{font-size:17px;font-weight:900;color:#173b66}
+          #adminCuadreMatriz .cm54-help>p{font-size:12px;color:#526981;margin:6px 0 14px;line-height:1.6}
+          #adminCuadreMatriz .cm54-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+          #adminCuadreMatriz .cm54-flow a{display:flex;align-items:flex-start;gap:8px;padding:11px 9px;border-radius:12px;border:1px solid #dce9fa;background:#f6faff;text-decoration:none;color:#1b4b80;text-align:left;font-size:11px;font-weight:850;line-height:1.4}
+          #adminCuadreMatriz .cm54-flow a:hover,#adminCuadreMatriz .cm54-flow a:focus-visible{border-color:#74a7ec;box-shadow:0 0 0 2px #e3f0ff;outline:0}
+          #adminCuadreMatriz .cm54-flow a>b{display:grid;place-items:center;min-width:25px;height:25px;border-radius:9px;background:#ddecff;color:#1b5cb1;font-size:12px}
+          #adminCuadreMatriz .cm54-flow a span{min-width:0;overflow-wrap:anywhere}
+          #adminCuadreMatriz .cm54-flow a small{display:block;font-size:10px;font-weight:500;color:#657c95;margin-top:2px}
+          #adminCuadreMatriz .cm54-formula{padding:12px 14px;margin-top:14px;border-radius:12px;background:#eff7ff;border-left:4px solid #3183e8;color:#264d75;font-size:12px;line-height:1.65}
+          #adminCuadreMatriz .cm54-formula b{display:block;margin-bottom:2px;color:#184b81}
+          #adminCuadreMatriz .cm54-formula em{font-style:normal;font-weight:700}
+          #adminCuadreMatriz .cm54-legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+          #adminCuadreMatriz .cm54-legend>div{flex:1 1 175px;background:#f9fbff;border:1px solid #e3edf9;border-radius:11px;padding:10px 11px;font-size:11px;line-height:1.55;color:#405b77}
+          #adminCuadreMatriz .cm54-export-note{padding:13px 14px;margin:8px 0;background:#f0f8f3;border-left:4px solid #2f9364;border-radius:11px;color:#22543b;line-height:1.7;font-size:12px}
+          #adminCuadreMatriz [id^="cm54Paso"]{scroll-margin-top:16px}
+          @media(max-width:900px){#adminCuadreMatriz .cm54-flow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+          @media(max-width:570px){#adminCuadreMatriz .cm54-help{padding:14px 12px}#adminCuadreMatriz .cm54-flow{grid-template-columns:repeat(2,minmax(0,1fr))}#adminCuadreMatriz .cm54-flow a{padding:9px 7px}#adminCuadreMatriz .cm54-formula{font-size:11px}}
           @media(max-width:760px){#adminCuadreMatriz .cm54-grid,#adminCuadreMatriz .cm54-products{grid-template-columns:1fr}#adminCuadreMatriz .cm54-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#adminCuadreMatriz .cm54-hero{padding:20px 17px}#adminCuadreMatriz .cm54-panel{padding:16px}#adminCuadreMatriz .cm54-hero-actions{width:100%}#adminCuadreMatriz .cm54-metric strong{font-size:21px}}
         </style>
         <div id="adminCuadreMatriz" class="admin-modulo cm54-root" style="display:none;margin-top:18px;text-align:left;">
           <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
           <section class="cm54-hero">
             <div class="cm54-hero-header">
-              <div><span class="cm54-eyebrow">Online Shop / Inventarios</span><h3>Cuadre de inventario · Matriz</h3><p>Tienda + Bodega + mercadería nueva. El inventario de Mini Súper se controla por separado.</p></div>
+              <div><span class="cm54-eyebrow">Online Shop / Inventarios</span><h3>Cuadre de inventario · Matriz</h3><p>Una guía para revisar los conteos de Tienda y Bodega, agregar recepciones y preparar las existencias para Akasia. Mini Súper se controla por separado.</p></div>
               <div class="cm54-hero-actions"><div id="c54PeriodoEstado" class="cm54-period-label">Sin período iniciado</div><button id="c54IniciarPeriodoBtn" type="button" onclick="c54IniciarPeriodo()">＋ Iniciar nuevo cuadre</button></div>
             </div>
             <div class="cm54-metrics">
-              <div class="cm54-metric"><strong id="c54TotalProductos">—</strong><span>Productos Akasia</span></div>
-              <div class="cm54-metric"><strong id="c54Trabajados">0</strong><span>Trabajados</span></div>
+              <div class="cm54-metric"><strong id="c54TotalProductos">—</strong><span>Catálogo Akasia</span></div>
+              <div class="cm54-metric"><strong id="c54Trabajados">0</strong><span>En seguimiento</span></div>
               <div class="cm54-metric"><strong id="c54Listos">0</strong><span>Listos para Excel</span></div>
-              <div class="cm54-metric"><strong id="c54Negativos">0</strong><span>Negativos revisados</span></div>
+              <div class="cm54-metric"><strong id="c54Negativos">0</strong><span>Saldos negativos</span></div>
             </div>
           </section>
+          <!-- Guía visual adicional: solo organización de pantalla; no cambia el cálculo. -->
+          <section class="cm54-help" aria-label="Guía para cuadrar el inventario">
+            <div class="cm54-help-title">🧭 ¿Cómo se hace el cuadre?</div>
+            <p>Sigue estos pasos. Si ya terminaste uno, continúa con el siguiente. Puedes volver a revisar cualquier paso sin perder tus conteos guardados.</p>
+            <nav class="cm54-flow" aria-label="Ir a un paso del cuadre">
+              <a href="#cm54Paso1"><b>1</b><span>Excel base <small>Datos originales de Akasia</small></span></a>
+              <a href="#cm54Paso2"><b>2</b><span>Mercadería nueva <small>Sin contarla dos veces</small></span></a>
+              <a href="#cm54Paso3"><b>3</b><span>Conteos físicos <small>Asignar y revisar</small></span></a>
+              <a href="#cm54Paso4"><b>4</b><span>Ventas posteriores <small>Segundo Excel de Akasia</small></span></a>
+              <a href="#cm54Paso5"><b>5</b><span>Exportar a Akasia <small>Confirmar al finalizar</small></span></a>
+            </nav>
+            <div class="cm54-formula"><b>Cómo se calcula la existencia final:</b> Tienda contada + Bodega contada + Mercadería nueva − Ventas posteriores al conteo = Existencia para Akasia. <em>Solo se descuentan las ventas que realmente ocurrieron después de contar.</em></div>
+          </section>
           <div class="cm54-grid">
-            <section class="cm54-panel">
-              <div class="cm54-panel-head"><span class="cm54-step">1</span><div><h4>Excel inicial de Akasia</h4><p>Importa los 57 campos originales de Sucursal Matriz. Se conserva el catálogo de imágenes.</p></div></div>
+            <section id="cm54Paso1" class="cm54-panel">
+              <div class="cm54-panel-head"><span class="cm54-step">1</span><div><h4>Cargar el Excel base de Akasia</h4><p>Es el archivo original de Sucursal Matriz, con sus 57 columnas. No afecta Mini Súper ni la hoja de imágenes.</p></div></div>
+              <label for="c58ArchivoMatriz">Archivo inicial de Sucursal Matriz</label>
               <input id="c58ArchivoMatriz" type="file" accept=".xlsx,.xls" aria-label="Excel original de Akasia Matriz">
-              <button type="button" style="background:#2563eb;" onclick="c58ImportarExcel()">📥 Importar catálogo inicial</button>
-              <div id="c58ImportEstado" class="cm54-tip">Si ya tienes el catálogo cargado, puedes utilizarlo sin volver a importarlo.</div>
+              <button type="button" style="background:#2563eb;" onclick="c58ImportarExcel()">📥 Cargar Excel base</button>
+              <div id="c58ImportEstado" class="cm54-tip">Si el Excel base ya está cargado, no necesitas importarlo otra vez.</div>
             </section>
-            <section class="cm54-panel">
-              <div class="cm54-panel-head"><span class="cm54-step">2</span><div><h4>Mercadería nueva · en lista</h4><p>Prepara todos los productos, mira el total estimado y guarda la recepción completa de una sola vez.</p></div></div>
+            <section id="cm54Paso2" class="cm54-panel">
+              <div class="cm54-panel-head"><span class="cm54-step">2</span><div><h4>Registrar mercadería recién recibida</h4><p>Agrega por separado las unidades que llegaron. Revisa que no estén incluidas también en el conteo físico.</p></div></div>
               <div id="cm55ResumenInline" class="cm54-tip">0 productos preparados · $0.00 valor estimado.</div>
-              <button type="button" onclick="abrirModuloAdmin('mercaderiaNueva')" style="background:#16865c;">📥 Abrir lista de recepción</button>
-              <p class="cm54-tip">El proveedor es opcional. También puedes pasar esta lista a Conteos asignados o traer una lista ya asignada.</p>
+              <button type="button" onclick="abrirModuloAdmin('mercaderiaNueva')" style="background:#16865c;">📥 Abrir recepción de mercadería</button>
+              <p class="cm54-tip">Puedes cargar productos en una sola lista. Esta recepción no actualiza Akasia automáticamente.</p>
               <div id="c58RecepcionEstado" class="cm54-tip"></div><div id="c58UltimasRecepciones" style="font-size:12px;margin-top:10px;"></div>
             </section>
-            <section class="cm54-panel cm54-wide">
-              <div class="cm54-panel-head"><span class="cm54-step">3</span><div><h4>Comparar negativos del Excel nuevo</h4><p>Cuando terminen los conteos, descarga otro Excel de Akasia. Aquí guardaremos solo sus saldos negativos, sin reemplazar el catálogo inicial.</p></div></div>
-              <input id="c59ArchivoActual" type="file" accept=".xlsx,.xls" aria-label="Excel actualizado de Akasia Matriz para revisar negativos">
-              <button type="button" onclick="c54ImportarNegativos()" style="background:#1973b7;">↻ Revisar ventas negativas</button>
-              <div id="c59ImportEstado" class="cm54-tip">Todavía no se ha comprobado un segundo Excel para este período.</div>
-              <div class="cm54-alert">La resta se utiliza si las ventas negativas ocurrieron después del conteo físico. Si se vendió antes de contar, esas unidades ya no estarán físicamente y no deben descontarse otra vez.</div>
-            </section>
-            <section class="cm54-panel cm54-wide">
-              <div class="cm54-panel-head"><span class="cm54-step">4</span><div><h4>Revisar conteos y preparar Excel</h4><p>Marca productos pendientes para asignar a colaboradores. Los terminados se seleccionan por separado para exportar a Akasia.</p></div></div>
-              <div class="cm54-data-head"><div id="c58Resumen" style="font-size:12px;color:#345679;line-height:1.6;flex:1;">Consultando conteos…</div><button type="button" onclick="c58CargarEstado()">↻ Actualizar conteos</button></div>
-              <input id="c58Filtrar" type="search" placeholder="Buscar entre los productos trabajados..." oninput="c58RenderProductos()" style="margin:13px 0;">
-              <div class="c56-select-panel"><div><div class="c56-select-title">🧮 Preparar conteos en grupo: <span id="c56Contador">0</span> seleccionados</div><div class="c56-select-hint">Marca artículos individuales o selecciona todos los pendientes que coincidan con la búsqueda.</div></div><div class="c56-select-actions"><button type="button" onclick="c56MarcarVisibles()">☑ Seleccionar todos los pendientes</button><button type="button" onclick="c56Limpiar()">Limpiar</button><button type="button" class="c56-send" id="c56EnviarBtn" onclick="c56EnviarConteos()" disabled>Enviar a Conteos asignados (0)</button></div></div>
+            <section id="cm54Paso3" class="cm54-panel cm54-wide">
+              <div class="cm54-panel-head"><span class="cm54-step">3</span><div><h4>Asignar conteos y revisar los productos</h4><p>Primero envía a contar los productos pendientes. Cuando terminen los colaboradores, regresa aquí para revisar cantidades y elegir los que podrán ir al Excel.</p></div></div>
+              <div class="cm54-data-head"><div id="c58Resumen" style="font-size:12px;color:#345679;line-height:1.6;flex:1;">Consultando conteos…</div><button type="button" onclick="c58CargarEstado()">↻ Actualizar los conteos</button></div>
+              <label for="c58Filtrar">Buscar producto dentro de este cuadre</label>
+              <input id="c58Filtrar" type="search" placeholder="Escribe el nombre del producto…" oninput="c58RenderProductos()" style="margin:7px 0 13px;">
+              <div class="c56-select-panel"><div><div class="c56-select-title">🧮 Productos pendientes para contar: <span id="c56Contador">0</span> seleccionados</div><div class="c56-select-hint">Marca la casilla «Asignar conteo» de los pendientes. El envío solo prepara la lista: después debes elegir al colaborador y confirmar la asignación.</div></div><div class="c56-select-actions"><button type="button" onclick="c56MarcarVisibles()">☑ Marcar todos los pendientes visibles</button><button type="button" onclick="c56Limpiar()">Limpiar selección</button><button type="button" class="c56-send" id="c56EnviarBtn" onclick="c56EnviarConteos()" disabled>Enviar a Conteos asignados (0)</button></div></div>
+              <div class="cm54-legend" aria-label="Qué significa cada selección"><div>🔵 <b>Asignar conteo:</b> aún falta que alguien cuente el producto.</div><div>🟢 <b>Incluir en Excel:</b> producto terminado y listo para revisión final.</div><div>⚠️ <b>Advertencia:</b> requiere revisar datos antes de exportar.</div></div>
               <div id="c58Productos" class="cm54-products"></div>
+              <p class="cm54-tip">Si un producto aparece «Sin contar», todavía falta registrar unidades. Si aparece <b>0 ud.</b>, se registró un conteo de cero.</p>
+            </section>
+            <section id="cm54Paso4" class="cm54-panel cm54-wide">
+              <div class="cm54-panel-head"><span class="cm54-step">4</span><div><h4>Revisar ventas ocurridas después del conteo</h4><p>Cuando terminen los conteos, descarga un segundo Excel de Akasia. Solo se tomarán los saldos negativos para calcular los ajustes; el archivo original no se reemplaza.</p></div></div>
+              <label for="c59ArchivoActual">Segundo Excel, descargado después de contar</label>
+              <input id="c59ArchivoActual" type="file" accept=".xlsx,.xls" aria-label="Excel actualizado de Akasia Matriz para revisar negativos">
+              <button type="button" onclick="c54ImportarNegativos()" style="background:#1973b7;">↻ Revisar saldos negativos del segundo Excel</button>
+              <div id="c59ImportEstado" class="cm54-tip">Todavía no se ha comprobado un segundo Excel para este período.</div>
+              <div class="cm54-alert">⚠️ <b>Evita descontar dos veces:</b> las ventas realizadas antes del conteo físico ya se reflejan en las unidades que encontraste. Solo descuenta ventas posteriores al conteo; comprueba también otros movimientos.</div>
+              <p class="cm54-tip">Después de revisarlo, vuelve al paso 3 para comprobar qué productos ya están listos.</p>
+            </section>
+            <section id="cm54Paso5" class="cm54-panel cm54-wide">
+              <div class="cm54-panel-head"><span class="cm54-step">5</span><div><h4>Preparar el Excel y confirmar en Akasia</h4><p>Selecciona los productos listos en el paso 3. Genera el archivo, impórtalo manualmente en Akasia y comprueba las existencias antes de marcar la confirmación.</p></div></div>
+              <div class="cm54-export-note"><b>Orden correcto:</b> seleccionar productos listos → generar Excel → importar en Akasia → verificar cantidades → confirmar aquí. <b>Generar el Excel no actualiza Akasia.</b></div>
               <label class="cm54-verify"><input type="checkbox" id="c58CorteConfirmado"> Confirmo que los negativos del segundo Excel corresponden a ventas posteriores al conteo y que la mercadería nueva no fue contada dos veces. Revisaré cualquier otro movimiento antes de exportar.</label>
               <div class="cm54-actions"><button id="c58DescargarBtn" type="button" onclick="c58DescargarExcel()" style="background:#2563eb;">📤 Generar Excel de seleccionados</button><button id="c58ConfirmarAkasiaBtn" type="button" onclick="c58ConfirmarActualizacion()" disabled style="background:#16865c;">✓ Ya importé y verifiqué en Akasia</button></div>
-              <div id="c58ExcelEstado" class="cm54-tip">El Excel generado conserva las 57 columnas originales. PRUEBA: comprueba primero el comportamiento de Akasia al importar existencias.</div>
+              <div id="c58ExcelEstado" class="cm54-tip">El Excel generado conserva las 57 columnas originales. Verifica el resultado en Akasia antes de confirmar la actualización.</div>
             </section>
           </div>
         </div>
@@ -11294,10 +11336,10 @@ function c58RenderProductos(){
    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
     <b style="font-size:12px;overflow-wrap:anywhere;">${c42Esc(x.nombre)}</b><span class="cm54-state">${m}</span>
    </div>
-   <div style="font-size:11px;color:#5c6b83;line-height:1.8;margin:9px 0;">Tienda: <b>${t}</b> · Bodega: <b>${b}</b> · Mercadería nueva: <b>${x.recepcion} ud.</b>${x.total!==null?`<br>Conteo físico más recepción: <b>${x.total} ud.</b>${c54SnapshotActual?`<br><span style="color:#aa5724;">Ventas negativas del segundo Excel: −${x.negativoAkasia} ud.</span>`:''}<br><span style="color:${x.negativoExcede?'#b42334':'#17623e'};font-weight:800;">Total calculado: ${x.totalExportar} ud.</span>`:''}</div>
-   ${x.listo?`<label style="font-size:12px;display:flex;align-items:center;gap:8px;"><input type="checkbox" style="width:20px;height:20px;min-height:20px;margin:0;" ${c58Seleccionados.has(x.nombre)?'checked':''} onchange="c58Seleccionar(${x.i},this.checked)">Incluir en Excel</label>`:''}
+   <div style="font-size:11px;color:#5c6b83;line-height:1.8;margin:9px 0;">Conteo Tienda: <b>${t}</b> · Conteo Bodega: <b>${b}</b> · Recepción aparte: <b>${x.recepcion} ud.</b>${x.total!==null?`<br>Conteo + recepción: <b>${x.total} ud.</b>${c54SnapshotActual?`<br><span style="color:#aa5724;">Ventas posteriores a descontar (Excel 2): −${x.negativoAkasia} ud.</span>`:''}<br><span style="color:${x.negativoExcede?'#b42334':'#17623e'};font-weight:800;">Existencia calculada para Akasia: ${x.totalExportar} ud.</span>`:''}</div>
+   ${x.listo?`<label style="font-size:12px;display:flex;align-items:center;gap:8px;"><input type="checkbox" style="width:20px;height:20px;min-height:20px;margin:0;" ${c58Seleccionados.has(x.nombre)?'checked':''} onchange="c58Seleccionar(${x.i},this.checked)">Incluir en Excel de Akasia</label>`:''}
    ${x.negativoExcede?`<div style="font-size:11px;color:#b42334;margin-top:5px;">El último Excel de Akasia tiene más unidades negativas que las contadas. Revisa el conteo y las ventas antes de exportar.</div>`:''}
-   ${c56EsPendiente(x)?`<label class="c56-check ${c56ConteosMarcados.has(x.nombre)?'is-selected':''}"><input type="checkbox" data-conteo-index="${x.i}" ${c56ConteosMarcados.has(x.nombre)?'checked':''} onchange="c56Marcar(${x.i},this.checked)"> Seleccionar para asignar conteo</label>`:''}
+   ${c56EsPendiente(x)?`<label class="c56-check ${c56ConteosMarcados.has(x.nombre)?'is-selected':''}"><input type="checkbox" data-conteo-index="${x.i}" ${c56ConteosMarcados.has(x.nombre)?'checked':''} onchange="c56Marcar(${x.i},this.checked)"> Asignar conteo pendiente</label>`:''}
    ${x.confirmado&&x.recepcion>0?`<div style="font-size:11px;color:#9c5b19;margin-top:5px;">Nueva recepción: debes registrarla en Akasia. No se repetirá el ajuste inicial.</div><button style="background:#ddf5e6;color:#17623e;min-height:34px;font-size:12px;" onclick="c58ConfirmarRecepcion(${x.i})">✓ Ya ingresé esta recepción en Akasia</button>`:''}
   </div>`;
  }).join('');
