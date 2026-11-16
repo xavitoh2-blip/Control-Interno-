@@ -421,9 +421,9 @@
       consultados.add(clave);
       if(!fgBuscarCoincidencias(consulta,item.descripcion,catalogo,1).length)faltantes.push(consulta);
     });
-    var estado='Catálogo Akasia Matriz: '+total+' productos disponibles para relacionar.';
+    var estado=total?('Catálogo Akasia Matriz: '+total+' productos disponibles en la lista rápida.'):'La lista rápida no devolvió productos. Usa la búsqueda directa en Akasia Matriz que aparece debajo de cada artículo.';
     if(faltantes.length)estado+=' No veo posibles coincidencias para: '+faltantes.slice(0,5).join(', ')+(faltantes.length>5?' y otros':'')+'.';
-    if(consultados.size>0&&faltantes.length===consultados.size)estado+=' Comprueba que el Excel base de Sucursal Matriz esté importado y actualizado.';
+    if(consultados.size>0&&faltantes.length===consultados.size)estado+=' Puedes buscar cada artículo directamente en Akasia Matriz desde la ficha, sin volver a importar el Excel.';
     desc.appendChild(fgEl('div',estado));
     box.appendChild(desc);
     if(faltantes.length || total<10)fgBotonesCatalogo(box);
@@ -432,13 +432,13 @@
     var p=window.fgRecepcionPendiente,box=el('fgRecepcionRevision');
     if(!p||!box)return;
     box.hidden=false;
-    if(typeof cm55CatalogoRapido==='undefined' || !Array.isArray(cm55CatalogoRapido) || !cm55CatalogoRapido.length) {
-      box.textContent='';
-      box.appendChild(fgEl('h4','⚠️ Catálogo Akasia Matriz no disponible'));
-      box.appendChild(pText('Se reconoció la factura, pero el catálogo de Matriz no entregó productos. La relación requiere que la hoja CatalogoAkasia_Matriz tenga el Excel base cargado.'));
-      fgBotonesCatalogo(box);
+    // La lista rápida puede venir vacía aunque la hoja de Akasia sí contenga productos.
+    // Permitir la búsqueda puntual en el servidor sin pedir al usuario subir otro Excel.
+    if(typeof cm55CatalogoRapido==='undefined') {
+      box.textContent='No se encuentra la función de catálogo Matriz en esta versión de Online Shop.';
       return;
     }
+    if(!Array.isArray(cm55CatalogoRapido))cm55CatalogoRapido=[];
     if(!fgRevision || fgRevision.key!==p.key) {
       var lista=p.factura.productos.slice(0,150).map(function(x) {
         var nombre=texto(x.descripcion).trim();
