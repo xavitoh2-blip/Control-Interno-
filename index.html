@@ -11516,7 +11516,7 @@ async function cm55Abrir(){
   await cm55CargarAsignaciones();
   if(window.fgRecepcionPendiente && typeof fgMostrarImportacionRecepcion==='function'){
     try{await cm55CargarCatalogoRapido();await fgMostrarImportacionRecepcion();}
-    catch(error){cm55Estado('No se pudo cargar el catálogo para relacionar la factura. '+error.message,true);}
+    catch(error){cm55Estado('No se pudo cargar el catálogo para relacionar la factura. '+error.message,true);if(typeof fgMostrarErrorCatalogoRecepcion==='function')fgMostrarErrorCatalogoRecepcion(error);}
   }
   if(!c54PeriodoActual)cm55Estado('Primero inicia un cuadre Matriz para guardar recepciones.',true);
  }catch(e){cm55Estado(e.message,true);}
