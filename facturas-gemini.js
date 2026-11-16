@@ -385,14 +385,18 @@
     }
     if(!agregados.length)return alert('Relaciona al menos un producto y coloca unidades recibidas mayores que cero.');
     if(cm55Lista.length+nombresNuevos.size>150)return alert('La lista de recepción admite hasta 150 productos. Divide las facturas en grupos.');
-    if(omitidos && !confirm('Se omitirán '+omitidos+' líneas sin relacionar o con 0 unidades. ¿Continuar solo con los '+agregados.length+' productos preparados?'))return;
+    var adicionales=(window.fgRecepcionPendiente && window.fgRecepcionPendiente.factura.productos.length>150)?window.fgRecepcionPendiente.factura.productos.length-150:0;
+    omitidos+=adicionales;
+    if(omitidos && !confirm('Se omitirán '+omitidos+' líneas sin relacionar, con 0 unidades o fuera del límite de 150. ¿Continuar solo con los '+agregados.length+' productos preparados?'))return;
     if(!confirm('¿Agregar '+agregados.length+' líneas al BORRADOR de recepción? Aún no se guardarán en el inventario.'))return;
-    for(var j=0;j<agregados.length;j++){
-      var x=agregados[j];
-      var ya=cm55Lista.find(function(y){return fgNormalizar(y.nombre)===fgNormalizar(x.nombre);});
-      if(ya){
-        if(ya.cantidad+x.cantidad>1000000)return alert('La cantidad total supera el límite: '+x.nombre);
-      }
+    var totalesPorProducto = new Map();
+    agregados.forEach(function(x){
+      var clave=fgNormalizar(x.nombre);
+      totalesPorProducto.set(clave,(totalesPorProducto.get(clave)||0)+x.cantidad);
+    });
+    for(var par of totalesPorProducto){
+      var ya=cm55Lista.find(function(y){return fgNormalizar(y.nombre)===par[0]});
+      if((ya?ya.cantidad:0)+par[1]>1000000)return alert('La cantidad total de un producto supera el límite de 1,000,000 unidades.');
     }
     var prov=el('cm55Proveedor');
     if(prov && !prov.value.trim() && r.proveedor)prov.value=r.proveedor.slice(0,100);
