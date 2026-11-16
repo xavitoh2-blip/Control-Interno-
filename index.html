@@ -11799,6 +11799,14 @@ async function cm55RegistrarGrupo(grupo,proveedor){
   periodo:c54PeriodoActual,idLote:intento.id,items:JSON.stringify(items),
   proveedor,usuario:localStorage.getItem('usuario')||'ADMIN'
  });
+ // Marcar las facturas ya guardadas para evitar que otra lectura repita su registro.
+ if(grupo.id.startsWith('factura:')){
+  try{
+   const k='cm55_facturas_guardadas_'+String(c54PeriodoActual);
+   const vistos=JSON.parse(localStorage.getItem(k)||'{}');
+   vistos[grupo.id]=true;localStorage.setItem(k,JSON.stringify(vistos));
+  }catch(_e){}
+ }
  // Conservar los demás grupos, incluso si contienen productos iguales.
  cm55Lista=cm55Lista.filter(x=>String(x.grupoId||'anterior')!==grupo.id);
  delete cm55IntentosGrupos[grupo.id];
