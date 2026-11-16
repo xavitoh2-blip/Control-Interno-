@@ -3509,6 +3509,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           #adminCuadreMatriz .cm54-fold-body .cm54-tip{font-size:12px;margin:8px 0}
           #adminCuadreMatriz .cm54-products{max-height:none}
           #adminCuadreMatriz .cm54-product-card{padding:12px}
+          #adminCuadreMatriz .cm54-sku-numbers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0}
+          #adminCuadreMatriz .cm54-sku-numbers>div{background:#f5f8fd;border:1px solid #e4edf8;padding:8px;border-radius:9px;min-width:0}
+          #adminCuadreMatriz .cm54-sku-numbers span{display:block;font-size:10px;color:#6a7e98}
+          #adminCuadreMatriz .cm54-sku-numbers strong{display:block;color:#25496e;font-size:12px;overflow-wrap:anywhere}
+          #adminCuadreMatriz .cm54-final-count{background:#f0f8f3;border:1px solid #d8ede1;border-radius:10px;padding:10px 12px;font-size:11px;line-height:1.7;color:#476857;margin:8px 0}
+          #adminCuadreMatriz .cm54-final-value{font-size:13px;font-weight:850;border-top:1px solid #d3e8da;margin-top:5px;padding-top:4px}
+          #adminCuadreMatriz .cm54-final-value strong{font-size:15px}
+          @media(max-width:440px){#adminCuadreMatriz .cm54-sku-numbers{grid-template-columns:repeat(2,minmax(0,1fr))}}
           #adminCuadreMatriz .cm54-verify{padding:10px;font-size:11px!important}
           @media(max-width:570px){#adminCuadreMatriz .cm54-quick{display:block}#adminCuadreMatriz .cm54-shortcuts{margin-top:8px}#adminCuadreMatriz .cm54-shortcuts button{flex:1 1 130px}#adminCuadreMatriz .cm54-hero{padding:16px 13px}#adminCuadreMatriz .cm54-fold-body{padding:12px}#adminCuadreMatriz .cm54-metric strong{font-size:18px}}
         </style>
@@ -11407,7 +11415,8 @@ function c58RenderProductos(){
    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
     <b style="font-size:12px;overflow-wrap:anywhere;">${c42Esc(x.nombre)}</b><span class="cm54-state">${m}</span>
    </div>
-   <div style="font-size:11px;color:#5c6b83;line-height:1.8;margin:9px 0;">Conteo Tienda: <b>${t}</b> · Conteo Bodega: <b>${b}</b> · Recepción aparte: <b>${x.recepcion} ud.</b>${x.total!==null?`<br>Conteo + recepción: <b>${x.total} ud.</b>${c54SnapshotActual?`<br><span style="color:#aa5724;">Ventas posteriores a descontar (Excel 2): −${x.negativoAkasia} ud.</span>`:''}<br><span style="color:${x.negativoExcede?'#b42334':'#17623e'};font-weight:800;">Existencia calculada para Akasia: ${x.totalExportar} ud.</span>`:''}</div>
+   <div class="cm54-sku-numbers"><div><span>Tienda</span><strong>${t}</strong></div><div><span>Bodega</span><strong>${b}</strong></div><div><span>Mercadería nueva</span><strong>${x.recepcion} ud.</strong></div></div>
+   ${x.total!==null?`<div class="cm54-final-count"><div>Conteo + recepción: <b>${x.total} ud.</b></div>${c54SnapshotActual?`<div>Ventas posteriores: <b>−${x.negativoAkasia} ud.</b></div>`:''}<div class="cm54-final-value" style="color:${x.negativoExcede?'#b42334':'#16663f'}">Existencia para Akasia: <strong>${x.totalExportar} ud.</strong></div></div>`:''}
    ${x.listo?`<label style="font-size:12px;display:flex;align-items:center;gap:8px;"><input type="checkbox" style="width:20px;height:20px;min-height:20px;margin:0;" ${c58Seleccionados.has(x.nombre)?'checked':''} onchange="c58Seleccionar(${x.i},this.checked)">Incluir en Excel de Akasia</label>`:''}
    ${x.negativoExcede?`<div style="font-size:11px;color:#b42334;margin-top:5px;">El último Excel de Akasia tiene más unidades negativas que las contadas. Revisa el conteo y las ventas antes de exportar.</div>`:''}
    ${c56EsPendiente(x)?`<label class="c56-check ${c56ConteosMarcados.has(x.nombre)?'is-selected':''}"><input type="checkbox" data-conteo-index="${x.i}" ${c56ConteosMarcados.has(x.nombre)?'checked':''} onchange="c56Marcar(${x.i},this.checked)"> Asignar conteo pendiente</label>`:''}
