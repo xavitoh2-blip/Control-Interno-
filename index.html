@@ -2371,6 +2371,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 @media(max-width:510px){#adminAsistencia .a215-panel{padding:13px}#adminAsistencia .a280-metric{padding:12px}#adminAsistencia .a280-metric-value{font-size:26px}#adminAsistencia .a280-pay-head{grid-template-columns:1fr 1fr}#adminAsistencia .a280-range{width:100%}#adminAsistencia .a280-range label{flex:1;min-width:105px}#adminAsistencia .a280-range input,#adminAsistencia .a280-range select{min-width:0;width:100%}}
 
 </style>
+    <link rel="stylesheet" href="./asistencia22.css?v=20261117_22">
 </head>
 <body>
 <div id="c42PortalPrueba" class="card" style="display:none;max-width:490px;text-align:left;">
@@ -8880,7 +8881,8 @@ async function verificarPassword() {
             '<div class="total"><span>TOTAL A COBRAR</span><b>'+c226Dinero(cobro)+'</b></div>'+
             (estado==='CREDITO'?'<div class="separador"></div><div class="credito"><b>VENTA AL CRÉDITO</b><div class="firma-espacio"></div><div class="firma-linea">Firma del cliente</div></div>':'')+
             '<div class="separador"></div><div class="centro pequeno"><b>Pedidos y consultas</b><br>WhatsApp: 74184366</div>'+
-            '<button class="boton" type="button" onclick="window.print()">Imprimir / Guardar PDF</button></body></html>';
+            '<button class="boton" type="button" onclick="window.print()">Imprimir / Guardar PDF</button>    <script src="./asistencia22.js?v=20261117_22" defer></script>
+</body></html>';
         }
         function c241Imprimir(ticket){
           let contenido;
