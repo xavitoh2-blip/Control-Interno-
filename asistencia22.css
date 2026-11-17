@@ -1,0 +1,74 @@
+
+/* Asistencia 2.2 · interfaz aislada, sin cambiar API ni registros */
+#adminAsistencia{width:min(100%,1180px);max-width:1180px;margin:0 auto!important;text-align:left}
+#adminAsistencia .a215-panel{background:#f7f9fd;border:1px solid #e4eaf4;border-radius:25px;padding:22px;box-shadow:0 14px 40px rgba(23,51,88,.07)}
+#adminAsistencia .a215-cabecera{align-items:center;margin-bottom:12px}
+#adminAsistencia .a215-cabecera h3{font-size:26px!important;letter-spacing:-.7px;color:#172d4c!important;font-weight:850}
+#adminAsistencia .a215-cabecera p{color:#687b94;font-size:13px;margin:4px 0 0}
+#adminAsistencia .a215-actualizar{background:#155bd6!important;color:#fff!important;border:0!important;border-radius:12px!important;padding:11px 16px!important}
+#adminAsistencia .a215-indicadores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 14px}
+#adminAsistencia .a215-kpi{background:#fff;border:1px solid #e6ebf3;border-radius:17px;padding:18px 14px;text-align:left;box-shadow:0 3px 10px rgba(35,60,94,.025)}
+#adminAsistencia .a215-kpi strong{font-weight:850;color:#173456;font-size:29px;letter-spacing:-.9px}
+#adminAsistencia .a215-kpi span{font-size:12px;color:#73839a;font-weight:650}
+#adminAsistencia .a215-kpi.a215-alerta strong{color:#c2712b}
+#adminAsistencia .a215-filtros{background:#fff;border:1px solid #e6ebf3;border-radius:17px;padding:13px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#adminAsistencia .a215-filtros label{font-size:11px;color:#60728c;font-weight:800}
+#adminAsistencia .a215-filtros input,#adminAsistencia .a215-filtros select{background:#f7f9fd!important;border:1px solid #e4eaf2!important;border-radius:10px!important;width:100%;height:42px;min-height:42px;padding:9px 11px!important;margin:5px 0 0!important;color:#263c58!important;font-size:13px!important}
+#adminAsistencia .a215-atajos{margin:10px 0 3px}
+#adminAsistencia .a215-atajos button{border-radius:11px!important;background:#e8effd!important;border-color:#dbe5f6!important;color:#2756a2!important}
+#adminAsistencia #a215Aviso,#adminAsistencia #a217AdminSinSalida,#adminAsistencia .a215-original{display:none!important}
+#adminAsistencia .a215-estado{font-size:12px;color:#8290a3;margin:8px 0!important}
+#adminAsistencia .a222-dashboard{display:grid;grid-template-columns:1.1fr 1.9fr;gap:12px;margin:0 0 16px}
+#adminAsistencia .a222-chart{background:#fff;border:1px solid #e6ebf3;border-radius:17px;padding:16px;min-width:0}
+#adminAsistencia .a222-chart h4{font-size:13px;color:#30455f;margin:0 0 13px!important;padding:0!important;border:0!important}
+#adminAsistencia .a222-donutarea{display:flex;gap:18px;align-items:center}
+#adminAsistencia .a222-donut{width:104px;height:104px;flex:0 0 104px;border-radius:50%;display:grid;place-items:center;position:relative}
+#adminAsistencia .a222-donut:before{content:"";position:absolute;inset:17px;background:#fff;border-radius:50%}
+#adminAsistencia .a222-donut strong{position:relative;font-size:22px;color:#213b5e;font-weight:850}
+#adminAsistencia .a222-legend{font-size:12px;color:#7a8b9f;line-height:1.9}
+#adminAsistencia .a222-legend b{color:#293f5c}
+#adminAsistencia .a222-bars{display:flex;gap:9px;align-items:end;height:116px;margin-top:6px}
+#adminAsistencia .a222-day{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;gap:5px;min-width:0;height:100%}
+#adminAsistencia .a222-barstack{height:88px;display:flex;align-items:end;justify-content:center;width:100%;gap:4px}
+#adminAsistencia .a222-bar{border-radius:6px 6px 3px 3px;width:min(45%,24px);min-height:3px;background:#2466d7}
+#adminAsistencia .a222-bar.tarde{background:#f2ab5c}
+#adminAsistencia .a222-day small{font-size:10px;color:#8795a9;white-space:nowrap}
+#adminAsistencia .a222-section{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 0 12px}
+#adminAsistencia .a222-section h4{font-size:17px!important;margin:0!important;padding:0!important;color:#263c57!important;border:0!important}
+#adminAsistencia .a222-section small{color:#7c8b9e;font-size:12px}
+#adminAsistencia .a222-employeegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#adminAsistencia .a222-employee{border:1px solid #e5ebf4!important;background:#fff!important;color:#28405c!important;border-radius:18px!important;text-align:left!important;display:block!important;min-width:0!important;min-height:0!important;height:auto!important;padding:17px!important;margin:0!important;box-shadow:0 3px 14px rgba(32,58,90,.035)!important;transition:transform .15s,box-shadow .15s!important;cursor:pointer!important}
+#adminAsistencia .a222-employee:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(40,70,110,.09)!important}
+#adminAsistencia .a222-employee:focus-visible{outline:3px solid #7aa7fa;outline-offset:2px}
+#adminAsistencia .a222-emphead{display:flex;align-items:center;gap:11px}
+#adminAsistencia .a222-avatar{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;background:#e7efff;color:#2554af;border-radius:14px;font-size:15px;font-weight:900}
+#adminAsistencia .a222-name{min-width:0;flex:1}
+#adminAsistencia .a222-name strong{display:block;font-size:14px;font-weight:850;color:#213751;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#adminAsistencia .a222-name small{display:block;font-size:11px;color:#8290a2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+#adminAsistencia .a222-tag{font-size:10px;color:#875a18;background:#fff1d9;border-radius:20px;padding:5px 8px;font-weight:750;white-space:nowrap}
+#adminAsistencia .a222-tag.ok{color:#237348;background:#e6f6ed}
+#adminAsistencia .a222-minirow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid #eef2f7;margin-top:14px;padding-top:13px}
+#adminAsistencia .a222-minirow span{display:block;font-size:10px;color:#8a98aa;line-height:1.3}
+#adminAsistencia .a222-minirow b{display:block;margin-top:4px;font-size:16px;color:#2a3e58;font-weight:850}
+#adminAsistencia .a222-view{display:flex;justify-content:space-between;align-items:center;margin-top:13px;color:#215dbf;font-size:12px;font-weight:850}
+#adminAsistencia .a222-empty{background:#fff;border:1px dashed #cad6e8;border-radius:16px;padding:30px;text-align:center;color:#72849a}
+#adminAsistencia .a222-backdrop{position:fixed;inset:0;background:rgba(15,29,49,.6);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+#adminAsistencia .a222-modal{background:#fff;width:min(100%,760px);max-height:min(92vh,1000px);border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.26);display:flex;flex-direction:column;overflow:hidden;text-align:left;color:#293c55}
+#adminAsistencia .a222-modalhead{padding:20px 23px;border-bottom:1px solid #e8edf4;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+#adminAsistencia .a222-modalhead strong{font-size:21px;letter-spacing:-.5px;color:#203954;display:block}
+#adminAsistencia .a222-modalhead small{font-size:12px;color:#8492a3;margin-top:3px;display:block}
+#adminAsistencia .a222-close{background:#f0f3f7!important;border:0!important;color:#354b65!important;width:38px!important;height:38px!important;min-height:38px!important;border-radius:11px!important;margin:0!important;padding:4px!important;font-size:22px!important}
+#adminAsistencia .a222-modalbody{overflow-y:auto;padding:18px 23px 24px}
+#adminAsistencia .a222-modalstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+#adminAsistencia .a222-modalstats>div{background:#f4f7fc;border-radius:12px;padding:12px;font-size:11px;color:#72839a}
+#adminAsistencia .a222-modalstats b{display:block;font-size:22px;color:#213a59;margin-top:3px}
+#adminAsistencia .a222-shifthead{font-size:12px;font-weight:850;color:#4d6481;margin:17px 0 8px}
+#adminAsistencia .a222-modal .a215-persona{margin:0;background:#f9fbff;border:1px solid #e9eef6;box-shadow:none;padding:14px;border-radius:14px}
+#adminAsistencia .a222-modal .a215-persona-head{display:none}
+#adminAsistencia .a222-modal .a215-horas{margin:0 0 8px;gap:10px}
+#adminAsistencia .a222-modal .a215-hora{background:white}
+#adminAsistencia .a222-modal .a215-revision{margin-top:10px}
+#adminAsistencia .a222-modal .a215-revision button{width:100%!important;margin-top:10px}
+#adminAsistencia .a222-modal .a215-revision select,#adminAsistencia .a222-modal .a215-revision input{width:100%!important;max-width:100%!important}
+@media(max-width:900px){#adminAsistencia .a222-employeegrid{grid-template-columns:repeat(2,minmax(0,1fr))}#adminAsistencia .a215-filtros{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:630px){#adminAsistencia .a215-panel{padding:12px;border-radius:17px}#adminAsistencia .a215-indicadores{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#adminAsistencia .a215-kpi{padding:12px}#adminAsistencia .a215-kpi strong{font-size:24px}#adminAsistencia .a222-dashboard{grid-template-columns:1fr}#adminAsistencia .a222-employeegrid{grid-template-columns:1fr}#adminAsistencia .a222-modal{max-height:95vh;border-radius:17px}#adminAsistencia .a222-modalhead{padding:15px}#adminAsistencia .a222-modalbody{padding:12px 15px 20px}#adminAsistencia .a222-donutarea{justify-content:center}#adminAsistencia .a215-filtros{padding:10px;gap:8px}}
