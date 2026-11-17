@@ -1,4 +1,4 @@
-const CACHE_NAME = "control-operativo-v1.2.1";
+const CACHE_NAME = "control-operativo-v1.2.2-hotfix";
 const APP_SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", event => {
