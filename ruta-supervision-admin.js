@@ -28,7 +28,7 @@
   return rows.map(function(v){
    var empleado=String(v.empleado||'');
    if(!empleado){var a=employeeByUuid[String(v.uuid||'')];if(a&&a.size===1)empleado=[...a][0];else empleado='SIN ASIGNAR';}
-   return Object.assign({},v,{empleado:empleado});
+   return Object.assign({},v,{empleado:empleado,cliente:v.cliente||(vis.find(function(x){return String(x.uuid||'')===String(v.uuid||'');})||{}).cliente||''});
   });
  }
  function displayRows(){
@@ -148,7 +148,7 @@
  async function load(){
   if(!visible())return;
   var f=byId('svrFecha').value||dateSV(),today=dateSV();
-  if(f>'2026-01-01'&&f<=today){}else{status('Selecciona una fecha válida entre enero de 2026 y hoy.',true);return;}
+  if(f>='2026-01-01'&&f<=today){}else{status('Selecciona una fecha válida entre enero de 2026 y hoy.',true);return;}
   selectedDate=f;var version=++requestVersion;routeVersion++;data=null;routeRows=[];
   byId('svrKpi').innerHTML='';byId('svrBarras').innerHTML='';byId('svrVisitas').innerHTML='';byId('svrReal').textContent='Selecciona un Kardex relacionado o manual para consultar cobros y entregas.';
   status('Consultando visitas y ventas informativas del '+f+'…');
