@@ -85,25 +85,37 @@
   }
   function graphs(rows,seller){
     var max=Math.max(1,...rows.map(function(x){return x.total;}));
-    var height=140,minWidth=Math.max(520,rows.length*30);
-    var bars=rows.map(function(r){
-      var h=r.total?Math.max(5,Math.round(r.total/max*height)):3;
-      return '<div class="svrg-day" title="'+esc(r.fecha)+': '+money(r.total)+'" aria-label="'+esc(r.fecha)+' '+money(r.total)+'">'+
-        '<div class="svrg-barbg"><span style="height:'+h+'px"></span></div><small>'+esc(r.fecha.slice(5))+'</small></div>';
-    }).join('');
-    var report=[];
-    (registros||[]).forEach(function(x){x.visitas.forEach(function(v){
-      if(!report.some(function(r){return r.name===v.empleado;}))report.push({name:v.empleado,total:0});
-    });x.ventas.forEach(function(v){var item=report.find(function(r){return r.name===v.empleado;});if(!item){item={name:v.empleado,total:0};report.push(item);}item.total+=v.cantidad;});});
-    report.sort(function(a,b){return b.total-a.total;});
-    if(seller!=='TODOS')report=report.filter(function(r){return r.name===seller;});
-    var top=Math.max(1,...report.map(function(r){return r.total;}));
-    var vendors=report.map(function(x){
-      return '<div class="svrg-sellerline"><div class="svrg-sellern">'+esc(x.name)+'</div><div class="svrg-track"><span style="width:'+Math.min(100,Math.round(x.total/top*100))+'%"></span></div><b>'+money(x.total)+'</b></div>';
-    }).join('')||'<p class="svrg-small">Sin ventas para graficar.</p>';
-    return '<div class="svrg-chartbox"><h4>Ventas por día</h4><p class="svrg-small">Cada barra representa la venta informativa de una fecha.</p>'+
-      '<div class="svrg-scroll"><div class="svrg-chart" style="min-width:'+minWidth+'px">'+bars+'</div></div></div>'+
-      '<div class="svrg-chartbox"><h4>Ventas por vendedor</h4><div class="svrg-sellers">'+vendors+'</div></div>';
+    var suma=rows.reduce(function(n,x){return n+x.total;},0);
+    var dayLines=rows.map(function(r){
+      var pct=r.total?Math.max(2,Math.round(r.total/max*100)):0;
+      var date=r.fecha.slice(8)+'/'+r.fecha.slice(5,7);
+      return '<div class="svrg-dayrow" title="'+esc(r.fecha)+': '+money(r.total)+'">'+
+        '<span class="svrg-datelabel">'+esc(date)+'</span>'+
+        '<div class="svrg-daytrack" role="img" aria-label="'+esc(date)+' '+money(r.total)+'"><span style="width:'+pct+'%"></span></div>'+
+        '<b class="svrg-amount">'+money(r.total)+'</b></div>';
+    }).join('')||'<p class="svrg-small">No hay fechas para este período.</p>';
+    var bySeller=new Map();
+    (registros||[]).forEach(function(day){
+      day.visitas.forEach(function(v){if(!bySeller.has(v.empleado))bySeller.set(v.empleado,0);});
+      day.ventas.forEach(function(v){bySeller.set(v.empleado,(bySeller.get(v.empleado)||0)+v.cantidad);});
+    });
+    var sellers=[...bySeller.entries()].map(function(r){return {name:r[0],total:r[1]};});
+    sellers.sort(function(a,b){return b.total-a.total||a.name.localeCompare(b.name,'es');});
+    if(seller!=='TODOS')sellers=sellers.filter(function(r){return r.name===seller;});
+    var top=Math.max(1,...sellers.map(function(r){return r.total;}));
+    var vendorLines=sellers.map(function(x){
+      var width=x.total?Math.max(2,Math.round(x.total/top*100)):0;
+      return '<div class="svrg-dayrow svrg-vendorrow">'+
+        '<span class="svrg-datelabel" title="'+esc(x.name)+'">'+esc(x.name)+'</span>'+
+        '<div class="svrg-daytrack svrg-vendortrack" role="img" aria-label="'+esc(x.name)+' '+money(x.total)+'"><span style="width:'+width+'%"></span></div>'+
+        '<b class="svrg-amount">'+money(x.total)+'</b></div>';
+    }).join('')||'<p class="svrg-small">No hay ventas de vendedores para este período.</p>';
+    return '<section class="svrg-chartbox"><div class="svrg-charthead"><div><h4>Ventas por día</h4>'+
+      '<p class="svrg-small">Comparación de importes registrados en Preventa</p></div><strong>'+money(suma)+'</strong></div>'+
+      '<div class="svrg-daylist">'+dayLines+'</div></section>'+
+      '<section class="svrg-chartbox"><div class="svrg-charthead"><div><h4>Ventas por vendedor</h4>'+
+      '<p class="svrg-small">Total acumulado según el período seleccionado</p></div></div>'+
+      '<div class="svrg-daylist svrg-vendorlist">'+vendorLines+'</div></section>';
   }
   function render(){
     if(!registros)return;
@@ -171,8 +183,11 @@
     finally{if(v===token)e('svrgConsultar').disabled=false;}
   }
   function toggleReport(){
-    opened=!opened;panel.hidden=!opened;
-    e('svrgAbrir').textContent=opened?'Cerrar reportes':'📅 Reportes y gráficas';
+    opened=!opened;
+    panel.hidden=!opened;
+    // Dos vistas excluyentes: no repetir la fecha diaria encima del reporte.
+    root.classList.toggle('svrg-mode-report',opened);
+    e('svrgAbrir').textContent=opened?'← Volver a vista diaria':'📅 Reportes y gráficas';
     e('svrgAbrir').setAttribute('aria-expanded',String(opened));
     if(!opened){token++;e('svrgConsultar').disabled=false;}
     if(opened&&!registros)safeStatus('Elige un período y pulsa Consultar. La primera consulta puede tomar más tiempo porque Preventa guarda el historial por día.');
@@ -231,6 +246,22 @@
       '#adminRutaSupervision .svrg-table{border-collapse:collapse;width:100%;min-width:650px;font-size:11px}'+
       '#adminRutaSupervision .svrg-table th,#adminRutaSupervision .svrg-table td{padding:9px 11px;border-bottom:1px solid #edf2f8;text-align:left;white-space:nowrap}'+
       '#adminRutaSupervision .svrg-table th{position:sticky;top:0;background:#edf4fd;color:#48617f}'+
+      '#adminRutaSupervision.svrg-mode-report > .svr-panel,#adminRutaSupervision.svrg-mode-report > #svrKpi{display:none!important}'+
+      '#adminRutaSupervision .svrg-chartarea{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin:10px 0}'+
+      '#adminRutaSupervision .svrg-chartbox{padding:16px 18px;background:#fff;border:1px solid #e5eaf3;border-radius:16px}'+
+      '#adminRutaSupervision .svrg-charthead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px;flex-wrap:wrap}'+
+      '#adminRutaSupervision .svrg-charthead h4{margin:0 0 3px!important;font-size:14px!important}'+
+      '#adminRutaSupervision .svrg-charthead .svrg-small{margin:0}'+
+      '#adminRutaSupervision .svrg-charthead>strong{font-size:17px;color:#1b4b8e;font-variant-numeric:tabular-nums}'+
+      '#adminRutaSupervision .svrg-daylist{display:grid;gap:8px;max-height:450px;overflow-y:auto;padding:3px 5px 3px 0}'+
+      '#adminRutaSupervision .svrg-dayrow{display:grid;grid-template-columns:76px minmax(60px,1fr) 96px;gap:13px;align-items:center;min-height:29px}'+
+      '#adminRutaSupervision .svrg-datelabel{font-size:12px;color:#536980;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'+
+      '#adminRutaSupervision .svrg-daytrack{height:13px;border-radius:99px;background:#edf2fa;overflow:hidden}'+
+      '#adminRutaSupervision .svrg-daytrack>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#1f68cc,#59a6f1)}'+
+      '#adminRutaSupervision .svrg-vendortrack>span{background:linear-gradient(90deg,#008c96,#4ab9c0)}'+
+      '#adminRutaSupervision .svrg-amount{font-size:12px;color:#253d59;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}'+
+      '#adminRutaSupervision .svrg-vendorrow{grid-template-columns:180px minmax(60px,1fr) 96px}'+
+      '@media(max-width:600px){#adminRutaSupervision .svrg-chartbox{padding:12px}#adminRutaSupervision .svrg-dayrow{grid-template-columns:54px minmax(35px,1fr) 79px;gap:8px}#adminRutaSupervision .svrg-vendorrow{grid-template-columns:94px minmax(35px,1fr) 79px}#adminRutaSupervision .svrg-amount{font-size:11px}#adminRutaSupervision .svrg-datelabel{font-size:11px}}'+
       '#adminRutaSupervision [hidden]{display:none!important}'+
       '@media(max-width:900px){#adminRutaSupervision .svrg-control{grid-template-columns:repeat(2,minmax(0,1fr))}#adminRutaSupervision .svrg-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#adminRutaSupervision .svrg-chartarea{grid-template-columns:1fr}}'+
       '@media(max-width:600px){#adminRutaSupervision .svrg-control{grid-template-columns:1fr 1fr}#adminRutaSupervision .svrg-control label:first-child{grid-column:1/-1}#adminRutaSupervision .svrg-control button{grid-column:1/-1}#adminRutaSupervision .svrg-card{padding:12px}#adminRutaSupervision .svrg-headbtn{white-space:normal}}';
