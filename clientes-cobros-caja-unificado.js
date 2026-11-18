@@ -9,7 +9,29 @@
  function cashCents(v){var n=Number(v);return Number.isFinite(n)?Math.round(n*100):NaN;}
  function customerData(){try{return typeof c226Datos!=='undefined'?c226Datos:null;}catch(_){return null;}}
  function routeData(){try{return typeof c230Datos!=='undefined'?c230Datos:null;}catch(_){return null;}}
+ function markPaid(){
+   var panel=id('c226AdminPanel');
+   if(!panel||!hub||hub.style.display!=='block')return;
+   panel.querySelectorAll('table.c226-tabla').forEach(function(table){
+     if(table.dataset.ccuMarked)return;
+     var head=table.rows&&table.rows[0];
+     if(!head||head.cells.length!==3)return;
+     var titles=Array.from(head.cells).map(function(cell){return cell.textContent.trim().toUpperCase()});
+     if(titles.join('|')!=='TICKET|ORIGINAL|DEBE')return;
+     var th=document.createElement('th');th.textContent='Abonado';head.appendChild(th);
+     Array.from(table.rows).slice(1).forEach(function(row){
+       if(row.cells.length!==3)return;
+       var original=Number(row.cells[1].textContent.replace(/[^0-9.-]/g,'')),
+           debe=Number(row.cells[2].textContent.replace(/[^0-9.-]/g,''));
+       var td=row.insertCell(-1),value=original-debe;
+       td.textContent=Number.isFinite(value)&&value>=0?fmt(value):'—';
+       td.style.cssText='font-weight:800;color:#176047;white-space:nowrap';
+     });
+     table.dataset.ccuMarked='1';
+   });
+ }
  function summary(){
+   markPaid();
    if(!hub||hub.style.display!=='block')return;
    var box=id('ccuMetrics'),d=customerData(),r=routeData(),cards=[];
    if(tab==='clientes'){
@@ -36,7 +58,7 @@
      id('ccuSimulator').hidden=true;
    }else{
      // Cierra las otras áreas con el navegador original y muestra únicamente la simulación.
-     preOpen.call(window,'creditos');
+     preOpen.call(window,'ccuVistaPrevia');
      id('adminCreditos').style.display='none';
      id('adminRutaCaja230').style.display='none';
      id('ccuSimulator').hidden=false;
