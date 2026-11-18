@@ -127,7 +127,7 @@
      '<div class="ccu-tabs" id="ccuTabs" role="tablist" aria-label="Secciones de clientes y caja">'+
      '<button type="button" role="tab" data-ccu-tab="ruta">🧾 Tickets y caja</button>'+
      '<button type="button" role="tab" data-ccu-tab="clientes">💵 Clientes y cobros</button>'+
-     '<button type="button" role="tab" data-ccu-tab="mixto">◐ Pago parcial</button></div>'+
+     '<button type="button" role="tab" data-ccu-tab="mixto">◐ Simular pago parcial</button></div>'+
      '<p class="ccu-sub" id="ccuSubTitle"></p><div id="ccuMetrics" class="ccu-metrics"></div>'+
      '<section class="ccu-simulator" id="ccuSimulator" hidden>'+
      '<h4>Simulación de pago parcial</h4><p class="ccu-muted">Comprueba cuánto pagó el cliente y cuánto quedaría pendiente. Este formulario NO registra pagos ni genera créditos.</p>'+
