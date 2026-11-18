@@ -18,12 +18,12 @@
      if(!head||head.cells.length!==3)return;
      var titles=Array.from(head.cells).map(function(cell){return cell.textContent.trim().toUpperCase()});
      if(titles.join('|')!=='TICKET|ORIGINAL|DEBE')return;
-     var th=document.createElement('th');th.textContent='Abonado';head.appendChild(th);
+     var th=document.createElement('th');th.textContent='Abonado';head.insertBefore(th,head.cells[2]);
      Array.from(table.rows).slice(1).forEach(function(row){
        if(row.cells.length!==3)return;
        var original=Number(row.cells[1].textContent.replace(/[^0-9.-]/g,'')),
            debe=Number(row.cells[2].textContent.replace(/[^0-9.-]/g,''));
-       var td=row.insertCell(-1),value=original-debe;
+       var td=row.insertCell(2),value=original-debe;
        td.textContent=Number.isFinite(value)&&value>=0?fmt(value):'—';
        td.style.cssText='font-weight:800;color:#176047;white-space:nowrap';
      });
