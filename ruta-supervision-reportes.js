@@ -174,7 +174,7 @@
     opened=!opened;panel.hidden=!opened;
     e('svrgAbrir').textContent=opened?'Cerrar reportes':'📅 Reportes y gráficas';
     e('svrgAbrir').setAttribute('aria-expanded',String(opened));
-    if(!opened)token++;
+    if(!opened){token++;e('svrgConsultar').disabled=false;}
     if(opened&&!registros)safeStatus('Elige un período y pulsa Consultar. La primera consulta puede tomar más tiempo porque Preventa guarda el historial por día.');
   }
   function download(){
@@ -194,6 +194,7 @@
     var head=root.querySelector('.svr-head'),anchor=e('svrKpi');
     if(!head||!anchor)return;
     var css=document.createElement('style');css.id='svrgStyles';css.textContent=
+      '#adminRutaSupervision .svr-head{flex-wrap:wrap}'+
       '#adminRutaSupervision .svrg-btn{background:#e7f0ff!important;color:#2256a0!important;border-radius:11px!important;padding:10px 14px!important;min-height:41px!important;width:auto!important;font-size:12px!important;margin:0!important}'+
       '#adminRutaSupervision .svrg-headbtn{background:#ffffff21!important;color:#fff!important;border:1px solid #ffffff62!important;white-space:nowrap}'+
       '#adminRutaSupervision .svrg-card{background:#f7f9fd;border:1px solid #dce7f5;border-radius:21px;padding:17px;margin:13px 0}'+
@@ -253,7 +254,10 @@
     root.insertBefore(panel,anchor);
     preset('7');
     opener.addEventListener('click',toggleReport);
-    e('svrgPeriodo').addEventListener('change',function(){preset(this.value);registros=null;e('svrgKpi').textContent='';e('svrgTabla').textContent='';e('svrgGraficas').textContent='';e('svrgExportar').disabled=true;});
+    function invalidate(){token++;registros=null;e('svrgConsultar').disabled=false;e('svrgKpi').textContent='';e('svrgTabla').textContent='';e('svrgGraficas').textContent='';e('svrgExportar').disabled=true;safeStatus('Período modificado. Pulsa Consultar para ver los nuevos resultados.');}
+    e('svrgPeriodo').addEventListener('change',function(){preset(this.value);invalidate();});
+    e('svrgDesde').addEventListener('change',invalidate);
+    e('svrgHasta').addEventListener('change',invalidate);
     e('svrgConsultar').addEventListener('click',function(){load(false);});
     e('svrgGraficaBtn').addEventListener('click',function(){graphOpen=!graphOpen;e('svrgGraficas').hidden=!graphOpen;e('svrgGraficaBtn').textContent=graphOpen?'Ocultar gráficas':'📊 Ver gráficas';e('svrgGraficaBtn').setAttribute('aria-expanded',String(graphOpen));});
     e('svrgVendedor').addEventListener('change',render);
