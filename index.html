@@ -1842,6 +1842,42 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .k221-selector label{display:block!important;margin-bottom:9px!important;font-size:13px!important;font-weight:850!important;color:#1a4776!important}
 .k221-selector select{display:block!important;width:100%!important;max-width:none!important;min-height:54px!important;border-radius:14px!important;background:#fff!important;border:1px solid #96c6fc!important;color:#143451!important;font-size:16px!important;font-weight:800!important;padding:8px 13px!important;box-sizing:border-box!important}
 .k221-selector small{display:block;margin-top:9px;font-size:11px;line-height:1.4;color:#53718e}
+
+/* v1.7.75 · Kardex de Despacho: selector compacto, claro y de una sola línea. */
+#moduloFaltantesKardex > .k281-selector,
+#moduloPrepararDespacho > .k281-selector{
+  display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;
+  column-gap:12px;row-gap:3px;margin:10px 0 12px!important;
+  padding:8px 12px!important;min-height:56px;box-sizing:border-box;
+  border:1px solid #dce5f0!important;border-radius:16px!important;
+  background:#f8fafd!important;box-shadow:none!important;
+}
+#moduloFaltantesKardex > .k281-selector label,
+#moduloPrepararDespacho > .k281-selector label{
+  margin:0!important;font-size:12px!important;font-weight:750!important;
+  color:#66788e!important;white-space:nowrap;
+}
+#moduloFaltantesKardex > .k281-selector select,
+#moduloPrepararDespacho > .k281-selector select{
+  width:100%!important;min-width:0!important;max-width:none!important;
+  min-height:42px!important;height:42px!important;margin:0!important;
+  padding:5px 22px 5px 5px!important;border:0!important;
+  border-radius:9px!important;background:transparent!important;
+  color:#23425f!important;font-size:15px!important;font-weight:800!important;
+  text-align-last:right;box-shadow:none!important;
+}
+#moduloFaltantesKardex > .k281-selector select:focus-visible,
+#moduloPrepararDespacho > .k281-selector select:focus-visible{
+  outline:2px solid #70adf5;outline-offset:1px;
+}
+#moduloFaltantesKardex > .k281-selector small,
+#moduloPrepararDespacho > .k281-selector small{
+  grid-column:1/-1;margin:0 0 2px!important;
+  font-size:11px!important;line-height:1.35;color:#6b7c90!important;
+}
+#moduloFaltantesKardex > .k281-selector small[hidden],
+#moduloPrepararDespacho > .k281-selector small[hidden]{display:none!important}
+
 /* v1.7.22 · Crear otro Kardex desde Excel, sin tocar Pagina 1. */
 .k222-import{background:linear-gradient(140deg,#eef9f5,#f7fbff);border:1px solid #b6ddce;border-radius:21px;padding:15px;margin:14px 0;color:#254958}
 .k222-import h4{font-size:18px;margin:0 0 6px;color:#135b48}
@@ -2864,7 +2900,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
       <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
       <h3 style="text-align:center;">📦 Faltantes Kardex · Despacho</h3>
       <div class="fk-pill" style="margin:8px 0 12px;">Solo productos asignados a Despacho para buscar y preparar. No es la revisión de mercadería recibida.</div>
-      <div class="k221-selector"><label for="k221SelectPreparar">📋 Selecciona el Kardex</label><select id="k221SelectPreparar" onchange="k221CambiarRuta(this.value)"><option value="">Consultando Kardex…</option></select><small id="k221CantidadPreparar">Las preparaciones anteriores se conservan.</small></div>
+      <div class="k221-selector k281-selector"><label for="k221SelectPreparar">Kardex activo</label><select id="k221SelectPreparar" aria-label="Elegir Kardex para preparar" onchange="k221CambiarRuta(this.value)"><option value="">Cargando…</option></select><small id="k221CantidadPreparar" aria-live="polite">Consultando el Kardex…</small></div>
       <button onclick="c52CargarPreparacionDespacho()" style="background:#087cff;">↻ Actualizar asignaciones</button>
       <div id="c52ListaPreparacionDespacho" style="margin-top:12px;"></div>
     </div>
@@ -2873,7 +2909,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     <div id="moduloFaltantesKardex" class="card modulo-pantalla" style="text-align:left;">
         <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
         <h3 id="c51TituloRevision" style="text-align:center;">📦 Faltantes Kardex</h3>
-        <div class="k221-selector"><label for="k221SelectFaltantes">📋 Selecciona el Kardex</label><select id="k221SelectFaltantes" onchange="k221CambiarRuta(this.value)"><option value="">Consultando Kardex…</option></select><small id="k221CantidadFaltantes">Pendientes por número de Kardex.</small></div>
+        <div class="k221-selector k281-selector"><label for="k221SelectFaltantes">Kardex activo</label><select id="k221SelectFaltantes" aria-label="Elegir Kardex para revisar" onchange="k221CambiarRuta(this.value)"><option value="">Cargando…</option></select><small id="k221CantidadFaltantes" aria-live="polite">Consultando el Kardex…</small></div>
         <div id="c227Tabs" style="display:none;gap:8px;margin:12px 0">
           <button type="button" id="c227TabRevision" onclick="c227CambiarVista('revision')">📦 Revisar despacho</button>
           <button type="button" id="c227TabClientes" onclick="c227CambiarVista('clientes')">👥 Entregas a clientes</button>
@@ -8101,8 +8137,13 @@ async function verificarPassword() {
                 :'<option value="">No hay Kardex disponibles</option>';
               el.value=visibles.some(x=>x.idRuta===k221IdRuta)?k221IdRuta:(visibles[0]?.idRuta||'');
             }
-            if(info)info.textContent=!visibles.length?'No hay Kardex disponibles.':
-              soloAsignable?'Solo Kardex #'+k223NumeroAsignable+' está habilitado.':k223PuedeAsignar()?'✅ Asignación habilitada':'🔒 Solo preparar · espera el cierre del #'+k223NumeroAsignable;
+            if(info){
+              info.textContent=!visibles.length?'No hay Kardex disponibles.':
+                soloAsignable?'Solo Kardex #'+k223NumeroAsignable+' está habilitado.':k223PuedeAsignar()?'✅ Asignación habilitada':'🔒 Solo preparar · espera el cierre del #'+k223NumeroAsignable;
+              // En Despacho, la ruta visible ya incluye el número en el selector.
+              // Mostrar un aviso adicional solamente si no hay rutas disponibles.
+              if(nombre==='k221SelectFaltantes'||nombre==='k221SelectPreparar')info.hidden=visibles.length>0;
+            }
           });
         }
         async function k221CargarRutas(){
@@ -10240,7 +10281,9 @@ async function verificarPassword() {
               return c227Cargar();
             }
             if(revision)revision.style.display='block';if(clientes)clientes.style.display='none';
-            await cargarImagenesProductosGlobal();
+            // Las imágenes son opcionales; nunca bloquear la consulta del Kardex.
+            // El refresco visual de fotografías ya ocurre al abrir el módulo.
+            if(!Object.keys(mapaImagenesProductosGlobal).length)cargarImagenesProductosGlobal();
             const titulo=document.getElementById('c51TituloRevision'); if(titulo)titulo.textContent=esDespacho?'✅ Revisar despacho':'📦 Faltantes Kardex';
             if(esDespacho)c51Marcados={};
             cab.innerHTML=esDespacho?'🚚 <b>Despacho</b> · Completo: llegó todo · Incompleto: no llegó nada · Parcial: llegó una parte.':`📍 <b>${escaparHtmlPedido(suc)}</b> · Confirma lo que realmente encontraste. Al confirmar, tu revisión queda terminada.`;
