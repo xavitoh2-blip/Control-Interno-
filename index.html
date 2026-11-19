@@ -2438,7 +2438,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.77</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.78</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -8494,6 +8494,18 @@ async function verificarPassword() {
         // v1.7.27 · Despacho confirma lo ENTREGADO AL CLIENTE, no la carga de Bodega.
         let c227Vista='revision',c227DatosUI=null,c227Peticion=0,c227Buscador='';
         let c240FiltroEstado='pendientes',c240ClienteActivo=null;
+        // v1.7.78 · En la ruta, abrir la ficha al comienzo del ticket
+        // y regresar a la posición previa de la lista, sin modificar los datos.
+        let c240PosicionLista=0;
+        function c240EnfocarFicha(ticket){
+          requestAnimationFrame(()=>{
+            if(c240ClienteActivo!==ticket)return;
+            const destino=document.getElementById('c227ListaClientes');
+            if(!destino||!destino.getClientRects().length)return;
+            const arriba=destino.getBoundingClientRect().top+window.scrollY-8;
+            window.scrollTo({top:Math.max(0,Math.round(arriba)),behavior:'auto'});
+          });
+        }
         // v1.7.44: la ruta de tickets se elige INDEPENDIENTE del Kardex abierto
         // para preparación. Puede estar cerrada físicamente y seguir en reparto.
         let c244RutasClientes=[],c244RutaClientes=sessionStorage.getItem('c244RutaClientes')||'';
@@ -8877,15 +8889,19 @@ async function verificarPassword() {
         function c240AbrirCliente(ticket){
           const lineas=(c227DatosUI?.lineas||[]).filter(x=>x.ticket===ticket);
           if(!lineas.length)return;
+          c240PosicionLista=window.scrollY||0;
           c267CapturarGPS(ticket); // Comienza al abrir la ficha; nunca bloquea el ticket.
           c240ClienteActivo=ticket;
           if(c240EstadoTicket(lineas)==='pendientes')c229Abrir(ticket);
           else c227Render();
+          // El menú, selector y filtros quedan arriba, fuera de la vista.
+          c240EnfocarFicha(ticket);
         }
         function c240VolverClientes(){
           const ticket=c240ClienteActivo;c240ClienteActivo=null;
           if(ticket){delete c229Editor[ticket];delete c236ProductoAbierto[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];Object.keys(c239OpcionesAbiertas).filter(k=>k.startsWith(ticket+':')).forEach(k=>delete c239OpcionesAbiertas[k]);}
           c227Render();
+          if(ticket)requestAnimationFrame(()=>window.scrollTo({top:c240PosicionLista,behavior:'auto'}));
         }
         // v1.7.48 · Ticket 58 mm: cada faltante aparece debajo del producto,
         // con su resta; conserva las cantidades y el cobro ya confirmados.
