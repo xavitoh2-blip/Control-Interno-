@@ -2103,11 +2103,19 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c280-metricas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0 12px}
 .c280-metricas>div{border:1px solid #e0e8f3;border-radius:13px;background:#fff;padding:10px 8px;min-width:0}
 .c280-metricas span{font-size:11px;color:#6b849f;display:block}.c280-metricas b{display:block;color:#23486c;font-size:17px;margin-top:4px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-.c280-utilidad{background:#f5fbf6;border:1px solid #cfebd6;border-radius:16px;padding:13px 15px;margin:12px 0}
-.c280-utilidad-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#275f3b;font-weight:800;font-size:12px}
-.c280-utilidad strong{display:block;color:#16633a;font-size:25px;margin:4px 0;font-variant-numeric:tabular-nums}
-.c280-utilidad details{font-size:11px;color:#4d785b}.c280-utilidad summary{cursor:pointer;font-weight:700}
-.c280-utilidad p{font-size:11px;line-height:1.5;margin:7px 0 0}
+/* 1.7.81 · Estado visual de ruta. Solo estilo: no cambia los montos. */
+.c281-utilidad{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;border:1px solid #c8e8d4;background:#eff9f2;border-radius:16px;padding:14px 16px;margin:12px 0;color:#16643a}
+.c281-utilidad--bien{background:#edf9f1;border-color:#bbdfca;color:#16643a}
+.c281-utilidad--regular{background:#fffaed;border-color:#f1ddb4;color:#956513}
+.c281-utilidad--mal{background:#fff2f1;border-color:#f1c4c1;color:#b33935}
+.c281-utilidad--sin-datos{background:#f4f7fb;border-color:#dae2ed;color:#566c85}
+.c281-utilidad-datos{min-width:0;flex:1}
+.c281-utilidad-titulo{display:block;font-size:12px;font-weight:750;letter-spacing:.01em;opacity:.9}
+.c281-utilidad-importe{display:block;font-size:27px;line-height:1.18;margin-top:6px;font-weight:850;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:inherit}
+.c281-estado{display:flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid currentColor;border-radius:11px;white-space:nowrap;font-size:12px;font-weight:800;line-height:1;background:rgba(255,255,255,.55);flex:0 0 auto}
+.c281-estado-icono{display:grid;place-items:center;width:18px;height:18px;border-radius:6px;background:currentColor;font-size:12px;line-height:1}
+.c281-estado-icono span{color:#fff}
+@media(max-width:365px){.c281-utilidad{gap:7px;padding:12px}.c281-estado{gap:5px;padding:7px;font-size:11px}.c281-utilidad-importe{font-size:24px}}
 .c280-alerta{font-size:12px;background:#fff6ea;border:1px solid #f5dabb;color:#96612c;border-radius:12px;padding:10px;margin:10px 0}
 @media(max-width:380px){.c280-metricas{gap:5px}.c280-metricas>div{padding:9px 6px}.c280-metricas b{font-size:15px}.c280-principal strong{font-size:27px}}
 
@@ -2462,7 +2470,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.80</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.81</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -13125,6 +13133,23 @@ function c280Fecha(v){
   if(m)return String(m[2]).padStart(2,'0')+'/'+String(['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(m[1].toLowerCase())+1).padStart(2,'0');
   return '';
 }
+// 1.7.81 · Estado informativo, no modifica utilidad, créditos ni entregas.
+// Los límites de 95% y 85% se aplican al porcentaje de unidades entregadas.
+// Con utilidad nula/negativa: Mal; con datos incompletos o cobros pendientes:
+// nunca se marca Bien. Si no hay utilidad verificable, Sin datos.
+function c281EstadoRuta(porcentajeEntrega, utilidad, confirmados, ticketsSinPago) {
+  const u=utilidad||{};
+  const pct=Number(porcentajeEntrega);
+  const ganancia=Number(u.estimada);
+  if(!u.disponible || !Number.isFinite(ganancia) || !Number.isFinite(pct) || !(Number(confirmados)>0))
+    return {clase:'sin-datos',etiqueta:'Sin datos',icono:'–'};
+  if(ganancia<=0 || pct<85)
+    return {clase:'mal',etiqueta:'Mal',icono:'×'};
+  if(pct<95 || Number(u.lineasSinGanancia)>0 || Number(ticketsSinPago)>0)
+    return {clase:'regular',etiqueta:'Regular',icono:'!'};
+  return {clase:'bien',etiqueta:'Bien',icono:'✓'};
+}
+
 function c230Render(){
   const box=c230Panel(),d=c230Datos;if(!box)return;
   const activos=c230Rutas.filter(r=>String(r.estado||'').toUpperCase()==='ACTIVA');
@@ -13153,14 +13178,14 @@ function c230Render(){
   const tot=d.totales||{},caja=Number(d.efectivoAEntregar)||0,completos=d.tickets.filter(t=>t.estado==='COMPLETO').length;
   html+='<section class="c280-principal"><span>💵 Efectivo a rendir</span><strong>'+c226Dinero(caja)+'</strong><small>Ventas en efectivo + abonos en efectivo asociados a esta ruta</small></section>';
   html+='<div class="c280-metricas"><div><span>📝 Crédito</span><b>'+c226Dinero(tot.ventasCredito)+'</b></div><div><span>Tickets</span><b>'+d.confirmados+' / '+d.totalTickets+'</b></div><div><span>Entregado</span><b>'+d.porcentajeEntrega+'%</b></div></div>';
-  // La utilidad se calcula en el servidor con la ganancia de Akasia por
-  // unidades efectivamente entregadas. Su formula no cambia en 1.7.80.
+  // 1.7.81: solo cambia el INDICADOR visual. El servidor sigue calculando
+  // la utilidad con la ganancia de Akasia proporcional a unidades entregadas.
   const utilidad=d.utilidadRuta||{};
-  html+='<section class="c280-utilidad"><div class="c280-utilidad-head"><span>📈 Utilidad bruta estimada</span><span>Solo entregado</span></div>';
-  html+='<strong>'+(utilidad.disponible?c226Dinero(utilidad.estimada):'Sin datos')+'</strong>';
-  html+='<details><summary>¿Cómo se calcula?</summary><p>Se toma la ganancia de Akasia por producto y se prorratea según las unidades entregadas confirmadas. No es dinero en caja ni ganancia neta; no descuenta combustible, salarios u otros gastos. Los precios y descuentos ajustados manualmente pueden modificar el resultado real.</p>';
-  if(Number(utilidad.lineasSinGanancia)>0)html+='<p>Atención: hay '+Number(utilidad.lineasSinGanancia)+' línea(s) entregada(s) sin dato de ganancia en Akasia.</p>';
-  html+='</details></section>';
+  const estado=c281EstadoRuta(d.porcentajeEntrega,utilidad,d.confirmados,d.ticketsSinPago);
+  html+='<section class="c281-utilidad c281-utilidad--'+estado.clase+'" aria-label="Utilidad estimada: '+(utilidad.disponible?c226Dinero(utilidad.estimada):'Sin datos')+'. Estado: '+estado.etiqueta+'">';
+  html+='<div class="c281-utilidad-datos"><span class="c281-utilidad-titulo">Utilidad estimada</span><strong class="c281-utilidad-importe">'+(utilidad.disponible?c226Dinero(utilidad.estimada):'Sin datos')+'</strong></div>';
+  html+='<div class="c281-estado" title="Indicador orientativo basado en entregas y utilidad bruta. No es rentabilidad neta ni meta comercial."><span class="c281-estado-icono" aria-hidden="true"><span>'+estado.icono+'</span></span><span>'+estado.etiqueta+'</span></div>';
+  html+='</section>';
   // El Kardex físico puede cerrarse sin cerrar los tickets ni la caja de ruta.
   const fisicos=d.faltantesFisicos||{};
   if(fisicos.cerrado){
