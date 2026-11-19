@@ -2100,7 +2100,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c280-principal{background:#edf5ff;border:1px solid #d3e5f9;padding:14px 16px;border-radius:17px;margin:11px 0 9px}
 .c280-principal span{display:block;color:#507191;font-size:12px;font-weight:700}.c280-principal strong{display:block;font-size:30px;line-height:1.2;color:#123e70;margin:5px 0;font-variant-numeric:tabular-nums}
 .c280-principal small{font-size:11px;color:#6783a0}
-.c280-metricas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0 12px}
+.c280-metricas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:9px 0 12px}
 .c280-metricas>div{border:1px solid #e0e8f3;border-radius:13px;background:#fff;padding:10px 8px;min-width:0}
 .c280-metricas span{font-size:11px;color:#6b849f;display:block}.c280-metricas b{display:block;color:#23486c;font-size:17px;margin-top:4px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 /* 1.7.81 · Estado visual de ruta. Solo estilo: no cambia los montos. */
@@ -2470,7 +2470,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.81</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.82</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -13177,7 +13177,7 @@ function c230Render(){
   if(!d){box.innerHTML=html+'<p class="c230-leyenda">Selecciona el Kardex que deseas revisar.</p>';return;}
   const tot=d.totales||{},caja=Number(d.efectivoAEntregar)||0,completos=d.tickets.filter(t=>t.estado==='COMPLETO').length;
   html+='<section class="c280-principal"><span>💵 Efectivo a rendir</span><strong>'+c226Dinero(caja)+'</strong><small>Ventas en efectivo + abonos en efectivo asociados a esta ruta</small></section>';
-  html+='<div class="c280-metricas"><div><span>📝 Crédito</span><b>'+c226Dinero(tot.ventasCredito)+'</b></div><div><span>Tickets</span><b>'+d.confirmados+' / '+d.totalTickets+'</b></div><div><span>Entregado</span><b>'+d.porcentajeEntrega+'%</b></div></div>';
+  html+='<div class="c280-metricas"><div><span>Tickets</span><b>'+d.confirmados+' / '+d.totalTickets+'</b></div><div><span>Entregado</span><b>'+d.porcentajeEntrega+'%</b></div></div>';
   // 1.7.81: solo cambia el INDICADOR visual. El servidor sigue calculando
   // la utilidad con la ganancia de Akasia proporcional a unidades entregadas.
   const utilidad=d.utilidadRuta||{};
