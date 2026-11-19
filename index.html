@@ -2103,6 +2103,55 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c230-persona{padding:13px;background:white;border:1px solid #d9e6f2;border-radius:15px;margin:10px 0}.c230-persona input{margin:10px 0!important}.c230-persona .c230-ok{background:#e9f8ec;color:#23643e;padding:8px 10px;border-radius:10px;font-size:12px}
 .c230-leyenda{font-size:11px;line-height:1.55;color:#66819a;margin:10px 0}.c230-panel{max-width:880px;margin:auto}
 
+/* Online Shop 1.7.86 · CLIENTES UNIFICADOS: interfaz sobria, exclusivamente visual. */
+.c286-tabs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;padding:5px;border-radius:15px;background:#e9eef5;margin:16px 0 12px}
+.c286-tabs button{background:transparent!important;color:#5d6e80!important;min-height:40px!important;margin:0!important;border-radius:11px!important;box-shadow:none!important;font-weight:800!important;font-size:13px!important}
+.c286-tabs button[aria-selected="true"]{background:#fff!important;color:#183653!important;box-shadow:0 1px 5px rgba(23,48,77,.08)!important}
+.c286-cabecera{display:flex;justify-content:space-between;align-items:center;margin:14px 0 7px;text-align:left}
+.c286-cabecera strong{display:block;color:#1d3652;font-size:17px;font-weight:800}
+.c286-cabecera small{display:block;font-size:12px;color:#7b8897;margin-top:3px}
+.c286-buscar{min-height:46px!important;border-radius:13px!important;border:1px solid #dce5ed!important;background:#fff!important;margin:7px 0 9px!important;font-size:14px!important;box-shadow:none!important}
+.c286-filtros{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:1px 0 9px}
+.c286-filtro{width:100%!important;min-width:0;background:#f2f5f8!important;color:#62758b!important;border:1px solid #e1e8f0!important;border-radius:11px!important;padding:7px 8px!important;margin:0!important;min-height:36px!important;font-size:11px!important;box-shadow:none!important;font-weight:750!important}
+.c286-filtro small{font-size:10px;color:inherit;opacity:.72;margin-left:2px}
+.c286-filtro[aria-pressed="true"]{background:#233e5d!important;color:#fff!important;border-color:#233e5d!important}
+.c286-lista{display:grid;gap:8px;margin-top:4px}
+.c230-ticket.c286-cliente{margin:0!important;padding:0!important;border-radius:16px!important;border:1px solid #e0e7ef!important;background:#fff!important;overflow:hidden;box-shadow:0 2px 10px rgba(23,49,78,.035)!important;scroll-margin-top:12px;text-align:left}
+.c230-ticket.c286-cliente[hidden],.c286-detalle[hidden],#c286SinResultados[hidden]{display:none!important}
+.c230-ticket.c286-cliente.c286-abierto{border-color:#cad9e7!important;box-shadow:0 5px 17px rgba(23,49,78,.07)!important}
+.c286-toggle{display:flex!important;width:100%!important;gap:11px!important;align-items:flex-start!important;text-align:left!important;padding:14px 13px!important;margin:0!important;min-height:66px!important;border:0!important;border-radius:0!important;background:#fff!important;color:#243e59!important;box-shadow:none!important}
+.c286-toggle:focus-visible{outline:2px solid #4e769d!important;outline-offset:-3px}
+.c286-num{font-size:12px;color:#91a0ae;font-weight:800;flex:0 0 20px;padding-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.c286-identidad{flex:1;min-width:0;display:block}
+.c286-identidad strong{display:block;font-size:13px!important;font-weight:800;color:#253e59!important;line-height:1.35;overflow-wrap:anywhere}
+.c286-identidad small{display:block;margin-top:4px;color:#8b99a9;font-size:11px}
+.c286-estados{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;color:#63788e;font-size:11px;font-weight:600;line-height:1.4}
+.c286-sep{opacity:.45}
+.c286-derecha{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:5px;min-width:58px;white-space:nowrap}
+.c286-derecha b{color:#203b56;font-size:14px;font-weight:850;font-variant-numeric:tabular-nums}
+.c286-flecha{color:#8da0b4;font-size:21px;line-height:1;transition:transform .14s ease}
+.c286-abierto .c286-flecha{transform:rotate(180deg)}
+.c286-detalle{padding:12px 13px 14px 44px;border-top:1px solid #edf1f5;text-align:left}
+.c286-datos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.c286-datos>div{background:#f5f7fa;border:1px solid #edf1f5;border-radius:10px;padding:9px 7px;min-width:0}
+.c286-datos span{display:block;font-size:10px;color:#7e8ca0}
+.c286-datos strong{display:block;margin-top:5px;font-size:12px;font-weight:750;color:#2c465f;overflow-wrap:anywhere}
+.c286-nota{font-size:11px;color:#708196;line-height:1.5;margin:10px 0}
+.c286-ubicacion:empty{display:none}
+.c286-ubicacion a{display:inline-block;font-size:12px;color:#285877;font-weight:750;text-decoration:none;padding:8px 0}
+.c286-detalle button{min-height:43px!important;box-shadow:none!important;margin:6px 0!important;border-radius:12px!important;font-size:12px!important}
+.c286-detalle .c286-accion-principal{background:#eaf0f6!important;color:#254665!important;border:1px solid #dce7f1!important;display:flex;align-items:center;justify-content:space-between;text-align:left;gap:8px}
+.c286-accion-principal span{font-size:21px;line-height:1}
+.c286-etiqueta,.c286-mixto label{display:block;font-size:12px;font-weight:700;color:#526983;margin-top:11px}
+.c286-cobrar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.c286-cobrar button{margin:0!important;background:#f0f4f8!important;color:#244b6e!important;border:1px solid #dbe5ee!important}
+.c286-mixto{border-top:1px solid #e9eef4;padding-top:10px;margin-top:10px}
+.c286-mixto button{background:#294e72!important;color:#fff!important}
+.c286-detalle input{margin:6px 0!important;min-height:44px!important;border-radius:11px!important}
+.c286-anular{background:#f3f3f4!important;color:#775e5e!important;border:1px solid #e6dada!important}
+.c286-vacio{padding:18px;text-align:center;border:1px dashed #d7e1ea;border-radius:12px;color:#718398;font-size:12px;background:#fff}
+@media(max-width:390px){.c286-toggle{gap:8px!important;padding:12px 10px!important}.c286-identidad strong{font-size:12px!important}.c286-derecha b{font-size:13px}.c286-detalle{padding-left:13px}.c286-datos{gap:4px}.c286-filtro{font-size:10px!important;padding:7px 6px!important}}
+
 /* 1.7.80 · Resumen de Ruta: compacto, legible, sin alterar las operaciones */
 .c280-ruta{padding:12px;background:#fff;border:1px solid #d6e4f2;border-radius:17px;margin:12px 0}
 .c280-ruta label{display:block;color:#617b97;font-size:12px;font-weight:750;margin-bottom:6px}
@@ -2485,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.84</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.86</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -4008,7 +4057,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             }else if(nombre==='resumenRuta'||nombre==='historialRuta'){
                 if(normalizarEmpleado(localStorage.getItem('sucursal'))!=='despacho')return volverMenuPrincipal();
                 document.getElementById('moduloCajaRuta230').style.display='block';
-                c230Vista=nombre==='historialRuta'?'historial':'caja';c230Abrir(false);
+                c230Vista=nombre==='historialRuta'?'clientes':'caja';c230Abrir(false);
             }else
             if (nombre === "conteosAsignados") {
                 document.getElementById("moduloConteosAsignados").style.display = "block";
@@ -7932,7 +7981,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "catalogoAkasia") c48Abrir();
             if (modulo === "logistica") m214Pestana('kardex');
             if (modulo === "creditos") c226Abrir(true);
-            if (modulo === "rutacaja") {c230Vista='tickets';c230Abrir(true);}
+            if (modulo === "rutacaja") {c230Vista='clientes';c230Abrir(true);}
             if (modulo === "preventa270") pv270Abrir(true);
             if (modulo === "asistencia") a196CargarAdmin();
             if (modulo === "n188") n188AbrirAdmin();
@@ -13028,7 +13077,8 @@ setInterval(()=>{
 </script>
 <script>
 // v1.7.32 · Tickets accionables para Despacho sin clave adicional.
-let c230Admin=false,c230Ruta='',c230Rutas=[],c230Datos=null,c230Vista='tickets',c230Buscar='',c230Ocupado=false,c230Carga=0,c230CerradasSinClientes=[];
+let c230Admin=false,c230Ruta='',c230Rutas=[],c230Datos=null,c230Vista='clientes',c230Buscar='',c230Ocupado=false,c230Carga=0,c230CerradasSinClientes=[];
+let c286Abierto='',c286Filtro='todos';
 let c267HistorialRuta='',c267HistorialUbicaciones=Object.create(null),c267HistorialPeticion=0;
 function c230Panel(){return document.getElementById(c230Admin?'c230PanelAdmin':'c230PanelRuta');}
 function c230Acceso(){return c230Admin?m200CredencialesAdmin():{empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};}
@@ -13037,10 +13087,11 @@ async function c230Post(accion,extra){
   const d=await r.json();if(!r.ok||d.status!=='OK'||d.version!=='1.7.30')throw Error(d.mensaje||'Publica Código.gs versión 1.7.30.');
   return d;
 }
-function c230Abrir(admin){c230Admin=!!admin;c230Ruta='';c230Datos=null;c230CerradasSinClientes=[];c267HistorialRuta='';c267HistorialUbicaciones=Object.create(null);c230Cargar();}
+function c230Abrir(admin){c230Admin=!!admin;c230Ruta='';c230Datos=null;c230CerradasSinClientes=[];c286Abierto='';c286Filtro='todos';c267HistorialRuta='';c267HistorialUbicaciones=Object.create(null);c230Cargar();}
 async function c230Cargar(ruta){
   const box=c230Panel(),peticion=++c230Carga;if(!box)return;
   const otraRuta=!!ruta&&String(ruta)!==String(c230Ruta);
+  if(otraRuta)c286Abierto='';
   if(!c230Datos||otraRuta)box.innerHTML='<p class="c226-info" role="status">↻ Cargando resumen de la ruta…</p>';
   else{const boton=box.querySelector('.c280-ruta-row button');if(boton){boton.disabled=true;boton.textContent='…';}}
   try{
@@ -13053,13 +13104,13 @@ async function c230Cargar(ruta){
     // Conserva la segunda consulta únicamente para versiones anteriores.
     if(elegida&&String(d.datos?.ruta?.idRuta||'')!==elegida){d=await c230Post('c230ListarRuta',{idRuta:elegida});if(peticion!==c230Carga)return;}
     c230Ruta=elegida;c230Datos=d.datos||null;c267HistorialRuta='';c267HistorialUbicaciones=Object.create(null);c230Render();
-    if(c230Vista==='historial')c267CargarHistorial();
+    if(c230Vista==='clientes')c267CargarHistorial();
   }catch(e){if(peticion===c230Carga){
     if(c230Datos&&!otraRuta){c230Render();alert('No se pudo actualizar el resumen: '+e.message);}
     else box.innerHTML='<p style="color:#a52a2a">'+escaparHtmlPedido(e.message)+'</p><button type="button" onclick="c230Cargar()">↻ Reintentar</button>';
   }}
 }
-function c230Pestana(vista){c230Vista=['tickets','historial','caja'].includes(vista)?vista:'tickets';c230Render();if(c230Vista==='historial')c267CargarHistorial();}
+function c230Pestana(vista){c230Vista=vista==='caja'?'caja':'clientes';c230Render();if(c230Vista==='clientes')c267CargarHistorial();}
 async function c267CargarHistorial(){
   const ruta=c230Ruta;if(!ruta||c267HistorialRuta===ruta)return;
   const peticion=++c267HistorialPeticion;
@@ -13073,10 +13124,56 @@ async function c267CargarHistorial(){
       ubicaciones[String(u.ticket)]={lat,lng,fecha:u.fecha||''};
     }
     c267HistorialUbicaciones=ubicaciones;c267HistorialRuta=ruta;
-    if(c230Vista==='historial')c230Render();
+    if(c230Vista==='clientes')c286PintarUbicaciones();
   }catch(e){console.warn('No se pudieron consultar las ubicaciones de entregas:',e.message);}
 }
-function c230Filtrar(valor){c230Buscar=String(valor||'');const q=k222Clave(c230Buscar);document.querySelectorAll('.c230-ticket[data-busca]').forEach(x=>{x.style.display=k222Clave(x.dataset.busca).includes(q)?'':'none';});}
+// v1.7.86: una sola lista de Clientes en lugar de Tickets e Historial duplicados.
+// Los filtros y la apertura de tarjetas funcionan localmente; no registran dinero ni entregas.
+function c286CambiarFiltro(filtro){
+  c286Filtro=['todos','pendientes','parciales','completos'].includes(filtro)?filtro:'todos';
+  document.querySelectorAll('.c286-filtro').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filtro===c286Filtro)));
+  c230Filtrar(c230Buscar);
+}
+function c230Filtrar(valor){
+  c230Buscar=String(valor||'');const q=k222Clave(c230Buscar);
+  const panel=c230Panel();if(!panel)return;
+  let visibles=0;
+  panel.querySelectorAll('.c286-cliente').forEach(el=>{
+    const busqueda=k222Clave(el.dataset.busca||'');
+    const coincideEstado=c286Filtro==='todos'||(el.dataset.estado||'').split(' ').includes(c286Filtro);
+    const visible=coincideEstado&&busqueda.includes(q);
+    el.hidden=!visible;
+    if(visible)visibles++;
+  });
+  const vacio=panel.querySelector('#c286SinResultados');if(vacio)vacio.hidden=visibles>0;
+}
+function c286Seleccionar(codigo){
+  const ticket=decodeURIComponent(codigo),panel=c230Panel();if(!panel)return;
+  c286Abierto=c286Abierto===ticket?'':ticket;
+  let abierta=null;
+  panel.querySelectorAll('.c286-cliente').forEach(el=>{
+    const activo=el.dataset.ticket===c286Abierto;
+    el.classList.toggle('c286-abierto',activo);
+    const boton=el.querySelector('.c286-toggle');if(boton)boton.setAttribute('aria-expanded',String(activo));
+    const detalle=el.querySelector('.c286-detalle');if(detalle)detalle.hidden=!activo;
+    if(activo)abierta=el;
+  });
+  if(abierta)requestAnimationFrame(()=>abierta.scrollIntoView({behavior:'smooth',block:'start'}));
+}
+function c286PintarUbicaciones(){
+  const panel=c230Panel();if(!panel||!c230Datos)return;
+  for(const t of c230Datos.tickets||[]){
+    const cod=encodeURIComponent(String(t.ticket)).replace(/'/g,'%27');
+    const destino=panel.querySelector('[id="c286Ubicacion_'+cod+'"]');if(!destino)continue;
+    const ubicacion=c267HistorialUbicaciones[String(t.ticket)];
+    if(!ubicacion){destino.replaceChildren();continue;}
+    const link=document.createElement('a');
+    link.href='https://www.google.com/maps?q='+encodeURIComponent(ubicacion.lat+','+ubicacion.lng);
+    link.target='_blank';link.rel='noopener noreferrer';
+    link.textContent=t.estado==='NO_ENTREGADO'?'⌖ Ver ubicación de visita':'⌖ Ver ubicación de entrega';
+    destino.replaceChildren(link);
+  }
+}
 function c230IrTicket(encoded){
   const ticket=decodeURIComponent(encoded);
   if(c230Ruta){c244RutaClientes=c230Ruta;sessionStorage.setItem('c244RutaClientes',c230Ruta);}
@@ -13243,39 +13340,54 @@ function c230Render(){
     html+='</section>';
   }
   if(d.ticketsSinPago)html+='<p class="c280-alerta">⚠️ '+d.ticketsSinPago+' ticket(s) entregados todavía no tienen cobro o crédito registrado.</p>';
-  html+='<div class="c230-tabs">'+[['tickets','🧾 Tickets'],['historial','📋 Historial'],['caja','💵 Caja de Ruta']].map(([id,label])=>'<button type="button" aria-selected="'+(c230Vista===id)+'" onclick="c230Pestana(\''+id+'\')">'+label+'</button>').join('')+'</div>';
-  if(c230Vista==='tickets'){
-    html+='<input type="search" placeholder="🔎 Buscar cliente o ticket" value="'+escaparHtmlPedido(c230Buscar)+'" oninput="c230Filtrar(this.value)" style="margin:8px 0 13px">';
-    for(const t of d.tickets){
-      const cod=encodeURIComponent(t.ticket),pend=t.pago==='SIN_REGISTRAR',pagable=t.confirmado&&!t.sinEntrega;
-      html+='<section class="c230-ticket" data-busca="'+escaparHtmlPedido((t.cliente+' '+t.ticket).toUpperCase())+'"><header><div><strong>'+escaparHtmlPedido(t.cliente||'Cliente sin nombre')+'</strong><small>Ticket #'+escaparHtmlPedido(t.ticket)+'</small></div><b>'+c226Dinero(t.total)+'</b></header>';
-      html+='<div class="c230-estados"><span>Entrega: '+escaparHtmlPedido(t.estado.replaceAll('_',' '))+'</span><span>Pago: '+escaparHtmlPedido(t.pago.replaceAll('_',' '))+'</span></div>';
-      html+='<p class="c230-leyenda">Productos entregados: '+t.entregado+' / '+t.solicitado+' unidades'+(t.faltantes?' · '+t.faltantes+' faltante(s)':'')+'</p>';
-      html+='<button type="button" style="background:#e8f3ff;color:#245e99" onclick="c230IrTicket(\''+cod+'\')">'+(t.confirmado?'🔎 Abrir detalle del ticket':'📦 Revisar productos y confirmar entrega')+'</button>';
+  // Un solo lugar para consultar Clientes. Caja de Ruta permanece independiente.
+  html+='<div class="c230-tabs c286-tabs">'+[['clientes','Clientes'],['caja','Caja de Ruta']].map(([id,label])=>'<button type="button" aria-selected="'+(c230Vista===id)+'" onclick="c230Pestana(\''+id+'\')">'+label+'</button>').join('')+'</div>';
+  if(c230Vista==='clientes'){
+    const lista=d.tickets||[];
+    const cuenta={todos:lista.length,pendientes:0,parciales:0,completos:0};
+    for(const t of lista){
+      if(!t.confirmado || (t.confirmado&&!t.sinEntrega&&t.pago==='SIN_REGISTRAR'))cuenta.pendientes++;
+      if(t.estado==='PARCIAL')cuenta.parciales++;
+      if(t.estado==='COMPLETO')cuenta.completos++;
+    }
+    html+='<div class="c286-cabecera"><div><strong>Clientes de la ruta</strong><small>'+lista.length+' tickets · Kardex #'+escaparHtmlPedido(d.ruta?.numero||'')+'</small></div></div>';
+    html+='<input class="c286-buscar" type="search" placeholder="Buscar cliente o ticket" aria-label="Buscar cliente o ticket" value="'+escaparHtmlPedido(c230Buscar)+'" oninput="c230Filtrar(this.value)">';
+    html+='<div class="c286-filtros" aria-label="Filtrar clientes">';
+    for(const [id,label] of [['todos','Todos'],['pendientes','Pendientes'],['parciales','Parciales'],['completos','Completos']]){
+      html+='<button type="button" class="c286-filtro" data-filtro="'+id+'" aria-pressed="'+(c286Filtro===id)+'" onclick="c286CambiarFiltro(\''+id+'\')">'+label+' <small>'+cuenta[id]+'</small></button>';
+    }
+    html+='</div><div class="c286-lista">';
+    for(const [i,t] of lista.entries()){
+      const ticket=String(t.ticket),cod=encodeURIComponent(ticket).replace(/'/g,'%27');
+      const pend=t.pago==='SIN_REGISTRAR',pagable=t.confirmado&&!t.sinEntrega;
+      const entrega=c284EstadoEntrega(t.estado),pago=c284EstadoPago(t.pago);
+      const filtroEstado=(t.estado==='COMPLETO'?'completos':t.estado==='PARCIAL'?'parciales':'pendientes')+((!t.confirmado||(t.confirmado&&!t.sinEntrega&&pend))?' pendientes':'');
+      const abierta=c286Abierto===ticket;
+      html+='<article class="c230-ticket c286-cliente'+(abierta?' c286-abierto':'')+'" data-ticket="'+escaparHtmlPedido(ticket)+'" data-estado="'+filtroEstado+'" data-busca="'+escaparHtmlPedido((t.cliente+' '+ticket).toUpperCase())+'">';
+      html+='<button type="button" class="c286-toggle" onclick="c286Seleccionar(\''+cod+'\')" aria-expanded="'+abierta+'" aria-controls="c286Detalle_'+cod+'">';
+      html+='<span class="c286-num">'+String(i+1).padStart(2,'0')+'</span>';
+      html+='<span class="c286-identidad"><strong>'+escaparHtmlPedido(t.cliente||'Cliente sin nombre')+'</strong><small>Ticket #'+escaparHtmlPedido(ticket)+'</small>';
+      html+='<span class="c286-estados"><span>'+escaparHtmlPedido(entrega.texto)+'</span><span class="c286-sep">·</span><span>'+escaparHtmlPedido(pago.texto)+'</span></span></span>';
+      html+='<span class="c286-derecha"><b>'+c226Dinero(t.total)+'</b><span class="c286-flecha" aria-hidden="true">⌄</span></span></button>';
+      html+='<div class="c286-detalle" id="c286Detalle_'+cod+'" '+(abierta?'':'hidden')+'>';
+      html+='<div class="c286-datos"><div><span>Entrega</span><strong>'+entrega.texto+'</strong></div><div><span>Forma de pago</span><strong>'+pago.texto+'</strong></div><div><span>Unidades</span><strong>'+t.entregado+' / '+t.solicitado+'</strong></div></div>';
+      if(t.faltantes)html+='<p class="c286-nota">'+t.faltantes+' unidad(es) no entregadas.</p>';
+      if(t.confirmado)html+='<div class="c286-ubicacion" id="c286Ubicacion_'+cod+'"></div>';
+      html+='<button type="button" class="c286-accion-principal" onclick="c230IrTicket(\''+cod+'\')">'+(t.confirmado?'Ver productos y entrega':'Revisar productos y confirmar entrega')+' <span aria-hidden="true">›</span></button>';
       if(pagable&&pend){
-        if(!t.completo)html+='<label for="c230Monto_'+cod+'" style="font-size:12px;font-weight:800;color:#945417">Importe REAL ajustado del ticket ($)</label><input id="c230Monto_'+cod+'" type="number" min="0.01" max="'+Number(t.total).toFixed(2)+'" step="0.01" placeholder="Verifica el importe en Akasia"><p class="c230-leyenda">Pedido parcial: confirma el valor de lo entregado respetando Precio 2 y descuentos.</p>';
-        else html+='<p class="c230-leyenda">Total facturado según Akasia: <b>'+c226Dinero(t.total)+'</b>.</p>';
-        html+='<div class="c229-acciones"><button type="button" style="background:#dff7e7;color:#206843" onclick="c230GuardarPago(\''+cod+'\',\'EFECTIVO\')">💵 Pagó en efectivo</button><button type="button" style="background:#e8edff;color:#27478d" onclick="c230GuardarPago(\''+cod+'\',\'CREDITO\')">📝 Quedó a crédito</button></div>';
-        html+='<div style="border-top:1px solid #e3ebf3;padding-top:10px;margin-top:9px"><label for="c230Efectivo_'+cod+'" style="font-size:12px;font-weight:800">Si paga una parte: ¿cuánto efectivo entregó? ($)</label><input id="c230Efectivo_'+cod+'" type="number" min="0.01" step="0.01" placeholder="Ej. 50.00"><button type="button" style="background:#edf2ff;color:#234d91" onclick="c230GuardarPago(\''+cod+'\',\'MIXTO\')">💵 + 📝 Registrar pago parcial</button></div>';
-      }else if(t.pago==='SIN_COBRO')html+='<p class="c230-leyenda">El cliente no recibió productos. No se genera cobro.</p>';
-      else if(!pend){html+='<p class="c230-leyenda">'+(t.pago==='MIXTO'?'Pagó en efectivo: '+c226Dinero(t.efectivoRegistrado)+' · Queda a crédito: '+c226Dinero(t.creditoRegistrado):'Monto registrado: '+c226Dinero(t.importeRegistrado))+' · Por '+escaparHtmlPedido(t.cobradoPor||'')+'</p>';
-        if(c230Admin)html+='<button type="button" style="background:#fff0f0;color:#a72d2d" onclick="c230AnularPago(\''+cod+'\')">Anular registro contable (Admin)</button>';
+        if(!t.completo)html+='<label for="c230Monto_'+cod+'" class="c286-etiqueta">Importe real de los productos entregados ($)</label><input id="c230Monto_'+cod+'" type="number" min="0.01" max="'+Number(t.total).toFixed(2)+'" step="0.01" placeholder="Verifica el total en Akasia"><p class="c286-nota">Para entregas parciales, respeta descuentos y Precio 2 de Akasia.</p>';
+        else html+='<p class="c286-nota">Total según Akasia: <strong>'+c226Dinero(t.total)+'</strong></p>';
+        html+='<div class="c286-cobrar"><button type="button" onclick="c230GuardarPago(\''+cod+'\',\'EFECTIVO\')">Efectivo</button><button type="button" onclick="c230GuardarPago(\''+cod+'\',\'CREDITO\')">Crédito</button></div>';
+        html+='<div class="c286-mixto"><label for="c230Efectivo_'+cod+'">Si entrega una parte en efectivo ($)</label><input id="c230Efectivo_'+cod+'" type="number" min="0.01" step="0.01" placeholder="Ej. 50.00"><button type="button" onclick="c230GuardarPago(\''+cod+'\',\'MIXTO\')">Registrar pago parcial</button></div>';
+      }else if(t.pago==='SIN_COBRO')html+='<p class="c286-nota">Sin productos entregados; no se genera cobro.</p>';
+      else if(!pend){
+        html+='<p class="c286-nota">'+(t.pago==='MIXTO'?'Efectivo: '+c226Dinero(t.efectivoRegistrado)+' · Crédito: '+c226Dinero(t.creditoRegistrado):'Registrado: '+c226Dinero(t.importeRegistrado))+' · '+escaparHtmlPedido(t.cobradoPor||'')+'</p>';
+        if(c230Admin)html+='<button type="button" class="c286-anular" onclick="c230AnularPago(\''+cod+'\')">Anular registro contable (Admin)</button>';
       }
-      html+='</section>';
+      html+='</div></article>';
     }
-    if(!d.tickets.length)html+='<p class="c226-info">Todavía no hay tickets asociados a este Kardex.</p>';
-  }else if(c230Vista==='historial'){
-    html+='<p class="c230-leyenda">Historial de entregas confirmadas. Las entregas incompletas permanecen visibles.</p>';
-    const registrados=d.tickets.filter(t=>t.confirmado);
-    for(const [i,t] of registrados.entries()){
-      const ubicacion=c267HistorialUbicaciones[String(t.ticket)];
-      const estadoEntrega=c284EstadoEntrega(t.estado),estadoPago=c284EstadoPago(t.pago);
-      html+='<div class="c230-ticket c284-historial"><header><div><strong><span class="c284-orden">#'+(i+1)+'</span> '+escaparHtmlPedido(t.cliente||'Cliente sin nombre')+'</strong><small>Ticket #'+escaparHtmlPedido(t.ticket)+'</small></div><span class="c284-entrega '+(estadoEntrega.clase?'c284-entrega--'+estadoEntrega.clase:'')+'"><span aria-hidden="true">'+estadoEntrega.icono+'</span>'+estadoEntrega.texto+'</span></header>';
-      html+='<div class="c284-estados"><span class="c284-dato">'+t.entregado+' / '+t.solicitado+' unidades</span><span class="c284-dato c284-pago--'+estadoPago.clase+'"><span aria-hidden="true">'+estadoPago.icono+'</span> '+estadoPago.texto+'</span></div>';
-      if(ubicacion)html+='<p class="c230-leyenda"><a href="https://www.google.com/maps?q='+encodeURIComponent(ubicacion.lat+','+ubicacion.lng)+'" target="_blank" rel="noopener noreferrer" style="font-weight:800;color:#1464a8">📍 Ver ubicación '+(t.estado==='NO_ENTREGADO'?'de visita':'de entrega')+'</a></p>';
-      html+='</div>';
-    }
-    if(!registrados.length)html+='<p class="c226-info">Aún no hay tickets entregados confirmados.</p>';
+    html+='</div><p id="c286SinResultados" class="c286-vacio" hidden>No hay clientes con ese filtro.</p>';
+    if(!lista.length)html+='<p class="c226-info">Todavía no hay tickets asociados a este Kardex.</p>';
   }else{
     html+='<div class="c230-resumen"><div>Ventas en efectivo<strong>'+c226Dinero(tot.ventasEfectivo)+'</strong></div><div>Abonos en efectivo<strong>'+c226Dinero(tot.abonosEfectivo)+'</strong></div><div>Abonos por transferencia<strong>'+c226Dinero(tot.abonosTransferencia)+'</strong></div><div>Ventas a crédito<strong>'+c226Dinero(tot.ventasCredito)+'</strong></div></div>';
     html+='<h4 style="color:#28567b">💼 Efectivo por encargado</h4>';
@@ -13296,7 +13408,7 @@ function c230Render(){
     if(d.confirmados!==d.totalTickets||d.ticketsSinPago)html+='<p class="c228-alerta">⚠️ No se puede liquidar mientras haya tickets sin entrega confirmada o sin registro de pago.</p>';
     html+='<p class="c230-leyenda">Los abonos de deudas anteriores solo se suman aquí si el colaborador seleccionó este Kardex al cobrarlos. Las transferencias no se cuentan como billetes recibidos.</p>';
   }
-  box.innerHTML=html;if(c230Vista==='tickets')c230Filtrar(c230Buscar);
+  box.innerHTML=html;if(c230Vista==='clientes'){c230Filtrar(c230Buscar);c286PintarUbicaciones();}
 }
 // ========================================================================
 // v1.7.57 · DESCARGA OPCIONAL DE EXCEL POR SUCURSAL
