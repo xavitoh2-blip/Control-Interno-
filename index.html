@@ -2438,7 +2438,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.78</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.79</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -8624,37 +8624,59 @@ async function verificarPassword() {
           c267Pendientes=c267Pendientes.filter(x=>x.operacion!==registro.operacion).concat(registro);
           return registro;
         }
+        // v1.7.79 · No abortar a los 16 segundos una petición que Apps Script
+        // puede seguir procesando. La operación original se reutiliza siempre.
         async function c267EnviarRegistro(x){
-          const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),16000);
+          const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),45000);
           try{
             const respuesta=await fetch(URL_API,{method:'POST',body:new URLSearchParams(x.payload),cache:'no-store',signal:ctrl.signal});
-            const datos=await respuesta.json();
-            if(!respuesta.ok)throw Error('Error de transporte HTTP '+respuesta.status);
-            return datos;
+            if(!respuesta.ok)throw Error('El servidor respondió HTTP '+respuesta.status);
+            return await respuesta.json();
+          }catch(e){
+            if(e?.name==='AbortError')throw Error('Sin respuesta después de 45 segundos. Puede seguir procesándose en Apps Script. Se reintentará con la misma operación.');
+            throw e;
           }finally{clearTimeout(tm);}
         }
-        async function c267Sincronizar(){
+        async function c267Sincronizar(soloOperacion){
           if(c267Sincronizando||navigator.onLine===false||!c267Pendientes.length)return;
           c267Sincronizando=true;let actualizo=false;
           try{
             const u=c267Identidad();
             for(const x of c267Pendientes.slice()){
               if(x.estado!=='PENDIENTE'||x.empleado!==u.empleado||x.sucursal!==u.sucursal)continue;
+              if(soloOperacion&&x.operacion!==soloOperacion)continue;
               let datos;
-              try{datos=await c267EnviarRegistro(x);}catch(_){break;}// Conserva operación si la respuesta es incierta.
+              try{
+                x.enviando=true;
+                datos=await c267EnviarRegistro(x);
+              }catch(errorRed){
+                // No conocemos si Apps Script terminó el guardado: NO eliminamos
+                // el ticket, NO cambiamos su operación y NO creamos otra venta.
+                x.enviando=false;
+                x.mensaje=String(errorRed?.message||'Sin respuesta del servidor. Se reintentará.').slice(0,240);
+                x.ultimoIntento=Date.now();
+                try{await c267DBAccion('entregas','readwrite','put',x);}catch(e){console.warn('Estado de sincronización:',e);}
+                if(c227Vista==='clientes'&&c227DatosUI)c227Render();
+                break;
+              }
+              x.enviando=false;
               const esperado=x.payload.accion==='c268ConfirmarTicket'?'1.7.66':'1.7.29';
               if(datos.status==='OK'&&datos.version===esperado){
                 await c267DBAccion('entregas','readwrite','delete',x.operacion);
                 c267Pendientes=c267Pendientes.filter(y=>y.operacion!==x.operacion);
+                c241UltimoTicketConfirmado=String(x.ticket);
                 actualizo=true;
               }else{
                 x.intentos=(Number(x.intentos)||0)+1;
-                x.mensaje=String(datos?.mensaje||'El ticket necesita revisión en Administración.').slice(0,240);
+                x.mensaje=String(datos?.mensaje||'El servidor devolvió una respuesta no confirmada. Verifica la implementación de Código.gs.').slice(0,240);
+                x.ultimoIntento=Date.now();
                 // Se reintenta un error del servidor con el MISMO ID: c227 y
                 // c230 son idempotentes. Tras tres rechazos, requiere revisión.
                 x.estado=x.intentos>=3?'ERROR':'PENDIENTE';
                 await c267DBAccion('entregas','readwrite','put',x);
-                actualizo=true;
+                // Un rechazo no cambió entregas ni dinero; evitar recargar
+                // todo el Kardex solo para pintar el mensaje de error.
+                if(c227Vista==='clientes'&&c227DatosUI)c227Render();
                 if(x.estado==='PENDIENTE')break;
               }
             }
@@ -8662,10 +8684,22 @@ async function verificarPassword() {
           finally{c267Sincronizando=false;}
           if(actualizo&&c227Vista==='clientes'&&document.getElementById('c227ListaClientes'))c227Cargar();
         }
+        async function c267SincronizarManual(operacion){
+          const x=c267Pendientes.find(t=>t.operacion===operacion);
+          if(!x)return alert('El ticket ya no está pendiente. Actualiza la lista.');
+          if(x.estado==='ERROR')return alert('Este ticket requiere revisión. No lo registres nuevamente.');
+          if(navigator.onLine===false)return alert('No hay conexión. El ticket sigue guardado en este teléfono.');
+          if(c267Sincronizando)return alert('Ya se está enviando una sincronización. Revisa el estado dentro de unos momentos.');
+          await c267Sincronizar(operacion);
+          const pendiente=c267Pendientes.find(t=>t.operacion===operacion);
+          if(pendiente){
+            alert('Todavía no hay confirmación del servidor. El ticket sigue guardado y NO debes repetir la venta. '+String(pendiente.mensaje||''));
+          }else alert('Ticket sincronizado y confirmado por el servidor.');
+        }
         window.addEventListener('online',()=>{c267PrepararOffline().then(()=>c267Sincronizar()).catch(console.warn);});
         window.addEventListener('focus',()=>{if(navigator.onLine)c267PrepararOffline().then(()=>c267Sincronizar()).catch(console.warn);});
         // Reintento mientras la aplicación está abierta; no promete funcionar cerrada.
-        setInterval(()=>{if(navigator.onLine&&c267Pendientes.some(x=>x.estado==='PENDIENTE'))c267Sincronizar();},30000);
+        setInterval(()=>{if(navigator.onLine&&c267Pendientes.some(x=>x.estado==='PENDIENTE'))c267Sincronizar();},20000);
         async function c227Cargar(){
           const cont=document.getElementById('c227ListaClientes'),ver=++c227Peticion;if(!cont)return;
           let respuestaServidor=false;
@@ -9045,12 +9079,14 @@ async function verificarPassword() {
             if(c240ClienteActivo===t&&!confirmado&&!c229Editor[t])c229Editor[t]={modo:'faltantes',excepciones:Object.create(null)};
             const editor=c229Editor[t],editando=editor?.modo==='faltantes',confirmandoCompleto=editor?.modo==='completo',excepciones=editor?.excepciones||{};
             if(!c240ClienteActivo){
-              html+='<div class="c240-cliente-item" data-estado="'+c240EstadoTicket(lineas)+'" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'"><button type="button" onclick="c240AbrirCliente(\''+t+'\')"><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><b>'+c234Moneda(c233ImporteAkasia(t))+'</b><span class="c240-chevron" aria-hidden="true">›</span></button>'+(pendienteLocal?'<small style="color:'+(pendienteLocal.estado==='ERROR'?'#b42318':'#9c631d')+';padding:0 14px 9px;display:block;font-weight:800">'+(pendienteLocal.estado==='ERROR'?'⚠️ Requiere revisión':'📴 Ticket pendiente de sincronizar')+'</small>':'')+'</div>';
+              const estadoLocal=pendienteLocal?(pendienteLocal.estado==='ERROR'?'⚠️ Requiere revisión':pendienteLocal.enviando?'⏳ Enviando al servidor…':navigator.onLine?'⏳ Pendiente de confirmar en servidor':'📴 Guardado sin conexión'):'';
+              const botonSync=pendienteLocal&&pendienteLocal.estado==='PENDIENTE'?'<button type="button" style="margin:0 12px 12px;padding:9px 14px;border:1px solid #b4cce7;border-radius:12px;color:#17558c;background:#eef6ff;font-weight:800;width:auto" onclick="c267SincronizarManual(\''+escaparHtmlPedido(pendienteLocal.operacion)+'\')">↻ Sincronizar ahora</button>':'';
+              html+='<div class="c240-cliente-item" data-estado="'+c240EstadoTicket(lineas)+'" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'"><button type="button" onclick="c240AbrirCliente(\''+t+'\')"><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><b>'+c234Moneda(c233ImporteAkasia(t))+'</b><span class="c240-chevron" aria-hidden="true">›</span></button>'+(pendienteLocal?'<small style="color:'+(pendienteLocal.estado==='ERROR'?'#b42318':'#9c631d')+';padding:0 14px 9px;display:block;font-weight:800">'+estadoLocal+'</small>':'')+botonSync+'</div>';
               continue;
             }
             if(c240ClienteActivo!==t)continue;
             if(pendienteLocal){
-              html+='<section class="k225-ticket"><strong>'+escaparHtmlPedido(cab.cliente||'Cliente')+' · Ticket #'+escaparHtmlPedido(t)+'</strong><p class="c226-info" style="color:'+(pendienteLocal.estado==='ERROR'?'#b42318':'#9c631d')+'">'+(pendienteLocal.estado==='ERROR'?'⚠️ El servidor requiere revisar este ticket: '+escaparHtmlPedido(pendienteLocal.mensaje||'Contacta a Administración.'):'📴 Ticket guardado en el teléfono. La entrega y su forma de pago se sincronizarán cuando regrese internet.')+'</p><p class="c226-info">'+(pendienteLocal.pago?(pendienteLocal.pago.tipo==='MIXTO'?'💵 Efectivo '+c226Dinero(pendienteLocal.pago.efectivo)+' + 🧾 Crédito '+c226Dinero(pendienteLocal.pago.credito):(pendienteLocal.pago.tipo==='EFECTIVO'?'💵 Efectivo':'🧾 Crédito')+' · '+c226Dinero(pendienteLocal.pago.monto))+' · Pendiente de confirmar en servidor':'Registro anterior: pago pendiente de revisar en línea')+'</p></section>';
+              html+='<section class="k225-ticket"><strong>'+escaparHtmlPedido(cab.cliente||'Cliente')+' · Ticket #'+escaparHtmlPedido(t)+'</strong><p class="c226-info" style="color:'+(pendienteLocal.estado==='ERROR'?'#b42318':'#9c631d')+'">'+(pendienteLocal.estado==='ERROR'?'⚠️ El servidor requiere revisar este ticket: '+escaparHtmlPedido(pendienteLocal.mensaje||'Contacta a Administración.'):(navigator.onLine?'⏳ Guardado en el teléfono. Esperando confirmación del servidor.':'📴 Guardado en el teléfono. Se sincronizará cuando regrese internet.'))+'</p><p class="c226-info">'+(pendienteLocal.pago?(pendienteLocal.pago.tipo==='MIXTO'?'💵 Efectivo '+c226Dinero(pendienteLocal.pago.efectivo)+' + 🧾 Crédito '+c226Dinero(pendienteLocal.pago.credito):(pendienteLocal.pago.tipo==='EFECTIVO'?'💵 Efectivo':'🧾 Crédito')+' · '+c226Dinero(pendienteLocal.pago.monto))+' · Pendiente de confirmar en servidor':'Registro anterior: pago pendiente de revisar en línea')+'</p>'+(pendienteLocal.mensaje?'<p class="c226-info" style="font-size:12px">'+escaparHtmlPedido(pendienteLocal.mensaje)+'</p>':'')+(pendienteLocal.estado==='PENDIENTE'?'<button type="button" style="padding:10px 14px;border-radius:12px;background:#e5f1ff;color:#17558c" onclick="c267SincronizarManual(\''+escaparHtmlPedido(pendienteLocal.operacion)+'\')">↻ Sincronizar ahora</button>':'')+'</section>';
               continue;
             }
             html+='<section class="k225-ticket" data-busca="'+escaparHtmlPedido((cab.cliente+' '+t+' '+lineas.map(x=>x.producto).join(' ')).toUpperCase())+'" data-ticket="'+escaparHtmlPedido(t)+'"><header><div><strong>'+escaparHtmlPedido(cab.cliente||'Cliente sin identificar')+'</strong><small>Ticket #'+escaparHtmlPedido(t)+' · '+(confirmado?(completo?'✅ Entregado completo':sinEntregar?'🔴 No entregado':'🟡 Entrega parcial'):riesgos.length?'⚠️ Posible faltante':'⏳ Pendiente de entrega')+'</small></div><b>'+c234Moneda(c233ImporteAkasia(t))+'</b></header>';
@@ -9212,11 +9248,9 @@ async function verificarPassword() {
             delete c229Editor[ticket];delete c233Pagos[ticket];delete c233PagoSolo[ticket];
             c240ClienteActivo=null;c227Render();
             if(sinConexion){alert('📴 Ticket guardado en este teléfono con su forma de pago. Pendiente de sincronizar.\nNo borres los datos del navegador ni liquides la ruta antes de sincronizar.');return;}
-            await c267Sincronizar();
-            const pendiente=c267PendienteTicket(idRuta,ticket);
-            if(pendiente){
-              alert(pendiente.estado==='ERROR'?'⚠️ El servidor requiere revisar este ticket: '+pendiente.mensaje:'📴 Ticket guardado en el teléfono, pendiente de sincronizar. El efectivo/crédito todavía NO aparece confirmado en Administración.');
-            }else{c241UltimoTicketConfirmado=ticket;}
+            // El repartidor puede seguir con el siguiente cliente. Solo la
+            // respuesta del servidor cambia el estado a sincronizado.
+            c267Sincronizar().catch(error=>console.warn('Ticket conservado para reintento:',error));
           }catch(e){
             alert('No se pudo guardar el ticket: '+e.message+'\nSi quedó pendiente en el dispositivo, no repitas la confirmación.');
             if(btn)btn.disabled=false;
