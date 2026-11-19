@@ -2514,6 +2514,99 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
 </style>
     <link rel="stylesheet" href="./asistencia22.css?v=20261117_22">
+<style id="c287DespachoApp">
+
+/* ===== Online Shop 1.7.87 · Navegación Despacho como app ===== */
+body.c287-app{padding:0 0 30px!important;background:#f2f6fb!important}
+body.c287-app #encabezadoLogo,
+body.c287-app #tituloControlOperativo,
+body.c287-app #versionSistema,
+body.c287-app #pantallaPrincipal>.card:first-child{display:none!important}
+body.c287-app #pantallaPrincipal{width:100%;max-width:850px;margin:0 auto!important;padding:0 10px 20px!important}
+body.c287-app #moduloFaltantesKardex,
+body.c287-app #moduloPrepararDespacho,
+body.c287-app #moduloCajaRuta230,
+body.c287-app #moduloCuentasCobros{
+ width:100%!important;max-width:850px!important;margin:0 auto!important;
+ padding:0 10px 22px!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;background:transparent!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;
+ overflow:visible!important
+}
+body.c287-app #moduloFaltantesKardex>h3,
+body.c287-app #moduloPrepararDespacho>h3,
+body.c287-app #moduloCajaRuta230>h3,
+body.c287-app #moduloCajaRuta230>p.c230-leyenda,
+body.c287-app #moduloCuentasCobros>h3,
+body.c287-app #moduloCuentasCobros>p.c226-info{display:none!important}
+body.c287-app .c238-barra{
+ display:block!important;position:sticky;top:0;z-index:90;
+ padding:12px 5px 11px!important;margin:0 -10px 14px!important;border:0!important;
+ border-bottom:1px solid #e0e8f1!important;border-radius:0!important;
+ background:rgba(246,249,253,.97)!important;
+ box-shadow:0 3px 10px rgba(24,55,85,.045)!important;
+ backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)
+}
+body.c287-app .c238-barra .c238-inicio{
+ display:inline-flex!important;align-items:center;min-height:33px!important;margin:0 0 10px 5px!important;
+ color:#304f6f!important;font-size:13px!important;font-weight:750!important
+}
+body.c287-app .c238-barra .c238-etapas{gap:5px;padding:0 4px}
+body.c287-app .c238-barra .c238-etapas button{
+ min-height:47px!important;border:1px solid #e0e7ef!important;
+ border-radius:12px!important;background:#edf2f8!important;color:#435b75!important;
+ font-size:11px!important;box-shadow:none!important
+}
+body.c287-app .c238-barra .c238-etapas button[aria-selected=true]{
+ background:#233e5d!important;color:white!important;border-color:#233e5d!important
+}
+body.c287-app .c238-barra .c238-secciones{
+ flex-wrap:nowrap!important;overflow-x:auto;overscroll-behavior-x:contain;
+ -webkit-overflow-scrolling:touch;scrollbar-width:none;
+ gap:6px;padding:8px 4px 1px;margin:0
+}
+body.c287-app .c238-barra .c238-secciones::-webkit-scrollbar{display:none}
+body.c287-app .c238-barra .c238-secciones button{
+ flex:0 0 auto!important;min-width:110px!important;min-height:36px!important;
+ padding:6px 12px!important;margin:0!important;
+ background:white!important;color:#506783!important;border:1px solid #dde5ef!important;
+ box-shadow:none!important;border-radius:11px!important;font-size:11px!important
+}
+body.c287-app .c238-barra .c238-secciones button[aria-selected=true]{
+ color:#243e5c!important;background:#e4ecf5!important;border-color:#bccddd!important
+}
+body.c287-app #c230PanelRuta>.c280-ruta{margin-top:6px}
+body.c287-app .c286-lista{gap:8px}
+body.c287-app .c287-volver-ficha{display:none!important}
+body.c287-ficha-activa{overflow:hidden!important}
+body.c287-app.c287-ficha-activa .c286-cliente.c286-abierto{
+ position:fixed!important;inset:0!important;z-index:9998!important;
+ display:block!important;overflow-x:hidden!important;overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+ width:100vw!important;max-width:none!important;height:100dvh!important;
+ padding:calc(14px + env(safe-area-inset-top)) 18px calc(30px + env(safe-area-inset-bottom))!important;
+ margin:0!important;background:#f5f8fc!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;transform:none!important;animation:none!important
+}
+body.c287-app.c287-ficha-activa .c286-abierto .c287-volver-ficha{
+ display:inline-flex!important;width:auto!important;min-height:40px!important;
+ padding:9px 12px!important;margin:0 0 14px!important;
+ color:#2b4c6e!important;background:#e9f0f7!important;border:1px solid #dfe7ef!important;
+ border-radius:12px!important;box-shadow:none!important;font-size:13px!important;font-weight:800!important
+}
+body.c287-app.c287-ficha-activa .c286-abierto>.c286-toggle{
+ border:1px solid #dae5ef!important;border-radius:17px!important;padding:18px 14px!important;
+ margin:0 0 11px!important;box-shadow:none!important
+}
+body.c287-app.c287-ficha-activa .c286-abierto .c286-detalle{
+ border:1px solid #dae5ef!important;border-radius:17px!important;
+ padding:16px!important;background:#fff!important
+}
+body.c287-app.c287-ficha-activa .c286-abierto .c286-datos{gap:7px}
+@media(min-width:700px){body.c287-app.c287-ficha-activa .c286-cliente.c286-abierto{padding-left:max(calc((100vw - 680px)/2),20px)!important;padding-right:max(calc((100vw - 680px)/2),20px)!important}}
+@media(max-width:390px){body.c287-app .c238-barra .c238-etapas button{font-size:10px!important;padding:6px 3px!important}body.c287-app .c238-barra .c238-secciones button{min-width:98px!important;padding:6px 9px!important}}
+
+</style>
 </head>
 <body>
 <div id="c42PortalPrueba" class="card" style="display:none;max-width:490px;text-align:left;">
@@ -2534,7 +2627,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.86</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.87</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -4012,6 +4105,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 tickets:{nombre:'ticketsRuta',id:'moduloFaltantesKardex',etapa:'entregas'},
                 historial:{nombre:'historialRuta',id:'moduloCajaRuta230',etapa:'entregas'},
                 resumen:{nombre:'resumenRuta',id:'moduloCajaRuta230',etapa:'caja'},
+                clientesCaja:{nombre:'historialRuta',id:'moduloCajaRuta230',etapa:'caja'},
+                cajaRuta:{nombre:'cajaRuta',id:'moduloCajaRuta230',etapa:'caja'},
                 cobros:{nombre:'cuentasCobros',id:'moduloCuentasCobros',etapa:'caja'}
             };
             const actual=pantallas[seccion];if(!actual)return;
@@ -4021,8 +4116,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const etapas=[['preparacion','📦 Preparación'],['entregas','🚚 Entregas'],['caja','💵 Caja y cobros']];
             const opciones={
                 preparacion:[['asignados','📦 Faltantes Kardex'],['revision','✅ Revisar despacho']],
-                entregas:[['tickets','Tickets de clientes'],['historial','Historial de entregas']],
-                caja:[['resumen','Resumen de Ruta'],['cobros','Clientes y abonos']]
+                entregas:[['tickets','Tickets de clientes'],['historial','Clientes']],
+                caja:[['resumen','Resumen'],['clientesCaja','Clientes'],['cajaRuta','Caja de Ruta'],['cobros','Abonos']]
             };
             barra.innerHTML='<button type="button" class="c238-inicio" onclick="volverMenuPrincipal()">← Menú principal</button>'+
                 '<div class="c238-etapas">'+etapas.map(([v,t])=>'<button type="button" aria-selected="'+(v===actual.etapa)+'" onclick="c238AbrirEtapa(\''+v+'\')">'+t+'</button>').join('')+'</div>'+
@@ -4030,10 +4125,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             const volver=cont.querySelector(':scope > .btn-volver');
             if(volver){volver.style.display='none';cont.insertBefore(barra,volver.nextSibling);}else cont.insertBefore(barra,cont.firstChild);
             barra.style.display='block';c238ModuloAnterior=cont;
+            document.body.classList.add('c287-app');
             window.scrollTo(0,0);
         }
         function abrirModulo(nombre) {
             c238DesactivarBarra();
+            document.body.classList.remove('c287-app','c287-ficha-activa');
             if(nombre==='m200Admin'){alert('Control de Mercadería ahora está dentro del Panel Administrativo.');return;}
             if (n189DebeBloquear(nombre)) return;
             if(!['catalogoRuta','n188','m200Directa','preventa270'].includes(nombre)) cargarImagenesProductosGlobal().then(()=>setTimeout(refrescarVistasConImagenes,0));
@@ -4054,10 +4151,10 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 document.getElementById('moduloFaltantesKardex').style.display='block';
                 const title=document.getElementById('c51TituloRevision');if(title)title.textContent='👥 Tickets de clientes';
                 c227Buscador='';c227Vista='clientes';c227CambiarVista('clientes');
-            }else if(nombre==='resumenRuta'||nombre==='historialRuta'){
+            }else if(nombre==='resumenRuta'||nombre==='historialRuta'||nombre==='cajaRuta'){
                 if(normalizarEmpleado(localStorage.getItem('sucursal'))!=='despacho')return volverMenuPrincipal();
                 document.getElementById('moduloCajaRuta230').style.display='block';
-                c230Vista=nombre==='historialRuta'?'clientes':'caja';c230Abrir(false);
+                c230Vista=nombre==='historialRuta'?'clientes':(nombre==='cajaRuta'?'caja':'resumen');c230Abrir(false);
             }else
             if (nombre === "conteosAsignados") {
                 document.getElementById("moduloConteosAsignados").style.display = "block";
@@ -4123,6 +4220,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 
         function volverMenuPrincipal() {
             c238DesactivarBarra();
+            document.body.classList.remove('c287-app','c287-ficha-activa');
             ["moduloAsistencia","moduloTareas","n188MisTareas","moduloInventario","moduloPedidos","moduloRecepcion","moduloGondolas","moduloCompras","moduloFaltantesDia","moduloRuta","moduloFaltantesKardex","moduloPrepararDespacho","moduloConteosAsignados","moduloCuentasCobros","moduloCajaRuta230","m200ModuloAdmin","m200ModuloDirecta","moduloPreventa270"].forEach(id => document.getElementById(id).style.display = "none");
             document.getElementById("menuPrincipalModulos").style.display = "block";
             n189EnAsistencia = false;
@@ -13091,7 +13189,7 @@ function c230Abrir(admin){c230Admin=!!admin;c230Ruta='';c230Datos=null;c230Cerra
 async function c230Cargar(ruta){
   const box=c230Panel(),peticion=++c230Carga;if(!box)return;
   const otraRuta=!!ruta&&String(ruta)!==String(c230Ruta);
-  if(otraRuta)c286Abierto='';
+  if(otraRuta){c286Abierto='';document.body.classList.remove('c287-ficha-activa');}
   if(!c230Datos||otraRuta)box.innerHTML='<p class="c226-info" role="status">↻ Cargando resumen de la ruta…</p>';
   else{const boton=box.querySelector('.c280-ruta-row button');if(boton){boton.disabled=true;boton.textContent='…';}}
   try{
@@ -13110,7 +13208,7 @@ async function c230Cargar(ruta){
     else box.innerHTML='<p style="color:#a52a2a">'+escaparHtmlPedido(e.message)+'</p><button type="button" onclick="c230Cargar()">↻ Reintentar</button>';
   }}
 }
-function c230Pestana(vista){c230Vista=vista==='caja'?'caja':'clientes';c230Render();if(c230Vista==='clientes')c267CargarHistorial();}
+function c230Pestana(vista){c230Vista=['resumen','clientes','caja'].includes(vista)?vista:'clientes';c230Render();if(c230Vista==='clientes')c267CargarHistorial();}
 async function c267CargarHistorial(){
   const ruta=c230Ruta;if(!ruta||c267HistorialRuta===ruta)return;
   const peticion=++c267HistorialPeticion;
@@ -13158,8 +13256,16 @@ function c286Seleccionar(codigo){
     const detalle=el.querySelector('.c286-detalle');if(detalle)detalle.hidden=!activo;
     if(activo)abierta=el;
   });
-  if(abierta)requestAnimationFrame(()=>abierta.scrollIntoView({behavior:'smooth',block:'start'}));
+  const modoApp=document.body.classList.contains('c287-app');
+  document.body.classList.toggle('c287-ficha-activa',modoApp&&!!abierta);
+  if(abierta){
+    if(modoApp){abierta.setAttribute('role','dialog');abierta.setAttribute('aria-modal','true');abierta.scrollTop=0;}
+    else requestAnimationFrame(()=>abierta.scrollIntoView({behavior:'smooth',block:'start'}));
+  }
+  panel.querySelectorAll('.c286-cliente:not(.c286-abierto)').forEach(el=>{el.removeAttribute('role');el.removeAttribute('aria-modal');});
 }
+// Cerrar la ficha con Escape, cuando exista teclado externo.
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('c287-ficha-activa')&&c286Abierto)c286Seleccionar(encodeURIComponent(c286Abierto).replace(/'/g,'%27'));});
 function c286PintarUbicaciones(){
   const panel=c230Panel();if(!panel||!c230Datos)return;
   for(const t of c230Datos.tickets||[]){
@@ -13178,7 +13284,7 @@ function c230IrTicket(encoded){
   const ticket=decodeURIComponent(encoded);
   if(c230Ruta){c244RutaClientes=c230Ruta;sessionStorage.setItem('c244RutaClientes',c230Ruta);}
   if(c230Admin){abrirModuloAdmin('logistica');m214Pestana('despacho');c227Buscador=ticket;c227Vista='clientes';c227CambiarVista('clientes');}
-  else{abrirModulo('ticketsRuta');c227Buscador=ticket;c227Cargar();}
+  else{if(document.body.classList.contains('c287-app'))c238AbrirSeccion('tickets');else abrirModulo('ticketsRuta');c227Buscador=ticket;c227Cargar();}
 }
 async function c230Mutar(accion,datos,pregunta){
   if(c230Ocupado||!confirm(pregunta))return;
@@ -13307,6 +13413,8 @@ function c230Render(){
   }
   if(!d){box.innerHTML=html+'<p class="c230-leyenda">Selecciona el Kardex que deseas revisar.</p>';return;}
   const tot=d.totales||{},caja=Number(d.efectivoAEntregar)||0,completos=d.tickets.filter(t=>t.estado==='COMPLETO').length;
+  // v1.7.87: Resumen es una pantalla independiente. Administración mantiene su panel clásico.
+  if(c230Vista==='resumen'||c230Admin){
   html+='<section class="c280-principal"><span>💵 Efectivo a rendir</span><strong>'+c226Dinero(caja)+'</strong><small>Ventas en efectivo + abonos en efectivo asociados a esta ruta</small></section>';
   html+='<div class="c280-metricas"><div><span>Tickets</span><b>'+d.confirmados+' / '+d.totalTickets+'</b></div><div><span>Entregado</span><b>'+d.porcentajeEntrega+'%</b></div></div>';
   // 1.7.81: solo cambia el INDICADOR visual. El servidor sigue calculando
@@ -13340,8 +13448,9 @@ function c230Render(){
     html+='</section>';
   }
   if(d.ticketsSinPago)html+='<p class="c280-alerta">⚠️ '+d.ticketsSinPago+' ticket(s) entregados todavía no tienen cobro o crédito registrado.</p>';
-  // Un solo lugar para consultar Clientes. Caja de Ruta permanece independiente.
-  html+='<div class="c230-tabs c286-tabs">'+[['clientes','Clientes'],['caja','Caja de Ruta']].map(([id,label])=>'<button type="button" aria-selected="'+(c230Vista===id)+'" onclick="c230Pestana(\''+id+'\')">'+label+'</button>').join('')+'</div>';
+  } // Fin Resumen; las demás pantallas no repiten sus cifras.
+  // Pestañas heredadas solo para Administración: Despacho usa la barra superior.
+  if(c230Admin)html+='<div class="c230-tabs c286-tabs">'+[['clientes','Clientes'],['caja','Caja de Ruta']].map(([id,label])=>'<button type="button" aria-selected="'+(c230Vista===id)+'" onclick="c230Pestana(\''+id+'\')">'+label+'</button>').join('')+'</div>';
   if(c230Vista==='clientes'){
     const lista=d.tickets||[];
     const cuenta={todos:lista.length,pendientes:0,parciales:0,completos:0};
@@ -13364,6 +13473,7 @@ function c230Render(){
       const filtroEstado=(t.estado==='COMPLETO'?'completos':t.estado==='PARCIAL'?'parciales':'pendientes')+((!t.confirmado||(t.confirmado&&!t.sinEntrega&&pend))?' pendientes':'');
       const abierta=c286Abierto===ticket;
       html+='<article class="c230-ticket c286-cliente'+(abierta?' c286-abierto':'')+'" data-ticket="'+escaparHtmlPedido(ticket)+'" data-estado="'+filtroEstado+'" data-busca="'+escaparHtmlPedido((t.cliente+' '+ticket).toUpperCase())+'">';
+      html+='<button type="button" class="c287-volver-ficha" onclick="c286Seleccionar(\''+cod+'\')">← Clientes</button>';
       html+='<button type="button" class="c286-toggle" onclick="c286Seleccionar(\''+cod+'\')" aria-expanded="'+abierta+'" aria-controls="c286Detalle_'+cod+'">';
       html+='<span class="c286-num">'+String(i+1).padStart(2,'0')+'</span>';
       html+='<span class="c286-identidad"><strong>'+escaparHtmlPedido(t.cliente||'Cliente sin nombre')+'</strong><small>Ticket #'+escaparHtmlPedido(ticket)+'</small>';
@@ -13388,7 +13498,7 @@ function c230Render(){
     }
     html+='</div><p id="c286SinResultados" class="c286-vacio" hidden>No hay clientes con ese filtro.</p>';
     if(!lista.length)html+='<p class="c226-info">Todavía no hay tickets asociados a este Kardex.</p>';
-  }else{
+  }else if(c230Vista==='caja'){
     html+='<div class="c230-resumen"><div>Ventas en efectivo<strong>'+c226Dinero(tot.ventasEfectivo)+'</strong></div><div>Abonos en efectivo<strong>'+c226Dinero(tot.abonosEfectivo)+'</strong></div><div>Abonos por transferencia<strong>'+c226Dinero(tot.abonosTransferencia)+'</strong></div><div>Ventas a crédito<strong>'+c226Dinero(tot.ventasCredito)+'</strong></div></div>';
     html+='<h4 style="color:#28567b">💼 Efectivo por encargado</h4>';
     for(const persona of d.cobradores){
@@ -13408,7 +13518,13 @@ function c230Render(){
     if(d.confirmados!==d.totalTickets||d.ticketsSinPago)html+='<p class="c228-alerta">⚠️ No se puede liquidar mientras haya tickets sin entrega confirmada o sin registro de pago.</p>';
     html+='<p class="c230-leyenda">Los abonos de deudas anteriores solo se suman aquí si el colaborador seleccionó este Kardex al cobrarlos. Las transferencias no se cuentan como billetes recibidos.</p>';
   }
+  if(c230Vista!=='clientes')document.body.classList.remove('c287-ficha-activa');
   box.innerHTML=html;if(c230Vista==='clientes'){c230Filtrar(c230Buscar);c286PintarUbicaciones();}
+  if(c230Vista==='clientes'&&c286Abierto&&document.body.classList.contains('c287-app')){
+    const abierta=[...box.querySelectorAll('.c286-cliente')].find(x=>x.dataset.ticket===c286Abierto);
+    document.body.classList.toggle('c287-ficha-activa',!!abierta);
+    if(abierta){abierta.setAttribute('role','dialog');abierta.setAttribute('aria-modal','true');}
+  }
 }
 // ========================================================================
 // v1.7.57 · DESCARGA OPCIONAL DE EXCEL POR SUCURSAL
