@@ -2087,6 +2087,30 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c230-ticket input{min-height:42px!important;background:white!important;margin:5px 0!important}.c230-ticket .c229-acciones{margin:9px 0}
 .c230-persona{padding:13px;background:white;border:1px solid #d9e6f2;border-radius:15px;margin:10px 0}.c230-persona input{margin:10px 0!important}.c230-persona .c230-ok{background:#e9f8ec;color:#23643e;padding:8px 10px;border-radius:10px;font-size:12px}
 .c230-leyenda{font-size:11px;line-height:1.55;color:#66819a;margin:10px 0}.c230-panel{max-width:880px;margin:auto}
+
+/* 1.7.80 · Resumen de Ruta: compacto, legible, sin alterar las operaciones */
+.c280-ruta{padding:12px;background:#fff;border:1px solid #d6e4f2;border-radius:17px;margin:12px 0}
+.c280-ruta label{display:block;color:#617b97;font-size:12px;font-weight:750;margin-bottom:6px}
+.c280-ruta-row{display:flex;gap:8px;align-items:stretch}
+.c280-ruta-row select{flex:1;min-width:0;width:100%;min-height:44px;margin:0!important;border-radius:12px!important;background:#f9fbff!important;font-size:15px!important;font-weight:800;color:#213c5b;padding:8px 10px!important}
+.c280-ruta-row button{flex:0 0 46px;min-width:46px!important;width:46px!important;padding:0!important;margin:0!important;border:1px solid #d4e6fa!important;border-radius:12px!important;background:#e9f3ff!important;color:#1b6dc5!important;font-size:23px!important}
+.c280-historial{margin-top:9px;font-size:12px;color:#41678f}.c280-historial summary{cursor:pointer;font-weight:750;list-style:revert}
+.c280-archivo{margin-top:9px;max-height:218px;overflow:auto;display:flex;flex-direction:column;gap:5px}
+.c280-archivo button{width:100%;padding:9px 11px!important;margin:0!important;background:#f4f8fe!important;color:#315b84!important;border:1px solid #e0eaf6!important;border-radius:10px!important;text-align:left;font-size:12px!important}
+.c280-principal{background:#edf5ff;border:1px solid #d3e5f9;padding:14px 16px;border-radius:17px;margin:11px 0 9px}
+.c280-principal span{display:block;color:#507191;font-size:12px;font-weight:700}.c280-principal strong{display:block;font-size:30px;line-height:1.2;color:#123e70;margin:5px 0;font-variant-numeric:tabular-nums}
+.c280-principal small{font-size:11px;color:#6783a0}
+.c280-metricas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0 12px}
+.c280-metricas>div{border:1px solid #e0e8f3;border-radius:13px;background:#fff;padding:10px 8px;min-width:0}
+.c280-metricas span{font-size:11px;color:#6b849f;display:block}.c280-metricas b{display:block;color:#23486c;font-size:17px;margin-top:4px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.c280-utilidad{background:#f5fbf6;border:1px solid #cfebd6;border-radius:16px;padding:13px 15px;margin:12px 0}
+.c280-utilidad-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#275f3b;font-weight:800;font-size:12px}
+.c280-utilidad strong{display:block;color:#16633a;font-size:25px;margin:4px 0;font-variant-numeric:tabular-nums}
+.c280-utilidad details{font-size:11px;color:#4d785b}.c280-utilidad summary{cursor:pointer;font-weight:700}
+.c280-utilidad p{font-size:11px;line-height:1.5;margin:7px 0 0}
+.c280-alerta{font-size:12px;background:#fff6ea;border:1px solid #f5dabb;color:#96612c;border-radius:12px;padding:10px;margin:10px 0}
+@media(max-width:380px){.c280-metricas{gap:5px}.c280-metricas>div{padding:9px 6px}.c280-metricas b{font-size:15px}.c280-principal strong{font-size:27px}}
+
 @media(max-width:480px){.k224-acciones{gap:7px}.k224-crear{flex-basis:165px}.k224-acciones>.k224-actualizar{padding:9px 11px!important;font-size:12px!important}}
 </style>
 <style id="pv270Estilos">
@@ -2438,7 +2462,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.79</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.80</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2547,7 +2571,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <div id="moduloCajaRuta230" class="card modulo-pantalla" style="display:none;text-align:left">
           <button class="btn-volver" onclick="volverMenuPrincipal()">← Volver al menú</button>
           <h3>🚚 Resumen de Ruta</h3>
-          <p class="c230-leyenda">Revisa los tickets realmente entregados, distingue efectivo y crédito, y consulta lo que cada encargado debe rendir. Los abonos de deudas anteriores se suman a la ruta seleccionada al registrarlos.</p>
+          <p class="c230-leyenda">Dinero a rendir, créditos y entregas de la ruta seleccionada.</p>
           <div id="c230PanelRuta" class="c230-panel"></div>
         </div>
 
@@ -12993,7 +13017,9 @@ async function c230Post(accion,extra){
 function c230Abrir(admin){c230Admin=!!admin;c230Ruta='';c230Datos=null;c230CerradasSinClientes=[];c267HistorialRuta='';c267HistorialUbicaciones=Object.create(null);c230Cargar();}
 async function c230Cargar(ruta){
   const box=c230Panel(),peticion=++c230Carga;if(!box)return;
-  box.innerHTML='<p class="c226-info">↻ Consultando tickets y cobros…</p>';
+  const otraRuta=!!ruta&&String(ruta)!==String(c230Ruta);
+  if(!c230Datos||otraRuta)box.innerHTML='<p class="c226-info" role="status">↻ Cargando resumen de la ruta…</p>';
+  else{const boton=box.querySelector('.c280-ruta-row button');if(boton){boton.disabled=true;boton.textContent='…';}}
   try{
     const id=String(ruta||c230Ruta||'');
     let d=await c230Post('c230ListarRuta',{idRuta:id});if(peticion!==c230Carga)return;
@@ -13005,7 +13031,10 @@ async function c230Cargar(ruta){
     if(elegida&&String(d.datos?.ruta?.idRuta||'')!==elegida){d=await c230Post('c230ListarRuta',{idRuta:elegida});if(peticion!==c230Carga)return;}
     c230Ruta=elegida;c230Datos=d.datos||null;c267HistorialRuta='';c267HistorialUbicaciones=Object.create(null);c230Render();
     if(c230Vista==='historial')c267CargarHistorial();
-  }catch(e){if(peticion===c230Carga)box.innerHTML='<p style="color:#a52a2a">'+escaparHtmlPedido(e.message)+'</p><button type="button" onclick="c230Cargar()">↻ Reintentar</button>';}
+  }catch(e){if(peticion===c230Carga){
+    if(c230Datos&&!otraRuta){c230Render();alert('No se pudo actualizar el resumen: '+e.message);}
+    else box.innerHTML='<p style="color:#a52a2a">'+escaparHtmlPedido(e.message)+'</p><button type="button" onclick="c230Cargar()">↻ Reintentar</button>';
+  }}
 }
 function c230Pestana(vista){c230Vista=['tickets','historial','caja'].includes(vista)?vista:'tickets';c230Render();if(c230Vista==='historial')c267CargarHistorial();}
 async function c267CargarHistorial(){
@@ -13086,12 +13115,33 @@ async function c263CerrarSinClientes(){
   }catch(e){alert('No se pudo cerrar la ruta: '+e.message+'\nConsulta el historial antes de intentar otra vez.');}
   finally{c230Ocupado=false;}
 }
+// El selector muestra solo los Kardex abiertos (y el histórico elegido).
+// El resto permanece accesible en "Ver Kardex anteriores".
+function c280Estado(r){return String(r?.estado||'').toUpperCase()==='ACTIVA'?'Abierto':'Cerrado';}
+function c280Fecha(v){
+  const x=String(v||''),iso=x.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(iso)return iso[3]+'/'+iso[2];
+  const m=x.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\s+(\d{4})\b/i);
+  if(m)return String(m[2]).padStart(2,'0')+'/'+String(['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(m[1].toLowerCase())+1).padStart(2,'0');
+  return '';
+}
 function c230Render(){
   const box=c230Panel(),d=c230Datos;if(!box)return;
-  let html='<label style="font-size:12px;font-weight:800">Kardex de la ruta</label><select onchange="c230Cargar(this.value)" style="min-height:46px;margin:8px 0 11px">';
-  if(!c230Rutas.length)html+='<option value="">Sin Kardex para consultar</option>';
-  for(const r of c230Rutas)html+='<option value="'+escaparHtmlPedido(r.idRuta)+'" '+(r.idRuta===c230Ruta?'selected':'')+'>Kardex #'+escaparHtmlPedido(r.numeroRuta)+' · '+escaparHtmlPedido(r.fecha)+' · '+escaparHtmlPedido(r.estado||'ACTIVA')+'</option>';
-  html+='</select><button type="button" style="background:#eaf4ff;color:#1e5f9a" onclick="c230Cargar(c230Ruta)">↻ Actualizar datos</button>';
+  const activos=c230Rutas.filter(r=>String(r.estado||'').toUpperCase()==='ACTIVA');
+  const antiguos=c230Rutas.filter(r=>String(r.estado||'').toUpperCase()!=='ACTIVA');
+  const elegibles=activos.concat(antiguos.filter(r=>r.idRuta===c230Ruta));
+  let html='<div class="c280-ruta"><label for="c280RutaSelect">Kardex de la ruta</label><div class="c280-ruta-row"><select id="c280RutaSelect" onchange="c230Cargar(this.value)">';
+  if(!elegibles.length)html+='<option value="">Sin Kardex para consultar</option>';
+  for(const r of elegibles){
+    const fecha=c280Fecha(r.fecha);html+='<option value="'+escaparHtmlPedido(r.idRuta)+'" '+(r.idRuta===c230Ruta?'selected':'')+'>Kardex #'+escaparHtmlPedido(r.numeroRuta)+' · '+c280Estado(r)+(fecha?' · '+fecha:'')+'</option>';
+  }
+  html+='</select><button type="button" title="Actualizar datos" aria-label="Actualizar datos" onclick="c230Cargar(c230Ruta)">↻</button></div>';
+  if(antiguos.length){
+    html+='<details class="c280-historial"><summary>Ver Kardex anteriores ('+antiguos.length+')</summary><div class="c280-archivo">';
+    for(const r of antiguos)html+='<button type="button" onclick="c230Cargar(decodeURIComponent(\''+encodeURIComponent(r.idRuta).replace(/'/g,'%27')+'\'))">Kardex #'+escaparHtmlPedido(r.numeroRuta)+' · '+c280Estado(r)+(c280Fecha(r.fecha)?' · '+c280Fecha(r.fecha):'')+'</button>';
+    html+='</div></details>';
+  }
+  html+='</div>';
   if(c230Admin&&c230CerradasSinClientes.length){
     html+='<details style="margin:12px 0;padding:12px;border:1px solid #dce7f4;border-radius:12px;background:#f6f9fe"><summary style="cursor:pointer;font-weight:800;color:#2d587b">📁 Historial de rutas cerradas sin utilizar Clientes ('+c230CerradasSinClientes.length+')</summary>';
     for(const c of c230CerradasSinClientes){
@@ -13101,19 +13151,20 @@ function c230Render(){
   }
   if(!d){box.innerHTML=html+'<p class="c230-leyenda">Selecciona el Kardex que deseas revisar.</p>';return;}
   const tot=d.totales||{},caja=Number(d.efectivoAEntregar)||0,completos=d.tickets.filter(t=>t.estado==='COMPLETO').length;
-  html+='<div class="c230-resumen"><div>Tickets revisados<strong>'+d.confirmados+' / '+d.totalTickets+'</strong></div><div>Unidades entregadas<strong>'+d.porcentajeEntrega+'%</strong></div><div>💵 Efectivo a rendir<strong>'+c226Dinero(caja)+'</strong></div><div>📝 Ventas a crédito<strong>'+c226Dinero(tot.ventasCredito)+'</strong></div></div>';
-  // v1.7.62 · Consulta visible en Administración y Despacho. Solo las
-  // entregas confirmadas generan utilidad estimada; no modifica el cobro.
+  html+='<section class="c280-principal"><span>💵 Efectivo a rendir</span><strong>'+c226Dinero(caja)+'</strong><small>Ventas en efectivo + abonos en efectivo asociados a esta ruta</small></section>';
+  html+='<div class="c280-metricas"><div><span>📝 Crédito</span><b>'+c226Dinero(tot.ventasCredito)+'</b></div><div><span>Tickets</span><b>'+d.confirmados+' / '+d.totalTickets+'</b></div><div><span>Entregado</span><b>'+d.porcentajeEntrega+'%</b></div></div>';
+  // La utilidad se calcula en el servidor con la ganancia de Akasia por
+  // unidades efectivamente entregadas. Su formula no cambia en 1.7.80.
   const utilidad=d.utilidadRuta||{};
-  html+='<section style="margin:12px 0;padding:15px;border:1px solid #b8e3cb;border-radius:15px;background:#f0fff5;color:#165b35">';
-  html+='<div style="font-weight:800;font-size:13px">📈 Utilidad bruta estimada de la ruta</div>';
-  html+='<div style="font-size:29px;font-weight:900;margin:5px 0">'+(utilidad.disponible?c226Dinero(utilidad.estimada):'No disponible')+'</div>';
-  html+='<p style="font-size:12px;line-height:1.5;margin:0">'+(utilidad.disponible?'Calculada con la ganancia de Akasia y las cantidades entregadas confirmadas ('+d.confirmados+' de '+d.totalTickets+' tickets revisados).':'El Kardex no contiene ganancias de Akasia confirmadas para calcularla.')+' No es efectivo cobrado ni utilidad neta: no descuenta combustible, sueldos ni otros gastos; los ajustes manuales de tickets parciales pueden cambiar la ganancia real.</p>';
-  html+='</section>';
+  html+='<section class="c280-utilidad"><div class="c280-utilidad-head"><span>📈 Utilidad bruta estimada</span><span>Solo entregado</span></div>';
+  html+='<strong>'+(utilidad.disponible?c226Dinero(utilidad.estimada):'Sin datos')+'</strong>';
+  html+='<details><summary>¿Cómo se calcula?</summary><p>Se toma la ganancia de Akasia por producto y se prorratea según las unidades entregadas confirmadas. No es dinero en caja ni ganancia neta; no descuenta combustible, salarios u otros gastos. Los precios y descuentos ajustados manualmente pueden modificar el resultado real.</p>';
+  if(Number(utilidad.lineasSinGanancia)>0)html+='<p>Atención: hay '+Number(utilidad.lineasSinGanancia)+' línea(s) entregada(s) sin dato de ganancia en Akasia.</p>';
+  html+='</details></section>';
   // El Kardex físico puede cerrarse sin cerrar los tickets ni la caja de ruta.
   const fisicos=d.faltantesFisicos||{};
   if(fisicos.cerrado){
-    html+='<details open style="margin:12px 0;border:1px solid #f0c7a6;border-radius:15px;background:#fffbf5;padding:12px 14px">';
+    html+='<details style="margin:12px 0;border:1px solid #f0c7a6;border-radius:15px;background:#fffbf5;padding:12px 14px">';
     html+='<summary style="cursor:pointer;color:#86501e;font-weight:900">📦 Faltantes físicos al cerrar Kardex #'+escaparHtmlPedido(d.ruta?.numero||'')+' · '+(Number(fisicos.totalProductos)||0)+' productos · '+(Number(fisicos.totalUnidades)||0)+' unidades</summary>';
     html+='<p class="c230-leyenda">Este es el resultado final de la preparación física. Despacho y la caja siguen funcionando aunque el Kardex esté cerrado.</p>';
     if(Array.isArray(fisicos.productos)&&fisicos.productos.length){
@@ -13132,7 +13183,7 @@ function c230Render(){
     html+='<button type="button" style="background:#305c8d;color:white" onclick="c263CerrarSinClientes()">✓ Cerrar ruta sin utilizar Clientes (Admin)</button>';
     html+='</section>';
   }
-  html+='<p class="c230-leyenda">Avance de revisión: '+d.porcentaje+'% de tickets · Unidades entregadas: '+d.unidadesEntregadas+' / '+d.unidadesPedidas+' · Tickets completos: '+completos+' · Con faltantes o no entregados: '+d.tickets.filter(t=>t.estado==='PARCIAL'||t.estado==='NO_ENTREGADO').length+' · Con pago sin registrar: '+d.ticketsSinPago+'.</p>';
+  if(d.ticketsSinPago)html+='<p class="c280-alerta">⚠️ '+d.ticketsSinPago+' ticket(s) entregados todavía no tienen cobro o crédito registrado.</p>';
   html+='<div class="c230-tabs">'+[['tickets','🧾 Tickets'],['historial','📋 Historial'],['caja','💵 Caja de Ruta']].map(([id,label])=>'<button type="button" aria-selected="'+(c230Vista===id)+'" onclick="c230Pestana(\''+id+'\')">'+label+'</button>').join('')+'</div>';
   if(c230Vista==='tickets'){
     html+='<input type="search" placeholder="🔎 Buscar cliente o ticket" value="'+escaparHtmlPedido(c230Buscar)+'" oninput="c230Filtrar(this.value)" style="margin:8px 0 13px">';
