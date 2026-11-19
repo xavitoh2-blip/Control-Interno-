@@ -2084,6 +2084,21 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .c230-ticket{padding:13px;border-radius:16px;background:white;border:1px solid #d7e5f3;margin:10px 0}
 .c230-ticket header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.c230-ticket header strong{font-size:14px;color:#233b56}.c230-ticket small{display:block;font-size:11px;color:#71839b;margin-top:4px}
 .c230-estados{display:flex;flex-wrap:wrap;gap:5px;margin:9px 0}.c230-estados span{display:inline-block;padding:5px 8px;border-radius:99px;background:#f0f6ff;color:#376083;font-size:11px;font-weight:800}
+/* 1.7.84 · Historial compacto: orden, estado de entrega y forma de pago */
+.c284-historial .c284-orden{display:inline-block;margin-right:6px;color:#1673cd;font-weight:900;font-size:13px;white-space:nowrap}
+.c284-historial header{align-items:flex-start}
+.c284-historial header strong{line-height:1.38;overflow-wrap:anywhere}
+.c284-historial .c284-entrega{font-size:12px;font-weight:850;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;background:#ecf8f0;color:#21633d}
+.c284-historial .c284-entrega--parcial{background:#fff5e6;color:#95601c}
+.c284-historial .c284-entrega--sin-entrega{background:#fff0f0;color:#a33535}
+.c284-historial .c284-entrega--otro{background:#f2f5f8;color:#5c6f84}
+.c284-historial .c284-estados{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 0}
+.c284-historial .c284-dato{font-size:11px;font-weight:750;color:#486785;background:#f2f6fc;padding:6px 9px;border-radius:999px}
+.c284-historial .c284-pago--efectivo{background:#eaf7ee;color:#236d45}
+.c284-historial .c284-pago--credito{background:#f0efff;color:#5652a3}
+.c284-historial .c284-pago--mixto{background:#eaf2ff;color:#285f99}
+.c284-historial .c284-pago--pendiente{background:#fff5e6;color:#99651a}
+@media(max-width:430px){.c284-historial .c284-entrega{font-size:11px;padding:6px 8px}.c284-historial header strong{font-size:13px}}
 .c230-ticket input{min-height:42px!important;background:white!important;margin:5px 0!important}.c230-ticket .c229-acciones{margin:9px 0}
 .c230-persona{padding:13px;background:white;border:1px solid #d9e6f2;border-radius:15px;margin:10px 0}.c230-persona input{margin:10px 0!important}.c230-persona .c230-ok{background:#e9f8ec;color:#23643e;padding:8px 10px;border-radius:10px;font-size:12px}
 .c230-leyenda{font-size:11px;line-height:1.55;color:#66819a;margin:10px 0}.c230-panel{max-width:880px;margin:auto}
@@ -2470,7 +2485,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.82</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.84</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -13150,6 +13165,25 @@ function c281EstadoRuta(porcentajeEntrega, utilidad, confirmados, ticketsSinPago
   return {clase:'bien',etiqueta:'Bien',icono:'✓'};
 }
 
+// 1.7.84 · Etiquetas únicamente visuales; nunca se interpretan como nuevos pagos.
+function c284EstadoEntrega(estado){
+  const valor=String(estado||'').toUpperCase();
+  if(valor==='COMPLETO')return {texto:'Completo',icono:'✓',clase:''};
+  if(valor==='PARCIAL')return {texto:'Parcial',icono:'◐',clase:'parcial'};
+  if(valor==='NO_ENTREGADO')return {texto:'No entregado',icono:'✕',clase:'sin-entrega'};
+  return {texto:'En revisión',icono:'•',clase:'otro'};
+}
+function c284EstadoPago(pago){
+  switch(String(pago||'').toUpperCase()){
+    case 'EFECTIVO':return {texto:'Efectivo',icono:'💵',clase:'efectivo'};
+    case 'CREDITO':return {texto:'Crédito',icono:'🧾',clase:'credito'};
+    case 'MIXTO':return {texto:'Pago parcial',icono:'💵',clase:'mixto'};
+    case 'TRANSFERENCIA':return {texto:'Transferencia',icono:'🏦',clase:'mixto'};
+    case 'SIN_COBRO':return {texto:'Sin cobro',icono:'—',clase:'pendiente'};
+    case 'SIN_REGISTRAR':return {texto:'Pago pendiente',icono:'◷',clase:'pendiente'};
+    default:return {texto:'Por revisar',icono:'•',clase:'pendiente'};
+  }
+}
 function c230Render(){
   const box=c230Panel(),d=c230Datos;if(!box)return;
   const activos=c230Rutas.filter(r=>String(r.estado||'').toUpperCase()==='ACTIVA');
@@ -13233,10 +13267,11 @@ function c230Render(){
   }else if(c230Vista==='historial'){
     html+='<p class="c230-leyenda">Historial de entregas confirmadas. Las entregas incompletas permanecen visibles.</p>';
     const registrados=d.tickets.filter(t=>t.confirmado);
-    for(const t of registrados){
+    for(const [i,t] of registrados.entries()){
       const ubicacion=c267HistorialUbicaciones[String(t.ticket)];
-      html+='<div class="c230-ticket"><header><div><strong>'+escaparHtmlPedido(t.cliente||'Cliente sin nombre')+'</strong><small>Ticket #'+escaparHtmlPedido(t.ticket)+'</small></div><b>'+escaparHtmlPedido(t.estado.replaceAll('_',' '))+'</b></header>';
-      html+='<div class="c230-estados"><span>'+t.entregado+' / '+t.solicitado+' unidades entregadas</span><span>'+escaparHtmlPedido(t.pago.replaceAll('_',' '))+'</span></div>';
+      const estadoEntrega=c284EstadoEntrega(t.estado),estadoPago=c284EstadoPago(t.pago);
+      html+='<div class="c230-ticket c284-historial"><header><div><strong><span class="c284-orden">#'+(i+1)+'</span> '+escaparHtmlPedido(t.cliente||'Cliente sin nombre')+'</strong><small>Ticket #'+escaparHtmlPedido(t.ticket)+'</small></div><span class="c284-entrega '+(estadoEntrega.clase?'c284-entrega--'+estadoEntrega.clase:'')+'"><span aria-hidden="true">'+estadoEntrega.icono+'</span>'+estadoEntrega.texto+'</span></header>';
+      html+='<div class="c284-estados"><span class="c284-dato">'+t.entregado+' / '+t.solicitado+' unidades</span><span class="c284-dato c284-pago--'+estadoPago.clase+'"><span aria-hidden="true">'+estadoPago.icono+'</span> '+estadoPago.texto+'</span></div>';
       if(ubicacion)html+='<p class="c230-leyenda"><a href="https://www.google.com/maps?q='+encodeURIComponent(ubicacion.lat+','+ubicacion.lng)+'" target="_blank" rel="noopener noreferrer" style="font-weight:800;color:#1464a8">📍 Ver ubicación '+(t.estado==='NO_ENTREGADO'?'de visita':'de entrega')+'</a></p>';
       html+='</div>';
     }
