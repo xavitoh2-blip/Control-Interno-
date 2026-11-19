@@ -8988,7 +8988,6 @@ async function verificarPassword() {
               html+=c233OpcionesPago(t,false,false);
               html+='<div class="c239-final"><button type="button" class="c229-continuar" onclick="c227Guardar(\''+t+'\',true)">✓ Confirmar ticket</button><button type="button" class="c239-cancelar" onclick="c229Cerrar(\''+t+'\')">Cancelar</button></div>';
             }else{
-              if(g.indices.length>8)html+='<input class="c229-filtro" type="search" placeholder="🔎 Buscar producto" oninput="c229FiltrarProductos(\''+t+'\',this.value)">';
               for(const i of g.indices){
                 const x=d.lineas[i],a=x.advertencia,seleccionado=Object.prototype.hasOwnProperty.call(excepciones,i),q=seleccionado?excepciones[i]:x.cantidad;
                 const abierto=c236ProductoAbierto[t]===i,importeLinea=x.totalVenta===null||x.totalVenta===undefined?NaN:Number(x.totalVenta),precioUnidad=Number.isFinite(importeLinea)&&x.cantidad>0?importeLinea/x.cantidad:NaN;
