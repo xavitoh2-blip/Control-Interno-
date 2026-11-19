@@ -2534,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.86</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.88</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3091,6 +3091,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('gondolas')"><span>🗄️</span>Ubicación de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoRuta')"><span>📖</span>Catálogo de Ruta</button>
+                <button class="menu-modulo" onclick="abrirModuloAdmin('ci90')"><span>📦</span><b>Control de Inventario</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('cuadreMatriz')"><span>📊</span><b>Cuadre de inventario Matriz</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('exportarSucursales')"><span>📤</span><b>Excel Akasia por sucursal</b></button>
@@ -3494,6 +3495,71 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           <div id="c48Estado" role="status" style="font-size:12px;color:#28608b;margin:12px 0;line-height:1.6;"></div>
         </div>
 
+
+<!-- CI90 · Control de Inventario (las pantallas anteriores permanecen operativas) -->
+<style>
+#adminControlInventario{max-width:900px;margin:14px auto;text-align:left;color:#233f5d}
+#adminControlInventario .ci90-card{background:#fff;border:1px solid #dae5ef;border-radius:18px;padding:17px;margin:12px 0;box-shadow:0 5px 17px rgba(20,47,79,.045)}
+#adminControlInventario .ci90-head{display:flex;align-items:center;justify-content:space-between;gap:9px}
+#adminControlInventario h3{font-size:23px;color:#1b3655;border:0;margin:0;padding:0}
+#adminControlInventario h4{border:0;color:#233f5d;font-size:15px;margin:0 0 8px}
+#adminControlInventario p{font-size:12px;color:#60768f;line-height:1.45;margin:7px 0}
+#adminControlInventario .ci90-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#adminControlInventario .ci90-grid button{background:#edf3fa;color:#244467;border:1px solid #dce6f0;box-shadow:none;min-height:74px;margin:0;padding:10px 7px;border-radius:13px;font-size:12px}
+#adminControlInventario .ci90-grid button strong{display:block;font-size:20px;margin:0 0 5px}
+#adminControlInventario .ci90-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid #ebeff4;font-size:12px}
+#adminControlInventario .ci90-row:last-child{border-bottom:0}
+#adminControlInventario .ci90-note{font-size:11px;color:#708197;line-height:1.5}
+#adminControlInventario .ci90-filter{display:flex;gap:6px;flex-wrap:wrap}
+#adminControlInventario .ci90-filter button{width:auto;min-height:37px;padding:8px 12px;background:#f2f5f9;color:#4d6580;border:1px solid #dce5ee;box-shadow:none;font-size:11px}
+#adminControlInventario .ci90-filter button.active{background:#233f5d;color:white;border-color:#233f5d}
+#adminControlInventario .ci90-pill{font-size:10px;font-weight:800;border:1px solid #b7d8c8;border-radius:99px;padding:4px 7px;color:#2a7253;background:#f3faf6}
+#adminControlInventario .ci90-actions{display:flex;flex-wrap:wrap;gap:8px}
+#adminControlInventario .ci90-actions button{width:auto;min-height:40px;padding:9px 13px;background:#eaf1f9;color:#294e75;box-shadow:none;border:1px solid #d5e2f1}
+#adminControlInventario input,#adminControlInventario select{width:100%;max-width:100%;background:#fafcff;border-radius:12px;border:1px solid #dce6ef;padding:11px;min-height:43px}
+#adminControlInventario label{font-size:12px;color:#465f7b;font-weight:700;display:block;margin-top:10px}
+.ci90-import{border:1px solid #dce6ef;border-radius:14px;padding:12px;background:#f8fbff;margin:12px 0}
+.ci90-import label{font-size:12px;font-weight:750;color:#29486a}
+.ci90-import input{margin:6px 0;width:100%;max-width:100%;background:#fff;min-height:40px}
+.ci90-import-status{font-size:11px;color:#476680;line-height:1.5;margin-top:7px;white-space:pre-wrap}
+.ci90-cuadrado{display:inline-block;padding:3px 7px;margin-left:5px;border-radius:8px;background:#ecf6f0;border:1px solid #c9e3d3;color:#24694a;font-size:10px;font-weight:800;vertical-align:middle}
+@media(max-width:470px){#adminControlInventario .ci90-card{padding:13px}#adminControlInventario .ci90-grid button{font-size:11px}#adminControlInventario .ci90-grid button strong{font-size:18px}}
+</style>
+<div id="adminControlInventario" class="admin-modulo" style="display:none">
+  <button type="button" class="btn-volver" onclick="volverMenuAdmin()">← Administración</button>
+  <div class="ci90-card"><div class="ci90-head"><h3>Control de Inventario</h3><span style="font-size:11px;color:#8496a9">Online Shop</span></div>
+    <p>Ingresa mercadería, asigna conteos y consulta los productos verificados. No cambia las existencias de Akasia.</p>
+  </div>
+  <div class="ci90-card"><h4>1 · Entrada de mercadería</h4><div class="ci90-grid">
+    <button type="button" onclick="abrirModuloAdmin('mercaderiaNueva')"><strong>＋</strong>Manual</button>
+    <button type="button" onclick="abrirModuloAdmin('facturasGemini')"><strong>▣</strong>Factura IA</button>
+    <button type="button" onclick="ci90EntradaExcel()"><strong>▤</strong>Excel</button>
+  </div><p>Las tres opciones llegan a una lista que debes revisar y guardar.</p></div>
+  <div class="ci90-card"><h4>2 · Asignar conteos</h4><p>Selecciona productos del catálogo o importa un Excel con solo nombres. El colaborador cuenta físicamente desde cero.</p>
+    <button type="button" onclick="abrirModuloAdmin('conteosAsignados')">Abrir Asignar conteos</button></div>
+  <div class="ci90-card"><h4>3 · Conteos por ubicación</h4><p>Los valores son conteos físicos guardados, no existencias actuales. Marca qué ubicaciones deseas sumar; no se mezclan los Excel de Akasia.</p>
+    <div class="ci90-actions">
+      <button type="button" onclick="ci90CargarConteos()">↻ Ver conteos</button>
+      <button type="button" onclick="abrirModuloAdmin('cuadreMatriz')">Cuadre Matriz</button>
+      <button type="button" onclick="abrirModuloAdmin('exportarSucursales')">Excel Akasia por sucursal</button>
+    </div>
+    <input id="ci90BuscarConteos" type="search" placeholder="Buscar producto contado" oninput="ci90RenderConteos()" aria-label="Buscar conteos">
+    <div class="ci90-filter" style="margin:8px 0"><label><input type="checkbox" id="ci90SumarTienda" checked onchange="ci90RenderConteos()"> Tienda</label><label><input type="checkbox" id="ci90SumarBodega" checked onchange="ci90RenderConteos()"> Bodega</label><label><input type="checkbox" id="ci90SumarMini" onchange="ci90RenderConteos()"> Mini Súper</label></div>
+    <div id="ci90ConteosStatus" class="ci90-note">Pulsa «Ver conteos» para consultar.</div>
+    <div id="ci90ConteosLista"></div>
+    <div class="ci90-actions"><button type="button" onclick="ci90ExportarConteos()">▤ Exportar reporte de conteos</button></div>
+  </div>
+  <div class="ci90-card"><h4>Productos cuadrados y pendientes</h4><p>«Cuadrado» se activa solamente después de confirmar que el Excel se importó y verificó en Akasia.</p>
+    <label for="ci90SucursalEstado">Sucursal de Akasia</label><select id="ci90SucursalEstado" onchange="ci90ConsultarEstado()"><option value="MATRIZ">Matriz (Tienda + Bodega)</option><option value="MINI">Mini Súper</option></select>
+    <div class="ci90-filter" style="margin:10px 0">
+      <button type="button" class="active" data-estado="CUADRADOS" onclick="ci90EstadoFiltro('CUADRADOS')">Cuadrados</button>
+      <button type="button" data-estado="PENDIENTES" onclick="ci90EstadoFiltro('PENDIENTES')">Sin cuadrar</button>
+    </div>
+    <input id="ci90BuscarEstado" type="search" placeholder="Buscar por nombre" oninput="ci90BuscarEstadoCambio()">
+    <div id="ci90EstadoResumen" class="ci90-note">Consultando el estado…</div><div id="ci90EstadoLista"></div>
+  </div>
+</div>
+
         <!-- v1.6.42 BETA: pantalla exclusiva para administrar conteos -->
         <div id="adminConteosAsignados" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="c42ModoPrivado&&document.body.getAttribute('data-c42-beta')==='1'?c42VistaPrueba('inicio'):volverMenuAdmin()">← Volver al panel</button>
@@ -3528,6 +3594,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <button type="button" id="c47AgregarCategoria" onclick="c47SeleccionarCategoria()" style="background:#087cff;">✓ Agregar productos de esta categoría</button>
             <button type="button" onclick="c47QuitarCategoria()" style="background:#7a858e;min-height:38px;">Quitar productos de esta categoría</button>
             <label class="c50-inline-check"><input type="checkbox" id="c50SoloPendientes" onchange="c42FiltrarCatalogo()"> Mostrar solo productos pendientes en las sucursales seleccionadas</label>
+            <section class="ci90-import">
+              <label for="ci90ExcelConteo">Importar Excel con nombres de productos</label>
+              <input type="file" id="ci90ExcelConteo" accept=".xlsx,.xls,.csv" onchange="ci90ImportarNombres(this)">
+              <div class="ci90-import-status" id="ci90ExcelConteoEstado">Solo se usarán los nombres, nunca las cantidades del archivo.</div>
+            </section>
             <label class="c42-meta">O buscar productos por nombre</label>
             <input type="search" id="c42BuscarAdmin" placeholder="Escribe el nombre de un producto" oninput="c42FiltrarCatalogo()">
             <div id="c42ResultadosAdmin" class="c42-prods"></div>
@@ -3614,6 +3685,11 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           <div class="cm55-grid">
             <section class="cm55-panel">
               <h4>1. Preparar lista de productos</h4>
+              <section class="ci90-import">
+                <label for="ci90ExcelMercaderia">Importar Excel de mercadería (nombre y cantidad)</label>
+                <input id="ci90ExcelMercaderia" type="file" accept=".xlsx,.xls,.csv" onchange="ci90ImportarMercaderia(this)">
+                <div class="ci90-import-status" id="ci90ExcelMercaderiaEstado">Revisa las cantidades antes de guardar. Las filas sin cantidad quedan en 0.</div>
+              </section>
               <label>Buscar artículo en Akasia Matriz</label><input id="cm55Buscar" type="search" autocomplete="off" placeholder="Ej. Aceite Capullo 750 ml" oninput="cm55BuscarProductos()">
               <div id="cm55Sugerencias" class="cm55-search-results"></div>
               <div id="cm55Elegido" class="cm55-note">Selecciona un producto; mostraremos su precio de compra del Excel de Akasia.</div>
@@ -3792,6 +3868,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
               <div id="c57ListaMini" class="c57-list"><p class="c57-info">Sin resultados todavía.</p></div>
               <label class="c57-check"><input type="checkbox" id="c57ConfirmarMini">Revisé que estas cantidades correspondan a Mini Súper y que las ventas, entradas o movimientos posteriores al conteo estén considerados. Verificaré el resultado antes de importar a Akasia.</label>
               <button type="button" class="c57-primary" id="c57ExportarMini" onclick="c57DescargarMini()">📥 Descargar Excel Mini Súper</button>
+              <button type="button" id="ci90ConfirmarMiniBoton" disabled onclick="ci90ConfirmarMini()" style="background:#edf3f8;color:#2b506d;box-shadow:none;border:1px solid #dbe6ee;margin-top:10px">✓ Ya importé y verifiqué en Akasia Mini Súper</button>
+
               <div id="c57EstadoMini" class="c57-status"></div>
               <button type="button" onclick="abrirModuloAdmin('conteosAsignados')">Abrir Conteos asignados</button>
             </section>
@@ -4662,7 +4740,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 html += `
                 <div class="item-cuadre">
                     <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-                        ${imagenProductoGlobal(item.producto,item,50)}<div><strong>${escaparHtmlPedido(item.producto)}</strong><br>
+                        ${imagenProductoGlobal(item.producto,item,50)}<div><strong>${escaparHtmlPedido(item.producto)}</strong>${ci90Badge(item.producto)}<br>
                         <span style="color:#666;">Físico: ${item.fisico} | Dif: ${item.diferencia > 0 ? '+' + item.diferencia : item.diferencia}</span></div>
                     </div>
                     <button class="btn-del" onclick="eliminarDeLaLista(${index})">✕</button>
@@ -5937,7 +6015,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 return;
             }
             cont.innerHTML = resultados.map((item, i) =>
-                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(item.producto,item,42)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong><div class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</div></div></div>`
+                `<div class="pedido-resultado" onclick="seleccionarProductoPedido(${catalogoProductosPedido.indexOf(item)})" style="display:flex;align-items:center;gap:9px;">${imagenProductoGlobal(item.producto,item,42)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong>${ci90Badge(item.producto)}<div class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</div></div></div>`
             ).join("");
             cont.style.display = "block";
         }
@@ -6072,7 +6150,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             cont.style.display = "block";
             lista.innerHTML = listaPedidoPendiente.map((item, index) => `
                 <div class="pedido-item">
-                    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">${imagenProductoGlobal(item.producto,item,50)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong><br><span class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</span></div></div>
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">${imagenProductoGlobal(item.producto,item,50)}<div style="min-width:0;"><strong>${escaparHtmlPedido(item.producto)}</strong>${ci90Badge(item.producto)}<br><span class="c60-chip">${escaparHtmlPedido(c60EtiquetaPresentacion(item))}</span></div></div>
                     <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
                         <button type="button" onclick="cambiarCantidadProductoPedido(${index},-1)" style="width:38px;min-width:38px;height:38px;margin:0;padding:0;background:#6c757d;font-size:21px;border-radius:11px;">−</button>
                         <span style="min-width:28px;text-align:center;font-size:16px;font-weight:800;">${item.cantidad}</span>
@@ -7967,13 +8045,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(typeof m214Restaurar==='function')m214Restaurar();
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",conteosAsignados:"adminConteosAsignados",cuadreMatriz:"adminCuadreMatriz",exportarSucursales:"adminExportarSucursales",mercaderiaNueva:"adminMercaderiaNueva",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos",rutacaja:"adminRutaCaja230",preventa270:"adminPreventa270"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",ci90:"adminControlInventario",conteosAsignados:"adminConteosAsignados",cuadreMatriz:"adminCuadreMatriz",exportarSucursales:"adminExportarSucursales",mercaderiaNueva:"adminMercaderiaNueva",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos",rutacaja:"adminRutaCaja230",preventa270:"adminPreventa270"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
             if (modulo === "gondolas") iniciarAdminGondolas();
             if (modulo === "imagenes") iniciarAdminImagenes();
             if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
+            if (modulo === "ci90") ci90Abrir();
             if (modulo === "conteosAsignados") c42AbrirAdmin();
             if (modulo === "cuadreMatriz") c58CargarEstado();
             if (modulo === "exportarSucursales") c57Abrir();
@@ -13423,7 +13502,7 @@ function c57FechaSV(){
 }
 function c57Norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();}
 function c57Mensaje(tipo,msg,error=false){const e=document.getElementById(tipo==='M'?'c57EstadoMatriz':'c57EstadoMini');if(e){e.textContent=msg;e.style.color=error?'#aa273a':'#285b88';}}
-function c57MiniFechaCambio(){c57DatosMini=[];c57SelMini.clear();c57FechaCargadaMini='';c57Render('I');document.getElementById('c57MiniResumen').textContent='Fecha modificada. Pulsa «Consultar» para actualizar la lista antes de exportar.';}
+function c57MiniFechaCambio(){ci90UltimoMini=null;const b=document.getElementById('ci90ConfirmarMiniBoton');if(b)b.disabled=true;c57DatosMini=[];c57SelMini.clear();c57FechaCargadaMini='';c57Render('I');document.getElementById('c57MiniResumen').textContent='Fecha modificada. Pulsa «Consultar» para actualizar la lista antes de exportar.';}
 function c57Abrir(){
  const fecha=document.getElementById('c57MiniDesde');
  if(fecha&&!fecha.value)fecha.value=c57FechaSV();
@@ -13476,7 +13555,7 @@ function c57Render(tipo){
   return `<label class="c57-item"><input type="checkbox" ${activo?'checked':''} ${!listo?'disabled':''} onchange="c57Seleccionar('${tipo}',${pos},this.checked)"><span><strong>${c42Esc(x.nombre)}</strong><small>${c42Esc(detalle)}</small>${alerta?`<small style="color:#a25e24">⚠ ${c42Esc(alerta)}</small>`:''}</span></label>`;
  }).join('')+(vistos.length>hasta?`<p class="c57-info">Se muestran ${hasta} de ${vistos.length}. Utiliza el buscador para localizar otros productos.</p>`:'');
 }
-function c57Seleccionar(tipo,pos,activo){
+function c57Seleccionar(tipo,pos,activo){if(tipo==='I'){ci90UltimoMini=null;const b=document.getElementById('ci90ConfirmarMiniBoton');if(b)b.disabled=true;}
  const esM=tipo==='M',lista=esM?c57DatosMatriz:c57DatosMini,sel=esM?c57SelMatriz:c57SelMini,x=lista[pos];
  if(!x||!x.listo)return;
  if(activo){if(sel.size>=150){c57Mensaje(tipo,'Máximo 150 productos por archivo.',true);c57Render(tipo);return;}sel.add(x.nombre);}else sel.delete(x.nombre);
@@ -13517,6 +13596,8 @@ async function c57DescargarMini(){
  try{
   const d=await c58Post('c57GenerarExcelMini',{desde,productos:JSON.stringify(sel),confirmado:'SI'});
   c57EscribirXlsx(d,'PRUEBA_Akasia_MiniSuper_Seleccionados_'+c57FechaSV()+'.xlsx');
+  ci90UltimoMini={desde,items:(d.resumen||[]).map(x=>({producto:x.producto,existencia:x.existencia,fecha:x.fecha}))};
+  document.getElementById('ci90ConfirmarMiniBoton').disabled=!ci90UltimoMini.items.length;
   c57Mensaje('I',`✅ Excel Mini Súper descargado: ${d.filas.length} productos y 57 columnas. No se modificó Akasia ni el estado de los conteos.`);
  }catch(e){c57Mensaje('I',e.message,true);}finally{btn.disabled=false;}
 }
@@ -14259,6 +14340,142 @@ if(typeof a280OriginalRender==='function'){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',a280Init,{once:true});else a280Init();
 
 </script>
+
+<script id="ci90Script">
+// Online Shop 1.7.88 · Sólo integraciones conservadoras sobre módulos existentes.
+let ci90UltimoMini=null,ci90EstadoActual='CUADRADOS',ci90Timer=null,ci90FilasConteos=[],ci90BadgeDatos={MATRIZ:{},MINI:{}},ci90BadgeCargado={};
+function ci90E(v){return typeof c42Esc==='function'?c42Esc(v):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function ci90Norm(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase();}
+function ci90Msg(id,txt,err=false){const el=document.getElementById(id);if(el){el.textContent=txt;el.style.color=err?'#a83e42':'#536f8a';}}
+function ci90Abrir(){ci90ConsultarEstado();}
+function ci90EntradaExcel(){abrirModuloAdmin('mercaderiaNueva');const el=document.getElementById('ci90ExcelMercaderia');setTimeout(()=>el?.scrollIntoView({behavior:'smooth',block:'center'}),100);}
+async function ci90LeerExcel(file){
+ if(!file)throw Error('Selecciona un archivo.');
+ if(file.size>8*1024*1024)throw Error('El archivo supera 8 MB. Divide la lista.');
+ if(typeof XLSX==='undefined')throw Error('No se pudo cargar el lector Excel. Comprueba tu conexión.');
+ const libro=XLSX.read(await file.arrayBuffer(),{type:'array'}),hoja=libro.Sheets[libro.SheetNames[0]];
+ if(!hoja)throw Error('No se encontró una hoja de productos.');
+ const filas=XLSX.utils.sheet_to_json(hoja,{header:1,raw:false,defval:'',blankrows:false});
+ if(filas.length>10001)throw Error('El archivo supera 10,000 filas. Divide la lista.');
+ const cab=(filas[0]||[]).map(ci90Norm),pal=['PRODUCTO','NOMBRE','DESCRIPCION','ARTICULO','NOMBRE PRODUCTO','NOMBRE DEL PRODUCTO','NOMBRE_PROD'];
+ let indice=cab.findIndex(c=>pal.includes(c)||c==='NOMBRE_PROD');
+ if(indice<0)indice=cab.length===57?1:0;
+ const encabezado=cab.some(c=>pal.includes(c)||c==='CODIGO'||c==='EXISTENCIA'||c==='CANTIDAD'||c==='CANT')||cab.length===57;
+ const ini=encabezado?1:0;
+ return {filas:filas.slice(ini).map((r,j)=>({nombre:String(r[indice]??'').trim(),fila:ini+j+1,datos:r})).filter(x=>x.nombre),indice,cab,encabezado};
+}
+async function ci90ImportarNombres(input){
+ ci90Msg('ci90ExcelConteoEstado','Leyendo nombres…');
+ try{
+  const {filas}=await ci90LeerExcel(input.files?.[0]);
+  if(!c42Catalogo.length)throw Error('Espera a que cargue el catálogo de Conteos asignados e inténtalo otra vez.');
+  const catalogo=new Map(c42Catalogo.map(n=>[ci90Norm(n),n])),vistos=new Set(),encontrados=[],faltantes=[],repetidos=[];
+  for(const x of filas){const k=ci90Norm(x.nombre);if(vistos.has(k)){repetidos.push(x.nombre);continue;}vistos.add(k);
+   if(catalogo.has(k))encontrados.push(catalogo.get(k));else faltantes.push('Fila '+x.fila+': '+x.nombre);
+  }
+  if(!encontrados.length)throw Error('Ningún nombre coincide exactamente con el catálogo. Revisa la columna y las presentaciones.');
+  const prev=new Set(c42Seleccionados),agregables=encontrados.filter(n=>!prev.has(n)),cupo=Math.max(0,300-prev.size);
+  if(!cupo)throw Error('La lista ya contiene 300 productos. Asigna o limpia la selección actual.');
+  if(!confirm(`Excel con ${encontrados.length} nombres reconocidos, ${faltantes.length} sin coincidencia y ${repetidos.length} repetidos. ¿Agregar ${Math.min(cupo,agregables.length)} a la selección? No se importarán cantidades.`))return;
+  c42Seleccionados.push(...agregables.slice(0,cupo));c42RenderSeleccionados();c42FiltrarCatalogo();
+  ci90Msg('ci90ExcelConteoEstado',`${Math.min(cupo,agregables.length)} agregados. ${faltantes.length} sin relación; ${repetidos.length} repetidos; ${Math.max(0,agregables.length-cupo)} fuera del límite.\n${faltantes.slice(0,8).join('\n')}`);
+ }catch(e){ci90Msg('ci90ExcelConteoEstado',e.message,true);}finally{input.value='';}
+}
+async function ci90ImportarMercaderia(input){
+ ci90Msg('ci90ExcelMercaderiaEstado','Leyendo Excel…');
+ try{
+  const excel=await ci90LeerExcel(input.files?.[0]);
+  await cm55CargarCatalogoRapido();if(!Array.isArray(cm55CatalogoRapido))throw Error('El catálogo Matriz todavía no cargó.');
+  const mapa=new Map(cm55CatalogoRapido.filter(x=>!x.ambiguo).map(x=>[ci90Norm(x.nombre),x]));
+  const indiceCantidad=excel.cab.findIndex(c=>['CANTIDAD','UNIDADES','CANT','CANTIDAD RECIBIDA','CANTIDAD_RECIBIDA'].includes(c));
+  const vistos=new Set(),nuevos=[],sinRelacion=[],duplicados=[];
+  for(const x of excel.filas){const k=ci90Norm(x.nombre),p=mapa.get(k);if(vistos.has(k)){duplicados.push(x.nombre);continue;}vistos.add(k);
+    if(!p){sinRelacion.push(x.nombre);continue;}
+    const num=indiceCantidad<0?0:Number(String(x.datos[indiceCantidad]??'').replace(',','.'));
+    if(!Number.isInteger(num)||num<0||num>1000000){sinRelacion.push(x.nombre+' (cantidad inválida)');continue;}
+    nuevos.push({nombre:p.nombre,costo:p.costo==null?null:Number(p.costo),cantidad:num});
+  }
+  if(!nuevos.length)throw Error('No se reconoció ningún producto de Matriz. Revisa los nombres.');
+  if(cm55Lista.length+nuevos.length>150)throw Error('No se pueden cargar más de 150 líneas de recepción a la vez. Divide el Excel.');
+  if(!confirm(`¿Preparar ${nuevos.length} productos del Excel? ${sinRelacion.length} sin relación y ${duplicados.length} repetidos. Las cantidades se revisan antes de guardar.`))return;
+  const actual=new Map(cm55Lista.map(x=>[ci90Norm(x.nombre),x]));let agregados=0;
+  for(const x of nuevos){const anterior=actual.get(ci90Norm(x.nombre));if(anterior){if(x.cantidad>0)anterior.cantidad+=x.cantidad;}else{cm55Lista.push(x);agregados++;}}
+  cm55Render();ci90Msg('ci90ExcelMercaderiaEstado',`${agregados} productos agregados. ${sinRelacion.length} sin relación; ${duplicados.length} repetidos.\n${sinRelacion.slice(0,8).join('\n')}`);
+ }catch(e){ci90Msg('ci90ExcelMercaderiaEstado',e.message,true);}finally{input.value='';}
+}
+async function ci90CargarConteos(){
+ ci90Msg('ci90ConteosStatus','Consultando últimos conteos de las tres ubicaciones…');
+ try{
+  const d=await c58Post('c50ConsultarEstados',{desde:'',hasta:''});
+  const mapa=new Map();
+  for(const x of d.productos||[]){if(!x.contado)continue;
+   const k=ci90Norm(x.nombre);if(!mapa.has(k))mapa.set(k,{nombre:x.nombre,tienda:null,bodega:null,mini:null,fechas:{}});
+   const p=mapa.get(k),s=ci90Norm(x.sucursal),campo=s==='TIENDA ONLINE SHOP'?'tienda':s==='BODEGA'?'bodega':s==='MINI SUPER'?'mini':null;
+   if(campo){p[campo]=x.cantidad;p.fechas[campo]=x.fecha;}
+  }
+  ci90FilasConteos=[...mapa.values()].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+  ci90Msg('ci90ConteosStatus',`${ci90FilasConteos.length} productos con algún conteo físico. El guion indica sin contar; 0 significa contado en cero.`);
+  ci90RenderConteos();
+ }catch(e){ci90Msg('ci90ConteosStatus',e.message,true);}
+}
+function ci90Sitios(){return [{k:'tienda',nombre:'Tienda',id:'ci90SumarTienda'},{k:'bodega',nombre:'Bodega',id:'ci90SumarBodega'},{k:'mini',nombre:'Mini Súper',id:'ci90SumarMini'}].filter(s=>document.getElementById(s.id)?.checked);}
+function ci90RenderConteos(){
+ const out=document.getElementById('ci90ConteosLista');if(!out)return;
+ const q=ci90Norm(document.getElementById('ci90BuscarConteos')?.value),arr=ci90FilasConteos.filter(x=>!q||ci90Norm(x.nombre).includes(q)),sitios=ci90Sitios();
+ out.innerHTML=arr.slice(0,80).map(x=>{const nums=sitios.filter(s=>x[s.k]!==null),suma=nums.reduce((n,s)=>n+Number(x[s.k]),0);
+  return `<div class="ci90-row"><div style="min-width:0;flex:1"><strong>${ci90E(x.nombre)}</strong><div class="ci90-note">${sitios.map(s=>ci90E(s.nombre)+': '+(x[s.k]===null?'—':ci90E(x[s.k]))).join(' · ')}</div></div><b style="font-size:15px">${nums.length?suma+' ud.':'—'}</b></div>`;
+ }).join('')||'<p class="ci90-note">Sin productos para esta búsqueda.</p>';
+ if(arr.length>80)out.insertAdjacentHTML('beforeend',`<p class="ci90-note">Mostrando 80 de ${arr.length}. Busca por nombre para ver los demás.</p>`);
+}
+function ci90ExportarConteos(){
+ if(typeof XLSX==='undefined')return alert('No está disponible el lector Excel.');
+ const q=ci90Norm(document.getElementById('ci90BuscarConteos')?.value),s=ci90Sitios();if(!s.length)return alert('Selecciona al menos una ubicación.');
+ const arr=ci90FilasConteos.filter(x=>(!q||ci90Norm(x.nombre).includes(q))&&s.some(y=>x[y.k]!==null));
+ if(!arr.length)return alert('No hay conteos para exportar.');
+ const cab=['Producto',...s.map(x=>x.nombre),'Suma seleccionada','Fecha del conteo (por ubicación)'];
+ const vals=arr.map(x=>[x.nombre,...s.map(y=>x[y.k]===null?'':x[y.k]),s.filter(y=>x[y.k]!==null).reduce((n,y)=>n+Number(x[y.k]),0),s.map(y=>y.nombre+': '+(x.fechas[y.k]||'sin contar')).join('; ')]);
+ const hoja=XLSX.utils.aoa_to_sheet([cab,...vals]),libro=XLSX.utils.book_new();XLSX.utils.book_append_sheet(libro,hoja,'Conteos físicos');
+ XLSX.writeFile(libro,'ONLINE_SHOP_CONTEOS_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+function ci90EstadoFiltro(v){ci90EstadoActual=v;document.querySelectorAll('#adminControlInventario [data-estado]').forEach(b=>b.classList.toggle('active',b.dataset.estado===v));ci90ConsultarEstado();}
+function ci90BuscarEstadoCambio(){clearTimeout(ci90Timer);ci90Timer=setTimeout(ci90ConsultarEstado,260);}
+async function ci90ConsultarEstado(){
+ ci90Msg('ci90EstadoResumen','Consultando historial de cuadres…');
+ try{
+  const d=await c58Post('ci90ListarEstados',{sucursal:document.getElementById('ci90SucursalEstado').value,estado:ci90EstadoActual,buscar:document.getElementById('ci90BuscarEstado').value});
+  ci90Msg('ci90EstadoResumen',`${d.cuadrados} cuadrados de ${d.totalCatalogo} productos · ${d.coincidencias} resultados en este filtro.`);
+  document.getElementById('ci90EstadoLista').innerHTML=(d.productos||[]).map(x=>`<div class="ci90-row"><span>${ci90E(x.nombre)}</span>${x.cuadrado?'<span class="ci90-pill">✓ Cuadrado</span>':'<span style="color:#8593a1;font-size:11px">Sin cuadrar</span>'}</div>`).join('')||'<p class="ci90-note">No hay productos en este filtro.</p>';
+ }catch(e){ci90Msg('ci90EstadoResumen',e.message,true);}
+}
+async function ci90ConfirmarMini(){
+ if(!ci90UltimoMini?.items?.length)return alert('Primero descarga el Excel de Mini Súper para esos productos.');
+ if(!confirm(`¿Importaste y VERIFICASTE en Akasia Mini Súper las existencias de los ${ci90UltimoMini.items.length} productos de este Excel? Solo así se marcarán como cuadrados.`))return;
+ const btn=document.getElementById('ci90ConfirmarMiniBoton');btn.disabled=true;
+ try{
+  const d=await c58Post('ci90ConfirmarMini',{desde:ci90UltimoMini.desde,items:JSON.stringify(ci90UltimoMini.items),usuario:localStorage.getItem('usuario')||'ADMIN'});
+  c57Mensaje('I',`${d.confirmados} productos confirmados en Mini Súper. El distintivo se mostrará también en pedidos.`);ci90UltimoMini=null;
+ }catch(e){btn.disabled=false;c57Mensaje('I',e.message,true);}
+}
+function ci90SucursalMarca(){return ci90Norm(localStorage.getItem('sucursal')).includes('MINI')?'MINI':'MATRIZ';}
+function ci90Badge(nombre){const suc=ci90SucursalMarca();return ci90BadgeDatos[suc]?.[ci90Norm(nombre)]?'<span class="ci90-cuadrado" title="Producto cuadrado y verificado en Akasia anteriormente">✓ Cuadrado</span>':'';}
+async function ci90CargarBadges(){
+ const suc=ci90SucursalMarca();if(ci90BadgeCargado[suc]||!localStorage.getItem('usuario'))return;
+ ci90BadgeCargado[suc]=true;
+ try{
+  const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'ci90Badges',empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||'',token:m201TokenSupervisor||''}),cache:'no-store'});
+  const d=await r.json();if(!r.ok||d.status!=='OK')throw Error(d.mensaje||'No se pudo leer los estados de cuadre.');
+  ci90BadgeDatos[suc]=Object.fromEntries((d.productos||[]).map(n=>[ci90Norm(n),true]));
+  if(typeof buscarProductoPedido==='function'&&document.getElementById('buscadorProductoPedido')?.value)buscarProductoPedido();
+  if(typeof renderizarListaPedido==='function')renderizarListaPedido();
+ }catch(e){delete ci90BadgeCargado[suc];console.warn('Distintivos de cuadre:',e.message);}
+}
+// El distintivo de pedido es solo de lectura: no guarda ni cambia cantidades.
+const ci90PedidosOriginal=window.cargarCatalogoProductosPedido;
+if(typeof ci90PedidosOriginal==='function')window.cargarCatalogoProductosPedido=function(){const r=ci90PedidosOriginal.apply(this,arguments);ci90CargarBadges().catch(()=>{});return r;};
+const ci90BodegaOriginal=window.toggleMenuPedidosBodega;
+if(typeof ci90BodegaOriginal==='function')window.toggleMenuPedidosBodega=function(){const v=ci90BodegaOriginal.apply(this,arguments);ci90CargarBadges().catch(()=>{});return v;};
+</script>
+
     <script src="./asistencia22.js?v=20261117_22" defer></script>
     <script src="./facturas-gemini.js?v=20261117-restaurado" defer></script>
     <script src="./facturas-gemini-ui.js?v=20261117-restaurado" defer></script>
