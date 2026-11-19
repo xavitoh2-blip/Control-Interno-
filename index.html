@@ -1898,6 +1898,14 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 #moduloRuta .k221-selector label{margin-bottom:6px!important;font-size:12px!important;color:#64748b!important}
 #moduloRuta .k221-selector select{min-height:47px!important;border:1px solid #d7e2ef!important;border-radius:12px!important;font-size:15px!important;padding:8px 11px!important}
 #moduloRuta .k221-selector small{margin-top:7px;font-size:11px}
+/* v1.7.77 · Selector principal compacto, historial separado y opcional. */
+#c227ClientesPanel .c277-selector-clientes{padding:11px 13px;margin:0 0 14px;background:#fff;border-color:#dbe6f0;border-radius:16px;box-shadow:none}
+#c227ClientesPanel .c277-selector-clientes label{color:#607690!important;margin-bottom:6px!important;font-size:12px!important}
+#c227ClientesPanel .c277-selector-clientes>select{min-height:46px!important;font-size:15px!important;border:1px solid #d2e0ee!important;border-radius:12px!important}
+#c227ClientesPanel .c277-historial{margin-top:9px}
+#c227ClientesPanel .c277-historial summary{font-size:12px;font-weight:750;color:#557aa2;cursor:pointer;padding:3px 0}
+#c227ClientesPanel .c277-historial select{margin-top:7px!important;min-height:44px!important;font-size:13px!important}
+
 .k224-acciones{display:flex;align-items:flex-start;gap:9px;margin:0 0 12px;flex-wrap:wrap}
 .k224-crear{flex:1 1 210px;min-width:0;position:relative}
 .k224-crear>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;min-height:45px;padding:0 14px;border-radius:13px;border:1px solid #bdd7f7;background:#edf6ff;color:#135ea3;font-size:13px;font-weight:850;user-select:none;box-sizing:border-box}
@@ -2430,7 +2438,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.76</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.77</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -2920,7 +2928,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
           <div id="listaFaltantesKardex" style="margin-top:12px;"></div>
         </div>
         <div id="c227ClientesPanel" style="display:none">
-          <div class="k221-selector" style="margin-bottom:12px"><label for="c244SelectRutaClientes">Ruta de los clientes</label><select id="c244SelectRutaClientes" onchange="c244CambiarRutaClientes(this.value)"><option value="">Cargando rutas…</option></select><small>Los tickets siguen disponibles aunque el Kardex físico ya esté finalizado.</small></div>
+          <div class="k221-selector c277-selector-clientes"><label for="c244SelectRutaClientes">Kardex de clientes</label><select id="c244SelectRutaClientes" onchange="c244CambiarRutaClientes(this.value)"><option value="">Cargando Kardex…</option></select><details id="c277HistorialPanel" class="c277-historial" style="display:none"><summary>Ver Kardex anteriores</summary><select id="c277SelectHistorial" aria-label="Elegir Kardex anterior" onchange="if(this.value)c244CambiarRutaClientes(this.value)"><option value="">Selecciona un Kardex anterior</option></select></details></div>
           <div id="c227ListaClientes"></div>
         </div>
     </div>
@@ -8489,6 +8497,29 @@ async function verificarPassword() {
         // v1.7.44: la ruta de tickets se elige INDEPENDIENTE del Kardex abierto
         // para preparación. Puede estar cerrada físicamente y seguir en reparto.
         let c244RutasClientes=[],c244RutaClientes=sessionStorage.getItem('c244RutaClientes')||'';
+        function c277PintarSelectorClientes(){
+          const selector=document.getElementById('c244SelectRutaClientes');
+          const historial=document.getElementById('c277SelectHistorial');
+          const panel=document.getElementById('c277HistorialPanel');
+          const actuales=c244RutasClientes.filter(x=>String(x.estado).toUpperCase()==='ACTIVA');
+          const antiguos=c244RutasClientes.filter(x=>String(x.estado).toUpperCase()!=='ACTIVA');
+          const elegido=c244RutasClientes.find(x=>x.idRuta===c244RutaClientes);
+          // Mostrar el seleccionado aunque la preparación física haya cerrado.
+          const visibles=actuales.slice();
+          if(elegido&&!visibles.some(x=>x.idRuta===elegido.idRuta))visibles.push(elegido);
+          if(selector){
+            selector.innerHTML=visibles.length?visibles.map(x=>'<option value="'+escaparHtmlPedido(x.idRuta)+'">Kardex #'+escaparHtmlPedido(x.numeroRuta)+(String(x.estado).toUpperCase()==='ACTIVA'?' · Abierto':' · Cerrado')+'</option>').join(''):'<option value="">Sin tickets</option>';
+            selector.value=c244RutaClientes;
+          }
+          if(historial){
+            historial.innerHTML='<option value="">Seleccionar Kardex anterior…</option>'+antiguos.map(x=>'<option value="'+escaparHtmlPedido(x.idRuta)+'">Kardex #'+escaparHtmlPedido(x.numeroRuta)+'</option>').join('');
+            historial.value=antiguos.some(x=>x.idRuta===c244RutaClientes)?c244RutaClientes:'';
+          }
+          if(panel){
+            panel.style.display=antiguos.length?'block':'none';
+            // No cerrar el historial si el usuario lo abrió manualmente.
+          }
+        }
         function c244CambiarRutaClientes(id){
           if(!c244RutasClientes.some(x=>x.idRuta===id)||id===c244RutaClientes)return;
           c244RutaClientes=id;sessionStorage.setItem('c244RutaClientes',id);
@@ -8628,7 +8659,7 @@ async function verificarPassword() {
           let respuestaServidor=false;
           cont.innerHTML='<p class="c226-info">Consultando clientes del Kardex…</p>';
           try{
-            await c267PrepararOffline();
+            const preparoOffline=c267PrepararOffline();
             if(ver!==c227Peticion||c227Vista!=='clientes')return;
             const auth={empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||''};
             if(c227EsAdminLogistica())Object.assign(auth,m200CredencialesAdmin());
@@ -8636,17 +8667,14 @@ async function verificarPassword() {
             const res=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'c247InicioClientes',idRuta:c244RutaClientes,...auth}),cache:'no-store'});
             respuestaServidor=true;
             const d=await res.json();
+            await preparoOffline; // Estado local confirmado antes de mostrar/confirmar entregas.
             if(ver!==c227Peticion||c227Vista!=='clientes')return;
             if(!res.ok||d.status!=='OK'||d.version!=='1.7.60')throw Error(d.mensaje||'Actualiza Código.gs a v1.7.60 para acelerar la revisión de clientes.');
             c244RutasClientes=Array.isArray(d.rutas)?d.rutas:[];
             c244RutaClientes=String(d.idRuta||'');
             if(c244RutaClientes)sessionStorage.setItem('c244RutaClientes',c244RutaClientes);
             else sessionStorage.removeItem('c244RutaClientes');
-            const selector=document.getElementById('c244SelectRutaClientes');
-            if(selector){
-              selector.innerHTML=c244RutasClientes.length?c244RutasClientes.map(x=>'<option value="'+escaparHtmlPedido(x.idRuta)+'">Kardex #'+escaparHtmlPedido(x.numeroRuta)+' · '+escaparHtmlPedido(x.estado==='ACTIVA'?'Preparación abierta':'Preparación cerrada')+'</option>').join(''):'<option value="">Sin tickets de clientes</option>';
-              selector.value=c244RutaClientes;
-            }
+            c277PintarSelectorClientes();
             if(!c244RutaClientes){c227DatosUI=null;cont.innerHTML='<p class="c226-info">No hay tickets importados para revisar.</p>';return;}
             if(!d.entregas||d.entregas.status!=='OK'||d.entregas.version!=='1.7.29')throw Error('No se pudieron consultar los productos de estos clientes.');
             c267UsandoCacheOffline=false;c227DatosUI=d.entregas;c227Render();
@@ -8657,14 +8685,14 @@ async function verificarPassword() {
               entregas:d.entregas,fecha:Date.now()
             }).catch(()=>{});
           }catch(e){
+            await c267PrepararOffline();
             if(ver!==c227Peticion)return;
             if(respuestaServidor||c227EsAdminLogistica()||!c244RutaClientes){cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';return;}
             try{
               const cache=await c267DBAccion('rutas','readonly','get',c267CacheId(c244RutaClientes));
               if(!cache?.entregas||ver!==c227Peticion)throw e;
               c244RutasClientes=cache.rutas||[];c267UsandoCacheOffline=true;c227DatosUI=cache.entregas;
-              const selector=document.getElementById('c244SelectRutaClientes');
-              if(selector){selector.innerHTML=c244RutasClientes.map(x=>'<option value="'+escaparHtmlPedido(x.idRuta)+'">Kardex #'+escaparHtmlPedido(x.numeroRuta)+'</option>').join('');selector.value=c244RutaClientes;}
+              c277PintarSelectorClientes();
               c227Render();cont.insertAdjacentHTML('afterbegin','<p class="c226-info" style="color:#9b5f23">📴 Sin conexión: estás viendo una copia de los tickets. Las entregas se guardarán en este dispositivo y necesitarán sincronización.</p>');
             }catch(_){if(ver===c227Peticion)cont.innerHTML='<p style="color:#b42318">'+escaparHtmlPedido(e.message)+'</p>';}
           }
