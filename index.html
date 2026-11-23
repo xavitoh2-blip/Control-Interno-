@@ -2534,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.88</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.89</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3524,6 +3524,22 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
 .ci90-import-status{font-size:11px;color:#476680;line-height:1.5;margin-top:7px;white-space:pre-wrap}
 .ci90-cuadrado{display:inline-block;padding:3px 7px;margin-left:5px;border-radius:8px;background:#ecf6f0;border:1px solid #c9e3d3;color:#24694a;font-size:10px;font-weight:800;vertical-align:middle}
 @media(max-width:470px){#adminControlInventario .ci90-card{padding:13px}#adminControlInventario .ci90-grid button{font-size:11px}#adminControlInventario .ci90-grid button strong{font-size:18px}}
+
+/* CI91 1.7.89 · Confirmación desde Excel: aislado en Control de Inventario */
+#adminControlInventario .ci91-caja{margin:13px 0;background:#f9fbfd;border:1px solid #dae5ef;border-radius:15px;padding:13px}
+#adminControlInventario .ci91-caja>summary{cursor:pointer;font-weight:800;color:#233f5d;font-size:13px;list-style-position:inside}
+#adminControlInventario .ci91-caja .ci91-muted{color:#687f95;font-size:11px;line-height:1.5;margin:8px 0}
+#adminControlInventario .ci91-linea{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #e6edf4}
+#adminControlInventario .ci91-linea:last-child{border-bottom:0}
+#adminControlInventario .ci91-linea label{margin:0;display:flex;align-items:center;gap:9px;font-size:12px;font-weight:600;min-width:0;flex:1;cursor:pointer}
+#adminControlInventario .ci91-linea input[type=checkbox]{width:18px;min-width:18px;height:18px;min-height:18px;margin:0;accent-color:#233f5d}
+#adminControlInventario .ci91-estado{font-size:11px;color:#697d91;white-space:nowrap;align-self:center}
+#adminControlInventario .ci91-estado.ok{color:#24694a}
+#adminControlInventario .ci91-btns{display:flex;gap:8px;flex-wrap:wrap;margin:11px 0}
+#adminControlInventario .ci91-btns button{width:auto;min-height:40px;padding:9px 12px;background:#edf3f9;color:#254464;border:1px solid #d6e2ee;border-radius:12px;box-shadow:none;font-size:12px}
+#adminControlInventario .ci91-btns button.ci91-primario{background:#233f5d;color:#fff;border-color:#233f5d}
+#adminControlInventario #ci91Resultado{font-size:12px;white-space:pre-wrap;line-height:1.5}
+@media(max-width:500px){#adminControlInventario .ci91-linea{align-items:flex-start;flex-direction:column;gap:3px}#adminControlInventario .ci91-estado{margin-left:27px}}
 </style>
 <div id="adminControlInventario" class="admin-modulo" style="display:none">
   <button type="button" class="btn-volver" onclick="volverMenuAdmin()">← Administración</button>
@@ -3550,7 +3566,23 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     <div class="ci90-actions"><button type="button" onclick="ci90ExportarConteos()">▤ Exportar reporte de conteos</button></div>
   </div>
   <div class="ci90-card"><h4>Productos cuadrados y pendientes</h4><p>«Cuadrado» se activa solamente después de confirmar que el Excel se importó y verificó en Akasia.</p>
-    <label for="ci90SucursalEstado">Sucursal de Akasia</label><select id="ci90SucursalEstado" onchange="ci90ConsultarEstado()"><option value="MATRIZ">Matriz (Tienda + Bodega)</option><option value="MINI">Mini Súper</option></select>
+    <label for="ci90SucursalEstado">Sucursal de Akasia</label><select id="ci90SucursalEstado" onchange="ci91Limpiar();ci90ConsultarEstado()"><option value="MATRIZ">Matriz (Tienda + Bodega)</option><option value="MINI">Mini Súper</option></select>
+
+    <details class="ci91-caja" id="ci91Panel">
+      <summary>▤ Marcar productos desde Excel</summary>
+      <p class="ci91-muted">Elige arriba Matriz o Mini Súper. Importa nombres del Excel de Akasia o una lista con columna «Producto». Primero revisa las coincidencias; después marca solo los que YA verificaste y cuadraste en Akasia.</p>
+      <label for="ci91Archivo">Excel con los nombres de productos</label>
+      <input type="file" id="ci91Archivo" accept=".xlsx,.xls,.csv" onchange="ci91Importar(this)">
+      <div id="ci91Resultado" class="ci91-muted" role="status">Todavía no has cargado un Excel.</div>
+      <div id="ci91Vista" hidden>
+        <input type="search" id="ci91Buscar" placeholder="Buscar entre los importados" oninput="ci91Dibujar()" aria-label="Buscar productos importados">
+        <div class="ci91-btns"><button type="button" onclick="ci91SeleccionarTodos(true)">Seleccionar todos</button><button type="button" onclick="ci91SeleccionarTodos(false)">Quitar selección</button></div>
+        <div id="ci91Lista"></div>
+        <div class="ci91-btns"><button type="button" id="ci91ConfirmarBtn" class="ci91-primario" onclick="ci91Confirmar()" disabled>✓ Confirmar cuadrados (0)</button></div>
+        <p class="ci91-muted">La marca se guarda en Google Sheets por sucursal y será visible en los pedidos. No modifica existencias, ventas ni conteos de Akasia. Una vez confirmado, queda como historial del cuadre realizado.</p>
+      </div>
+    </details>
+
     <div class="ci90-filter" style="margin:10px 0">
       <button type="button" class="active" data-estado="CUADRADOS" onclick="ci90EstadoFiltro('CUADRADOS')">Cuadrados</button>
       <button type="button" data-estado="PENDIENTES" onclick="ci90EstadoFiltro('PENDIENTES')">Sin cuadrar</button>
@@ -14474,6 +14506,84 @@ const ci90PedidosOriginal=window.cargarCatalogoProductosPedido;
 if(typeof ci90PedidosOriginal==='function')window.cargarCatalogoProductosPedido=function(){const r=ci90PedidosOriginal.apply(this,arguments);ci90CargarBadges().catch(()=>{});return r;};
 const ci90BodegaOriginal=window.toggleMenuPedidosBodega;
 if(typeof ci90BodegaOriginal==='function')window.toggleMenuPedidosBodega=function(){const v=ci90BodegaOriginal.apply(this,arguments);ci90CargarBadges().catch(()=>{});return v;};
+</script>
+
+
+<script id="ci91Script">
+// Online Shop 1.7.89 · marcar productos previamente cuadrados desde Excel.
+// Solo Administrador puede confirmar. Pedidos: distinción de solo lectura.
+const ci91Datos={sucursal:'',filas:[],archivo:'',busy:false,duplicados:0};
+function ci91Notificar(mensaje,error){
+ const el=document.getElementById('ci91Resultado');if(!el)return;
+ el.textContent=mensaje;el.style.color=error?'#a83e42':'#536f8a';
+}
+function ci91Limpiar(){
+ ci91Datos.sucursal='';ci91Datos.filas=[];ci91Datos.archivo='';ci91Datos.busy=false;ci91Datos.duplicados=0;
+ const v=document.getElementById('ci91Vista');if(v)v.hidden=true;
+ const a=document.getElementById('ci91Archivo');if(a)a.value='';
+ const q=document.getElementById('ci91Buscar');if(q)q.value='';
+ ci91Notificar('Selecciona un Excel para revisar los productos.',false);
+}
+async function ci91Importar(input){
+ const f=input.files&&input.files[0],sucursal=document.getElementById('ci90SucursalEstado')?.value;
+ ci91Datos.filas=[];ci91Datos.sucursal=sucursal;ci91Datos.archivo=f?.name||'';ci91Datos.duplicados=0;
+ document.getElementById('ci91Vista').hidden=true;
+ if(!f)return;
+ ci91Notificar('Leyendo Excel y comprobando productos de Akasia…');
+ try{
+   const x=await ci90LeerExcel(f),seen=new Set(),nombres=[];
+   for(const fila of x.filas){const k=ci90Norm(fila.nombre);if(seen.has(k)){ci91Datos.duplicados++;continue;}seen.add(k);nombres.push(fila.nombre);}
+   if(!nombres.length)throw Error('La hoja no contiene nombres de productos.');
+   if(nombres.length>1000)throw Error('Para seguridad, importa un máximo de 1,000 nombres a la vez. Divide el Excel.');
+   const d=await c58Post('ci91ValidarExcel',{sucursal,productos:JSON.stringify(nombres)});
+   if(ci91Datos.sucursal!==document.getElementById('ci90SucursalEstado')?.value)return;
+   ci91Datos.filas=(d.productos||[]).map((p,i)=>({...p,sel:false,id:i}));
+   document.getElementById('ci91Vista').hidden=false;
+   ci91Dibujar();
+   ci91Notificar(`${ci91Datos.filas.filter(p=>p.estado==='LISTO').length} listos para seleccionar · ${ci91Datos.filas.filter(p=>p.estado==='YA_CUADRADO').length} ya cuadrados · ${ci91Datos.filas.filter(p=>!['LISTO','YA_CUADRADO'].includes(p.estado)).length} por revisar · ${ci91Datos.duplicados} repetidos en el Excel.`);
+ }catch(e){ci91Notificar(e.message||'No fue posible leer el Excel.',true);}
+ finally{input.value='';}
+}
+function ci91Dibujar(){
+ const destino=document.getElementById('ci91Lista');if(!destino)return;
+ const filtro=ci90Norm(document.getElementById('ci91Buscar')?.value),actual=ci91Datos.filas.filter(p=>!filtro||ci90Norm(p.nombre).includes(filtro));
+ destino.innerHTML=actual.slice(0,100).map(p=>{
+  const disponible=p.estado==='LISTO',estado=p.estado==='YA_CUADRADO'?'✓ Ya cuadrado':p.estado==='NO_ENCONTRADO'?'No encontrado':p.estado==='AMBIGUO'?'Nombre repetido en Akasia':p.estado==='SIN_UUID'?'Falta código Akasia':'Por revisar';
+  return `<div class="ci91-linea"><label><input type="checkbox" data-ci91-id="${p.id}" onchange="ci91Marcar(${p.id},this.checked)" ${p.sel?'checked':''} ${disponible?'':'disabled'}><span>${ci90E(p.producto||p.nombre)}</span></label><span class="ci91-estado ${p.estado==='YA_CUADRADO'?'ok':''}">${ci90E(disponible?'Disponible':estado)}</span></div>`;
+ }).join('')||'<p class="ci91-muted">No se encontraron coincidencias para esta búsqueda.</p>';
+ if(actual.length>100)destino.insertAdjacentHTML('beforeend',`<p class="ci91-muted">Mostrando 100 de ${actual.length}. Puedes buscar un nombre o seleccionar todos los disponibles.</p>`);
+ ci91ActualizarBoton();
+}
+function ci91Marcar(id,checked){const p=ci91Datos.filas[id];if(p&&p.estado==='LISTO')p.sel=!!checked;ci91ActualizarBoton();}
+function ci91SeleccionarTodos(checked){ci91Datos.filas.forEach(p=>{if(p.estado==='LISTO')p.sel=checked;});ci91Dibujar();}
+function ci91ActualizarBoton(){
+ const n=ci91Datos.filas.filter(p=>p.sel&&p.estado==='LISTO').length,b=document.getElementById('ci91ConfirmarBtn');
+ if(b){b.disabled=!n||ci91Datos.busy;b.textContent=`✓ Confirmar cuadrados (${n})`;}
+}
+async function ci91Confirmar(){
+ if(ci91Datos.busy)return;
+ const items=ci91Datos.filas.filter(p=>p.sel&&p.estado==='LISTO');if(!items.length)return;
+ if(ci91Datos.sucursal!==document.getElementById('ci90SucursalEstado')?.value)return ci91Notificar('Cambiaste de sucursal. Importa el Excel nuevamente.',true);
+ const nombreSucursal=ci91Datos.sucursal==='MATRIZ'?'Matriz (incluye Bodega)':'Mini Súper';
+ if(!confirm(`¿Confirmas que YA IMPORTASTE O CUADRASTE Y VERIFICASTE en Akasia ${items.length} productos de ${nombreSucursal}? Esto guarda una marca histórica visible para todos. NO modifica existencias de Akasia.`))return;
+ ci91Datos.busy=true;ci91ActualizarBoton();let hechos=0,nuevos=0;
+ try{
+  for(let i=0;i<items.length;i+=100){
+   const lote=items.slice(i,i+100);
+   ci91Notificar(`Confirmando ${hechos} de ${items.length} productos… No cierres esta pantalla.`);
+   const d=await c58Post('ci91MarcarExcel',{sucursal:ci91Datos.sucursal,productos:JSON.stringify(lote.map(p=>({nombre:p.producto,uuid:p.uuid}))),archivo:ci91Datos.archivo,usuario:localStorage.getItem('usuario')||'ADMIN'});
+   hechos+=Number(d.confirmados)||0;nuevos+=Number(d.nuevos)||0;
+   lote.forEach(p=>{p.estado='YA_CUADRADO';p.sel=false;});
+  }
+  ci91Notificar(`✓ ${hechos} productos confirmados en ${nombreSucursal}. Nuevas marcas: ${nuevos}. El distintivo aparecerá al consultar los pedidos.`);
+  ci90BadgeCargado[ci91Datos.sucursal]=false;
+  ci90BadgeDatos[ci91Datos.sucursal]={};
+  await ci90ConsultarEstado();
+  if(typeof ci90CargarBadges==='function')ci90CargarBadges().catch(()=>{});
+ }catch(e){
+  ci91Notificar(`Se confirmaron ${hechos} de ${items.length}. ${e.message||'Falló la conexión.'} Puedes reintentar; no se duplicarán los registros.`,true);
+ }finally{ci91Datos.busy=false;ci91Dibujar();}
+}
 </script>
 
     <script src="./asistencia22.js?v=20261117_22" defer></script>
