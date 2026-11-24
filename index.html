@@ -2534,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.89</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.90</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3092,6 +3092,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
                 <button class="menu-modulo" onclick="abrirModuloAdmin('imagenes')"><span>🖼️</span>Imágenes de productos</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('catalogoRuta')"><span>📖</span>Catálogo de Ruta</button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('ci90')"><span>📦</span><b>Control de Inventario</b></button>
+                <button id="ci92Menu" class="menu-modulo" onclick="abrirModuloAdmin('prepararProductos')"><span>📋</span><b>Preparar productos</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('conteosAsignados')"><span>🧮</span><b>Conteos Asignados</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('cuadreMatriz')"><span>📊</span><b>Cuadre de inventario Matriz</b></button>
                 <button class="menu-modulo" onclick="abrirModuloAdmin('exportarSucursales')"><span>📤</span><b>Excel Akasia por sucursal</b></button>
@@ -3546,11 +3547,8 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
   <div class="ci90-card"><div class="ci90-head"><h3>Control de Inventario</h3><span style="font-size:11px;color:#8496a9">Online Shop</span></div>
     <p>Ingresa mercadería, asigna conteos y consulta los productos verificados. No cambia las existencias de Akasia.</p>
   </div>
-  <div class="ci90-card"><h4>1 · Entrada de mercadería</h4><div class="ci90-grid">
-    <button type="button" onclick="abrirModuloAdmin('mercaderiaNueva')"><strong>＋</strong>Manual</button>
-    <button type="button" onclick="abrirModuloAdmin('facturasGemini')"><strong>▣</strong>Factura IA</button>
-    <button type="button" onclick="ci90EntradaExcel()"><strong>▤</strong>Excel</button>
-  </div><p>Las tres opciones llegan a una lista que debes revisar y guardar.</p></div>
+  <div class="ci90-card"><h4>1 · Preparar productos</h4><p>Reúne productos desde una factura, Excel o el buscador. El cuadre permanece separado.</p>
+    <button type="button" onclick="abrirModuloAdmin('prepararProductos')" style="background:#233f5d;color:white;max-width:340px">Abrir Preparar productos</button></div>
   <div class="ci90-card"><h4>2 · Asignar conteos</h4><p>Selecciona productos del catálogo o importa un Excel con solo nombres. El colaborador cuenta físicamente desde cero.</p>
     <button type="button" onclick="abrirModuloAdmin('conteosAsignados')">Abrir Asignar conteos</button></div>
   <div class="ci90-card"><h4>3 · Conteos por ubicación</h4><p>Los valores son conteos físicos guardados, no existencias actuales. Marca qué ubicaciones deseas sumar; no se mezclan los Excel de Akasia.</p>
@@ -3590,6 +3588,81 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
     <input id="ci90BuscarEstado" type="search" placeholder="Buscar por nombre" oninput="ci90BuscarEstadoCambio()">
     <div id="ci90EstadoResumen" class="ci90-note">Consultando el estado…</div><div id="ci90EstadoLista"></div>
   </div>
+</div>
+
+<!-- CI92 · Nuevo Preparar productos. Funciones de entrada separadas del cuadre. -->
+<style id="ci92Estilos">
+#adminPrepararProductos{max-width:880px;margin:15px auto;text-align:left;color:#243e5b}
+#adminPrepararProductos *{box-sizing:border-box}
+#adminPrepararProductos .ci92-panel{background:#fff;border:1px solid #dce5ed;border-radius:20px;padding:19px;margin:12px 0;box-shadow:0 7px 23px rgba(22,51,87,.04)}
+#adminPrepararProductos .ci92-title{font-size:24px;font-weight:850;margin:0;color:#233d5b;letter-spacing:-.35px}
+#adminPrepararProductos .ci92-muted{color:#697e94;font-size:12px;line-height:1.5;margin:7px 0}
+#adminPrepararProductos .ci92-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+#adminPrepararProductos .ci92-choice{border:1px solid #dce5ee;background:#f7f9fc;color:#213e5f;border-radius:16px;min-height:112px;padding:14px 10px;display:flex;align-items:flex-start;flex-direction:column;justify-content:center;text-align:left;gap:5px;margin:0;box-shadow:none}
+#adminPrepararProductos .ci92-choice div{display:flex;flex-direction:column;min-width:0;gap:3px;flex:1}
+#adminPrepararProductos .ci92-choice span{font-size:24px}
+#adminPrepararProductos .ci92-choice strong{font-size:13px}
+#adminPrepararProductos .ci92-choice small{color:#71859b;font-size:10.5px;line-height:1.3}
+#adminPrepararProductos .ci92-back{width:auto;min-height:39px;margin:0 0 12px;padding:8px 14px;border:1px solid #dce6ef;border-radius:12px;background:#edf2f7;color:#274c72;box-shadow:none;font-size:12px}
+#adminPrepararProductos .ci92-primary{background:#233e5c;color:#fff;border:0;box-shadow:none;border-radius:12px;margin:0;min-height:44px;padding:9px 13px}
+#adminPrepararProductos label{font-size:12px;font-weight:750;color:#3f5b77;display:block;margin:11px 0 5px}
+#adminPrepararProductos input{width:100%;background:#fff;border:1px solid #d5e1ed;border-radius:12px;padding:11px;min-height:45px;font-size:14px}
+#adminPrepararProductos input[type=file]{font-size:12px}
+#adminPrepararProductos .ci92-suggestions{max-height:245px;overflow:auto;border:1px solid #e2e9f0;border-radius:14px;margin:7px 0 12px}
+#adminPrepararProductos .ci92-suggestions button{display:block;margin:0;width:100%;text-align:left;padding:12px;background:#fff;color:#233e5c;border:0;border-bottom:1px solid #edf1f5;box-shadow:none;border-radius:0;min-height:42px;font-size:12px}
+#adminPrepararProductos .ci92-suggestions button:last-child{border-bottom:0}
+#adminPrepararProductos .ci92-suggestions button:hover{background:#f4f8fc}
+#adminPrepararProductos .ci92-suggestions button:disabled{color:#9ba9b5}
+#adminPrepararProductos .ci92-qtyrow{display:grid;grid-template-columns:minmax(100px,140px) 1fr;gap:10px;align-items:end}
+#adminPrepararProductos .ci92-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #ebeff4}
+#adminPrepararProductos .ci92-row:last-child{border:0}
+#adminPrepararProductos .ci92-row b{font-size:12px;color:#213e5e;overflow-wrap:anywhere}
+#adminPrepararProductos .ci92-row small{font-size:11px;color:#7a8da0;display:block;margin-top:4px}
+#adminPrepararProductos .ci92-row input{max-width:92px;margin:0;text-align:center;min-width:65px}
+#adminPrepararProductos .ci92-row .ci92-remove{width:auto;background:#f3f5f8;color:#667d92;border:1px solid #dee6ee;padding:8px;font-size:11px;min-height:35px;margin:0;box-shadow:none}
+#adminPrepararProductos #ci92Lista{max-height:340px;overflow:auto;padding:0 3px}
+#adminPrepararProductos [hidden]{display:none!important}
+#adminPrepararProductos .ci92-status{font-size:12px;color:#566f88;line-height:1.45;margin:9px 0;white-space:pre-wrap}
+#adminPrepararProductos .ci92-draftnote{border:1px solid #dae4ee;border-radius:13px;padding:10px 12px;background:#f7f9fc;color:#5f7389;font-size:11px;line-height:1.5}
+@media(max-width:650px){#adminPrepararProductos .ci92-panel{padding:14px}#adminPrepararProductos .ci92-grid{grid-template-columns:1fr}#adminPrepararProductos .ci92-choice{min-height:75px;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px}#adminPrepararProductos .ci92-choice span{font-size:23px}#adminPrepararProductos .ci92-qtyrow{grid-template-columns:110px 1fr}}
+</style>
+<div id="adminPrepararProductos" class="admin-modulo" style="display:none">
+  <button type="button" class="btn-volver" onclick="volverMenuAdmin()">← Administración</button>
+  <section class="ci92-panel">
+    <h3 class="ci92-title">Preparar productos</h3>
+    <p class="ci92-muted">Elige cómo quieres agregar productos. Por ahora solo preparamos la lista; el cuadre se hará después.</p>
+    <div id="ci92Opciones" class="ci92-grid">
+      <button class="ci92-choice" type="button" onclick="ci92AbrirFactura()"><span>📷</span><div><strong>Leer factura con IA</strong><small>Fotografía y revisión con Gemini</small></div></button>
+      <button class="ci92-choice" type="button" onclick="ci92Mostrar('excel')"><span>▤</span><div><strong>Leer productos de Excel</strong><small>Archivo de Akasia o lista de nombres</small></div></button>
+      <button class="ci92-choice" type="button" onclick="ci92Mostrar('manual')"><span>⌕</span><div><strong>Buscar y agregar</strong><small>Elige producto y cantidad</small></div></button>
+    </div>
+    <div id="ci92Manual" hidden>
+      <button type="button" class="ci92-back" onclick="ci92Mostrar('inicio')">← Opciones</button>
+      <h4 style="margin:0">Buscar y agregar</h4>
+      <label for="ci92Buscar">Producto de Akasia Matriz</label>
+      <input type="search" id="ci92Buscar" placeholder="Escribe el nombre del producto" autocomplete="off" oninput="ci92Buscar()">
+      <div id="ci92Sugerencias" class="ci92-suggestions" aria-live="polite"></div>
+      <div id="ci92Elegido" class="ci92-status">Selecciona un producto de la lista.</div>
+      <div class="ci92-qtyrow"><div><label for="ci92Cantidad">Cantidad</label><input id="ci92Cantidad" type="number" min="1" max="1000000" step="1" value="1" inputmode="numeric"></div>
+      <button type="button" class="ci92-primary" onclick="ci92AgregarManual()">＋ Agregar producto</button></div>
+    </div>
+    <div id="ci92Excel" hidden>
+      <button type="button" class="ci92-back" onclick="ci92Mostrar('inicio')">← Opciones</button>
+      <h4 style="margin:0">Leer productos de Excel</h4>
+      <label for="ci92Archivo">Seleccionar archivo</label>
+      <input type="file" id="ci92Archivo" accept=".xlsx,.xls,.csv" onchange="ci92LeerArchivo(this)">
+      <p class="ci92-muted">Compatible con el Excel de Akasia. Los números del archivo no se tomarán como conteos ni existencias. Busca los productos que quieras agregar.</p>
+      <div id="ci92ExcelEstado" class="ci92-status">Selecciona un archivo para revisar sus productos.</div>
+      <input type="search" id="ci92ExcelBuscar" placeholder="Buscar en productos del Excel" oninput="ci92FiltrarExcel()" hidden>
+      <div class="ci92-suggestions" id="ci92ExcelResultados"></div>
+    </div>
+    <p class="ci92-status" id="ci92Estado" role="status"></p>
+  </section>
+  <section class="ci92-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h4 style="margin:0;color:#233e5c">Lista preparada</h4><strong id="ci92Total" style="font-size:13px;color:#546d86">0 productos</strong></div>
+    <div class="ci92-draftnote" style="margin:10px 0">Borrador de Matriz guardado en este navegador. No registra mercadería, no cuenta unidades y no modifica Akasia.</div>
+    <div id="ci92Lista"></div>
+  </section>
 </div>
 
         <!-- v1.6.42 BETA: pantalla exclusiva para administrar conteos -->
@@ -8077,7 +8150,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if(typeof m214Restaurar==='function')m214Restaurar();
             document.getElementById("menuAdmin").style.display = "none";
             document.querySelectorAll(".admin-modulo").forEach(el => el.style.display = "none");
-            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",ci90:"adminControlInventario",conteosAsignados:"adminConteosAsignados",cuadreMatriz:"adminCuadreMatriz",exportarSucursales:"adminExportarSucursales",mercaderiaNueva:"adminMercaderiaNueva",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos",rutacaja:"adminRutaCaja230",preventa270:"adminPreventa270"};
+            const mapa = {resumen:"adminResumen", asistencia:"adminAsistencia", inventario:"adminInventario", tareas:"adminTareas", n188:"n188AdminTareas", pedidos:"adminPedidos", mercaderia:"m200ModuloAdmin", compras:"adminCompras", gondolas:"adminGondolas", imagenes:"adminImagenes", catalogoRuta:"adminCatalogoRuta",ci90:"adminControlInventario",prepararProductos:"adminPrepararProductos",conteosAsignados:"adminConteosAsignados",cuadreMatriz:"adminCuadreMatriz",exportarSucursales:"adminExportarSucursales",mercaderiaNueva:"adminMercaderiaNueva",catalogoAkasia:"adminAkasiaCatalogo",logistica:"adminControlLogistico",creditos:"adminCreditos",rutacaja:"adminRutaCaja230",preventa270:"adminPreventa270"};
             const destino = document.getElementById(mapa[modulo]);
             if (destino) destino.style.display = "block";
             if (modulo === "compras") cargarGestionComprasAdmin();
@@ -8085,6 +8158,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             if (modulo === "imagenes") iniciarAdminImagenes();
             if (modulo === "catalogoRuta") cargarAdminCatalogoRuta();
             if (modulo === "ci90") ci90Abrir();
+            if (modulo === "prepararProductos") ci92Abrir();
             if (modulo === "conteosAsignados") c42AbrirAdmin();
             if (modulo === "cuadreMatriz") c58CargarEstado();
             if (modulo === "exportarSucursales") c57Abrir();
@@ -14371,6 +14445,152 @@ if(typeof a280OriginalRender==='function'){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',a280Init,{once:true});else a280Init();
 
+</script>
+
+<script id="ci92Script">
+// CI92 v1.7.90 — Únicamente preparación. Se reutilizan catálogo Akasia,
+// borrador de recepción y lector Gemini existentes; ningún registro de inventario.
+let ci92Vista='inicio',ci92Seleccionado=null,ci92Coincidencias=[],ci92ExcelFilas=[],ci92ExcelVisibles=[],ci92FacturaDesdeModulo=false,ci92BuscandoTimeout=null;
+function ci92Aviso(m,error=false,id='ci92Estado'){
+ const n=document.getElementById(id);if(n){n.textContent=m;n.style.color=error?'#a44647':'#566f88';}
+}
+function ci92Html(s){return typeof c42Esc==='function'?c42Esc(String(s??'')):String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+async function ci92Abrir(){
+ ci92Mostrar('inicio');ci92Aviso('Cargando lista guardada…');
+ try{
+  const d=await c58Post('c58EstadoMatriz');
+  c54PeriodoActual=d.periodoInicio||'';c54SnapshotActual=d.segundoExcel||null;
+  cm55RestaurarBorrador();ci92Dibujar();
+  ci92Aviso(c54PeriodoActual?'Lista preparada para el período de Matriz.':'Puedes preparar una lista de prueba. Para registrar recepciones posteriormente se necesitará un período activo en Matriz.');
+ }catch(e){ci92Aviso('No se pudo consultar el período de Matriz. La lista existente no se modificó: '+e.message,true);ci92Dibujar();}
+}
+function ci92Mostrar(v){
+ ci92Vista=v;
+ const opciones=document.getElementById('ci92Opciones'),manual=document.getElementById('ci92Manual'),excel=document.getElementById('ci92Excel');
+ if(opciones)opciones.hidden=v!=='inicio';if(manual)manual.hidden=v!=='manual';if(excel)excel.hidden=v!=='excel';
+ ci92Seleccionado=null;
+ if(v!=='inicio')ci92CargarCatalogo().catch(e=>ci92Aviso('Catálogo de Akasia no disponible: '+e.message,true));
+ if(v==='manual')document.getElementById('ci92Buscar')?.focus();
+ ci92Dibujar();
+}
+async function ci92CargarCatalogo(){
+ const n=(Array.isArray(cm55CatalogoRapido)&&cm55CatalogoRapido.length)?cm55CatalogoRapido.length:await cm55CargarCatalogoRapido();
+ if(!n)throw Error('No se encontraron productos de Akasia Matriz.');
+ if(ci92Vista==='manual')ci92Buscar();
+ if(ci92Vista==='excel'&&ci92ExcelFilas.length)ci92FiltrarExcel();
+ return n;
+}
+function ci92Buscar(){
+ const value=document.getElementById('ci92Buscar')?.value?.trim()||'',box=document.getElementById('ci92Sugerencias');if(!box)return;
+ ci92Seleccionado=null;ci92Coincidencias=[];
+ const aviso=document.getElementById('ci92Elegido');if(aviso)aviso.textContent='Selecciona un producto de la lista.';
+ if(value.length<2){box.innerHTML='';return;}
+ if(Array.isArray(cm55CatalogoRapido)){
+  const clave=ci90Norm(value),out=[];
+  for(const p of cm55CatalogoRapido){if(ci90Norm(p.nombre).includes(clave)){out.push(p);if(out.length===35)break;}}
+  ci92Coincidencias=out;
+  box.innerHTML=out.map((p,i)=>`<button type="button" ${p.ambiguo?'disabled title="Nombre ambiguo"':''} onclick="ci92Elegir(${i})">${ci92Html(p.nombre)}${p.ambiguo?' · Revisar nombre duplicado':''}</button>`).join('')||'<div class="ci92-muted" style="padding:11px">No hay coincidencias.</div>';
+  return;
+ }
+ clearTimeout(ci92BuscandoTimeout);
+ ci92BuscandoTimeout=setTimeout(async()=>{
+  try{
+   const d=await c58Post('c58BuscarMatriz',{buscar:value});
+   if(document.getElementById('ci92Buscar')?.value.trim()!==value)return;
+   ci92Coincidencias=d.productos||[];
+   box.innerHTML=ci92Coincidencias.map((p,i)=>`<button type="button" ${p.ambiguo?'disabled':''} onclick="ci92Elegir(${i})">${ci92Html(p.nombre)}</button>`).join('')||'<div class="ci92-muted" style="padding:11px">No encontrado.</div>';
+  }catch(e){ci92Aviso(e.message,true);}
+ },300);
+}
+function ci92Elegir(i){
+ const p=ci92Coincidencias[i];if(!p||p.ambiguo)return;
+ ci92Seleccionado={nombre:p.nombre,costo:p.costo==null?null:Number(p.costo)};
+ document.getElementById('ci92Buscar').value=p.nombre;
+ document.getElementById('ci92Sugerencias').innerHTML='';
+ document.getElementById('ci92Elegido').textContent='Seleccionado: '+p.nombre;
+ document.getElementById('ci92Cantidad')?.focus();
+}
+function ci92Anadir(p,cantidad){
+ if(!p||!p.nombre)return false;
+ const cant=Number(cantidad);
+ if(!Number.isInteger(cant)||cant<0||cant>1000000){ci92Aviso('Escribe una cantidad entera válida.',true);return false;}
+ const clave=ci90Norm(p.nombre),actual=cm55Lista.find(x=>ci90Norm(x.nombre)===clave);
+ if(actual){if(actual.cantidad+cant>1000000){ci92Aviso('Se excedería el límite de unidades.',true);return false;}actual.cantidad+=cant;}
+ else {if(cm55Lista.length>=150){ci92Aviso('La lista admite hasta 150 productos. Prepara otra lista para continuar.',true);return false;}
+  cm55Lista.push({nombre:p.nombre,costo:p.costo==null?null:Number(p.costo),cantidad:cant});}
+ cm55Render();ci92Dibujar();return true;
+}
+function ci92AgregarManual(){
+ if(!ci92Seleccionado)return ci92Aviso('Primero selecciona un producto de Akasia.',true);
+ const cantidad=document.getElementById('ci92Cantidad')?.value;
+ if(!Number.isInteger(Number(cantidad))||Number(cantidad)<1)return ci92Aviso('Indica una cantidad mayor que cero.',true);
+ if(!ci92Anadir(ci92Seleccionado,cantidad))return;
+ ci92Aviso('Producto agregado a tu lista de preparación.');ci92Seleccionado=null;
+ const campo=document.getElementById('ci92Buscar');campo.value='';document.getElementById('ci92Cantidad').value='1';
+ document.getElementById('ci92Elegido').textContent='Busca el siguiente producto.';
+ campo.focus();
+}
+async function ci92LeerArchivo(input){
+ ci92Aviso('Leyendo nombres del Excel…',false,'ci92ExcelEstado');ci92ExcelFilas=[];ci92ExcelVisibles=[];
+ try{
+  const x=await ci90LeerExcel(input.files?.[0]);
+  await ci92CargarCatalogo();
+  const mapa=new Map(),duplicados=new Set();
+  for(const p of cm55CatalogoRapido||[]){const k=ci90Norm(p.nombre);if(mapa.has(k))duplicados.add(k);else mapa.set(k,p);}
+  const vistos=new Set();let repetidos=0;
+  for(const f of x.filas){const k=ci90Norm(f.nombre);if(vistos.has(k)){repetidos++;continue;}vistos.add(k);
+   const p=mapa.get(k);
+   ci92ExcelFilas.push({nombre:f.nombre,producto:(p&&!p.ambiguo&&!duplicados.has(k))?p:null});
+  }
+  const validas=ci92ExcelFilas.filter(r=>r.producto).length;
+  ci92Aviso(`${ci92ExcelFilas.length} nombres leídos; ${validas} relacionados con Akasia Matriz, ${ci92ExcelFilas.length-validas} por revisar y ${repetidos} repetidos omitidos. Los datos de existencia del Excel NO se importan.`,false,'ci92ExcelEstado');
+  const b=document.getElementById('ci92ExcelBuscar');b.hidden=false;b.value='';
+  ci92FiltrarExcel();
+ }catch(e){ci92Aviso(e.message,true,'ci92ExcelEstado');document.getElementById('ci92ExcelBuscar').hidden=true;document.getElementById('ci92ExcelResultados').innerHTML='';}
+ finally{if(input)input.value='';}
+}
+function ci92FiltrarExcel(){
+ const q=ci90Norm(document.getElementById('ci92ExcelBuscar')?.value||'');
+ const out=ci92ExcelFilas.filter(x=>!q||ci90Norm(x.nombre).includes(q));ci92ExcelVisibles=out.slice(0,40);
+ document.getElementById('ci92ExcelResultados').innerHTML=ci92ExcelVisibles.map((x,i)=>`<button type="button" ${!x.producto?'disabled':''} onclick="ci92AgregarExcel(${i})"><b>＋ ${ci92Html(x.nombre)}</b><small style="display:block;color:#7a8c9e;margin-top:2px">${x.producto?'Agregar a lista · cantidad pendiente':'No relacionado con el catálogo Akasia'}</small></button>`).join('')||'<div class="ci92-muted" style="padding:11px">Sin resultados.</div>';
+ if(out.length>40)ci92Aviso(`Mostrando 40 de ${out.length}. Escribe parte del nombre para buscar.`,false,'ci92ExcelEstado');
+}
+function ci92AgregarExcel(i){
+ const x=ci92ExcelVisibles[i];if(!x||!x.producto)return;
+ if(ci92Anadir(x.producto,0))ci92Aviso('Producto agregado del Excel. Coloca la cantidad cuando corresponda.');
+}
+function ci92CambiarCantidad(i,v){
+ if(!cm55Lista[i])return;
+ const q=Number(v);if(!Number.isInteger(q)||q<0||q>1000000){ci92Aviso('Cantidad inválida. Usa números enteros desde cero.',true);return ci92Dibujar();}
+ cm55Lista[i].cantidad=q;cm55Render();ci92Dibujar();
+}
+function ci92Quitar(i){if(!cm55Lista[i])return;if(!confirm('¿Quitar este producto de la lista preparada?'))return;cm55Lista.splice(i,1);cm55Render();ci92Dibujar();}
+function ci92Dibujar(){
+ const box=document.getElementById('ci92Lista');if(!box)return;
+ document.getElementById('ci92Total').textContent=cm55Lista.length+' producto'+(cm55Lista.length===1?'':'s');
+ box.innerHTML=cm55Lista.map((p,i)=>`<div class="ci92-row"><div style="flex:1;min-width:0"><b>${ci92Html(p.nombre)}</b><small>${p.cantidad?`${p.cantidad} unidades`:'Cantidad pendiente'}</small></div><input type="number" inputmode="numeric" min="0" max="1000000" step="1" value="${p.cantidad}" aria-label="Cantidad para ${ci92Html(p.nombre)}" onchange="ci92CambiarCantidad(${i},this.value)"><button type="button" class="ci92-remove" onclick="ci92Quitar(${i})">Quitar</button></div>`).join('')||'<p class="ci92-muted">Todavía no has agregado productos.</p>';
+}
+function ci92AbrirFactura(){
+ if(typeof window.abrirModuloAdmin!=='function')return ci92Aviso('No se encontró el módulo de facturas con IA.',true);
+ ci92FacturaDesdeModulo=true;
+ window.abrirModuloAdmin('facturasGemini');
+ const facturas=document.getElementById('adminFacturasGemini');
+ if(!facturas||facturas.style.display==='none'){
+  ci92FacturaDesdeModulo=false;
+  window.abrirModuloAdmin('prepararProductos');
+  return ci92Aviso('El lector Gemini no está disponible. Comprueba los archivos de Facturas IA.',true);
+ }
+ let b=document.getElementById('ci92RegresarFactura');
+ if(!b){b=document.createElement('button');b.id='ci92RegresarFactura';b.type='button';b.className='ci92-back';b.textContent='← Preparar productos';b.style.cssText='display:block;width:auto;min-height:39px;background:#edf2f7;color:#274c72;border:1px solid #dce6ef;border-radius:12px;padding:8px 14px;box-shadow:none;';b.onclick=ci92RegresarFactura;facturas.prepend(b);}
+ b.style.display='block';
+ const original=document.getElementById('fgRegresarAdmin');if(original)original.style.display='none';
+}
+function ci92RegresarFactura(){
+ ci92FacturaDesdeModulo=false;
+ const b=document.getElementById('ci92RegresarFactura');if(b)b.style.display='none';
+ const original=document.getElementById('fgRegresarAdmin');if(original)original.style.display='';
+ abrirModuloAdmin('prepararProductos');
+}
 </script>
 
 <script id="ci90Script">
