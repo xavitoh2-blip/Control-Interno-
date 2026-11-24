@@ -2534,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.90</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.92</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -14806,9 +14806,418 @@ async function ci91Confirmar(){
 }
 </script>
 
+<style id="ci93Estilos">
+#adminPrepararProductos .ci93-root{max-width:880px;margin:0 auto;color:#243e5b;text-align:left}
+#adminPrepararProductos .ci93-card{background:#fff;border:1px solid #dbe5ef;border-radius:18px;padding:17px;margin:12px 0;box-shadow:0 5px 18px rgba(24,49,80,.04)}
+#adminPrepararProductos .ci93-titulo{font-size:23px;color:#1d3652;margin:0 0 5px;font-weight:800;border:none;padding:0}
+#adminPrepararProductos .ci93-muted{font-size:12px;color:#718198;line-height:1.5;margin:6px 0}
+#adminPrepararProductos .ci93-acciones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0}
+#adminPrepararProductos button.ci93-opcion{border:1px solid #dbe5ee;border-radius:15px;background:#f7f9fc;color:#233e5d;box-shadow:none;text-align:left;min-height:103px;padding:14px 12px;margin:0;display:flex;flex-direction:column;justify-content:center;gap:5px}
+#adminPrepararProductos .ci93-opcion b{font-size:14px}#adminPrepararProductos .ci93-opcion small{font-size:11px;font-weight:500;color:#798ba0}
+#adminPrepararProductos .ci93-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid #e8edf3;min-width:0}
+#adminPrepararProductos .ci93-row:last-child{border:0}
+#adminPrepararProductos .ci93-row strong{font-size:13px;line-height:1.4;color:#24405e;overflow-wrap:anywhere}
+#adminPrepararProductos .ci93-row small{display:block;color:#71859a;font-size:11px;margin-top:2px}
+#adminPrepararProductos .ci93-lista{max-height:400px;overflow:auto;padding:0 3px}
+#adminPrepararProductos .ci93-tag{border-radius:99px;background:#eef3f8;color:#486580;font-size:11px;font-weight:700;padding:5px 8px;white-space:nowrap}
+#adminPrepararProductos .ci93-tag.si{background:#e8f5ee;color:#226448}
+#adminPrepararProductos .ci93-tag.warn{background:#fff4e7;color:#996021}
+#adminPrepararProductos .ci93-boton{width:auto;border-radius:12px;background:#233f5e;color:#fff;padding:11px 15px;min-height:43px;box-shadow:none;margin:3px 0}
+#adminPrepararProductos .ci93-boton.sec{background:#edf2f8;color:#315575}
+#adminPrepararProductos .ci93-botones{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+#adminPrepararProductos .ci93-botones .ci93-boton{flex:1 1 150px}
+#adminPrepararProductos input[type="search"],#adminPrepararProductos input[type="file"],#adminPrepararProductos select{width:100%;min-height:45px;border:1px solid #dbe5ef;border-radius:11px;background:#fff;padding:10px 12px;margin:7px 0 10px;color:#263d58;font-size:13px}
+#adminPrepararProductos input[type="checkbox"]{width:18px;height:18px;min-width:18px;margin:0;accent-color:#2c577e}
+#adminPrepararProductos .ci93-row label{display:flex;gap:10px;align-items:center;margin:0;flex:1;min-width:0}
+#adminPrepararProductos .ci93-help{font-size:12px;color:#61758d;line-height:1.55;margin:8px 0}
+#adminPrepararProductos .ci93-status{font-size:12px;color:#4a6480;white-space:pre-wrap;line-height:1.5;margin-top:9px}
+#adminPrepararProductos .ci93-resultado{background:#f5f8fb;border:1px solid #e0e8f0;border-radius:12px;padding:11px 13px;margin-top:10px}
+#adminPrepararProductos .ci93-view[hidden]{display:none!important}
+#adminPrepararProductos .ci93-ubic{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+#adminPrepararProductos .ci93-ubic label{display:block;font-size:13px;font-weight:650;color:#24415d;border:1px solid #e0e8f0;border-radius:14px;padding:11px;margin:0}
+#adminPrepararProductos .ci93-ubic input[type=checkbox]{display:inline-block;margin:0 6px 0 0;vertical-align:middle}
+#adminPrepararProductos .ci93-ubic select{margin:9px 0 0}
+@media(max-width:620px){#adminPrepararProductos .ci93-acciones{grid-template-columns:1fr}#adminPrepararProductos .ci93-opcion{min-height:75px!important}#adminPrepararProductos .ci93-card{padding:13px}#adminPrepararProductos .ci93-ubic{grid-template-columns:1fr}}
+body.ci93-factura-lectura #adminFacturasGemini label:has(#fgDestino){display:none!important}
+body.ci93-factura-lectura #fgResultados button[data-ci93-ocultar]{display:none!important}
+</style>
+<script id="ci93Script">
+// CI93 · Solo prepara identificaciones y crea conteos usando el módulo c45 existente.
+const ci93={vista:'inicio',sucursal:'MATRIZ',pendientes:[],contados:[],busqueda:[],seleccionConteo:new Set(),empleados:{},buscando:null,activo:false,relacionando:-1};
+const ci93Esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ci93Norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toUpperCase();
+function ci93Mensaje(m,err=false){const e=document.getElementById('ci93Estado');if(e){e.textContent=m;e.style.color=err?'#a23c44':'#4b6480';}}
+function ci93Init(){
+ const root=document.getElementById('adminPrepararProductos');if(!root||root.dataset.ci93)return;
+ root.dataset.ci93='1';root.innerHTML=`<div class="ci93-root">
+ <button type="button" class="btn-volver" onclick="volverMenuAdmin()">← Administración</button>
+ <section class="ci93-card"><h3 class="ci93-titulo">Control de productos</h3><p class="ci93-muted">Identifica los productos y recuerda cuáles ya revisaste. Las cantidades se contarán después, en cada ubicación.</p>
+ <label style="display:block;font-size:12px;font-weight:750">Catálogo de Akasia</label><select id="ci93Sucursal" onchange="ci93CambiarSucursal(this.value)"><option value="MATRIZ">Matriz · Tienda y Bodega</option><option value="MINI">Mini Súper</option></select>
+ <div id="ci93Estado" class="ci93-status" role="status"></div></section>
+ <div id="ci93Inicio" class="ci93-view"><section class="ci93-card"><h4>Identificar productos</h4><div class="ci93-acciones">
+ <button type="button" class="ci93-opcion" onclick="ci93AbrirFactura()">📷 <b>Factura con IA</b><small>Leer, revisar y relacionar con Akasia</small></button>
+ <button type="button" class="ci93-opcion" onclick="ci93Vista('excel')">▤ <b>Excel</b><small>Importar solo nombres</small></button>
+ <button type="button" class="ci93-opcion" onclick="ci93Vista('manual')">⌕ <b>Buscar producto</b><small>Agregar desde el catálogo</small></button></div>
+ <button type="button" class="ci93-boton sec" onclick="ci93Vista('revisar')">Revisar productos para confirmar <span id="ci93PendientesN">(0)</span></button></section>
+ <section class="ci93-card"><h4>Productos ya contados</h4><p class="ci93-help">Los productos confirmados se guardan en Google Sheets. Puedes elegirlos después para asignar el conteo físico a una ubicación.</p><button type="button" class="ci93-boton" onclick="ci93AbrirContados()">Ver contados y asignar conteos</button></section></div>
+ <section id="ci93Excel" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('inicio')">← Regresar</button><h4>Leer productos de Excel</h4><p class="ci93-help">Selecciona el Excel de Akasia o una lista de nombres. Se ignorarán cantidades y precios.</p><input id="ci93Archivo" type="file" accept=".xlsx,.xls,.csv" onchange="ci93ImportarExcel(this)"></section>
+ <section id="ci93Manual" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('inicio')">← Regresar</button><h4>Buscar producto</h4><input id="ci93BuscarProducto" type="search" placeholder="Escribe parte del nombre" oninput="ci93BuscarManual(this.value)"><div id="ci93Busqueda" class="ci93-lista"></div><div class="ci93-botones"><button type="button" class="ci93-boton" onclick="ci93Vista('revisar')">Revisar seleccionados</button></div></section>
+ <section id="ci93Revisar" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('inicio')">← Regresar</button><h4>Revisar productos identificados</h4><p class="ci93-help">La factura o el Excel no marcan productos automáticamente. Verifica las coincidencias y confirma solo los que realmente fueron contados.</p>
+ <div class="ci93-botones"><button type="button" class="ci93-boton sec" onclick="ci93SeleccionarTodos(true)">Seleccionar disponibles</button><button type="button" class="ci93-boton sec" onclick="ci93SeleccionarTodos(false)">Limpiar</button></div><div id="ci93RevisarLista" class="ci93-lista"></div><button type="button" id="ci93Confirmar" class="ci93-boton" onclick="ci93Confirmar()" disabled>Confirmar contados</button></section>
+ <section id="ci93Contados" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('inicio')">← Regresar</button><h4>Productos contados</h4><p class="ci93-help">Selecciona los que deseas enviar a un conteo físico. Esta marca es histórica, no indica la cantidad actual.</p><input type="search" id="ci93FiltroContados" placeholder="Buscar en los contados" oninput="ci93DibujarContados()"><div class="ci93-botones"><button class="ci93-boton sec" onclick="ci93SeleccionarContados(true)">Seleccionar visibles</button><button class="ci93-boton sec" onclick="ci93SeleccionarContados(false)">Limpiar</button></div><div id="ci93ContadosLista" class="ci93-lista"></div><button type="button" class="ci93-boton" onclick="ci93AbrirAsignar()">Asignar conteo físico <span id="ci93CuentaConteo">(0)</span></button></section>
+ <section id="ci93Asignar" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('contados')">← Productos contados</button><h4>Asignar conteo físico</h4><p id="ci93ResumenAsignar" class="ci93-help"></p><div id="ci93Ubicaciones" class="ci93-ubic"></div><button type="button" class="ci93-boton" onclick="ci93CrearConteos()">Crear asignación</button><p class="ci93-help">El colaborador solo verá nombres y comenzará sin cantidades. No se actualizará Akasia.</p></section></div>`;
+}
+function ci93Vista(v){ci93.vista=v;['Inicio','Excel','Manual','Revisar','Contados','Asignar'].forEach(n=>{const e=document.getElementById('ci93'+n);if(e)e.hidden=n.toLowerCase()!==v;});const c=document.getElementById('ci93PendientesN');if(c)c.textContent='('+ci93.pendientes.length+')';if(v==='revisar')ci93DibujarRevisar();if(v==='contados')ci93DibujarContados();ci93Mensaje('');}
+async function ci93Abrir(){ci93Init();ci93Vista('inicio');ci93Mensaje('Listo para identificar productos.');}
+function ci93CambiarSucursal(s){if(s===ci93.sucursal)return;if(!confirm('¿Cambiar de catálogo? Los productos pendientes de confirmar se descartarán.')){document.getElementById('ci93Sucursal').value=ci93.sucursal;return;}ci93.sucursal=s;ci93.pendientes=[];ci93.contados=[];ci93.seleccionConteo.clear();ci93.relacionando=-1;ci93Vista('inicio');ci93Mensaje('Ahora usarás el catálogo '+(s==='MATRIZ'?'Matriz':'Mini Súper')+'.');}
+async function ci93ImportarExcel(input){const file=input.files?.[0];if(!file)return;ci93Mensaje('Leyendo productos del Excel…');try{
+  const x=await ci90LeerExcel(file);await ci93ImportarNombres(x.filas.map(f=>f.nombre),'EXCEL',file.name);
+ }catch(e){ci93Mensaje(e.message,true);}finally{input.value='';}}
+async function ci93ImportarNombres(nombres,origen,referencia){const uniq=new Set(),limpios=[];for(const raw of nombres){const n=String(raw||'').trim().slice(0,260),k=ci93Norm(n);if(n&&!uniq.has(k)){uniq.add(k);limpios.push(n);}}if(!limpios.length)throw Error('No se encontraron nombres de productos.');if(limpios.length>500)throw Error('Importa un máximo de 500 productos a la vez.');
+  const d=await c48Post('ci93Validar',{sucursal:ci93.sucursal,productos:JSON.stringify(limpios)});const lista=d.productos||[];
+  const existentes=new Map(ci93.pendientes.map(x=>[ci93Norm(x.nombre),x]));for(const x of lista){const k=ci93Norm(x.nombre);if(!existentes.has(k))existentes.set(k,{...x,origen,referencia:referencia||'',sel:x.estado==='LISTO'});}
+  ci93.pendientes=[...existentes.values()].slice(0,500);ci93Vista('revisar');ci93Mensaje('Relacionados con Akasia: '+lista.filter(x=>['LISTO','YA_CONTADO'].includes(x.estado)).length+' de '+lista.length+'. Revisa antes de confirmar.');}
+function ci93BuscarManual(valor){clearTimeout(ci93.buscando);const box=document.getElementById('ci93Busqueda');if(!box)return;box.textContent='';if(valor.trim().length<2)return;ci93.buscando=setTimeout(async()=>{try{
+  const d=await c48Post('ci93Buscar',{sucursal:ci93.sucursal,buscar:valor});if(document.getElementById('ci93BuscarProducto')?.value!==valor)return;
+  ci93.busqueda=d.productos||[];box.innerHTML=ci93.busqueda.map((p,i)=>`<button type="button" class="ci93-boton sec" style="display:block;width:100%;text-align:left;margin:3px 0" ${p.ambiguo?'disabled':''} onclick="ci93AgregarManual(${i})">＋ ${ci93Esc(p.nombre)}${p.contado?' · ✓ Contado':''}${p.soloMaestro?' · Falta en Akasia '+(ci93.sucursal==='MINI'?'Mini Súper':'Matriz'):p.ambiguo?' · Revisar duplicado o UUID':''}</button>`).join('')||'<p class="ci93-muted">Sin coincidencias en Akasia.</p>';
+ }catch(e){ci93Mensaje(e.message,true);}},260);}
+function ci93AgregarManual(i){const p=ci93.busqueda[i];if(!p||p.ambiguo)return;const k=ci93Norm(p.nombre);if(ci93.relacionando>=0){
+ const idx=ci93.relacionando;if(ci93.pendientes.some((x,j)=>j!==idx&&ci93Norm(x.producto||x.nombre)===k))return ci93Mensaje('Este producto de Akasia ya está en la lista. Evita relacionarlo dos veces.',true);
+ const x=ci93.pendientes[idx];if(!x)return;Object.assign(x,{producto:p.nombre,uuid:p.uuid,estado:p.contado?'YA_CONTADO':'LISTO',sel:!p.contado});ci93.relacionando=-1;ci93Vista('revisar');ci93Mensaje('Relacionaste «'+x.nombre+'» con «'+p.nombre+'».');return;
+ }if(!ci93.pendientes.some(x=>ci93Norm(x.producto||x.nombre)===k))ci93.pendientes.push({nombre:p.nombre,producto:p.nombre,uuid:p.uuid,estado:p.contado?'YA_CONTADO':'LISTO',origen:'MANUAL',referencia:'Búsqueda Akasia',sel:!p.contado});ci93Mensaje('Agregado: '+p.nombre);const el=document.getElementById('ci93BuscarProducto');el.value='';document.getElementById('ci93Busqueda').innerHTML='';el.focus();}
+function ci93Relacionar(i){const x=ci93.pendientes[i];if(!x)return;ci93.relacionando=i;ci93Vista('manual');const buscar=document.getElementById('ci93BuscarProducto');buscar.value=String(x.nombre||'').slice(0,60);ci93BuscarManual(buscar.value);buscar.focus();ci93Mensaje('Elige el producto correcto de Akasia para: '+x.nombre);}
+function ci93DibujarRevisar(){const box=document.getElementById('ci93RevisarLista');if(!box)return;box.innerHTML=ci93.pendientes.map((p,i)=>{const listo=p.estado==='LISTO',estado=p.estado==='YA_CONTADO'?'✓ Ya contado':p.estado==='AMBIGUO'?'Nombre duplicado en Akasia':p.estado==='SIN_UUID'?'Falta UUID':p.estado==='NO_ENCONTRADO'?'Relacionar manualmente':'Disponible';return `<div class="ci93-row"><label><input type="checkbox" ${listo?'':'disabled'} ${p.sel?'checked':''} onchange="ci93Marcar(${i},this.checked)"><span style="min-width:0"><strong>${ci93Esc(p.producto||p.nombre)}</strong><small>${ci93Esc(p.origen)} · ${ci93Esc(p.nombre)}</small></span></label><span class="ci93-tag ${p.estado==='YA_CONTADO'?'si':!listo?'warn':''}">${ci93Esc(estado)}</span>${!listo&&p.estado!=='YA_CONTADO'?`<button type="button" class="ci93-boton sec" style="font-size:11px;padding:6px 8px;min-height:31px" onclick="ci93Relacionar(${i})">Relacionar</button>`:''}</div>`;}).join('')||'<p class="ci93-muted">Sin productos. Importa una factura, un Excel o busca manualmente.</p>';ci93ActualizarConfirmar();}
+function ci93Marcar(i,v){if(ci93.pendientes[i]?.estado==='LISTO')ci93.pendientes[i].sel=!!v;ci93ActualizarConfirmar();}
+function ci93SeleccionarTodos(v){ci93.pendientes.forEach(p=>{if(p.estado==='LISTO')p.sel=v;});ci93DibujarRevisar();}
+function ci93ActualizarConfirmar(){const btn=document.getElementById('ci93Confirmar');if(!btn)return;const n=ci93.pendientes.filter(p=>p.sel&&p.estado==='LISTO').length;btn.disabled=!n||ci93.activo;btn.textContent='✓ Confirmar '+n+' producto'+(n===1?'':'s')+' contados';}
+async function ci93Confirmar(){const items=ci93.pendientes.filter(p=>p.sel&&p.estado==='LISTO');if(!items.length||ci93.activo)return;
+ if(!confirm('¿Confirmas que estos '+items.length+' productos YA FUERON CONTADOS? Se guardará la marca histórica por catálogo, sin cantidades.'))return;
+ ci93.activo=true;ci93ActualizarConfirmar();let hechos=0;try{const grupos=new Map();items.forEach(p=>{const k=p.origen+'|'+(p.referencia||'');if(!grupos.has(k))grupos.set(k,[]);grupos.get(k).push(p);});
+  for(const [k,lista] of grupos){for(let i=0;i<lista.length;i+=100){const trozo=lista.slice(i,i+100),res=await c48Post('ci93Confirmar',{sucursal:ci93.sucursal,origen:trozo[0].origen,referencia:trozo[0].referencia||'',usuario:localStorage.getItem('usuario')||'ADMIN',productos:JSON.stringify(trozo.map(p=>({nombre:p.producto,uuid:p.uuid})))});hechos+=Number(res.confirmados)||0;trozo.forEach(p=>{p.estado='YA_CONTADO';p.sel=false;});}}
+  ci93BadgeListo[ci93.sucursal]=false;ci93BadgeCache[ci93.sucursal]={};ci93CargarBadges().catch(()=>{});ci93DibujarRevisar();ci93Mensaje('✓ '+hechos+' productos registrados. Puedes consultarlos y asignarlos a una ubicación.');
+ }catch(e){ci93Mensaje('Se confirmaron '+hechos+' de '+items.length+'. '+e.message+'. Puedes reintentar; no se duplicarán.',true);}finally{ci93.activo=false;ci93ActualizarConfirmar();}}
+async function ci93AbrirContados(){ci93Vista('contados');ci93Mensaje('Consultando el registro de productos contados…');try{const d=await c48Post('ci93Listado',{sucursal:ci93.sucursal});ci93.contados=d.productos||[];ci93.seleccionConteo=new Set([...ci93.seleccionConteo].filter(k=>ci93.contados.some(x=>x.uuid===k)));ci93DibujarContados();ci93Mensaje(d.total+' productos con marca Contado en '+ci93.sucursal+'.');}catch(e){ci93Mensaje(e.message,true);}}
+function ci93DibujarContados(){const box=document.getElementById('ci93ContadosLista');if(!box)return;const q=ci93Norm(document.getElementById('ci93FiltroContados')?.value);const filtrados=ci93.contados.filter(p=>!q||ci93Norm(p.nombre).includes(q));box.innerHTML=filtrados.slice(0,150).map(p=>`<div class="ci93-row"><label><input type="checkbox" ${ci93.seleccionConteo.has(p.uuid)?'checked':''} onchange="ci93MarcaConteo('${ci93Esc(p.uuid)}',this.checked)"><span><strong>${ci93Esc(p.nombre)}</strong><small>${ci93Esc(p.fecha)} · ${ci93Esc(p.origen)}</small></span></label><span class="ci93-tag si">Contado</span></div>`).join('')||'<p class="ci93-muted">Sin productos contados en este catálogo.</p>';if(filtrados.length>150)box.insertAdjacentHTML('beforeend','<p class="ci93-muted">Mostrando 150. Utiliza el buscador para encontrar otros.</p>');const c=document.getElementById('ci93CuentaConteo');if(c)c.textContent='('+ci93.seleccionConteo.size+')';}
+function ci93MarcaConteo(uuid,si){if(si){if(ci93.seleccionConteo.size>=300){alert('Máximo 300 productos por asignación.');return ci93DibujarContados();}ci93.seleccionConteo.add(uuid);}else ci93.seleccionConteo.delete(uuid);const c=document.getElementById('ci93CuentaConteo');if(c)c.textContent='('+ci93.seleccionConteo.size+')';}
+function ci93SeleccionarContados(si){const q=ci93Norm(document.getElementById('ci93FiltroContados')?.value),xs=ci93.contados.filter(p=>!q||ci93Norm(p.nombre).includes(q));xs.forEach(p=>{if(si&&ci93.seleccionConteo.size<300)ci93.seleccionConteo.add(p.uuid);if(!si)ci93.seleccionConteo.delete(p.uuid);});ci93DibujarContados();}
+async function ci93AbrirAsignar(){if(!ci93.seleccionConteo.size)return alert('Selecciona al menos un producto contado.');ci93Vista('asignar');ci93Mensaje('Cargando colaboradores…');try{const d=await c48Post('ci93Empleados',{sucursal:ci93.sucursal});ci93.empleados=d.destinos||{};
+  document.getElementById('ci93ResumenAsignar').textContent=ci93.seleccionConteo.size+' productos seleccionados. Elige la ubicación y el responsable.';
+  document.getElementById('ci93Ubicaciones').innerHTML=Object.keys(ci93.empleados).map((s,i)=>`<label><input type="checkbox" class="ci93-destino" id="ci93Destino${i}" data-sucursal="${ci93Esc(s)}" onchange="ci93ElegirDestino(${i})"> ${ci93Esc(s)}<select data-emp="${i}" disabled><option value="">Selecciona responsable</option>${ci93.empleados[s].map(n=>`<option value="${ci93Esc(n)}">${ci93Esc(n)}</option>`).join('')}</select></label>`).join('');ci93Mensaje('');
+ }catch(e){ci93Mensaje(e.message,true);}}
+function ci93ElegirDestino(i){const check=document.getElementById('ci93Destino'+i),sel=document.querySelector(`[data-emp="${i}"]`);sel.disabled=!check.checked;if(!check.checked)sel.value='';}
+async function ci93CrearConteos(){if(ci93.activo)return;const destinos=[...document.querySelectorAll('.ci93-destino:checked')].map(el=>({sucursal:el.dataset.sucursal,empleado:document.querySelector(`[data-emp="${el.id.replace('ci93Destino','')}"]`)?.value||''}));if(!destinos.length)return alert('Selecciona ubicación.');if(destinos.some(x=>!x.empleado))return alert('Selecciona un responsable por ubicación.');const productos=ci93.contados.filter(x=>ci93.seleccionConteo.has(x.uuid)).map(x=>({nombre:x.nombre,uuid:x.uuid}));if(!productos.length)return alert('No hay productos seleccionados.');if(!confirm('¿Crear conteos físicos de '+productos.length+' productos en '+destinos.map(d=>d.sucursal).join(' y ')+'?'))return;
+ ci93.activo=true;ci93Mensaje('Creando asignación en Conteos Asignados…');try{const d=await c48Post('ci93Asignar',{sucursal:ci93.sucursal,productos:JSON.stringify(productos),asignaciones:JSON.stringify(destinos),creadoPor:localStorage.getItem('usuario')||'Administrador'});ci93.seleccionConteo.clear();ci93Vista('contados');ci93DibujarContados();ci93Mensaje('✓ '+d.productos+' productos asignados, '+d.lotes+' listas creadas. Los empleados los verán en Conteos Asignados.');}catch(e){ci93Mensaje(e.message,true);}finally{ci93.activo=false;}}
+// Aprovechar los resultados ya revisados en la tabla del lector existente.
+function ci93OcultarRecepcionFactura(){const r=document.getElementById('fgResultados');if(!r)return;for(const b of r.querySelectorAll('button')){if((b.textContent||'').includes('Preparar recepción Matriz'))b.setAttribute('data-ci93-ocultar','1');}}
+let ci93ObservadorFactura=null;
+function ci93CerrarFactura(){document.body.classList.remove('ci93-factura-lectura');if(ci93ObservadorFactura){ci93ObservadorFactura.disconnect();ci93ObservadorFactura=null;}}
+function ci93AbrirFactura(){if(typeof abrirModuloAdmin!=='function')return ci93Mensaje('No se encontró Facturas con IA.',true);abrirModuloAdmin('facturasGemini');const modulo=document.getElementById('adminFacturasGemini');if(!modulo)return;document.body.classList.add('ci93-factura-lectura');ci93OcultarRecepcionFactura();ci93ObservadorFactura?.disconnect();const resultados=document.getElementById('fgResultados');if(resultados){ci93ObservadorFactura=new MutationObserver(ci93OcultarRecepcionFactura);ci93ObservadorFactura.observe(resultados,{subtree:true,childList:true});}const volver=document.getElementById('fgRegresarAdmin');if(volver&&!volver.dataset.ci93Cierre){volver.addEventListener('click',ci93CerrarFactura);volver.dataset.ci93Cierre='1';}
+ let bar=document.getElementById('ci93AccionesFactura');if(!bar){bar=document.createElement('div');bar.id='ci93AccionesFactura';bar.className='fg-card';bar.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" onclick="ci93TomarFactura()" style="background:#233f5e;color:#fff;flex:1 1 170px">✓ Identificar productos revisados</button><button type="button" onclick="ci93CerrarFactura();abrirModuloAdmin(\'prepararProductos\')" style="background:#edf2f8;color:#25476b;flex:1 1 130px">← Preparar productos</button></div><p style="font-size:12px;color:#6c8097">No se usarán cantidades ni costos. Primero revisarás las coincidencias en Akasia.</p>';modulo.appendChild(bar);}bar.style.display='block';}
+async function ci93TomarFactura(){const tablas=document.querySelectorAll('#fgResultados section table');const nombres=[];tablas.forEach(t=>{[...t.querySelectorAll('tr')].slice(1).forEach(tr=>{const n=tr.querySelector('td input')?.value?.trim();if(n)nombres.push(n);});});if(!nombres.length)return alert('Primero lee y revisa una factura con productos.');const suc=ci93.sucursal;try{ci93CerrarFactura();abrirModuloAdmin('prepararProductos');if(suc!==ci93.sucursal)throw Error('Cambió el catálogo. Vuelve a abrir la factura.');await ci93ImportarNombres(nombres,'FACTURA_IA','Factura revisada');}catch(e){ci93Mensaje(e.message,true);}}
+// Badge en pedidos: la marca Contado es independiente de Cuadrado.
+const ci93BadgeCache={MATRIZ:{},MINI:{}},ci93BadgeListo={MATRIZ:false,MINI:false};
+function ci93BadgeSucursal(){return ci90Norm(localStorage.getItem('sucursal')).includes('MINI')?'MINI':'MATRIZ';}
+async function ci93CargarBadges(){const suc=ci93BadgeSucursal();if(ci93BadgeListo[suc]||!localStorage.getItem('usuario'))return;ci93BadgeListo[suc]=true;try{const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'ci93Badges',empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||'',token:typeof m201TokenSupervisor==='string'?m201TokenSupervisor:''}),cache:'no-store'});const d=await r.json();if(!r.ok||d.status!=='OK')throw Error(d.mensaje||'No se pudieron consultar productos contados.');ci93BadgeCache[suc]=Object.fromEntries((d.productos||[]).map(n=>[ci93Norm(n),true]));if(typeof renderizarListaPedido==='function')renderizarListaPedido();}catch(e){ci93BadgeListo[suc]=false;console.warn('Contados:',e.message);}}
+const ci93BadgeAnterior=window.ci90Badge;
+if(typeof ci93BadgeAnterior==='function')window.ci90Badge=function(nombre){const ya=ci93BadgeAnterior(nombre),suc=ci93BadgeSucursal(),marcado=ci93BadgeCache[suc]?.[ci93Norm(nombre)];return ya||(marcado?'<span class="ci90-cuadrado" style="background:#edf2f8;color:#315b7e;border-color:#d5e1ed" title="Producto marcado como contado; no equivale a inventario cuadrado">✓ Contado</span>':'');};
+const ci93BadgeCargaAnterior=window.ci90CargarBadges;
+if(typeof ci93BadgeCargaAnterior==='function')window.ci90CargarBadges=function(){const x=ci93BadgeCargaAnterior.apply(this,arguments);ci93CargarBadges().catch(()=>{});return x;};
+function ci93Registrar(){ci93Init();window.ci92Abrir=ci93Abrir;document.addEventListener('click',e=>{if(e.target.closest('#fgMenuAcceso,#fgAccesoDesdeRecepcion'))ci93CerrarFactura();});}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ci93Registrar,{once:true});else ci93Registrar();
+</script>
+
     <script src="./asistencia22.js?v=20261117_22" defer></script>
-    <script src="./facturas-gemini.js?v=20261117-restaurado" defer></script>
-    <script src="./facturas-gemini-ui.js?v=20261117-restaurado" defer></script>
+    <!-- Facturas Gemini integrado v1.7.92: sustituye los dos scripts externos. -->
+    <script id="fgGeminiIntegrado192">
+/* Online Shop · Facturas IA v1.7.92 · lector integrado. */
+(function () {
+  'use strict';
+  var pendientes = [], facturas = [], trabajando = false;
+  var MAX_ARCHIVOS = 12, MAX_MB = 15;
+  function el(id) { return document.getElementById(id); }
+  function estado(msg, error) {
+    var caja = el('fgEstado'); if (!caja) return;
+    caja.textContent = msg; caja.style.color = error ? '#b42318' : '#35617d';
+  }
+  function formatUSD(n) { return n == null || n === '' ? '—' : '$' + Number(n).toFixed(2); }
+  function texto(v) { return String(v == null ? '' : v); }
+  function p(textoValor, clase) { var e = document.createElement('p'); e.textContent = textoValor; if (clase) e.className = clase; return e; }
+  function boton(label, onClick) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', onClick);
+    b.style.cssText = 'padding:7px 10px;width:auto;max-width:100%;font-size:12px;background:#f0f6ff;color:#12528f;border:1px solid #c9def3;border-radius:8px;'; return b;
+  }
+  function inputTexto(valor, callback, tipo) {
+    var i = document.createElement('input'); i.value = valor == null ? '' : valor; i.type = tipo || 'text';
+    if (i.type === 'number') { i.min = '0'; i.step = 'any'; }
+    i.style.cssText = 'width:100%;min-width:65px;padding:6px;border:1px solid #ccd9e8;border-radius:7px;font-size:12px;';
+    i.addEventListener('change', function(){callback(i.value);}); return i;
+  }
+  function reducirImagen(file) {
+    return new Promise(function(resolve, reject) {
+      var fr = new FileReader(); fr.onerror = function(){reject(new Error('No se pudo leer la imagen.'));};
+      fr.onload = function(){
+        var imagen = new Image(); imagen.onerror = function(){reject(new Error('Formato de imagen ilegible.'));};
+        imagen.onload = function(){
+          var max = 2100, escala = Math.min(1, max / Math.max(imagen.width, imagen.height));
+          var canvas = document.createElement('canvas');
+          canvas.width = Math.max(1,Math.round(imagen.width*escala)); canvas.height = Math.max(1,Math.round(imagen.height*escala));
+          var ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+          ctx.drawImage(imagen,0,0,canvas.width,canvas.height);
+          var uri = canvas.toDataURL('image/jpeg',0.83), b64 = uri.split(',')[1];
+          if (!b64 || b64.length > 5200000) return reject(new Error('Fotografía muy grande incluso después de reducirla.'));
+          resolve({mimeType:'image/jpeg',base64:b64});
+        }; imagen.src = fr.result;
+      }; fr.readAsDataURL(file);
+    });
+  }
+  function archivosSeleccionados(lista){
+    if(trabajando) return estado('Espera a terminar las lecturas actuales.', true);
+    Array.prototype.forEach.call(lista||[],function(f){
+      if (pendientes.length + facturas.length >= MAX_ARCHIVOS) return;
+      if (!/^image\/(jpeg|png|webp)$/.test(f.type)) return estado('Solo se admiten JPG, PNG o WEBP en esta etapa.',true);
+      if (f.size > MAX_MB * 1024 * 1024) return estado('La foto ' + f.name + ' supera 15 MB.',true);
+      if (pendientes.some(function(x){return x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified;})) return;
+      pendientes.push(f);
+    }); renderPendientes();
+  }
+  function renderPendientes(){
+    var caja=el('fgPendientes');if(!caja)return; caja.textContent='';
+    caja.appendChild(p('Fotografías pendientes: ' + pendientes.length + ' · Procesadas: ' + facturas.length));
+    pendientes.forEach(function(f,i){
+      var r=document.createElement('div');r.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #edf2f8;padding:5px 0;';
+      r.appendChild(p((i+1)+'. '+f.name)); r.appendChild(boton('Quitar',function(){pendientes.splice(i,1);renderPendientes();})); caja.appendChild(r);
+    }); var b=el('fgProcesarBoton');if(b)b.disabled=trabajando||!pendientes.length;
+  }
+  function claveAdminActual(){ if (typeof a196ClaveAdmin !== 'undefined' && a196ClaveAdmin) return a196ClaveAdmin; return ''; }
+  async function analizarUna(file){
+    if (typeof URL_API === 'undefined' || !URL_API) throw new Error('No se encontró la URL de Apps Script de Online Shop.');
+    var clave=claveAdminActual(); if (!clave) throw new Error('Abre nuevamente el Panel Administrativo para autorizar la lectura.');
+    var jpg=await reducirImagen(file);
+    var params=new URLSearchParams({accion:'fgAnalizarFacturaGemini',claveAdmin:clave,mimeType:jpg.mimeType,base64:jpg.base64,nombreArchivo:file.name});
+    var r=await fetch(URL_API,{method:'POST',body:params,cache:'no-store'});
+    if(!r.ok) throw new Error('No se pudo conectar al servidor (HTTP '+r.status+').');
+    var data; try { data=await r.json(); } catch(_) { throw new Error('La respuesta no fue JSON. Revisa la integración del doPost.'); }
+    if(!data||data.status!=='OK'||!data.factura)throw new Error(data&&data.mensaje||'El servidor no reconoció la factura.'); return data.factura;
+  }
+  async function fgProcesar(){
+    if(trabajando||!pendientes.length)return;
+    if(!claveAdminActual())return estado('Debes iniciar sesión en el Panel Administrativo.',true);
+    trabajando=true;renderPendientes(); var total=pendientes.length;
+    for(var i=0;i<total;i++){
+      var f=pendientes.shift(); estado('Leyendo fotografía '+(i+1)+' de '+total+': '+f.name+'…');
+      try { var dato=await analizarUna(f); facturas.push({archivo:f.name, archivoId:String(f.size||0)+'-'+String(f.lastModified||0), dato:dato, error:''}); }
+      catch(e) { facturas.push({archivo:f.name, dato:null, error:String(e&&e.message||e)}); }
+      renderResultados();renderPendientes();
+    }
+    trabajando=false;renderPendientes(); var buenas=facturas.filter(function(x){return !!x.dato;}).length;
+    estado('Proceso terminado: '+buenas+' fotografías reconocidas de '+facturas.length+'. Revisa la información antes de exportar.',false);
+  }
+  function td(contenido){var cel=document.createElement('td');cel.style.cssText='padding:6px;border-bottom:1px solid #eef2f8;vertical-align:middle;min-width:80px;';if(contenido&&typeof contenido==='object')cel.appendChild(contenido);else cel.textContent=texto(contenido);return cel;}
+  function th(textoValor){var c=document.createElement('th');c.textContent=textoValor;c.style.cssText='padding:7px;background:#eef6ff;text-align:left;font-size:11px;';return c;}
+  function renderResultados(){
+    var box=el('fgResultados');if(!box)return;box.textContent='';
+    facturas.forEach(function(item,idx){
+      var card=document.createElement('section'); card.style.cssText='border:1px solid #dbe6f2;border-radius:12px;padding:12px;margin:12px 0;background:#fff;';
+      var enc=document.createElement('div');enc.style.cssText='display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:center;';
+      enc.appendChild(p('Factura '+(idx+1)+': '+item.archivo,'fgArchivo'));
+      enc.appendChild(boton('Eliminar',function(){if(trabajando)return;facturas.splice(idx,1);renderResultados();renderPendientes();}));card.appendChild(enc);
+      if(item.error){card.appendChild(p('⚠️ '+item.error));box.appendChild(card);return;}
+      var f=item.dato; var campos=document.createElement('div');campos.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:10px 0;';
+      [['Proveedor','proveedor'],['Número','numero'],['Fecha','fecha']].forEach(function(par){
+        var label=document.createElement('label');label.style.cssText='font-size:12px;font-weight:600;text-align:left;';
+        label.appendChild(p(par[0]));label.appendChild(inputTexto(f[par[1]],function(v){f[par[1]]=v;}));campos.appendChild(label);
+      });card.appendChild(campos);
+      if(f.advertencias&&f.advertencias.length)card.appendChild(p('⚠️ '+f.advertencias.join(' | ')));
+      var cont=document.createElement('div');cont.style.cssText='overflow-x:auto;';
+      var tabla=document.createElement('table');tabla.style.cssText='border-collapse:collapse;min-width:670px;width:100%;font-size:12px;';
+      var head=document.createElement('tr');['Producto (costo)','Cantidad','Unidad','Precio unitario','Total línea',''].forEach(function(x){head.appendChild(th(x));});tabla.appendChild(head);
+      (f.productos||[]).forEach(function(prod,j){
+        var tr=document.createElement('tr');tr.appendChild(td(inputTexto(prod.descripcion,function(v){prod.descripcion=v;})));
+        tr.appendChild(td(inputTexto(prod.cantidad,function(v){prod.cantidad=v===''?null:Number(v);},'number')));
+        tr.appendChild(td(inputTexto(prod.unidad,function(v){prod.unidad=v;})));
+        tr.appendChild(td(inputTexto(prod.precioUnitario,function(v){prod.precioUnitario=v===''?null:Number(v);},'number')));
+        tr.appendChild(td(inputTexto(prod.totalLinea,function(v){prod.totalLinea=v===''?null:Number(v);},'number')));
+        tr.appendChild(td(boton('Quitar',function(){f.productos.splice(j,1);renderResultados();})));tabla.appendChild(tr);
+      });cont.appendChild(tabla);card.appendChild(cont);
+      card.appendChild(boton('+ Agregar producto',function(){f.productos.push({descripcion:'',cantidad:null,unidad:'',precioUnitario:null,totalLinea:null});renderResultados();}));
+      var finales=p('Subtotal: '+formatUSD(f.subtotal)+' · IVA: '+formatUSD(f.iva)+' · Total factura: '+formatUSD(f.total)); finales.style.fontWeight='700';card.appendChild(finales);
+      if (f.productos && f.productos.length) {
+        var pasar=boton('📥 Preparar recepción Matriz', function(){fgEnviarRecepcion(item);});
+        pasar.style.cssText='width:100%;min-height:43px;margin-top:10px;background:#dff4e9;color:#135d3e;border:1px solid #b7e7d0;border-radius:10px;font-weight:800;';card.appendChild(pasar);
+      }box.appendChild(card);
+    }); var exportar=el('fgExportarBoton');if(exportar)exportar.disabled=!facturas.some(function(x){return x.dato&&x.dato.productos&&x.dato.productos.length;});
+  }
+  function fgExportar(){
+    var destino=el('fgDestino')?el('fgDestino').value:'';
+    var filas=[['Proveedor','Número factura','Fecha','Destino','Archivo','Descripción producto','Cantidad','Unidad','Costo unitario','Total línea','Total factura']];
+    facturas.forEach(function(x){if(!x.dato)return;var f=x.dato;(f.productos||[]).forEach(function(pr){filas.push([f.proveedor,f.numero,f.fecha,destino,x.archivo,pr.descripcion,pr.cantidad,pr.unidad,pr.precioUnitario,pr.totalLinea,f.total]);});});
+    if(filas.length<2)return estado('No hay productos para exportar.',true);
+    var cel=function(v){var t=texto(v);if (/^[\s]*[=+\-@]/.test(t)) t="'"+t;return '"'+t.replace(/"/g,'""')+'"';};
+    var csv='\uFEFF'+filas.map(function(f){return f.map(cel).join(',');}).join('\r\n');
+    var url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));var a=document.createElement('a');a.href=url;a.download='OnlineShop_Facturas_Gemini_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);
+    estado('CSV exportado. Antes de importar a Akasia, verifica presentaciones, IVA y unidades.',false);
+  }
+  function fgAbrir(){
+    if(!el('fgPendientes'))return;
+    if(!el('fgPendientes').dataset.fgPreparado){
+      var f1=el('fgFotos'),f2=el('fgCamara');if(f1)f1.addEventListener('change',function(){archivosSeleccionados(this.files);this.value='';});if(f2)f2.addEventListener('change',function(){archivosSeleccionados(this.files);this.value='';});
+      var b=el('fgProcesarBoton');if(b)b.addEventListener('click',fgProcesar);var ex=el('fgExportarBoton');if(ex)ex.addEventListener('click',fgExportar);el('fgPendientes').dataset.fgPreparado = 'si';
+    }renderPendientes();renderResultados();estado('Etapa de prueba: las facturas no se guardan ni afectan inventario.',false);
+  }
+  var fgRevision = null, fgTransferidas = new Set();
+  function fgAbrirDesdeRecepcion(){if(typeof abrirModuloAdmin==='function')abrirModuloAdmin('facturasGemini');}
+  function fgHuellaFactura(d){var cadena=JSON.stringify({productos:(d.productos||[]).map(function(p){return [p.descripcion,p.cantidad,p.unidad,p.precioUnitario];}),total:d.total,fecha:d.fecha,numero:d.numero});var h=2166136261;for(var i=0;i<cadena.length;i++)h=Math.imul(h^cadena.charCodeAt(i),16777619);return (h>>>0).toString(36);}
+  function fgEnviarRecepcion(item){
+    if(el('fgDestino')&&el('fgDestino').value!=='Matriz')return estado('La recepción automática de facturas está disponible primero para Sucursal Matriz. Selecciona Matriz.',true);
+    if(typeof c49SesionAdministrador==='undefined'||!c49SesionAdministrador)return estado('Debes volver a ingresar como Administrador.',true);
+    if(!item||!item.dato||!Array.isArray(item.dato.productos)||!item.dato.productos.length)return estado('Esta factura no contiene productos para preparar.',true);
+    var d=item.dato,key=[d.proveedor,d.numero,d.fecha,item.archivo,item.archivoId||'',fgHuellaFactura(d)].map(texto).join('|');
+    if(fgTransferidas.has(key)||(typeof cm55Lista!=='undefined'&&cm55Lista.some(function(x){return x.grupoId==='factura:'+key;})))return estado('Esta factura ya está preparada en su propio grupo. Revisa la lista de recepción.',true);
+    var yaRegistrada=false;try{var guardadas=JSON.parse(localStorage.getItem('cm55_facturas_guardadas_'+String(c54PeriodoActual||''))||'{}');yaRegistrada=!!guardadas['factura:'+key];}catch(_e){}
+    if(yaRegistrada)return estado('Esta factura ya se guardó en este período. No se volverá a registrar automáticamente.',true);
+    window.fgRecepcionPendiente={key:key,archivo:item.archivo,factura:JSON.parse(JSON.stringify(d))};fgRevision=null;abrirModuloAdmin('mercaderiaNueva');
+  }
+  function fgEl(tag,valor,clase){var e=document.createElement(tag);if(valor!=null)e.textContent=texto(valor);if(clase)e.className=clase;return e;}
+  function fgTipoUnidadSegura(t){return /^(ud|uds|und|unidad|unidades|unid|u|pz|pza|pieza|piezas)$/i.test(texto(t).trim().replace(/[\s.]/g,''));}
+  function fgNormalizar(t){if(typeof c42Norm==='function')return c42Norm(t);return texto(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();}
+  function fgClaveBusqueda(v){return texto(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();}
+  function fgPalabrasBusqueda(v){var vacias={BOLSA:1,BOL:1,CAJA:1,CJA:1,PAQUETE:1,PAQ:1,PACK:1,CS:1,NI:1,XP:1,SV:1,US:1,MP:1,SAC:1,SOBRE:1,PIEZA:1,PIEZAS:1,UNI:1,UND:1,UNIDAD:1,UNIDADES:1,DE:1,DEL:1,CON:1,PARA:1,LA:1,EL:1};return fgClaveBusqueda(v).split(/\s+/).filter(function(w){return w.length>=3&&!vacias[w]&&!/^\d{6,}$/.test(w)&&!/^\d+X\d/.test(w);});}
+  function fgConsultaCorta(nombre){var textoBase=texto(nombre).split('|')[0];var tokens=fgPalabrasBusqueda(textoBase).filter(function(w){return !/^\d/.test(w);});return tokens.slice(0,2).join(' ')||textoBase.trim().slice(0,45);}
+  async function fgBuscarDirectoEnAkasia(consulta){
+    if(typeof c58Post!=='function')throw Error('La búsqueda de Akasia no está disponible en esta versión de Online Shop.');
+    var q=texto(consulta).trim();if(fgClaveBusqueda(q).length<3)return [];
+    var respuesta=await c58Post('fgBuscarCatalogoV192',{sucursal:'MATRIZ',buscar:q});
+    if(!respuesta||!Array.isArray(respuesta.productos))throw Error('El servidor no devolvió el catálogo esperado.');return respuesta.productos;
+  }
+  function fgMostrarErrorCatalogoRecepcion(error){var box=el('fgRecepcionRevision');if(!box)return;box.hidden=false;box.textContent='';box.appendChild(fgEl('h4','No fue posible consultar el catálogo'));box.appendChild(pText(texto(error&&error.message||error)));box.appendChild(boton('Volver a intentar',fgMostrarImportacionRecepcion));}
+  function fgMostrarImportacionRecepcion(){
+    var p=window.fgRecepcionPendiente,box=el('fgRecepcionRevision');if(!p||!box)return;box.hidden=false;
+    if(!fgRevision||fgRevision.key!==p.key){
+      var lista=p.factura.productos.slice(0,150).map(function(x){var nombre=texto(x.descripcion).trim(),cantidad=Number(x.cantidad);var unidades=fgTipoUnidadSegura(x.unidad)&&Number.isInteger(cantidad)&&cantidad>0&&cantidad<=1000000?cantidad:0;return {origen:x,sku:null,unidades:unidades,consulta:fgConsultaCorta(nombre)};});
+      fgRevision={key:p.key,lista:lista,aprobado:false,proveedor:p.factura.proveedor||''};
+    }fgRenderRevision();
+  }
+  function fgRenderRevision(){
+    var box=el('fgRecepcionRevision'),p=window.fgRecepcionPendiente;if(!box||!fgRevision||!p)return;box.hidden=false;box.textContent='';
+    box.appendChild(fgEl('h4','✨ Revisar productos de la factura'));box.appendChild(pText('Factura: '+texto(p.factura.numero||p.archivo)+' · '+texto(p.factura.proveedor||'Sin proveedor identificado')));
+    box.appendChild(pText('Busca por nombre o código. Solo se pueden recibir productos disponibles en Akasia Matriz.'));
+    if(p.factura.productos.length>150)box.appendChild(pText('⚠️ Solo se muestran 150 líneas de esta factura. Las restantes no se traspasarán.'));
+    var numeroRelacionados=0;
+    fgRevision.lista.forEach(function(linea,i){
+      var article=fgEl('article',null,'cm55-ai-line'),o=linea.origen;article.appendChild(fgEl('strong',(i+1)+'. '+texto(o.descripcion||'Producto sin descripción')));
+      article.appendChild(fgEl('small','Factura: '+texto(o.cantidad==null?'Cantidad no legible':o.cantidad)+' '+texto(o.unidad||'sin unidad')+' · Costo facturado: '+formatUSD(o.precioUnitario)));
+      var c=fgEl('div',null,'cm55-ai-cols'),izq=fgEl('label','Producto correspondiente en Akasia'),input=document.createElement('input');
+      input.type='search';input.autocomplete='off';input.placeholder='Buscar producto en catálogo';input.value=linea.sku?linea.sku.nombre:linea.consulta;input.setAttribute('aria-label','Relacionar producto '+(i+1)+' con Akasia');
+      var suggestions=fgEl('div',null,'cm55-ai-choices');suggestions.style.maxHeight='270px';suggestions.style.overflowY='auto';var timerBusqueda=null,versionBusqueda=0;
+      function opcionAkasia(catalogo){
+        if(!catalogo||!catalogo.nombre)return;var bloqueado=!catalogo.vigente||catalogo.ambiguo;
+        var etiqueta=catalogo.nombre+' · '+(catalogo.costo==null?'sin costo':formatUSD(catalogo.costo))+(!catalogo.vigente?' · Falta en Akasia Matriz':catalogo.ambiguo?' · Nombre duplicado':'');
+        var b=boton(etiqueta,function(){if(bloqueado)return;linea.sku=catalogo;linea.consulta=catalogo.nombre;fgRevision.aprobado=false;fgRenderRevision();});b.disabled=bloqueado;suggestions.appendChild(b);
+      }
+      async function consultarServidor(q,v){
+        if(v!==versionBusqueda||!input.isConnected)return;suggestions.textContent='';suggestions.appendChild(fgEl('small','Buscando en catálogo…'));
+        try{var opciones=await fgBuscarDirectoEnAkasia(q);if(v!==versionBusqueda||!input.isConnected||input.value.trim()!==q)return;suggestions.textContent='';if(!opciones.length){suggestions.appendChild(fgEl('small','No se encontraron productos. Prueba con otro nombre o código.'));return;}suggestions.appendChild(fgEl('small',opciones.length+' resultados'));opciones.forEach(opcionAkasia);}
+        catch(error){if(v!==versionBusqueda||!input.isConnected||input.value.trim()!==q)return;suggestions.textContent='';suggestions.appendChild(fgEl('small','No se pudo consultar Akasia Matriz: '+texto(error&&error.message||error)));}
+      }
+      function mostrarSugerencias(remoto){clearTimeout(timerBusqueda);versionBusqueda++;var v=versionBusqueda;suggestions.textContent='';var q=input.value.trim();if(fgClaveBusqueda(q).length<3){suggestions.appendChild(fgEl('small','Escribe al menos 3 letras o un código.'));return;}if(remoto){suggestions.appendChild(fgEl('small','Buscando en catálogo…'));timerBusqueda=setTimeout(function(){consultarServidor(q,v);},300);}else suggestions.appendChild(fgEl('small','Busca por nombre o código.'));}
+      input.addEventListener('input',function(){linea.sku=null;linea.consulta=input.value;fgRevision.aprobado=false;var cb=el('fgConfirmarImportacion');if(cb)cb.checked=false;mostrarSugerencias(true);});input.addEventListener('focus',function(){if(!linea.sku)mostrarSugerencias(true);});if(!linea.sku)mostrarSugerencias(false);
+      izq.appendChild(input);izq.appendChild(suggestions);c.appendChild(izq);
+      var der=fgEl('label','Unidades recibidas'),qty=document.createElement('input');qty.type='number';qty.min='0';qty.max='1000000';qty.step='1';qty.inputMode='numeric';qty.value=String(linea.unidades);qty.setAttribute('aria-label','Unidades de '+texto(o.descripcion));
+      qty.addEventListener('input',function(){linea.unidades=qty.value===''?0:Number(qty.value);fgRevision.aprobado=false;var cb=el('fgConfirmarImportacion');if(cb)cb.checked=false;});der.appendChild(qty);c.appendChild(der);article.appendChild(c);
+      if(linea.sku){numeroRelacionados++;article.appendChild(fgEl('small','✓ Relacionado: '+linea.sku.nombre+' · costo Akasia '+(linea.sku.costo==null?'no disponible':formatUSD(linea.sku.costo))));}else article.appendChild(fgEl('small','Pendiente de relacionar'));box.appendChild(article);
+    });
+    box.appendChild(pText('Relacionados: '+numeroRelacionados+' de '+fgRevision.lista.length+' · No se guardará nada hasta confirmar la recepción.'));
+    var aceptar=document.createElement('label');aceptar.style.cssText='display:flex;align-items:flex-start;gap:9px;font-size:12px;margin:10px 0;';
+    var cbox=document.createElement('input');cbox.type='checkbox';cbox.id='fgConfirmarImportacion';cbox.checked=fgRevision.aprobado;cbox.style.cssText='width:18px;min-width:18px;height:18px;margin:0;';cbox.addEventListener('change',function(){fgRevision.aprobado=cbox.checked;});aceptar.appendChild(cbox);aceptar.appendChild(fgEl('span','Revisé las presentaciones, cantidades y productos relacionados con Akasia.'));box.appendChild(aceptar);
+    var actions=fgEl('div',null,'cm55-ai-actions'),go=boton('📥 Agregar al borrador de recepción',fgAplicarRevision);go.style.cssText='background:#18865c;color:#fff;font-weight:800;';actions.appendChild(go);actions.appendChild(boton('Cancelar',function(){window.fgRecepcionPendiente=null;fgRevision=null;box.hidden=true;box.textContent='';}));box.appendChild(actions);
+  }
+  function pText(t){var v=fgEl('p',t);v.style.cssText='font-size:12px;color:#56718b;line-height:1.5;';return v;}
+  function fgAplicarRevision(){
+    var r=fgRevision,box=el('fgRecepcionRevision'),pendiente=window.fgRecepcionPendiente;
+    if(!r||!r.aprobado)return alert('Primero marca que revisaste los productos y las cantidades.');
+    if(typeof c54PeriodoActual==='undefined'||!c54PeriodoActual)return alert('Inicia un período de cuadre Matriz antes de preparar la recepción.');
+    if(typeof cm55Lista==='undefined')return alert('No está disponible la lista de recepción.');if(!pendiente||!pendiente.key)return alert('No hay factura pendiente para recibir.');
+    var grupoId='factura:'+pendiente.key;if(cm55Lista.some(function(x){return x.grupoId===grupoId;}))return alert('Esta factura ya está en el borrador. No se agregará nuevamente.');
+    var lineas=new Map(),omitidos=0;for(var i=0;i<r.lista.length;i++){
+      var x=r.lista[i],q=Number(x.unidades);if(!Number.isInteger(q)||q<0||q>1000000)return alert('Corrige la cantidad del producto '+(i+1)+'.');if(!x.sku||!x.sku.vigente||x.sku.ambiguo||q===0){omitidos++;continue;}
+      var nombre=x.sku.nombre,key=fgNormalizar(nombre);if(!lineas.has(key))lineas.set(key,{nombre:nombre,cantidad:0,costo:x.sku.costo==null?null:Number(x.sku.costo)||0});var linea=lineas.get(key);linea.cantidad+=q;if(linea.cantidad>1000000)return alert('El total del producto '+nombre+' supera el límite permitido.');
+    }
+    var agregados=[...lineas.values()];if(!agregados.length)return alert('Relaciona al menos un producto y coloca unidades recibidas mayores que cero.');if(cm55Lista.length+agregados.length>150)return alert('El borrador permite hasta 150 productos en total. Guarda alguna factura antes de agregar más.');
+    var adicionales=(pendiente.factura&&pendiente.factura.productos.length>150)?pendiente.factura.productos.length-150:0;omitidos+=adicionales;
+    if(omitidos&&!confirm('Se omitirán '+omitidos+' líneas sin relacionar, sin unidades o fuera del límite. ¿Preparar solo las '+agregados.length+' líneas válidas?'))return;
+    var factura=pendiente.factura||{},nombreFactura=texto(factura.numero).trim()||texto(pendiente.archivo).trim()||'Factura sin número';if(!confirm('¿Agregar "'+nombreFactura+'" como una factura independiente en el BORRADOR? Aún no se registrará mercadería.'))return;
+    agregados.forEach(function(x){cm55Lista.push({nombre:x.nombre,cantidad:x.cantidad,costo:x.costo,grupoId:grupoId,grupoNombre:'Factura · '+nombreFactura.slice(0,95),grupoProveedor:texto(factura.proveedor||'').trim().slice(0,100)});});
+    fgTransferidas.add(r.key);window.fgRecepcionPendiente=null;fgRevision=null;if(box){box.hidden=true;box.textContent='';}cm55Render();cm55Estado('✓ Factura agregada por separado. Revísala y utiliza «Guardar esta factura» cuando hayas recibido los productos.');
+  }
+  window.fgMostrarErrorCatalogoRecepcion=fgMostrarErrorCatalogoRecepcion;window.fgAbrirDesdeRecepcion=fgAbrirDesdeRecepcion;window.fgMostrarImportacionRecepcion=fgMostrarImportacionRecepcion;window.fgAbrir=fgAbrir;
+})();
+
+/* Online Shop · interfaz Facturas IA integrada v1.7.92. */
+(function () {
+  'use strict';
+  function init() {
+    var admin=document.getElementById('supervisorSection'),menu=document.getElementById('menuAdmin'),recepcion=document.getElementById('adminMercaderiaNueva');
+    if(!admin||!menu||!recepcion){console.warn('Facturas IA: faltan contenedores del panel administrativo.');return;}
+    if(document.getElementById('adminFacturasGemini'))return;
+    var style=document.createElement('style');style.id='fgUiEstilos';
+    style.textContent=[
+      '#adminFacturasGemini{max-width:1100px;margin:16px auto 25px;text-align:left;color:#223b59}',
+      '#adminFacturasGemini .fg-hero{background:linear-gradient(130deg,#133d79,#226ed2);border-radius:21px;color:#fff;padding:20px 22px;margin-bottom:14px}',
+      '#adminFacturasGemini .fg-hero h3{color:white;border:0;margin:0 0 8px;font-size:24px;padding:0}',
+      '#adminFacturasGemini .fg-hero p{font-size:12px;line-height:1.5;color:#e3efff;margin:0}',
+      '#adminFacturasGemini .fg-card{padding:18px;background:#fff;border:1px solid #dce7f4;border-radius:18px;margin:12px 0;box-shadow:0 8px 20px rgba(26,66,120,.06)}',
+      '#adminFacturasGemini .fg-card h4{margin:0 0 10px;font-size:15px;color:#173c68;border:0}',
+      '#adminFacturasGemini .fg-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}',
+      '#adminFacturasGemini label{display:block;margin:8px 0;font-size:12px;font-weight:750;color:#3c5c7e}',
+      '#adminFacturasGemini input[type=file],#adminFacturasGemini select{width:100%;background:#f8fbff;border:1px solid #dce7f4;border-radius:11px;padding:12px;min-height:49px;font-size:13px}',
+      '#adminFacturasGemini button{min-height:42px;margin:5px 0;border-radius:11px;font-size:13px}',
+      '#adminFacturasGemini .fg-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}',
+      '#adminFacturasGemini .fg-actions button{flex:1 1 170px}',
+      '#adminFacturasGemini .fg-tip{color:#69809d;font-size:12px;line-height:1.6;margin:9px 0}',
+      '#adminFacturasGemini #fgEstado{font-size:12px;margin:10px 0;line-height:1.5}',
+      '#adminFacturasGemini #fgResultados{max-width:100%;overflow-wrap:anywhere}',
+      '#adminMercaderiaNueva #fgRecepcionRevision{border:1px solid #bcd7ef;border-radius:17px;padding:16px;margin:14px 0;background:#fff;overflow-wrap:anywhere}',
+      '#adminMercaderiaNueva #fgRecepcionRevision[hidden]{display:none!important}',
+      '#adminMercaderiaNueva #fgRecepcionRevision h4{color:#244d78;margin:0 0 8px}',
+      '#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-line{display:block;border:1px solid #e1eaf5;background:#f7faff;border-radius:12px;padding:12px;margin:10px 0}',
+      '#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-line>strong,#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-line>small{display:block;line-height:1.5}',
+      '#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-line>small{font-size:11px;color:#627a94;margin:4px 0 8px}',
+      '#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(100px,1fr);gap:10px}',
+      '#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-choices{display:grid;gap:4px}',
+      '#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-choices button{width:100%;text-align:left;background:#ebf3ff;color:#214d80;border:1px solid #d8e7f8}',
+      '#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-actions{display:flex;gap:8px;flex-wrap:wrap}',
+      '#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-actions button{flex:1 1 180px}',
+      '@media(max-width:680px){#adminFacturasGemini .fg-inputs{grid-template-columns:1fr}#adminFacturasGemini .fg-card{padding:13px}#adminMercaderiaNueva #fgRecepcionRevision .cm55-ai-cols{grid-template-columns:1fr}}'
+    ].join('\n');document.head.appendChild(style);
+    var acceso=document.createElement('button');acceso.type='button';acceso.className='menu-modulo';acceso.id='fgMenuAcceso';acceso.innerHTML='<span aria-hidden="true">📷</span><b>Facturas con IA</b>';
+    acceso.addEventListener('click',function(){window.abrirModuloAdmin('facturasGemini');});var ancla=menu.querySelector('button[onclick*="mercaderiaNueva"]');if(ancla)ancla.insertAdjacentElement('afterend',acceso);else menu.appendChild(acceso);
+    var modulo=document.createElement('div');modulo.id='adminFacturasGemini';modulo.className='admin-modulo';modulo.style.display='none';
+    modulo.innerHTML='<button type="button" class="btn-volver" id="fgRegresarAdmin">← Volver al panel</button>'+
+      '<div class="fg-hero"><h3>📷 Facturas con IA</h3><p>Fotografía o selecciona tus facturas para reconocer productos, costos y cantidades. Cada factura se revisa por separado.</p></div>'+
+      '<div class="fg-card"><h4>1. Seleccionar facturas</h4><div class="fg-inputs"><label>Subir fotografías desde tu dispositivo<input id="fgFotos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>'+
+      '<label>Tomar fotografía con la cámara<input id="fgCamara" type="file" accept="image/*" capture="environment"></label></div>'+
+      '<label>Destino de recepción<select id="fgDestino"><option value="Matriz">Sucursal Matriz</option></select></label>'+
+      '<p class="fg-tip">Puedes elegir hasta 12 fotos de 15 MB cada una. Formatos: JPG, PNG y WEBP. Primero se reconocen; nada se registra automáticamente.</p><div id="fgPendientes" aria-live="polite"></div>'+
+      '<div class="fg-actions"><button type="button" id="fgProcesarBoton" disabled>✨ Leer fotos con IA</button><button type="button" id="fgExportarBoton" disabled style="background:#e8f2ff;color:#1b5792">📥 Exportar resultados CSV</button></div><p id="fgEstado" role="status"></p></div>'+
+      '<div class="fg-card"><h4>2. Revisar facturas reconocidas</h4><p class="fg-tip">Verifica cada producto y corrige cualquier dato antes de preparar la recepción.</p><div id="fgResultados"></div></div>';
+    admin.appendChild(modulo);modulo.querySelector('#fgRegresarAdmin').addEventListener('click',function(){if(typeof window.volverMenuAdmin==='function')window.volverMenuAdmin();});
+    var revision=document.createElement('section');revision.id='fgRecepcionRevision';revision.hidden=true;var grid=recepcion.querySelector('.cm55-grid');if(grid)grid.parentNode.insertBefore(revision,grid);else recepcion.appendChild(revision);
+    var botonRecepcion=document.createElement('button');botonRecepcion.type='button';botonRecepcion.id='fgAccesoDesdeRecepcion';botonRecepcion.textContent='📷 Leer factura con IA';botonRecepcion.style.cssText='width:auto;max-width:100%;min-height:40px;padding:9px 15px;border-radius:11px;background:#e9f2ff;color:#1858a1;font-size:12px;margin:10px 0;';
+    botonRecepcion.addEventListener('click',function(){window.abrirModuloAdmin('facturasGemini');});var hero=recepcion.querySelector('.cm55-hero');if(hero)hero.insertAdjacentElement('afterend',botonRecepcion);else recepcion.appendChild(botonRecepcion);
+    var abrirOriginal=window.abrirModuloAdmin;if(typeof abrirOriginal!=='function'){modulo.querySelector('#fgEstado').textContent='No se pudo encontrar la navegación administrativa.';acceso.disabled=true;return;}
+    window.abrirModuloAdmin=function(moduloSolicitado){
+      if(moduloSolicitado==='facturasGemini'){abrirOriginal.apply(this,arguments);modulo.style.display='block';if(typeof window.fgAbrir==='function')window.fgAbrir();else modulo.querySelector('#fgEstado').textContent='No se pudo cargar el lector de facturas. Actualiza la página.';return;}
+      var res=abrirOriginal.apply(this,arguments);
+      if(moduloSolicitado==='mercaderiaNueva'&&window.fgRecepcionPendiente&&typeof window.fgMostrarImportacionRecepcion==='function'){
+        try{window.fgMostrarImportacionRecepcion();}catch(e){window.fgMostrarErrorCatalogoRecepcion(e);}
+      }return res;
+    };
+  }
+  // Los contenedores y la navegación original ya existen al final del HTML.
+  init();
+})();
+
+    </script>
     <script src="./ruta-supervision-admin.js?v=20261118-1" defer></script>
     <script src="./ruta-supervision-reportes-v3.js?v=20261118-v3" defer></script>
     <script src="./clientes-cobros-caja-v2.js?v=20261118-caja2" defer></script>
