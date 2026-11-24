@@ -351,35 +351,13 @@
 
   // Búsqueda puntual sobre la fuente real de Akasia Matriz, con autorización administrativa.
   // No altera Sheets ni registra productos: solo obtiene opciones para una selección manual.
-  var fgCacheBusquedaAkasia = new Map();
   async function fgBuscarDirectoEnAkasia(consulta) {
     if (typeof c58Post !== 'function') throw Error('La búsqueda de Akasia no está disponible en esta versión de Online Shop.');
-    var q=texto(consulta).trim(),clave=fgClaveBusqueda(q);
-    if(clave.length<3) return [];
-    if(fgCacheBusquedaAkasia.has(clave))return fgCacheBusquedaAkasia.get(clave);
-    var palabras=fgPalabrasBusqueda(q);
-    var alternativas=[q];
-    if(palabras.length){
-      alternativas.push(palabras[0]);
-      if(palabras.length>1)alternativas.push(palabras[1]);
-    }
-    alternativas=[...new Set(alternativas.map(function(t){return t.trim();}).filter(function(t){return fgClaveBusqueda(t).length>=3;}))].slice(0,3);
-    var encontrados=new Map();
-    for(var i=0;i<alternativas.length;i++){
-      var respuesta=await c58Post('c58BuscarMatriz',{buscar:alternativas[i]});
-      if(!respuesta || !Array.isArray(respuesta.productos))throw Error('Akasia no devolvió la lista de productos esperada.');
-      respuesta.productos.forEach(function(p){
-        if(!p || !p.nombre || p.ambiguo)return;
-        var k=fgClaveBusqueda(p.nombre);
-        if(!encontrados.has(k))encontrados.set(k,p);
-      });
-      // No mezclar marcas por buscar palabras sueltas si ya existe un grupo de resultados de la consulta.
-      if(encontrados.size>0)break;
-    }
-    var lista=[...encontrados.values()];
-    if(fgCacheBusquedaAkasia.size>40)fgCacheBusquedaAkasia.clear();
-    fgCacheBusquedaAkasia.set(clave,lista);
-    return lista;
+    var q=texto(consulta).trim();
+    if(fgClaveBusqueda(q).length<3)return [];
+    var respuesta=await c58Post('fgBuscarCatalogoV192',{sucursal:'MATRIZ',buscar:q});
+    if(!respuesta || !Array.isArray(respuesta.productos))throw Error('El servidor no devolvió el catálogo esperado.');
+    return respuesta.productos;
   }
 
   // Estado de la fuente real de productos; no registra ni modifica ningún dato.
@@ -422,48 +400,19 @@
     }
   }
   function fgMostrarEstadoCatalogo(box){
-    var catalogo=typeof cm55CatalogoRapido==='undefined'?[]:cm55CatalogoRapido;
-    if(!Array.isArray(catalogo))catalogo=[];
-    var total=catalogo.length;
-    var desc=fgEl('div',null,'cm55-ai-catalogo-estado');
-    desc.style.cssText='padding:10px 12px;border:1px solid #cfe1f5;border-radius:11px;background:#edf6ff;color:#224b77;margin:10px 0;font-size:12px;line-height:1.55;';
-    var factura=window.fgRecepcionPendiente&&window.fgRecepcionPendiente.factura;
-    var primeros=(factura&&Array.isArray(factura.productos)?factura.productos:[]).slice(0,8);
-    var consultados=new Set(),faltantes=[];
-    primeros.forEach(function(item){
-      var consulta=fgConsultaCorta(item.descripcion);
-      var clave=fgClaveBusqueda(consulta);
-      if(!clave||consultados.has(clave))return;
-      consultados.add(clave);
-      if(!fgBuscarCoincidencias(consulta,item.descripcion,catalogo,1).length)faltantes.push(consulta);
-    });
-    var estado=total?('Catálogo Akasia Matriz: '+total+' productos disponibles en la lista rápida.'):'La lista rápida no devolvió productos. Usa la búsqueda directa en Akasia Matriz que aparece debajo de cada artículo.';
-    if(faltantes.length)estado+=' No veo posibles coincidencias para: '+faltantes.slice(0,5).join(', ')+(faltantes.length>5?' y otros':'')+'.';
-    if(consultados.size>0&&faltantes.length===consultados.size)estado+=' Puedes buscar cada artículo directamente en Akasia Matriz desde la ficha, sin volver a importar el Excel.';
-    desc.appendChild(fgEl('div',estado));
-    box.appendChild(desc);
-    if(faltantes.length || total<10)fgBotonesCatalogo(box);
+    box.appendChild(pText('Búsqueda en catálogo general y Akasia Matriz. Solo se pueden recibir productos disponibles en Matriz.'));
   }
   function fgMostrarImportacionRecepcion() {
     var p=window.fgRecepcionPendiente,box=el('fgRecepcionRevision');
     if(!p||!box)return;
     box.hidden=false;
-    // La lista rápida puede venir vacía aunque la hoja de Akasia sí contenga productos.
-    // Permitir la búsqueda puntual en el servidor sin pedir al usuario subir otro Excel.
-    if(typeof cm55CatalogoRapido==='undefined') {
-      box.textContent='No se encuentra la función de catálogo Matriz en esta versión de Online Shop.';
-      return;
-    }
-    if(!Array.isArray(cm55CatalogoRapido))cm55CatalogoRapido=[];
+    // No depender del Excel parcial de recepción para buscar o sugerir productos.
     if(!fgRevision || fgRevision.key!==p.key) {
       var lista=p.factura.productos.slice(0,150).map(function(x) {
         var nombre=texto(x.descripcion).trim();
-        var exactos=cm55CatalogoRapido.filter(function(c) {
-          return !c.ambiguo && fgNormalizar(c.nombre)===fgNormalizar(nombre);
-        });
         var cantidad=Number(x.cantidad);
         var unidades=fgTipoUnidadSegura(x.unidad) && Number.isInteger(cantidad) && cantidad>0 && cantidad<=1000000 ? cantidad : 0;
-        return {origen:x,sku:exactos.length===1?exactos[0]:null,unidades:unidades,consulta:exactos.length===1?exactos[0].nombre:fgConsultaCorta(nombre)};
+        return {origen:x,sku:null,unidades:unidades,consulta:fgConsultaCorta(nombre)};
       });
       fgRevision={key:p.key,lista:lista,aprobado:false,proveedor:p.factura.proveedor||''};
     }
@@ -487,43 +436,41 @@
       var c=fgEl('div',null,'cm55-ai-cols');
       var izq=fgEl('label','Producto correspondiente en Akasia');
       var input=document.createElement('input');
-      input.type='search';input.autocomplete='off';input.placeholder='Buscar en catálogo Matriz';
+      input.type='search';input.autocomplete='off';input.placeholder='Buscar producto en catálogo';
       input.value=linea.sku?linea.sku.nombre:linea.consulta;
       input.setAttribute('aria-label','Relacionar producto '+(i+1)+' con Akasia');
       var suggestions=fgEl('div',null,'cm55-ai-choices');
       suggestions.style.maxHeight='270px';suggestions.style.overflowY='auto';
       var timerBusqueda=null,versionBusqueda=0;
       function opcionAkasia(catalogo){
-        if(!catalogo || catalogo.ambiguo)return;
-        var b=boton(catalogo.nombre+' · '+(catalogo.costo==null?'sin costo':formatUSD(catalogo.costo)),function(){
+        if(!catalogo || !catalogo.nombre)return;
+        var bloqueado=!catalogo.vigente || catalogo.ambiguo;
+        var etiqueta=catalogo.nombre+' · '+(catalogo.costo==null?'sin costo':formatUSD(catalogo.costo))+
+          (!catalogo.vigente?' · Falta en Akasia Matriz':catalogo.ambiguo?' · Nombre duplicado':'');
+        var b=boton(etiqueta,function(){
+          if(bloqueado)return;
           linea.sku=catalogo;linea.consulta=catalogo.nombre;fgRevision.aprobado=false;
           fgRenderRevision();
         });
+        b.disabled=bloqueado;
         suggestions.appendChild(b);
       }
       async function consultarServidor(q,v){
         if(v!==versionBusqueda||!input.isConnected)return;
         suggestions.textContent='';
-        suggestions.appendChild(fgEl('small','Consultando el catálogo real de Akasia Matriz…'));
+        suggestions.appendChild(fgEl('small','Buscando en catálogo…'));
         try{
           var opciones=await fgBuscarDirectoEnAkasia(q);
           if(v!==versionBusqueda||!input.isConnected||input.value.trim()!==q)return;
           suggestions.textContent='';
           if(!opciones.length){
-            suggestions.appendChild(fgEl('small','No se encontraron coincidencias en la consulta de Akasia Matriz. Verifica el catálogo conectado o prueba otra palabra.'));
+            suggestions.appendChild(fgEl('small','No se encontraron productos. Prueba con otro nombre o código.'));
             return;
           }
-          suggestions.appendChild(fgEl('small','✓ '+opciones.length+' resultados consultados directamente en Akasia Matriz. Selecciona la presentación correcta:'));
-          var palabrasConsulta=fgPalabrasBusqueda(q);
-          if(palabrasConsulta.length>=2 && !opciones.some(function(p){
-            var textoProducto=fgPalabrasBusqueda(p.nombre);
-            return palabrasConsulta.every(function(w){return textoProducto.includes(w);});
-          }))suggestions.appendChild(fgEl('small','⚠️ Solo aparecen coincidencias parciales. No relaciones un producto distinto al de la factura; confirma presentación y código antes de agregarlo.'));
-          var preferidas=fgBuscarCoincidencias(q,o.descripcion,opciones,25);
-          var agrupadas=[...preferidas,...opciones.filter(function(c){return !preferidas.some(function(p){return fgClaveBusqueda(p.nombre)===fgClaveBusqueda(c.nombre);});})];
-          agrupadas.slice(0,25).forEach(opcionAkasia);
+          suggestions.appendChild(fgEl('small',opciones.length+' resultados'));
+          opciones.forEach(opcionAkasia);
         }catch(error){
-          if(v!==versionBusqueda||!input.isConnected)return;
+          if(v!==versionBusqueda||!input.isConnected||input.value.trim()!==q)return;
           suggestions.textContent='';
           suggestions.appendChild(fgEl('small','⚠️ No se pudo consultar Akasia Matriz: '+texto(error&&error.message||error)));
         }
@@ -537,22 +484,10 @@
           suggestions.appendChild(fgEl('small','Escribe al menos 3 letras. Ejemplo: NIDO, LECHE NIDO o NESCAFE.'));
           return;
         }
-        var todas=fgBuscarCoincidencias(q,o.descripcion,cm55CatalogoRapido,8);
-        var opciones=expandido?todas:todas.slice(0,2);
-        if(todas.length){
-          suggestions.appendChild(fgEl('small','Coincidencias en el catálogo cargado (confirma presentación):'));
-          opciones.forEach(opcionAkasia);
-          if(!expandido && todas.length>2) {
-            var mas=boton('Ver más coincidencias ('+todas.length+')',function(){mostrarSugerencias(true,false);});
-            mas.style.background='#f5f7fa';mas.style.fontWeight='700';suggestions.appendChild(mas);
-          }
-        }else suggestions.appendChild(fgEl('small','No apareció en la lista rápida. Puedes buscarlo directamente en el catálogo Akasia Matriz.'));
-        var remotoBtn=boton('🔎 Buscar directamente en Akasia Matriz',function(){consultarServidor(q,v);});
-        remotoBtn.style.background='#e8f1ff';remotoBtn.style.color='#185c9c';remotoBtn.style.fontWeight='750';
-        suggestions.appendChild(remotoBtn);
-        if(remoto&&!todas.length){
-          timerBusqueda=setTimeout(function(){consultarServidor(q,v);},420);
-        }
+        if(remoto){
+          suggestions.appendChild(fgEl('small','Buscando en catálogo…'));
+          timerBusqueda=setTimeout(function(){consultarServidor(q,v);},300);
+        }else suggestions.appendChild(fgEl('small','Busca por nombre o código.'));
       }
       input.addEventListener('input',function(){
         linea.sku=null;linea.consulta=input.value;fgRevision.aprobado=false;
