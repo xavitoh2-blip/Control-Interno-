@@ -2534,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.101</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.102</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3484,7 +3484,12 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <!-- v1.6.49 BETA · Importación de catálogo Akasia sin segunda clave. -->
         <div id="adminAkasiaCatalogo" class="admin-modulo" style="display:none;margin-top:18px;">
           <button class="btn-volver" onclick="volverMenuAdmin()">← Volver al panel</button>
-          <h4>🔄 Actualizar catálogo desde Akasia</h4>
+          <h4>Catálogo permanente de Akasia</h4>
+          <div id="ca102Estado" style="padding:12px;background:#eef5fb;border-radius:12px;font-size:14px;line-height:1.6"></div>
+          <button type="button" onclick="ca102Recuperar('MATRIZ')">Recuperar catálogo Matriz desde respaldo</button>
+          <button type="button" onclick="ca102Recuperar('MINI')">Inicializar catálogo Mini Súper</button>
+          <label style="display:block;margin:12px 0;font-size:14px"><input type="checkbox" id="ca102BaseMini"> Actualizar también base de cuadre de Mini Súper (solo Excel original de ese cuadre)</label>
+          <p style="font-size:14px">Los Excel parciales actualizan solo los productos incluidos. La base de cuadre Matriz se carga en Cuadre, como antes.</p>
           <p style="font-size:12px;color:#667085;line-height:1.5;">Carga los Excel originales de Akasia. Primero revisaremos productos nuevos y posibles conflictos. Nada se guarda hasta que confirmes.</p>
           <label style="font-weight:800;display:block;margin:12px 0 4px;">Sucursal Matriz (.xlsx)</label>
           <input type="file" accept=".xlsx,.xls" id="c48ArchivoMatriz" onchange="c48LeerArchivos()" style="background:#fff;">
@@ -12155,6 +12160,9 @@ async function c58ConfirmarActualizacion(){
  }catch(e){c58Aviso('c58ExcelEstado',e.message,true);b.disabled=false;}
 }
 let c48Cargas={},c48EstadoActual={nombres:[],sucursales:{}},c48Ocupado=false;
+function ca102DibujarEstado(){const e=document.getElementById('ca102Estado');if(!e)return;const d=c48EstadoActual.permanentes||{};e.textContent=['MATRIZ','MINI'].map(s=>{const x=d[s];return (s==='MATRIZ'?'Matriz':'Mini Súper')+': '+(x?x.permanente+' originales · '+x.recuperados+' de respaldo por verificar · base de cuadre '+x.base:'sin consultar');}).join(' | ');}
+function ca102LimpiarCache(){if(typeof ci94Cache!=='undefined')ci94Cache.clear();if(typeof ci97Hist!=='undefined'){ci97Hist.suc='';ci97Hist.page=0;}}
+async function ca102Recuperar(suc){if(c48Ocupado)return;if(!confirm('¿Preparar el catálogo permanente de '+suc+'? No se modificarán las existencias ni la base de cuadre. Los datos históricos deberán actualizarse antes de exportar.'))return;c48Ocupado=true;try{c48Mensaje('Recuperando catálogo…');const r=await c48Post('ca102Recuperar',{sucursal:suc});ca102LimpiarCache();c48EstadoActual=await c48GetEstado();ca102DibujarEstado();c48Mensaje(r.yaExiste?'El catálogo permanente ya existe. No se modificó.':'Catálogo listo: '+r.estado.permanente+' productos. '+r.estado.recuperados+' de respaldo por actualizar.'+(r.conflictos?.length?' Conflictos excluidos: '+r.conflictos.join(', '):''));}catch(e){c48Mensaje(e.message,true);}finally{c48Ocupado=false;}}
 function c48Mensaje(m,err){const e=document.getElementById('c48Estado');if(e){e.textContent=m;e.style.color=err?'#be273f':'#28608b';}}
 async function c48GetEstado(){
  const r=await fetch(URL_API+'?accion=c48EstadoCatalogos&_='+Date.now(),{cache:'no-store'});
@@ -12177,7 +12185,7 @@ async function c48Post(accion,datos={}){
 async function c48Abrir(){
  if(c48Ocupado)return;
  c48Mensaje('Consultando el catálogo actual…');
- try{c48EstadoActual=await c48GetEstado();c48Mensaje('Puedes cargar el Excel de una o de ambas sucursales.');}
+ try{c48EstadoActual=await c48GetEstado();ca102DibujarEstado();c48Mensaje('Puedes cargar el Excel de una o de ambas sucursales.');}
  catch(e){c48Mensaje(e.message,true);}
  c48MostrarPrevia();
 }
@@ -12234,13 +12242,13 @@ async function c48ConfirmarActualizacion(){
  // No se solicita una segunda clave: se valida el acceso actual al Administrador.
  if(!c49SesionAdministrador){c48Mensaje('Entra al panel Administrador para actualizar el catálogo.',true);return;}
  const sucursales=Object.keys(c48Cargas);
- if(!confirm('¿Confirmar la actualización de '+sucursales.length+' sucursal(es)? Se guardarán los 57 campos de Akasia, se incorporarán productos nuevos y no se eliminarán productos existentes.'))return;
+ if(!confirm('¿Confirmar la actualización de '+sucursales.length+' sucursal(es)? Se actualizará el catálogo permanente sin eliminar los demás productos. La base de cuadre solo se reemplaza si has elegido esa opción para Mini Súper.'))return;
  c48Ocupado=true;c48MostrarPrevia();
  const terminadas=[];
  try{
    for(const suc of sucursales){
      const d=c48Cargas[suc];c48Mensaje('Iniciando '+suc+' · '+d.filas.length+' productos…');
-     const ini=await c48Post('c48Iniciar',{sucursal:suc,total:d.filas.length,cabeceras:JSON.stringify(d.cabeceras)});
+     const ini=await c48Post('c48Iniciar',{sucursal:suc,total:d.filas.length,cabeceras:JSON.stringify(d.cabeceras),modo:suc==='MINI'&&document.getElementById('ca102BaseMini').checked?'BASE':'CATALOGO'});
      for(let i=0;i<d.filas.length;i+=250){
        await c48Post('c48CargarBloque',{sucursal:suc,id:ini.id,desde:i,filas:JSON.stringify(d.filas.slice(i,i+250))});
        c48Mensaje(suc+': '+Math.min(d.filas.length,i+250)+' de '+d.filas.length+' productos recibidos…');
@@ -12251,7 +12259,7 @@ async function c48ConfirmarActualizacion(){
    }
    const texto=terminadas.map(x=>`${x.sucursal}: ${x.filas} importados · ${x.nuevos} agregados · ${x.revision} por revisar`).join(' | ');
    c48Mensaje('✅ Catálogo actualizado. '+texto);
-   try{c48EstadoActual=await c48GetEstado();}catch(_e){}
+   try{c48EstadoActual=await c48GetEstado();ca102DibujarEstado();ca102LimpiarCache();}catch(_e){}
    c48Cargas={};document.getElementById('c48ArchivoMatriz').value='';document.getElementById('c48ArchivoMini').value='';
    // Forzar la próxima carga de categorías desde Akasia en Conteos Asignados.
    c47CatalogoDetallado=[];c47CategoriasCuenta={};
@@ -14864,7 +14872,7 @@ function ci93Init(){
  <button type="button" class="btn-volver" onclick="volverMenuAdmin()">← Administración</button>
  <section class="ci93-card"><h3 class="ci93-titulo">Inventario · Productos</h3>
  <label style="display:block;font-size:14px;font-weight:750">Catálogo de Akasia</label><select id="ci93Sucursal" onchange="ci93CambiarSucursal(this.value)"><option value="MATRIZ">Matriz · Tienda y Bodega</option><option value="MINI">Mini Súper</option></select>
- <div id="ci93Estado" class="ci93-status" role="status"></div><div id="ci94CatalogoEstado" class="ci93-muted"></div><button type="button" class="ci93-boton sec" style="font-size:11px;min-height:30px;padding:5px 9px" onclick="ci94ActualizarCatalogo()">Actualizar catálogo</button></section>
+ <div id="ci93Estado" class="ci93-status" role="status"></div><div id="ci94CatalogoEstado" class="ci93-muted"></div><button type="button" class="ci93-boton sec" style="font-size:11px;min-height:30px;padding:5px 9px" onclick="ci94ActualizarCatalogo()">Actualizar catálogo</button> <button type="button" class="ci93-boton sec" onclick="abrirModuloAdmin('catalogoAkasia')">Importar / recuperar Excel Akasia</button></section>
  <div id="ci93Inicio" class="ci93-view"><section class="ci93-card"><h4>Identificar productos</h4><div class="ci93-acciones">
  <button type="button" class="ci93-opcion" onclick="ci93AbrirFactura()">📷 <b>Facturas</b><small id="fi98Badge">Capturar y revisar pendientes</small></button>
  <button type="button" class="ci93-opcion" onclick="ci93Vista('excel')">▤ <b>Excel</b><small>Importar solo nombres</small></button>
@@ -15040,7 +15048,7 @@ async function ci96Exportar(){
   if(d.sucursal!==suc||!Array.isArray(d.cabeceras)||d.cabeceras.length!==57||!c48Cabeceras.every((x,i)=>d.cabeceras[i]===x)||!Array.isArray(d.filas)||d.filas.some(r=>!Array.isArray(r)||r.length!==57||r[3]!==0||!r[55]||!r[56]))throw Error('Respuesta de Excel inválida. No se descargó el archivo.');
   const omitidos=Array.isArray(d.omitidos)?d.omitidos:[],n=d.filas.length;
   detalle.textContent=n+' productos válidos · '+omitidos.length+' no exportables.'+(omitidos.length?' '+omitidos.map(x=>x.nombre+': '+x.motivo).join(' | '):'');
-  if(!n)return;
+  if(!n){detalle.textContent+=' Actualiza el catálogo permanente con el Excel original vigente de la sucursal. No hace falta leer de nuevo la factura.';return;}
   const destino=suc==='MATRIZ'?'Matriz (Tienda y Bodega)':'Mini Súper';
   if(!confirm('¿Descargar '+n+' productos con existencia 0 para '+destino+'?'+(omitidos.length?' Se excluirán '+omitidos.length+' productos sin datos válidos; revisa el detalle.':'')+' Al importar en Akasia se sustituirán las existencias de estos artículos. Hazlo antes del conteo y verifica la sucursal.'))return;
   c57EscribirXlsx(d,'AKASIA_'+suc+'_INVENTARIO_CERO_'+new Date().toISOString().slice(0,10)+'.xlsx');
