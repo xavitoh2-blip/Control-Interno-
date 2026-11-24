@@ -2534,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.104</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.105</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -12164,7 +12164,7 @@ async function c58ConfirmarActualizacion(){
  }catch(e){c58Aviso('c58ExcelEstado',e.message,true);b.disabled=false;}
 }
 let c48Cargas={},c48EstadoActual={nombres:[],sucursales:{}},c48Ocupado=false;
-function ca102DibujarEstado(){const e=document.getElementById('ca102Estado');if(!e)return;const d=c48EstadoActual.permanentes||{};e.textContent=['MATRIZ','MINI'].map(s=>{const x=d[s];return (s==='MATRIZ'?'Matriz':'Mini Súper')+': '+(x?x.permanente+' originales · '+x.recuperados+' de respaldo por verificar · base de cuadre '+x.base:'sin consultar');}).join(' | ');}
+function ca102DibujarEstado(){const e=document.getElementById('ca102Estado');if(!e)return;const d=c48EstadoActual.permanentes||{};e.textContent=['MATRIZ','MINI'].map(s=>{const x=d[s];return (s==='MATRIZ'?'Matriz':'Mini Súper')+': '+(x?x.permanente+' originales · '+x.recuperados+' de respaldo por verificar · '+(x.conflictos||0)+' en conflicto · base de cuadre '+x.base:'sin consultar');}).join(' | ');}
 function ca102LimpiarCache(){if(typeof ci94Cache!=='undefined')ci94Cache.clear();if(typeof ci97Hist!=='undefined'){ci97Hist.suc='';ci97Hist.page=0;}}
 async function ca102Recuperar(suc){if(c48Ocupado)return;if(!confirm('¿Preparar el catálogo permanente de '+suc+'? No se modificarán las existencias ni la base de cuadre. Los datos históricos deberán actualizarse antes de exportar.'))return;c48Ocupado=true;try{c48Mensaje('Recuperando catálogo…');const r=await c48Post('ca102Recuperar',{sucursal:suc});ca102LimpiarCache();c48EstadoActual=await c48GetEstado();ca102DibujarEstado();c48Mensaje(r.yaExiste?'El catálogo permanente ya existe. No se modificó.':'Catálogo listo: '+r.estado.permanente+' productos. '+r.estado.recuperados+' de respaldo por actualizar.'+(r.conflictos?.length?' Conflictos excluidos: '+r.conflictos.join(', '):''));}catch(e){c48Mensaje(e.message,true);}finally{c48Ocupado=false;}}
 function c48Mensaje(m,err){const e=document.getElementById('c48Estado');if(e){e.textContent=m;e.style.color=err?'#be273f':'#28608b';}}
@@ -12259,9 +12259,9 @@ async function c48ConfirmarActualizacion(){
        await new Promise(resolve=>setTimeout(resolve,0));
      }
      const fin=await c48Post('c48Finalizar',{sucursal:suc,id:ini.id});
-     terminadas.push({sucursal:suc,filas:fin.filas,nuevos:fin.maestro?.nuevos||0,revision:fin.maestro?.enRevision||0});
+     terminadas.push({sucursal:suc,filas:fin.filas,nuevos:fin.maestro?.nuevos||0,revision:fin.maestro?.enRevision||0,conflictos:fin.conflictos||[]});
    }
-   const texto=terminadas.map(x=>`${x.sucursal}: ${x.filas} importados · ${x.nuevos} agregados · ${x.revision} por revisar`).join(' | ');
+   const texto=terminadas.map(x=>`${x.sucursal}: ${x.filas} filas válidas guardadas · ${x.nuevos} nuevos en maestro · ${x.revision} por revisar`+(x.conflictos.length?' · '+x.conflictos.length+' filas excluidas por identidad: '+x.conflictos.join(', '):'')).join(' | ');
    c48Mensaje('✅ Catálogo actualizado. '+texto);
    try{c48EstadoActual=await c48GetEstado();ca102DibujarEstado();ca102LimpiarCache();}catch(_e){}
    c48Cargas={};document.getElementById('c48ArchivoMatriz').value='';document.getElementById('c48ArchivoMini').value='';
@@ -15476,7 +15476,7 @@ async function ci104Exportar(){
   if(d.sucursal!==sucursal||!Array.isArray(d.cabeceras)||!c48Cabeceras.every((v,i)=>v===d.cabeceras[i])||!Array.isArray(d.filas)||d.filas.length!==items.length||d.filas.some(r=>!r[55]||!r[56]||typeof r[3]!=='number'))throw Error('La plantilla recibida no es válida.');
   c57EscribirXlsx(d,(parcial?'PARCIAL_NO_IMPORTAR_':'REVISAR_MOVIMIENTOS_')+'AKASIA_'+sucursal+'_'+a.join('_')+'_'+desde+'_'+hasta+'.xlsx');
   estado.textContent='Excel Akasia descargado: '+d.filas.length+' productos · 57 columnas. '+(parcial?'Conteo parcial, no importar como inventario final.':'Revisa movimientos antes de importar.');
- }catch(e){estado.textContent=e.message||String(e);}finally{ci104Busy=false;ci103Render();}
+ }catch(e){estado.textContent=e.message||String(e);alert('No se descargó el Excel: '+estado.textContent);}finally{ci104Busy=false;ci103Render();}
 }
 function ci103Abrir(){if(!ci103El('ci103Desde').value)ci103El('ci103Desde').value=c57FechaSV();if(!ci103El('ci103Hasta').value)ci103El('ci103Hasta').value=c57FechaSV();ci103Cargar();}
 </script>
