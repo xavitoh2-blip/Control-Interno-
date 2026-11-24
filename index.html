@@ -2534,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.95</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.96</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -14874,13 +14874,14 @@ function ci93Init(){
  <section id="ci93Excel" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('inicio')">← Regresar</button><h4>Leer productos de Excel</h4><p class="ci93-help">Selecciona el Excel de Akasia o una lista de nombres. Se ignorarán cantidades y precios.</p><input id="ci93Archivo" type="file" accept=".xlsx,.xls,.csv" onchange="ci93ImportarExcel(this)"></section>
  <section id="ci93Manual" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93CancelarRelacion()">← Regresar</button><h4>Buscar producto</h4><input id="ci93BuscarProducto" type="search" placeholder="Escribe parte del nombre" oninput="ci93BuscarManual(this.value)"><div id="ci93Busqueda" class="ci93-lista"></div><div class="ci93-botones"><button type="button" class="ci93-boton" onclick="ci93Vista('revisar')">Revisar seleccionados</button></div></section>
  <section id="ci93Revisar" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('inicio')">← Regresar</button><h4>Revisar productos identificados</h4><p class="ci93-help">La factura o el Excel no marcan productos automáticamente. Verifica las coincidencias y confirma solo los que realmente fueron contados.</p>
- <div class="ci93-botones"><button type="button" class="ci93-boton sec" onclick="ci93SeleccionarTodos(true)">Seleccionar disponibles</button><button type="button" class="ci93-boton sec" onclick="ci93SeleccionarTodos(false)">Limpiar</button></div><div id="ci94Resumen" class="ci93-muted"></div><div id="ci93RevisarLista" class="ci93-lista"></div><div class="ci93-botones"><button type="button" id="ci94Guardar" class="ci93-boton sec" onclick="ci94Guardar()" disabled>Guardar relaciones</button><button type="button" id="ci93Confirmar" class="ci93-boton" onclick="ci93Confirmar()" disabled>Confirmar contados</button></div></section>
+ <div class="ci93-botones"><button type="button" class="ci93-boton sec" onclick="ci93SeleccionarTodos(true)">Seleccionar disponibles</button><button type="button" class="ci93-boton sec" onclick="ci93SeleccionarTodos(false)">Limpiar</button></div><div id="ci94Resumen" class="ci93-muted"></div><div id="ci93RevisarLista" class="ci93-lista"></div><div class="ci93-botones"><button type="button" id="ci94Guardar" class="ci93-boton sec" onclick="ci94Guardar()" disabled>Guardar relaciones</button><button type="button" id="ci93Confirmar" class="ci93-boton" onclick="ci93Confirmar()" disabled>Confirmar contados</button></div><button type="button" class="ci93-boton" style="background:#217346;margin-top:10px" onclick="ci96AbrirExportar()">↓ Exportar Excel en cero</button></section>
  <section id="ci93Contados" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('inicio')">← Regresar</button><h4>Productos contados</h4><p class="ci93-help">Selecciona los que deseas enviar a un conteo físico. Esta marca es histórica, no indica la cantidad actual.</p><input type="search" id="ci93FiltroContados" placeholder="Buscar en los contados" oninput="ci93DibujarContados()"><div class="ci93-botones"><button class="ci93-boton sec" onclick="ci93SeleccionarContados(true)">Seleccionar visibles</button><button class="ci93-boton sec" onclick="ci93SeleccionarContados(false)">Limpiar</button></div><div id="ci93ContadosLista" class="ci93-lista"></div><button type="button" class="ci93-boton" onclick="ci93AbrirAsignar()">Asignar conteo físico <span id="ci93CuentaConteo">(0)</span></button></section>
+ <section id="ci93Exportar" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('revisar')">← Regresar</button><h4>Exportar Excel en cero</h4><p id="ci96Sucursal" class="ci93-help"></p><div class="ci93-botones"><button type="button" class="ci93-boton sec" onclick="ci96Seleccionar(true)">Seleccionar todos</button><button type="button" class="ci93-boton sec" onclick="ci96Seleccionar(false)">Limpiar</button></div><div id="ci96Lista" class="ci93-lista"></div><p id="ci96Detalle" class="ci93-help" role="status"></p><button type="button" id="ci96Descargar" class="ci93-boton" style="background:#217346" onclick="ci96Exportar()" disabled>Descargar Excel (0)</button><p class="ci93-help">Importa únicamente en la sucursal indicada, antes del conteo físico. La descarga no modifica Akasia ni marca productos contados.</p></section>
  <section id="ci93Asignar" class="ci93-card ci93-view" hidden><button type="button" class="ci93-boton sec" onclick="ci93Vista('contados')">← Productos contados</button><h4>Asignar conteo físico</h4><p id="ci93ResumenAsignar" class="ci93-help"></p><div id="ci93Ubicaciones" class="ci93-ubic"></div><button type="button" class="ci93-boton" onclick="ci93CrearConteos()">Crear asignación</button><p class="ci93-help">El colaborador solo verá nombres y comenzará sin cantidades. No se actualizará Akasia.</p></section></div>`;
 }
-function ci93Vista(v){if(v!=='revisar'){const box=document.getElementById('ci93RevisarLista');if(box)box.querySelectorAll('.ci95-inline input').forEach(el=>{el.value='';});}ci93.vista=v;['Inicio','Excel','Manual','Revisar','Contados','Asignar'].forEach(n=>{const e=document.getElementById('ci93'+n);if(e)e.hidden=n.toLowerCase()!==v;});const c=document.getElementById('ci93PendientesN');if(c)c.textContent='('+ci93.pendientes.length+')';if(v==='revisar')ci93DibujarRevisar();if(v==='contados')ci93DibujarContados();ci93Mensaje('');}
+function ci93Vista(v){if(v!=='revisar'){const box=document.getElementById('ci93RevisarLista');if(box)box.querySelectorAll('.ci95-inline input').forEach(el=>{el.value='';});}ci93.vista=v;['Inicio','Excel','Manual','Revisar','Contados','Asignar','Exportar'].forEach(n=>{const e=document.getElementById('ci93'+n);if(e)e.hidden=n.toLowerCase()!==v;});const c=document.getElementById('ci93PendientesN');if(c)c.textContent='('+ci93.pendientes.length+')';if(v==='revisar')ci93DibujarRevisar();if(v==='contados')ci93DibujarContados();ci93Mensaje('');}
 async function ci93Abrir(){ci93Init();ci93Vista('inicio');ci93Mensaje('Listo para identificar productos.');ci94Precargar();}
-function ci93CambiarSucursal(s){if(s===ci93.sucursal)return;if(ci93.activo||ci93.guardandoRelacion||ci94Importando||ci94ElegirOcupado){document.getElementById('ci93Sucursal').value=ci93.sucursal;return;}if(!confirm('¿Cambiar de catálogo? Los productos pendientes de confirmar se descartarán.')){document.getElementById('ci93Sucursal').value=ci93.sucursal;return;}ci93.sucursal=s;ci93.pendientes=[];ci93.contados=[];ci93.seleccionConteo.clear();ci93.relacionando=-1;ci93Vista('inicio');ci93Mensaje('Ahora usarás el catálogo '+(s==='MATRIZ'?'Matriz':'Mini Súper')+'.');ci94Precargar();}
+function ci93CambiarSucursal(s){if(s===ci93.sucursal)return;if(ci96.ocupado){document.getElementById('ci93Sucursal').value=ci93.sucursal;return;}if(ci93.activo||ci93.guardandoRelacion||ci94Importando||ci94ElegirOcupado){document.getElementById('ci93Sucursal').value=ci93.sucursal;return;}if(!confirm('¿Cambiar de catálogo? Los productos pendientes de confirmar se descartarán.')){document.getElementById('ci93Sucursal').value=ci93.sucursal;return;}ci93.sucursal=s;ci93.pendientes=[];ci93.contados=[];ci93.seleccionConteo.clear();ci93.relacionando=-1;ci93Vista('inicio');ci93Mensaje('Ahora usarás el catálogo '+(s==='MATRIZ'?'Matriz':'Mini Súper')+'.');ci94Precargar();}
 async function ci93ImportarExcel(input){const file=input.files?.[0];if(!file)return;ci93Mensaje('Leyendo productos del Excel…');try{
   const x=await ci90LeerExcel(file);await ci93ImportarNombres(x.filas.map(f=>f.nombre),'EXCEL',file.name);
  }catch(e){ci93Mensaje(e.message,true);}finally{input.value='';}}
@@ -14969,6 +14970,56 @@ function ci93AbrirFactura(){if(typeof abrirModuloAdmin!=='function')return ci93M
 async function ci93TomarFactura(){const tablas=document.querySelectorAll('#fgResultados section table');const nombres=[];tablas.forEach(t=>{[...t.querySelectorAll('tr')].slice(1).forEach(tr=>{const n=tr.querySelector('td input')?.value?.trim();if(n)nombres.push(n);});});if(!nombres.length)return alert('Primero lee y revisa una factura con productos.');const suc=ci93.sucursal;try{ci93CerrarFactura();abrirModuloAdmin('prepararProductos');if(suc!==ci93.sucursal)throw Error('Cambió el catálogo. Vuelve a abrir la factura.');await ci93ImportarNombres(nombres,'FACTURA_IA','Factura revisada');}catch(e){ci93Mensaje(e.message,true);}}
 // Badge en pedidos: la marca Contado es independiente de Cuadrado.
 const ci93BadgeCache={MATRIZ:{},MINI:{}},ci93BadgeListo={MATRIZ:false,MINI:false};
+
+// v1.7.96 · exportación aislada de las 57 columnas originales de Akasia.
+// Selección independiente del registro histórico de contados.
+const ci96={sucursal:'',items:[],sel:new Set(),ocupado:false};
+function ci96ListaActual(){
+ const map=new Map();
+ for(const p of ci93.pendientes){
+  if(p.relacionPendiente||!['LISTO','YA_CONTADO'].includes(p.estado)||!p.uuid||!p.producto)continue;
+  const k=ci93Norm(p.producto);if(!k)continue;
+  if(!map.has(k))map.set(k,{nombre:p.producto,uuid:p.uuid,contado:p.estado==='YA_CONTADO'});
+  else if(p.estado==='YA_CONTADO')map.get(k).contado=true;
+ }
+ return [...map.values()];
+}
+function ci96AbrirExportar(){
+ if(ci93.activo||ci93.guardandoRelacion||ci94Importando||ci94ElegirOcupado)return;
+ const items=ci96ListaActual();if(!items.length)return ci93Mensaje('Primero identifica productos y guarda las relaciones.',true);
+ ci96.sucursal=ci93.sucursal;ci96.items=items;ci96.sel=new Set();
+ // Preseleccionar únicamente las selecciones explícitas de la revisión.
+ const marcados=new Set(ci93.pendientes.filter(p=>p.sel&&!p.relacionPendiente&&p.estado==='LISTO').map(p=>ci93Norm(p.producto)));
+ items.forEach((p,i)=>{if(marcados.has(ci93Norm(p.nombre)))ci96.sel.add(i);});
+ ci93Vista('exportar');document.getElementById('ci96Sucursal').textContent=(ci96.sucursal==='MATRIZ'?'Matriz · Tienda y Bodega':'Mini Súper')+' · '+items.length+' identificados. Incluye solo los que deseas poner en cero. '+ci93.pendientes.filter(p=>p.relacionPendiente||!['LISTO','YA_CONTADO'].includes(p.estado)).length+' líneas pendientes de relacionar no se incluyen.';
+ ci96Dibujar();
+}
+function ci96Dibujar(){
+ const box=document.getElementById('ci96Lista');if(!box)return;
+ const top=box.scrollTop;box.innerHTML=ci96.items.map((p,i)=>`<div class="ci93-row"><label><input type="checkbox" ${ci96.sel.has(i)?'checked':''} onchange="ci96Marcar(${i},this.checked)" ${ci96.ocupado?'disabled':''}><span><strong>${ci93Esc(p.nombre)}</strong>${p.contado?'<small>Ya marcado como contado</small>':''}</span></label><span class="ci93-tag si">0</span></div>`).join('');box.scrollTop=top;ci96Actualizar();
+}
+function ci96Actualizar(){const b=document.getElementById('ci96Descargar');if(b){b.disabled=ci96.ocupado||!ci96.sel.size;b.textContent=ci96.ocupado?'Preparando Excel…':'↓ Descargar Excel ('+ci96.sel.size+')';}}
+function ci96Marcar(i,si){if(ci96.ocupado||!ci96.items[i])return;if(si)ci96.sel.add(i);else ci96.sel.delete(i);ci96Actualizar();}
+function ci96Seleccionar(si){if(ci96.ocupado)return;ci96.sel=new Set(si?ci96.items.map((_,i)=>i):[]);ci96Dibujar();}
+async function ci96Exportar(){
+ if(ci96.ocupado||ci93.activo||ci93.guardandoRelacion||ci96.sucursal!==ci93.sucursal||!ci96.sel.size)return;
+ const suc=ci96.sucursal,items=ci96.items.filter((_,i)=>ci96.sel.has(i)),detalle=document.getElementById('ci96Detalle');
+ if(typeof XLSX==='undefined'){detalle.textContent='No se cargó el generador de Excel. Recarga la página.';return;}
+ ci96.ocupado=true;ci96Dibujar();detalle.textContent='Verificando identificadores de Akasia…';
+ try{
+  const d=await c48Post('ci96ExcelCero',{sucursal:suc,productos:JSON.stringify(items.map(p=>({nombre:p.nombre,uuid:p.uuid})))});
+  if(ci93.sucursal!==suc||ci93.vista!=='exportar')return;
+  if(d.sucursal!==suc||!Array.isArray(d.cabeceras)||d.cabeceras.length!==57||!c48Cabeceras.every((x,i)=>d.cabeceras[i]===x)||!Array.isArray(d.filas)||d.filas.some(r=>!Array.isArray(r)||r.length!==57||r[3]!==0||!r[55]||!r[56]))throw Error('Respuesta de Excel inválida. No se descargó el archivo.');
+  const omitidos=Array.isArray(d.omitidos)?d.omitidos:[],n=d.filas.length;
+  detalle.textContent=n+' productos válidos · '+omitidos.length+' no exportables.'+(omitidos.length?' '+omitidos.map(x=>x.nombre+': '+x.motivo).join(' | '):'');
+  if(!n)return;
+  const destino=suc==='MATRIZ'?'Matriz (Tienda y Bodega)':'Mini Súper';
+  if(!confirm('¿Descargar '+n+' productos con existencia 0 para '+destino+'?'+(omitidos.length?' Se excluirán '+omitidos.length+' productos sin datos válidos; revisa el detalle.':'')+' Al importar en Akasia se sustituirán las existencias de estos artículos. Hazlo antes del conteo y verifica la sucursal.'))return;
+  c57EscribirXlsx(d,'AKASIA_'+suc+'_INVENTARIO_CERO_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  detalle.textContent='Excel generado: '+n+' productos en cero. '+(omitidos.length?'No incluidos: '+omitidos.map(x=>x.nombre+': '+x.motivo).join(' | '):'Importa en '+destino+' antes de comenzar el conteo.');
+ }catch(e){detalle.textContent='No se generó el Excel: '+e.message;}finally{ci96.ocupado=false;ci96Dibujar();}
+}
+
 function ci93BadgeSucursal(){return ci90Norm(localStorage.getItem('sucursal')).includes('MINI')?'MINI':'MATRIZ';}
 async function ci93CargarBadges(){const suc=ci93BadgeSucursal();if(ci93BadgeListo[suc]||!localStorage.getItem('usuario'))return;ci93BadgeListo[suc]=true;try{const r=await fetch(URL_API,{method:'POST',body:new URLSearchParams({accion:'ci93Badges',empleado:localStorage.getItem('usuario')||'',sucursal:localStorage.getItem('sucursal')||'',token:typeof m201TokenSupervisor==='string'?m201TokenSupervisor:''}),cache:'no-store'});const d=await r.json();if(!r.ok||d.status!=='OK')throw Error(d.mensaje||'No se pudieron consultar productos contados.');ci93BadgeCache[suc]=Object.fromEntries((d.productos||[]).map(n=>[ci93Norm(n),true]));if(typeof renderizarListaPedido==='function')renderizarListaPedido();}catch(e){ci93BadgeListo[suc]=false;console.warn('Contados:',e.message);}}
 const ci93BadgeAnterior=window.ci90Badge;
