@@ -115,16 +115,9 @@
       }
       var res=abrirOriginal.apply(this, arguments);
       if (moduloSolicitado==='mercaderiaNueva' && window.fgRecepcionPendiente) {
-        // Espera catálogo real de Akasia. Sin modificar la función original de recepción.
-        Promise.resolve().then(function(){
-          if (typeof window.cm55CargarCatalogoRapido==='function') return window.cm55CargarCatalogoRapido();
-        }).then(function(){
-          if(window.fgRecepcionPendiente && typeof window.fgMostrarImportacionRecepcion==='function')
-            window.fgMostrarImportacionRecepcion();
-        }).catch(function(e){
-          if(typeof window.fgMostrarErrorCatalogoRecepcion==='function')
-            window.fgMostrarErrorCatalogoRecepcion(e);
-        });
+        // v1.7.92: la revisión ya no depende de cargar el Excel parcial.
+        if(typeof window.fgMostrarImportacionRecepcion==='function')
+          window.fgMostrarImportacionRecepcion();
       }
       return res;
     };
