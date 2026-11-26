@@ -2534,7 +2534,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <img src="logo online shop.png" alt="Logo Online Shop" onerror="this.style.display='none'">
     </div>
     <h2 id="tituloControlOperativo">Control Operativo</h2>
-    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.115</div>
+    <div id="versionSistema" style="font-size:12px;color:#7b8794;font-weight:700;margin-top:-8px;margin-bottom:14px;">Versión 1.7.116</div>
 
     <!-- INICIO DE SESIÓN -->
     <div id="pantallaLogin" class="card">
@@ -3673,75 +3673,79 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
         <!-- v1.6.42 BETA: pantalla exclusiva para administrar conteos -->
         <div id="adminConteosAsignados" class="admin-modulo" style="display:none;margin-top:18px;">
             <button class="btn-volver" onclick="c42ModoPrivado&&document.body.getAttribute('data-c42-beta')==='1'?c42VistaPrueba('inicio'):volverMenuAdmin()">← Volver al panel</button>
-            <h4>🧮 Asignar conteos</h4>
-            <p class="c42-meta">Asigna productos por categoría o individualmente. Los conteos se guardan en Sheets y no modifican Akasia.</p>
-            <div class="c50-tabs">
-              <button type="button" id="c50TabAsignar" class="c50-activa" onclick="c50CambiarVista('asignar')">➕ Asignar productos</button>
-              <button type="button" id="c50TabProceso" onclick="c50CambiarVista('proceso')">⏳ En proceso</button>
-              <button type="button" id="c50TabContados" onclick="c50CambiarVista('contados')">✅ Productos contados</button>
-              <button type="button" id="c50TabResultados" onclick="c50CambiarVista('resultados')">📊 Resultados</button>
+            <header class="c116-heading"><div><h3>Conteos</h3><p>Control de inventario físico</p></div><button type="button" class="c116-secondary" onclick="c50CargarEstados()">↻ Actualizar</button></header>
+            <div class="c50-tabs" aria-label="Vistas de conteos">
+              <button type="button" id="c50TabAsignar" class="c50-activa" onclick="c50CambiarVista('asignar')">Nueva asignación</button>
+              <button type="button" id="c50TabProceso" onclick="c50CambiarVista('proceso')">En proceso</button>
+              <button type="button" id="c50TabContados" onclick="c50CambiarVista('contados')">Contados</button>
+              <button type="button" id="c50TabResultados" onclick="c50CambiarVista('resultados')">Resultados y Excel</button>
             </div>
-            <div class="c50-filtros">
-              <div><label for="c50Desde">Conteos desde</label><input id="c50Desde" type="date" onchange="c50CargarEstados()"></div>
-              <div><label for="c50Hasta">Hasta (opcional)</label><input id="c50Hasta" type="date" onchange="c50CargarEstados()"></div>
+            <div class="c116-periodo">
+              <div id="c50EstadoCarga" class="c50-mini-info" role="status">Consultando conteos…</div>
+              <details class="c116-details"><summary>Filtrar por fecha</summary>
+                <div class="c50-filtros">
+                  <div><label for="c50Desde">Desde</label><input id="c50Desde" type="date" onchange="c50CargarEstados()"></div>
+                  <div><label for="c50Hasta">Hasta (opcional)</label><input id="c50Hasta" type="date" onchange="c50CargarEstados()"></div>
+                </div>
+              </details>
             </div>
-            <div id="c50EstadoCarga" class="c50-mini-info">Los indicadores corresponden al período seleccionado.</div>
-            <button type="button" onclick="c50CargarEstados()" style="background:#e8f2ff;color:#165aa5;border:1px solid #ccdef6;min-height:35px;font-size:12px;margin:6px 0 12px;">↻ Actualizar estados de conteo</button>
             <div id="c50VistaAsignar">
-            <!-- v1.6.45: una, dos o todas las sucursales; misma lista, conteos separados -->
-            <label class="c42-meta" style="font-weight:800;display:block;margin:12px 0 8px;">Sucursales donde contarás estos productos</label>
-            <div class="c45-sucursales">
-              <label class="c45-opcion c45-todas"><input id="c45TodasSucursales" type="checkbox" onchange="c45CambiarTodas()"><strong>✅ Todas las sucursales</strong></label>
-              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Tienda Online Shop" checked onchange="c45CambiarSucursal()"> Tienda Online Shop</label>
-              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Mini super" onchange="c45CambiarSucursal()"> Mini Súper</label>
-              <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Bodega" onchange="c45CambiarSucursal()"> Bodega</label>
-            </div>
-            <div id="c45EmpleadosPorSucursal" class="c45-empleados"></div>
-            <p class="c42-meta">Cada sucursal tendrá su propio colaborador y conteo independiente.</p>
-            <label class="c42-meta" style="font-weight:800;display:block;margin:12px 0 5px;">Seleccionar productos por categoría</label>
-            <select id="c47Categoria" onchange="c47CambiarCategoria()"><option value="">Selecciona una categoría</option></select>
-            <p id="c47InfoCategoria" class="c42-meta">Los departamentos se leen de Akasia tras la sincronización.</p>
-            <button type="button" id="c47AgregarCategoria" onclick="c47SeleccionarCategoria()" style="background:#087cff;">✓ Agregar productos de esta categoría</button>
-            <button type="button" onclick="c47QuitarCategoria()" style="background:#7a858e;min-height:38px;">Quitar productos de esta categoría</button>
-            <label class="c50-inline-check"><input type="checkbox" id="c50SoloPendientes" onchange="c42FiltrarCatalogo()"> Mostrar solo productos pendientes en las sucursales seleccionadas</label>
-            <section class="ci90-import">
-              <label for="ci90ExcelConteo">Importar Excel con nombres de productos</label>
-              <input type="file" id="ci90ExcelConteo" accept=".xlsx,.xls,.csv" onchange="ci90ImportarNombres(this)">
-              <div class="ci90-import-status" id="ci90ExcelConteoEstado">Solo se usarán los nombres, nunca las cantidades del archivo.</div>
-            </section>
-            <label class="c42-meta">O buscar productos por nombre</label>
-            <input type="search" id="c42BuscarAdmin" placeholder="Escribe el nombre de un producto" oninput="c42FiltrarCatalogo()">
-            <div id="c42ResultadosAdmin" class="c42-prods"></div>
-            <h4>Seleccionados (<span id="c42SeleccionadosTotal">0</span>/300)</h4>
-            <div id="c42SeleccionadosAdmin"></div>
-            <p id="c47SeleccionResumen" class="c42-meta"></p>
-            <section class="c42-item" style="margin:14px 0;padding:14px;background:#f5f9ff;border:1px solid #d7e6f8;border-radius:15px;">
-              <h4 style="margin:0 0 8px;">📋 Listas guardadas para futuros conteos</h4>
-              <p class="c42-meta">Guarda los productos seleccionados. Podrás recuperar la lista, agregar o quitar productos y guardar los cambios. No se reutilizan cantidades anteriores.</p>
-              <label class="c42-meta" for="c62PlantillaSelect">Listas disponibles</label>
-              <div style="display:flex;gap:7px;flex-wrap:wrap;">
-                <select id="c62PlantillaSelect" style="flex:1 1 190px;"><option value="">Selecciona una lista guardada</option></select>
-                <button type="button" onclick="c62CargarPlantilla()" style="width:auto;background:#e4efff;color:#1a5ba0;">Cargar para editar</button>
+              <div class="c116-layout">
+                <section class="c116-panel" aria-labelledby="c116Destinos">
+                  <h4 id="c116Destinos">Ubicaciones y responsables</h4>
+                  <div class="c45-sucursales">
+                    <label class="c45-opcion c45-todas"><input id="c45TodasSucursales" type="checkbox" onchange="c45CambiarTodas()"><strong>Todas las ubicaciones</strong></label>
+                    <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Tienda Online Shop" checked onchange="c45CambiarSucursal()"> Tienda Online Shop</label>
+                    <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Bodega" onchange="c45CambiarSucursal()"> Bodega</label>
+                    <label class="c45-opcion"><input class="c45-sucursal" type="checkbox" value="Mini super" onchange="c45CambiarSucursal()"> Mini Súper</label>
+                  </div>
+                  <div id="c45EmpleadosPorSucursal" class="c45-empleados"></div>
+                </section>
+                <section class="c116-panel" aria-labelledby="c116Agregar">
+                  <h4 id="c116Agregar">Agregar productos</h4>
+                  <label class="c116-sr" for="c42BuscarAdmin">Buscar producto</label>
+                  <input type="search" id="c42BuscarAdmin" placeholder="Buscar producto o marca…" oninput="c42FiltrarCatalogo()">
+                  <label class="c50-inline-check"><input type="checkbox" id="c50SoloPendientes" onchange="c42FiltrarCatalogo()"> Solo pendientes en las ubicaciones elegidas</label>
+                  <div class="c116-tools" aria-label="Más formas de agregar productos">
+                    <details class="c116-details" id="c116CategoriaPanel"><summary>Categorías</summary>
+                      <label class="c116-sr" for="c47Categoria">Categoría</label>
+                      <select id="c47Categoria" onchange="c47CambiarCategoria()"><option value="">Todas las categorías</option></select>
+                      <p id="c47InfoCategoria" class="c42-meta">Elige una categoría.</p>
+                      <div class="c116-actions"><button type="button" id="c47AgregarCategoria" onclick="c47SeleccionarCategoria()">Agregar categoría</button><button type="button" class="c116-secondary" onclick="c47QuitarCategoria()">Quitar categoría</button></div>
+                      <button type="button" class="c116-secondary" onclick="document.getElementById('c47Categoria').value='';c47CambiarCategoria()">Buscar en todas las categorías</button>
+                    </details>
+                    <details class="c116-details" id="c116ExcelPanel"><summary>Importar Excel</summary>
+                      <section class="ci90-import">
+                        <label for="ci90ExcelConteo">Archivo de productos</label>
+                        <input type="file" id="ci90ExcelConteo" accept=".xlsx,.xls,.csv" onchange="ci90ImportarNombres(this)">
+                        <div class="ci90-import-status" id="ci90ExcelConteoEstado">Solo se importan nombres.</div>
+                      </section>
+                    </details>
+                    <details class="c116-details" id="c116ListasPanel"><summary>Mis listas</summary>
+                      <label class="c42-meta" for="c62PlantillaSelect">Listas guardadas</label>
+                      <div class="c116-actions"><select id="c62PlantillaSelect"><option value="">Selecciona una lista guardada</option></select><button type="button" class="c116-secondary" onclick="c62CargarPlantilla()">Cargar</button></div>
+                      <label class="c42-meta" for="c62Nombre">Nombre de la lista</label>
+                      <input id="c62Nombre" maxlength="80" placeholder="Ej. Aceites">
+                      <div class="c116-actions"><button type="button" onclick="c62GuardarPlantilla(false)">Guardar cambios</button><button type="button" class="c116-secondary" onclick="c62GuardarPlantilla(true)">Guardar como nueva</button></div>
+                      <div id="c62Estado" class="c42-meta" role="status">Listas guardadas en Sheets.</div>
+                    </details>
+                  </div>
+                  <div id="c42ResultadosAdmin" class="c42-prods"></div>
+                  <details class="c116-details c116-selected" open><summary>Seleccionados (<span id="c42SeleccionadosTotal">0</span>/300)</summary>
+                    <div id="c42SeleccionadosAdmin"></div><p id="c47SeleccionResumen" class="c42-meta"></p>
+                  </details>
+                </section>
               </div>
-              <label class="c42-meta" for="c62Nombre">Nombre de la lista</label>
-              <input id="c62Nombre" maxlength="80" placeholder="Ej. Pollo Indio, Lácteos o Aceites">
-              <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;">
-                <button type="button" onclick="c62GuardarPlantilla(false)" style="flex:1 1 160px;background:#087cff;">💾 Guardar lista o cambios</button>
-                <button type="button" onclick="c62GuardarPlantilla(true)" style="flex:1 1 145px;background:#e4efff;color:#1a5ba0;">＋ Guardar como nueva</button>
-              </div>
-              <div id="c62Estado" class="c42-meta" role="status" style="margin-top:8px;">Las listas se guardan en Google Sheets, no en Akasia.</div>
-            </section>
-            <button id="c42CrearBtn" onclick="c42CrearAsignacion()">＋ Asignar productos a sucursales seleccionadas</button>
-            <div id="c42EstadoAdmin" class="c42-estado">Selecciona hasta cinco productos.</div>
+              <div class="c116-footer"><div id="c42EstadoAdmin" class="c42-estado" role="status">Selecciona productos para contar.</div><button type="button" id="c42CrearBtn" onclick="c42CrearAsignacion()">Enviar a conteo</button></div>
             </div><!-- /c50VistaAsignar -->
             <div id="c50VistaProceso" style="display:none;">
-              <p class="c42-meta">Asignaciones y productos que aún no tienen un conteo físico registrado dentro del período seleccionado.</p>
+              <p class="c42-meta">Asignaciones pendientes del período.</p>
               <div id="c50ListaProceso"></div>
               <button type="button" onclick="c42RevisarAsignaciones()" style="background:#087cff;">↻ Revisar asignaciones y sus detalles</button>
               <div id="c42RevisionAdmin"></div>
             </div>
             <div id="c50VistaContados" style="display:none;">
-              <p class="c42-meta">Busca qué productos ya fueron contados, quién los contó y cuándo. La recepción de mercadería continúa en Akasia.</p>
+              <p class="c42-meta">Historial de conteos del período.</p>
               <label class="c42-meta" for="c50Buscar">Buscar producto o colaborador</label>
               <input id="c50Buscar" type="search" placeholder="Producto, código o colaborador" oninput="c50Pagina=0;c50RenderConsulta()">
               <div class="c50-filtros">
@@ -3754,7 +3758,7 @@ body.catalogo-cliente .cr-prod.destacado{box-shadow:0 7px 20px rgba(35,67,105,.0
             <div id="c50VistaResultados" style="display:none;">
               <p class="c42-meta">Resumen de las cantidades físicas registradas en Online Shop durante el período seleccionado.</p>
               <div id="c50ResumenResultados"></div>
-              <div class="c42-estado">La comparación con existencias actuales y la exportación a Akasia se agregarán después de conectar el puente. Esta versión no modifica Akasia ni genera archivos de ajuste.</div>
+              <button type="button" class="c116-export" onclick="abrirModuloAdmin('exportarSucursales')">Abrir exportación por ubicación</button>
             </div>
         </div>
 
@@ -11433,7 +11437,7 @@ async function c42AbrirAdmin(){
    sele.innerHTML='<option value="">Selecciona una categoría</option>'+Object.keys(c47CategoriasCuenta).sort((a,b)=>a.localeCompare(b,'es')).map(c=>`<option value="${c42Esc(c)}">${c42Esc(c)} (${c47CategoriasCuenta[c]})</option>`).join('');
    if(Object.hasOwn(c47CategoriasCuenta,c47CategoriaActiva))sele.value=c47CategoriaActiva;else{c47CategoriaActiva='';sele.value='';}
    c42LlenarEmpleados();c47CambiarCategoria();
-   c42Aviso('c42EstadoAdmin','Selecciona una categoría o busca productos. Hasta 300 por envío.');
+   c42Aviso('c42EstadoAdmin','Selecciona hasta 300 productos.');
    c62ListarPlantillas().catch(()=>{});
  }catch(e){c42Aviso('c42EstadoAdmin',e.message,true);}
 }
@@ -11542,9 +11546,9 @@ function c42Agregar(i){const n=c42Catalogo[i];if(n&&!c42Seleccionados.includes(n
 function c42Quitar(i){c42Seleccionados.splice(i,1);c45LimpiarErroresConteo();c42RenderSeleccionados();c42FiltrarCatalogo();}
 function c42RenderSeleccionados(){
  document.getElementById('c42SeleccionadosTotal').textContent=c42Seleccionados.length;
- const visibles=c42Seleccionados.slice(0,40);
+ const visibles=c42Seleccionados;
  document.getElementById('c42SeleccionadosAdmin').innerHTML=visibles.map((n,i)=>{const error=c45ErroresProductos.find(x=>Number(x.indice)===i);return `<div class="c42-item c42-row" style="${error?'border:2px solid #f3a1a1;background:#fff3f2;':''}"><div><b style="font-size:12px">${i+1}. ${c42Esc(n)}</b>${error?`<div style="font-size:11px;color:#a32938;margin-top:5px;font-weight:800">${error.tipo==='REPETIDO'?'🟠 Repetido':'🔴 No encontrado'} · ${c42Esc(error.detalle||'Revisar artículo')}</div>`:''}</div><button type="button" onclick="c42Quitar(${i})" style="width:65px;min-height:35px;background:#7a858e;margin:0;">Quitar</button></div>`;}).join('')||'<p class="c42-meta">Ningún producto seleccionado.</p>';
- document.getElementById('c47SeleccionResumen').textContent=c42Seleccionados.length>40?`Se muestran 40 productos de ${c42Seleccionados.length}. Puedes quitar toda una categoría usando el botón superior.`:'';
+ document.getElementById('c47SeleccionResumen').textContent='';
 }
 async function c42CrearAsignacion(){
  const seleccionadas=c45SucursalesSeleccionadas();
@@ -11599,7 +11603,7 @@ function c50CambiarVista(vista){
   const el=document.getElementById('c50Vista'+v[0].toUpperCase()+v.slice(1));
   const btn=document.getElementById('c50Tab'+v[0].toUpperCase()+v.slice(1));
   if(el)el.style.display=v===vista?'block':'none';
-  if(btn)btn.classList.toggle('c50-activa',v===vista);
+  if(btn){btn.classList.toggle('c50-activa',v===vista);btn.setAttribute('aria-pressed',String(v===vista));}
  }
  if(vista==='proceso'){c50RenderProceso();}
  if(vista==='contados'){c50ActualizarDepartamentos();c50RenderConsulta();}
@@ -11614,7 +11618,7 @@ async function c50CargarEstados(){
   if(numero!==c50Solicitud)return;
   c50Productos=d.productos||[];c50Indice={};
   c50Productos.forEach(p=>{c50Indice[c50ClaveProducto(p.sucursal,p.nombre)]=p;});
-  el.textContent=c50Productos.filter(p=>p.contado).length+' producto(s) contados en el período. Indicadores por sucursal; pulsa actualizar cuando llegue otro conteo.';
+  el.textContent=c50Productos.filter(p=>p.contado).length+' registros de conteo en el período.';
   c42FiltrarCatalogo();c50RenderProceso();c50ActualizarDepartamentos();c50RenderConsulta();c50RenderResultados();
  }catch(e){if(numero!==c50Solicitud)return;c50Productos=[];c50Indice={};c42FiltrarCatalogo();c50RenderProceso();c50ActualizarDepartamentos();c50RenderConsulta();c50RenderResultados();el.textContent='No se pudieron consultar los estados: '+e.message+' (se han ocultado los indicadores anteriores).';}
 }
@@ -15380,7 +15384,7 @@ function ci97AbrirControl(){const a=document.getElementById('ci97Fisicos'),b=doc
 function ci97PintarNav(root,active){if(!root)return;let nav=root.querySelector(':scope > .ci97-nav');if(!nav){nav=document.createElement('nav');nav.className='ci97-nav';nav.setAttribute('aria-label','Inventario');root.prepend(nav);}nav.innerHTML=[['productos','Productos','prepararProductos'],['conteos','Conteos','conteosAsignados'],['recepcion','Facturas','facturasGemini'],['cuadre','Cuadre','cuadreMatriz']].map(([k,n,r])=>`<button type="button" ${k===active?'aria-current="page"':''} onclick="abrirModuloAdmin('${r}')">${n}</button>`).join('');}
 function ci97Subnav(root,links){if(!root||root.querySelector(':scope > .ci97-subnav'))return;const nav=document.createElement('div');nav.className='ci97-subnav';nav.innerHTML=links.map(([label,action])=>`<button type="button" onclick="${action}">${label}</button>`).join('');root.querySelector(':scope > .ci97-nav')?.after(nav);}
 function ci97InitNav(){ci93Init();const sections=[['adminPrepararProductos','productos'],['adminConteosAsignados','conteos'],['adminMercaderiaNueva','recepcion'],['adminCuadreMatriz','cuadre'],['adminExportarSucursales','cuadre'],['adminAkasiaCatalogo','productos'],['adminControlInventario','cuadre'],['adminInventario','cuadre'],['adminFacturasGemini','recepcion']];for(const [id,k] of sections)ci97PintarNav(document.getElementById(id),k);
- const get=id=>document.getElementById(id);ci97Subnav(get('adminConteosAsignados'),[['Conteos y exportación',"abrirModuloAdmin('exportarSucursales')"]]);ci97Subnav(get('adminControlInventario'),[['Conteos por ubicación',"ci97VerControl('conteos')"],['Estado de cuadres',"ci97VerControl('cuadre')"]]);ci97Subnav(get('adminCuadreMatriz'),[['Estado de cuadres',"ci97VerControl('cuadre')"],['Historial de ajustes',"abrirModuloAdmin('inventario')"],['Excel por sucursal',"abrirModuloAdmin('exportarSucursales')"]]);ci97Subnav(get('adminFacturasGemini'),[['Recepción manual',"abrirModuloAdmin('mercaderiaNueva')"]]);ci97Subnav(get('adminPrepararProductos'),[['Catálogo Akasia · importar / actualizar',"abrirModuloAdmin('catalogoAkasia')"]]);
+ const get=id=>document.getElementById(id);ci97Subnav(get('adminControlInventario'),[['Conteos por ubicación',"ci97VerControl('conteos')"],['Estado de cuadres',"ci97VerControl('cuadre')"]]);ci97Subnav(get('adminCuadreMatriz'),[['Estado de cuadres',"ci97VerControl('cuadre')"],['Historial de ajustes',"abrirModuloAdmin('inventario')"],['Excel por sucursal',"abrirModuloAdmin('exportarSucursales')"]]);ci97Subnav(get('adminFacturasGemini'),[['Recepción manual',"abrirModuloAdmin('mercaderiaNueva')"]]);ci97Subnav(get('adminPrepararProductos'),[['Catálogo Akasia · importar / actualizar',"abrirModuloAdmin('catalogoAkasia')"]]);
  // Keep one route to the common invoice reader; contextual receipt access stays functional.
  const old=get('fgMenuAcceso');if(old)old.hidden=true;
 }
@@ -15667,5 +15671,58 @@ ci112Init();
 #ci112Panel .ci115-scope{display:flex;gap:8px;margin:10px 0}#ci112Panel .ci115-scope button{flex:1;background:#e8eef4;color:#234567;border:0;border-radius:9px;padding:10px;font-weight:600}#ci112Panel .ci115-scope button[aria-pressed=true]{background:#234567;color:white}#ci115Aviso{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}#ci115Aviso:empty{display:none}
 #fi98Panel .fi115-archivo-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}#fi98Panel .fi115-archivo-nav input{flex:1 1 220px;margin:0}#fi98Panel .fi115-archivo-nav select{flex:1 1 130px;width:auto;margin:0}#fi98Panel .fi115-archivo-nav button{margin:0}#fi98Panel .fi115-factura{border-bottom:1px solid #dce5ee;padding:10px 0}#fi98Panel button.fi115-factura-btn{display:flex!important;justify-content:space-between!important;align-items:center!important;text-align:left!important;width:100%!important;background:transparent!important;color:#233f5e!important;border:0!important;box-shadow:none!important;padding:8px 4px!important;margin:0!important;white-space:normal!important}#fi98Panel .fi115-factura-btn strong,#fi98Panel .fi115-factura-btn small{display:block!important;text-align:left!important;line-height:1.45!important;overflow-wrap:anywhere}#fi98Panel .fi115-factura-btn small{color:#536b83;font-size:12px;font-weight:400;margin-top:3px}#fi98Panel .fi115-factura-btn>span:last-child{font-size:24px;color:#71879c;margin-left:12px}#fi98Panel .fi115-page{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}#fi98Panel .fi115-page button{margin:0}
 </style>
+
+<style id="c116Style">
+#adminConteosAsignados{--c116-navy:#234567;--c116-line:#dce5ee;--c116-soft:#f2f5f8;text-align:left;}
+#adminConteosAsignados .c116-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0 12px}
+#adminConteosAsignados .c116-heading h3{margin:0;font-size:23px;color:#203b56;text-align:left;border:0;padding:0}
+#adminConteosAsignados .c116-heading p{margin:3px 0 0;font-size:12px;color:#64748b}
+#adminConteosAsignados .c50-tabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 12px}
+#adminConteosAsignados .c50-tabs button{background:#edf2f7!important;color:#34516e!important;border:1px solid transparent!important;font-size:13px!important;box-shadow:none!important;white-space:normal}
+#adminConteosAsignados .c50-tabs button.c50-activa{background:#234567!important;color:#fff!important;border-color:#234567!important}
+#adminConteosAsignados .c116-periodo{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+#adminConteosAsignados .c116-periodo .c50-mini-info{flex:1 1 180px;padding:7px 0}
+#adminConteosAsignados .c116-periodo details{flex:0 1 310px;margin:0}
+#adminConteosAsignados .c116-layout{display:grid;grid-template-columns:minmax(220px,0.85fr) minmax(0,1.5fr);gap:14px;align-items:start}
+#adminConteosAsignados .c116-panel{border:1px solid var(--c116-line);border-radius:14px;padding:15px;background:#fff;min-width:0}
+#adminConteosAsignados .c116-panel h4{margin:0 0 12px;font-size:15px;text-align:left;color:#233f5e;border:0;padding:0}
+#adminConteosAsignados .c45-sucursales{padding:0;background:transparent;border:0;gap:6px}
+#adminConteosAsignados .c45-opcion{border:1px solid var(--c116-line);border-radius:9px;padding:9px 10px;margin:0;min-height:39px;background:#fff}
+#adminConteosAsignados .c45-opcion:has(input:checked){background:#edf3f9;border-color:#b4c8db}
+#adminConteosAsignados .c45-todas{border:0;background:transparent!important;padding:4px 0;min-height:28px;margin:0}
+#adminConteosAsignados .c45-opcion input[type=checkbox],#adminConteosAsignados .c50-inline-check input{width:17px!important;height:17px!important;min-height:17px!important;flex:0 0 17px;accent-color:#234567}
+#adminConteosAsignados .c45-empleados{margin:12px 0 0;gap:8px}
+#adminConteosAsignados .c45-empleado-fila{padding:10px;border-radius:9px;background:#f8fafc}
+#adminConteosAsignados .c116-panel input:not([type=checkbox]),#adminConteosAsignados .c116-panel select,#adminConteosAsignados .c116-periodo input{box-sizing:border-box;width:100%;min-width:0;min-height:40px;border:1px solid #d5dfe8;border-radius:9px;background:#fff;color:#263e55;padding:8px 10px;margin:4px 0;font-size:13px}
+#adminConteosAsignados .c116-panel input[type=file]{padding:8px;max-width:100%}
+#adminConteosAsignados .c50-inline-check{line-height:1.4;align-items:center;margin:3px 0 8px;color:#435b73}
+#adminConteosAsignados .c116-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:start;margin:6px 0 12px}
+#adminConteosAsignados .c116-tools details[open]{grid-column:1/-1}
+#adminConteosAsignados .c116-details{border:1px solid var(--c116-line);border-radius:9px;background:#f8fafc;min-width:0;margin:6px 0;overflow-wrap:anywhere}
+#adminConteosAsignados .c116-details>summary{cursor:pointer;font-size:13px;font-weight:700;color:#34516e;padding:10px;line-height:1.35}
+#adminConteosAsignados .c116-details[open]{padding:0 10px 10px}
+#adminConteosAsignados .c116-details[open]>summary{padding:10px 0;margin-bottom:4px}
+#adminConteosAsignados .c116-tools .c116-details{margin:0}
+#adminConteosAsignados .c116-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:6px 0}
+#adminConteosAsignados .c116-actions>*{flex:1 1 120px;min-width:0}
+#adminConteosAsignados .c116-panel button,#adminConteosAsignados .c116-footer button,#adminConteosAsignados .c116-export{background:#234567!important;color:white!important;border:1px solid transparent!important;box-shadow:none!important;border-radius:9px;min-height:36px;padding:8px 10px;margin:4px 0;font-size:13px;white-space:normal;line-height:1.35}
+#adminConteosAsignados button.c116-secondary{background:#e9eff5!important;color:#234567!important;border:1px solid #dce5ee!important;box-shadow:none!important;width:auto;min-height:36px;border-radius:9px;padding:8px 12px;margin:0;font-size:13px}
+#adminConteosAsignados .c116-panel button:disabled,#adminConteosAsignados .c116-footer button:disabled{opacity:.55;cursor:not-allowed}
+#adminConteosAsignados .c116-panel .ci90-import{padding:0;margin:0;background:none;border:0}
+#adminConteosAsignados #c42ResultadosAdmin{padding:0;max-height:280px}
+#adminConteosAsignados #c42ResultadosAdmin button{display:block;text-align:left;background:white!important;color:#234567!important;border:1px solid #dce5ee!important;margin:4px 0}
+#adminConteosAsignados .c116-selected{background:#fff;margin-top:12px}
+#adminConteosAsignados #c42SeleccionadosAdmin{max-height:230px;overflow:auto}
+#adminConteosAsignados #c42SeleccionadosAdmin .c42-item{border:0;border-bottom:1px solid #e5eaf0;border-radius:0;margin:0;padding:8px 0;background:transparent}
+#adminConteosAsignados #c42SeleccionadosAdmin button{background:#e9eff5!important;color:#234567!important;min-height:30px!important;flex:0 0 auto;font-size:11px}
+#adminConteosAsignados #c47SeleccionResumen:empty{display:none}
+#adminConteosAsignados .c116-footer{position:sticky;bottom:0;z-index:4;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding:10px 12px;background:#fff;border:1px solid #dce5ee;border-radius:12px;box-shadow:0 -3px 16px #2345670d}
+#adminConteosAsignados .c116-footer .c42-estado{flex:1 1 180px;margin:0;font-size:12px;padding:7px;background:#f2f5f8;color:#34516e;overflow-wrap:anywhere}
+#adminConteosAsignados .c116-footer button{flex:0 1 220px;width:auto;min-height:42px;margin:0}
+#adminConteosAsignados .c116-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:720px){#adminConteosAsignados .c116-layout{grid-template-columns:1fr;gap:10px}#adminConteosAsignados .c50-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#adminConteosAsignados .c116-panel{padding:12px}#adminConteosAsignados .c116-footer button{flex:1 1 140px}#adminConteosAsignados .c116-periodo details{flex:1 1 140px}}
+@media(max-width:360px){#adminConteosAsignados .c116-tools{grid-template-columns:1fr}}
+</style>
+
 </body>
 </html>
